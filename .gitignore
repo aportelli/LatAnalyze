@@ -1,0 +1,42 @@
+# binaries
+*.o
+*.a
+*.so
+*.dylib
+examples/ex_test
+sandbox/*
+
+# Apple stuffs
+*.xcodeproj
+.DS_Store
+
+# VIM
+*.swp
+
+# debug
+*.dSYM
+
+# autotools
+*.la
+*.lo
+*.Plo
+autom4te.cache/*
+config.h*
+Makefile.in
+Makefile
+configure
+libtool
+.buildutils/m4/*
+.buildutils/*
+latan/.libs/*
+latan/.deps/*
+examples/.deps/*
+examples/.libs/*
+utils/.deps/*
+utils/.libs/*
+aclocal.m4
+config.log
+config.status
+stamp-h1
+myconfig.sh
+
