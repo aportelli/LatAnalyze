@@ -1,0 +1,83 @@
+%{
+    #include <iostream>
+    #include <sstream>
+    #include <cstring>
+    #include <latan/Global.hpp>
+	#include <latan/IO.hpp>
+    #include <latan/Sample.hpp>
+
+    using namespace std;
+    using namespace Latan;
+%}
+
+%pure-parser
+%name-prefix="_IOASCII_"
+%locations
+%defines
+%error-verbose
+%parse-param { Latan::ASCIIParserState* state }
+%initial-action {yylloc.last_column = 0;}
+%lex-param { void* scanner }
+
+%union
+{
+	int     val_int;
+	double  val_double;
+    char    val_char;
+    char    val_str[256];
+}
+
+%token              CLOSE
+%token <val_char>   ERR
+%token <val_double> FLOAT
+%token <val_int>    INT
+%token <val_str>    ID
+%token              MAT
+%token              OPEN
+
+%{
+	int _IOASCII_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+
+	void _IOASCII_error(YYLTYPE* locp, ASCIIParserState* state, const char* err)
+	{
+        stringstream buf;
+        
+        buf << *state->stream_name << ":" << locp->first_line << ":"\
+            << locp->first_column << ": " << err;
+        LATAN_ERROR(Parsing,buf.str());
+	}
+
+	#define scanner state->scanner
+%}
+
+%%
+
+datas:
+      /* empty string */
+    | datas mat
+	;
+
+mat:
+      OPEN MAT ID INT floats CLOSE MAT
+    {
+        const int nrow = state->double_buf.size()/$INT, ncol = $INT;
+        (*state->data)[$ID] = new DMat(nrow,ncol);
+        DMat& M = dynamic_cast<DMat&>(*((*state->data)[$ID]));
+        int r,i,j;
+        
+        r = 0;
+        while (!state->double_buf.empty())
+        {
+            j = r%ncol;
+            i = (r-j)/ncol;
+            M(i,j) = state->double_buf.top();
+            state->double_buf.pop();
+            ++r;
+        }
+    }
+    ;
+
+floats:
+      FLOAT floats {state->double_buf.push($1);}
+    | FLOAT {state->double_buf.push($1);}
+    ;

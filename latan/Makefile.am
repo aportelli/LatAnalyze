@@ -14,16 +14,31 @@ if CXX_INTEL
 endif
 endif
 
+AM_LFLAGS = -olex.yy.c
+AM_YFLAGS = -d
+
+BUILT_SOURCES = IOASCIIParser.hpp
+
 lib_LTLIBRARIES = liblatan.la
 	
-liblatan_la_SOURCES = \
-    Global.cpp        \
-    Sample.cpp        \
+liblatan_la_SOURCES =  \
+    Exceptions.cpp     \
+    Global.cpp         \
+    includes.hpp       \
+    IO.cpp             \
+    IOASCIIParser.ypp  \
+    IOASCIILexer.lpp   \
+    IOObject.cpp       \
+    Mat.cpp            \
+    Sample.cpp         \
 	../config.h
 liblatan_ladir = $(includedir)/latan
 liblatan_la_HEADERS = \
-    Global.h          \
-    Sample.h
+    Global.hpp        \
+    IO.hpp            \
+    IOObject.hpp      \
+    Mat.hpp           \
+    Sample.hpp
 liblatan_la_CFLAGS = $(COM_CFLAGS)
 liblatan_la_CXXFLAGS = $(COM_CXXFLAGS)
 

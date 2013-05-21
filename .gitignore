@@ -40,3 +40,7 @@ config.status
 stamp-h1
 myconfig.sh
 
+# bison/flex generated sources
+latan/IOASCIILexer.cpp
+latan/IOASCIIParser.cpp
+latan/IOASCIIParser.hpp

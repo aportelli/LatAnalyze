@@ -1,9 +1,25 @@
 #include <iostream>
-#include <latan/Global.h>
+#include <latan/IO.hpp>
 
 using namespace std;
 using namespace Latan;
 
+int main(void)
+{
+    ASCIIFile F;
+    DMat A,B;
+    
+    F.Open("foo.boot",FileMode::Read);
+    A = F.Read<DMat>("bla");
+    B = F.Read<DMat>("bli");
+    cout << A << endl;
+    cout << B << endl;
+    cout << A*B << endl;
+
+    return EXIT_SUCCESS;
+}
+
+/*
 int main(void)
 {
     DMat m(2,2);
@@ -18,3 +34,4 @@ int main(void)
     v(1) = v(0) - 1;
     cout << "Here is the vector v:\n" << v << endl;
 }
+*/

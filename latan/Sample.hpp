@@ -1,7 +1,8 @@
-#ifndef LATAN_SAMPLE_H_
-#define	LATAN_SAMPLE_H_
+#ifndef LATAN_SAMPLE_HPP_
+#define	LATAN_SAMPLE_HPP_
 
-#include <latan/Global.h>
+#include <latan/Global.hpp>
+#include <latan/Mat.hpp>
 
 LATAN_BEGIN_CPPDECL
 
@@ -9,10 +10,13 @@ const int Central = -1;
 
 class Sample
 {
+private:
+    // type alias for disambiguation
+    typedef Eigen::Array<DMat,Eigen::Dynamic,1> ArrayType;
+    
 public:
     // Constructors/destructor
     Sample(void);
-    Sample(Sample &S);
     Sample(const unsigned int init_nsample, const unsigned int init_nrow,\
            const unsigned int init_ncol);
     ~Sample(void);
@@ -20,8 +24,9 @@ public:
     DMat& operator()(const int s);
     
 private:
-    DMat central;
-    Eigen::Array<DMat,Eigen::Dynamic,1> sample;
+    // type aliases
+    DMat      central;
+    ArrayType sample;
 };
 
 LATAN_END_CPPDECL
