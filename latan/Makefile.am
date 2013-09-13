@@ -17,6 +17,9 @@ endif
 AM_LFLAGS = -olex.yy.c
 AM_YFLAGS = -d
 
+include eigen_files.mk
+nobase_dist_pkginclude_HEADERS = $(eigen_files)
+
 BUILT_SOURCES = IOASCIIParser.hpp
 
 lib_LTLIBRARIES = liblatan.la
@@ -32,7 +35,7 @@ liblatan_la_SOURCES =  \
     Mat.cpp            \
     Sample.cpp         \
 	../config.h
-liblatan_ladir = $(includedir)/latan
+liblatan_ladir = $(pkgincludedir)
 liblatan_la_HEADERS = \
     Global.hpp        \
     IO.hpp            \

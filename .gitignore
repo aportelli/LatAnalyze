@@ -44,3 +44,7 @@ myconfig.sh
 latan/IOASCIILexer.cpp
 latan/IOASCIIParser.cpp
 latan/IOASCIIParser.hpp
+
+# Eigen headers
+latan/Eigen/*
+latan/eigen_files.mk
