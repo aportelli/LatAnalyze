@@ -79,5 +79,7 @@ mat:
 
 floats:
       FLOAT floats {state->double_buf.push($1);}
+    | INT   floats {state->double_buf.push(static_cast<double>($1));}
     | FLOAT {state->double_buf.push($1);}
+    | INT   {state->double_buf.push(static_cast<double>($1));}
     ;

@@ -45,7 +45,8 @@ public:
     virtual bool IsOpen(void) const = 0;
     // IO
     virtual void Close(void) = 0;
-    virtual void Open(const std::string new_name, const FileMode::Type new_mode) = 0;
+    virtual void Open(const std::string new_name,\
+                      const FileMode::Type new_mode) = 0;
     virtual void Save(void) = 0;
     virtual void SaveAs(const std::string new_name) = 0;
 protected:
@@ -110,7 +111,8 @@ public:
     virtual bool IsOpen(void) const;
     // IO
     virtual void Close(void);
-    virtual void Open(const std::string new_name, const FileMode::Type new_mode);
+    virtual void Open(const std::string new_name,\
+                      const FileMode::Type new_mode);
     virtual void Save(void);
     virtual void SaveAs(const std::string new_name);
 private:

@@ -150,6 +150,9 @@ void ASCIIFile::CloseASCII(void)
     {
         file_stream.close();
     }
+    name      = "";
+    mode      = FileMode::Null;
+    is_parsed = false;
 }
 
 void ASCIIFile::Parse()
