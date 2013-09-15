@@ -41,9 +41,9 @@ stamp-h1
 myconfig.sh
 
 # bison/flex generated sources
-latan/IOASCIILexer.cpp
-latan/IOASCIIParser.cpp
-latan/IOASCIIParser.hpp
+latan/*Lexer.cpp
+latan/*Parser.cpp
+latan/*Parser.hpp
 
 # Eigen headers
 latan/Eigen/*

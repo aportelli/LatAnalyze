@@ -1,10 +1,27 @@
 #include <iostream>
-#include <latan/IO.hpp>
+#include <latan/MathCompiler.hpp>
 
 using namespace std;
 using namespace Latan;
 
-int main(void)
+int main(int argc, char* argv[])
+{
+    MathCompiler C(argv[1]);
+    VarTable vtable;
+    stack<double> dstack;
+    const VirtualProgram& P = C();
+    
+    cout << P << endl;
+    for (int i=0;i<P.size();++i)
+    {
+        (*(P[i]))(dstack,vtable);
+    }
+    cout << "result= " << dstack.top() << endl;
+    
+    return EXIT_SUCCESS;
+}
+
+/*int main(void)
 {
     ASCIIFile F;
     DMat A,B;
@@ -17,7 +34,7 @@ int main(void)
     cout << A*B << endl;
 
     return EXIT_SUCCESS;
-}
+}*/
 
 /*
 int main(void)

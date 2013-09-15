@@ -50,9 +50,9 @@ void File::DeleteData(void)
  *                     ASCIIParserState implementation                        *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-ASCIIParserState::ASCIIParserState(istream* pt_istream, string* name,\
+ASCIIParserState::ASCIIParserState(istream* pt_istream, string* pt_name,\
                                    IODataTable* pt_data)
-: data(pt_data), stream(pt_istream), stream_name(name)
+: ParserState<IODataTable>(pt_istream, pt_name, pt_data)
 {
     init_scanner();
 }
@@ -158,4 +158,5 @@ void ASCIIFile::CloseASCII(void)
 void ASCIIFile::Parse()
 {
     _IOASCII_parse(state);
+    is_parsed = true;
 }

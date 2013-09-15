@@ -3,6 +3,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <cstdarg>
 #include "../config.h"
 
 #endif

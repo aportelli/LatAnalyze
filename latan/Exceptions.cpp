@@ -23,6 +23,7 @@ CONST_EXC(Implementation,Logic("implementation error: "+msg,loc))
 CONST_EXC(Range,Logic("range error: "+msg,loc))
 // runtime errors
 CONST_EXC(Runtime,runtime_error(ERR_PREF+msg+ERR_SUFF))
+CONST_EXC(Compilation,Runtime("compilation error: "+msg,loc))
 CONST_EXC(IO,Runtime("IO error: "+msg,loc))
 CONST_EXC(Parsing,Runtime(msg,loc))
 CONST_EXC(Syntax,Runtime("syntax error: "+msg,loc))

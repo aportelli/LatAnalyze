@@ -27,6 +27,7 @@ namespace Exceptions
     DECL_EXC(Range,Logic);
     // runtime errors
     DECL_EXC(Runtime,std::runtime_error);
+    DECL_EXC(Compilation,Runtime);
     DECL_EXC(IO,Runtime);
     DECL_EXC(Parsing,Runtime);
     DECL_EXC(Syntax,Runtime);

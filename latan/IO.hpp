@@ -10,6 +10,7 @@
 #include <latan/Global.hpp>
 #include <latan/IOObject.hpp>
 #include <latan/Mat.hpp>
+#include <latan/ParserState.hpp>
 #include <latan/Sample.hpp>
 
 LATAN_BEGIN_CPPDECL
@@ -76,7 +77,7 @@ const IOObj& File::GetData(const std::string data_name)
 /******************************************************************************
  *                          ASCII datafile class                              *
  ******************************************************************************/
-class ASCIIParserState
+class ASCIIParserState: public ParserState<IODataTable>
 {
 public:
     // constructor
@@ -85,12 +86,8 @@ public:
     // destructor
     virtual ~ASCIIParserState(void);
     // public members
-    IODataTable*       data;
     std::stack<DMat>   dmat_buf;
     std::stack<double> double_buf;
-    void*              scanner;
-    std::istream*      stream;
-    std::string*       stream_name;
 private:
     // allocation/deallocation functions defined in IOASCIILexer.lpp
     void init_scanner(void);
@@ -136,7 +133,6 @@ const IOObj& ASCIIFile::Read(const std::string data_name)
         if (!is_parsed)
         {
             Parse();
-            is_parsed = true;
         }
         
         return GetData<IOObj>(data_name);
