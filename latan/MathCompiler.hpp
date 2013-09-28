@@ -63,7 +63,7 @@ private:
 };
 
 /******************************************************************************
- *                          Virtual machine classes                           *
+ *                       Virtual machine code classes                         *
  ******************************************************************************/
 typedef std::map<std::string,double> VarTable;
 
@@ -71,7 +71,7 @@ typedef std::map<std::string,double> VarTable;
 class Instruction
 {
 public:
-    virtual ~Instruction() {};
+    virtual ~Instruction();
     // instruction execution
     virtual void operator()(std::stack<double>& dstack, VarTable& vtable) = 0;
     friend std::ostream& operator<<(std::ostream& out, const Instruction& ins);

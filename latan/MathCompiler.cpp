@@ -85,6 +85,9 @@ MathParserState::~MathParserState(void)
 #define CODE_WIDTH 6
 #define CODE_MOD   setw(CODE_WIDTH) << left
 
+Instruction::~Instruction(void)
+{}
+
 void Instruction::Print(std::ostream &out) const
 {
     out << CODE_MOD << "<null>" << CODE_MOD << "ABSTRACT INSTRUCTION!";
