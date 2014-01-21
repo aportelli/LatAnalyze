@@ -159,6 +159,7 @@ void name::operator()(stack<double>& dstack, VarTable& vtable __dumb)\
     }\
     dstack.push(exp);\
 }\
+\
 void name::Print(std::ostream &out) const\
 {\
     out << CODE_MOD << code_name;\
