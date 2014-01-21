@@ -62,7 +62,7 @@ mat:
     {
         const int nrow = state->double_buf.size()/$INT, ncol = $INT;
         (*state->data)[$ID] = new DMat(nrow,ncol);
-        DMat& M = dynamic_cast<DMat&>(*((*state->data)[$ID]));
+        DMat& M = static_cast<DMat&>(*((*state->data)[$ID]));
         int r,i,j;
         
         r = 0;
