@@ -21,7 +21,7 @@ public:
     DMat(const DMat& M);
     DMat(unsigned int nrow, unsigned int ncol);
     // IO
-    virtual IOTypes::Type IOType(void);
+    virtual IOType getType(void);
 };
 
 LATAN_END_CPPDECL

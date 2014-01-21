@@ -31,7 +31,6 @@ liblatan_la_SOURCES =  \
     IO.cpp             \
     IOASCIIParser.ypp  \
     IOASCIILexer.lpp   \
-    IOObject.cpp       \
     Mat.cpp            \
     MathCompiler.cpp   \
     MathParser.ypp     \

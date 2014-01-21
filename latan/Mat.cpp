@@ -20,7 +20,7 @@ DMat::DMat(unsigned int nrow, unsigned int ncol)
 : DMatBase(nrow,ncol)
 {}
 
-IOTypes::Type DMat::IOType(void)
+IOObject::IOType DMat::getType(void)
 {
-    return IOTypes::DMat;
+    return dMat;
 }

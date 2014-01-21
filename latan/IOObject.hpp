@@ -5,22 +5,19 @@
 
 LATAN_BEGIN_CPPDECL
 
-namespace IOTypes
-{
-    typedef enum
-    {
-        NoType = 0,
-        DMat   = 1,
-        Sample = 2
-    } Type;
-}
-
 // Abstract base for IO objects
 class IOObject
 {
 public:
-    virtual ~IOObject(void);
-    virtual IOTypes::Type IOType(void);
+    enum IOType
+    {
+        noType = 0,
+        dMat   = 1,
+        sample = 2
+    };
+public:
+    virtual ~IOObject(void)      = 0;
+    virtual IOType getType(void) = 0;
 };
 
 LATAN_END_CPPDECL
