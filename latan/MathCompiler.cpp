@@ -254,7 +254,7 @@ void MathCompiler::compile(const MathNode& n)
     switch (n.getType())
     {
         case MathNode::Type::Constant:
-            out_.push_back(new Push(ato<double>(n.getName())));
+            out_.push_back(new Push(strTo<double>(n.getName())));
             break;
         case MathNode::Type::Variable:
             out_.push_back(new Push(n.getName()));

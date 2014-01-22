@@ -26,7 +26,7 @@ namespace Env
 
 // string conversions
 template <typename T>
-static T ato(std::string str)
+T strTo(std::string str)
 {
     T buf;
     std::istringstream stream(str);
@@ -37,7 +37,7 @@ static T ato(std::string str)
 }
 
 template <typename T>
-static std::string strfrom(T x)
+std::string strFrom(T x)
 {
     std::ostringstream stream;
     

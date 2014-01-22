@@ -50,8 +50,8 @@ BLANK   [ \t]
 %%
 
 {LMARK}            {BEGIN(MARK);}
-{INT}              {yylval->val_int = ato<int>(yytext); RETTOK(INT);}
-{FLOAT}            {yylval->val_double = ato<double>(yytext); RETTOK(FLOAT);}
+{INT}              {yylval->val_int = strTo<int>(yytext); RETTOK(INT);}
+{FLOAT}            {yylval->val_double = strTo<double>(yytext); RETTOK(FLOAT);}
 ({ALPHA}|{DIGIT})+ {strcpy(yylval->val_str,yytext); RETTOK(ID);}
 <MARK>latan_begin  {BEGIN(TYPE); RETTOK(OPEN);}
 <MARK>latan_end    {BEGIN(TYPE); RETTOK(CLOSE);}

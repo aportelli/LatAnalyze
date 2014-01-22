@@ -6,8 +6,8 @@
 #include <latan/Global.hpp>
 #endif
 
-#define SRC_LOC strfrom<const char*>(__FUNCTION__) + " at "\
-                + strfrom<const char*>(__FILE__) + ":" + strfrom<int>(__LINE__)
+#define SRC_LOC strFrom<const char*>(__FUNCTION__) + " at "\
+                + strFrom<const char*>(__FILE__) + ":" + strFrom<int>(__LINE__)
 #define LATAN_ERROR(exc,msg) throw(Exceptions::exc(msg,SRC_LOC))
 
 #define DECL_EXC(name,base) \
