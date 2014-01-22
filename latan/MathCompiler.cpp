@@ -197,7 +197,7 @@ MathCompiler::MathCompiler(void)
 , state_(NULL)
 , root_(NULL)
 , out_()
-, status_(Status::None)
+, status_(Status::none)
 {}
 
 MathCompiler::MathCompiler(const std::string &code)
@@ -221,16 +221,16 @@ void MathCompiler::init(const std::string &code)
     code_     = new stringstream(code);
     codeName_ = "<string>";
     state_    = new MathParserState(code_, &codeName_, &root_);
-    status_  |= Status::Initialised;
+    status_  |= Status::initialised;
 }
 
 const VirtualProgram& MathCompiler::operator()(void)
 {
-    if (!(status_ & Status::Parsed))
+    if (!(status_ & Status::parsed))
     {
         parse();
     }
-    if (!(status_ & Status::Compiled))
+    if (!(status_ & Status::compiled))
     {
         compile(*root_);
     }
@@ -242,8 +242,8 @@ const VirtualProgram& MathCompiler::operator()(void)
 void MathCompiler::parse(void)
 {
     _math_parse(state_);
-    status_ |= Status::Parsed;
-    status_ -= status_ & Status::Compiled;
+    status_ |= Status::parsed;
+    status_ -= status_ & Status::compiled;
 }
 
 #define IFOP(name, nArg) if ((n.getName() == (name))&&(n.getNArg() == nArg))
@@ -278,7 +278,7 @@ void MathCompiler::compile(const MathNode& n)
                         "unknown node type (node '" + n.getName() + "')");
             break;
     }
-    status_ |= Status::Compiled;
+    status_ |= Status::compiled;
 }
 
 void MathCompiler::reset(void)

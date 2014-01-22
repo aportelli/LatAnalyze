@@ -156,10 +156,10 @@ private:
     public:
         enum
         {
-            None        = 0,
-            Initialised = 1 << 0,
-            Parsed      = 1 << 1,
-            Compiled    = 1 << 2
+            none        = 0,
+            initialised = 1 << 0,
+            parsed      = 1 << 1,
+            compiled    = 1 << 2
         };
     };
 public:
