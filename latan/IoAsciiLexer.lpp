@@ -1,5 +1,5 @@
 %option reentrant
-%option prefix="_IOASCII_"
+%option prefix="_ioAscii_"
 %option bison-bridge
 %option bison-locations
 %option noyywrap
@@ -16,7 +16,7 @@
     using namespace std;
     using namespace Latan;
     
-	#define YY_EXTRA_TYPE  ASCIIParserState*
+	#define YY_EXTRA_TYPE  AsciiParserState*
 	#define YY_USER_ACTION \
     yylloc->first_line   = yylloc->last_line = yylineno;\
     yylloc->first_column = yylloc->last_column + 1;\
@@ -62,13 +62,13 @@ BLANK   [ \t]
 
 %%
 
-void ASCIIParserState::init_scanner()
+void AsciiParserState::initScanner()
 {
 	yylex_init(&scanner);
 	yyset_extra(this, scanner);
 }
 
-void ASCIIParserState::destroy_scanner()
+void AsciiParserState::destroyScanner()
 {
 	yylex_destroy(scanner);
 }

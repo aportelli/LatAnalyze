@@ -8,25 +8,18 @@ LATAN_BEGIN_CPPDECL
 
 const int Central = -1;
 
-class Sample
+typedef Eigen::Array<DMat, Eigen::Dynamic, 1> DSampleBase;
+
+class DSample: public DSampleBase
 {
-private:
-    // type alias for disambiguation
-    typedef Eigen::Array<DMat,Eigen::Dynamic,1> ArrayType;
-    
 public:
     // Constructors/destructor
-    Sample(void);
-    Sample(const unsigned int init_nsample, const unsigned int init_nrow,\
-           const unsigned int init_ncol);
-    ~Sample(void);
+    DSample(void);
+    DSample(const unsigned int nSample, const unsigned int nRow,
+            const unsigned int nCol);
+    ~DSample(void);
     // Operators
     DMat& operator()(const int s);
-    
-private:
-    // type aliases
-    DMat      central;
-    ArrayType sample;
 };
 
 LATAN_END_CPPDECL

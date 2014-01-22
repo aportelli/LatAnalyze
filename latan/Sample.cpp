@@ -3,28 +3,28 @@
 
 using namespace Latan;
 
-Sample::Sample(void)
-: central(0,0), sample(static_cast<ArrayType::Index>(0))
+DSample::DSample(void)
+: DSampleBase(static_cast<Index>(0))
 {}
 
-Sample::Sample(const unsigned int init_nsample, const unsigned int init_nrow,\
-               const unsigned int init_ncol)
-: central(init_nrow,init_ncol), sample(init_nsample)
+DSample::DSample(const unsigned int nSample, const unsigned int nRow,
+                 const unsigned int nCol)
+: DSampleBase(static_cast<Index>(nSample + 1))
 {
-    for (unsigned int s=0;s<init_nsample;++s)
+    for (int s = 0; s < size(); ++s)
     {
-        sample(s).resize(init_nrow,init_ncol);
+        (*this)(s).resize(nRow, nCol);
     }
 }
 
-DMat& Sample::operator()(const int s)
+DMat& DSample::operator()(const int s)
 {
     if (s >= 0)
     {
-        return sample(s);
+        return (*this)(s + 1);
     }
     else
     {
-        return central;
+        return (*this)(0);
     }
 }

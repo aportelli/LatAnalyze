@@ -16,11 +16,11 @@ DMat::DMat(const DMat& M)
 : DMatBase(M)
 {}
 
-DMat::DMat(unsigned int nrow, unsigned int ncol)
-: DMatBase(nrow,ncol)
+DMat::DMat(const unsigned int nRow, const unsigned int nCol)
+: DMatBase(nRow,nCol)
 {}
 
-IOObject::IOType DMat::getType(void)
+unsigned int DMat::getType(void)
 {
-    return dMat;
+    return IoType::dMat;
 }

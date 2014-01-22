@@ -1,5 +1,5 @@
 %option reentrant
-%option prefix="_Math_"
+%option prefix="_math_"
 %option bison-bridge
 %option bison-locations
 %option noyywrap
@@ -63,13 +63,13 @@ BLANK   [ \t]
 
 %%
 
-void MathParserState::init_scanner()
+void MathParserState::initScanner()
 {
 	yylex_init(&scanner);
 	yyset_extra(this, scanner);
 }
 
-void MathParserState::destroy_scanner()
+void MathParserState::destroyScanner()
 {
 	yylex_destroy(scanner);
 }

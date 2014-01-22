@@ -19,9 +19,9 @@ LATAN_BEGIN_CPPDECL
 // Environment
 namespace Env
 {
-    extern const std::string FullName;
-    extern const std::string Name;
-    extern const std::string Version;
+    extern const std::string fullName;
+    extern const std::string name;
+    extern const std::string version;
 }
 
 // string conversions

@@ -11,11 +11,11 @@
 %}
 
 %pure-parser
-%name-prefix="_IOASCII_"
+%name-prefix="_ioAscii_"
 %locations
 %defines
 %error-verbose
-%parse-param { Latan::ASCIIParserState* state }
+%parse-param { Latan::AsciiParserState* state }
 %initial-action {yylloc.last_column = 0;}
 %lex-param { void* scanner }
 
@@ -36,15 +36,15 @@
 %token              OPEN
 
 %{
-	int _IOASCII_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+	int _ioAscii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 
-	void _IOASCII_error(YYLTYPE* locp, ASCIIParserState* state, const char* err)
+	void _ioAscii_error(YYLTYPE* locp, AsciiParserState* state, const char* err)
 	{
         stringstream buf;
         
-        buf << *state->stream_name << ":" << locp->first_line << ":"\
+        buf << *state->streamName << ":" << locp->first_line << ":"\
             << locp->first_column << ": " << err;
-        LATAN_ERROR(Parsing,buf.str());
+        LATAN_ERROR(Parsing, buf.str());
 	}
 
 	#define scanner state->scanner
@@ -60,26 +60,26 @@ datas:
 mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
-        const int nrow = state->double_buf.size()/$INT, ncol = $INT;
-        (*state->data)[$ID] = new DMat(nrow,ncol);
-        DMat& M = static_cast<DMat&>(*((*state->data)[$ID]));
+        const int nRow = state->doubleBuf.size()/$INT, nCol = $INT;
+        (*state->data)[$ID] = new DMat(nRow,nCol);
+        DMat &M = static_cast<DMat &>(*((*state->data)[$ID]));
         int r,i,j;
         
         r = 0;
-        while (!state->double_buf.empty())
+        while (!state->doubleBuf.empty())
         {
-            j = r%ncol;
-            i = (r-j)/ncol;
-            M(i,j) = state->double_buf.top();
-            state->double_buf.pop();
+            j = r % nCol;
+            i = (r - j)/nCol;
+            M(i,j) = state->doubleBuf.top();
+            state->doubleBuf.pop();
             ++r;
         }
     }
     ;
 
 floats:
-      FLOAT floats {state->double_buf.push($1);}
-    | INT   floats {state->double_buf.push(static_cast<double>($1));}
-    | FLOAT {state->double_buf.push($1);}
-    | INT   {state->double_buf.push(static_cast<double>($1));}
+      FLOAT floats {state->doubleBuf.push($1);}
+    | INT   floats {state->doubleBuf.push(static_cast<double>($1));}
+    | FLOAT {state->doubleBuf.push($1);}
+    | INT   {state->doubleBuf.push(static_cast<double>($1));}
     ;

@@ -12,22 +12,29 @@ class ParserState
 {
 public:
     // constructor
-    explicit ParserState(std::istream* pt_stream, std::string* pt_name,\
-                         DataObj* pt_data);
+    explicit ParserState(std::istream *streamPt, std::string *namePt,
+                         DataObj *dataPt);
     // destructor
     virtual ~ParserState(void);
-    // public members
+private:
+    // scanner allocation/deallocation
+    virtual void initScanner(void)    = 0;
+    virtual void destroyScanner(void) = 0;
+public:
     DataObj*      data;
     void*         scanner;
     std::istream* stream;
-    std::string*  stream_name;
+    std::string*  streamName;
+    
 };
 
 template <typename DataObj>
-ParserState<DataObj>::ParserState(std::istream* pt_stream,\
-                                  std::string* pt_name,   \
-                                  DataObj* pt_data)
-: data(pt_data), scanner(NULL), stream(pt_stream), stream_name(pt_name)
+ParserState<DataObj>::ParserState(std::istream *streamPt, std::string *namePt,
+                                  DataObj *dataPt)
+: data(dataPt)
+, scanner(NULL)
+, stream(streamPt)
+, streamName(namePt)
 {}
 
 template <typename DataObj>

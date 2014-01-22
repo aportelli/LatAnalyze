@@ -4,6 +4,6 @@
 using namespace std;
 using namespace Latan;
 
-const string Env::FullName = PACKAGE_STRING;
-const string Env::Name     = PACKAGE_NAME;
-const string Env::Version  = PACKAGE_VERSION;
+const string Env::fullName = PACKAGE_STRING;
+const string Env::name     = PACKAGE_NAME;
+const string Env::version  = PACKAGE_VERSION;

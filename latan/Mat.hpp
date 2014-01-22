@@ -13,15 +13,15 @@ typedef Eigen::MatrixXcd CMatBase;
 typedef Eigen::VectorXd  DVecBase;
 typedef Eigen::VectorXcd CVecBase;
 
-class DMat: public DMatBase, public IOObject
+class DMat: public DMatBase, public IoObject
 {
 public:
     // constructors
     DMat(void);
     DMat(const DMat& M);
-    DMat(unsigned int nrow, unsigned int ncol);
+    DMat(const unsigned int nRow, const unsigned int nCol);
     // IO
-    virtual IOType getType(void);
+    virtual unsigned int getType(void);
 };
 
 LATAN_END_CPPDECL
