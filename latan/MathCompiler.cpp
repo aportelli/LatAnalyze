@@ -118,7 +118,14 @@ void Push::operator()(std::stack<double> &dStack, VarTable &vTable)
     }
     else
     {
-        dStack.push(vTable[name_]);
+        if (keyExists(name_, vTable))
+        {
+            dStack.push(vTable[name_]);
+        }
+        else
+        {
+            LATAN_ERROR(Range, "unknown variable '" + name_ + "'");
+        }
     }
 }
 

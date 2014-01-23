@@ -52,8 +52,8 @@ public:
 protected:
     // data access
     void         deleteData(void);
-    template <typename IoObj>
-    const IoObj& getData(const std::string dataName);
+    template <typename IoT>
+    const IoT& getData(const std::string dataName);
 protected:
     std::string  name_;
     unsigned int mode_;
@@ -61,12 +61,12 @@ protected:
 };
 
 // Template implementations
-template <typename IoObj>
-const IoObj& File::getData(const std::string dataName)
+template <typename IoT>
+const IoT& File::getData(const std::string dataName)
 {
-    if (data_.find(dataName) != data_.end())
+    if (keyExists(dataName, data_))
     {
-        return dynamic_cast<const IoObj&>(*(data_[dataName]));
+        return dynamic_cast<const IoT&>(*(data_[dataName]));
     }
     else
     {
@@ -103,8 +103,8 @@ public:
     // destructor
     virtual ~AsciiFile(void);
     // access
-    template <typename IoObj>
-    const IoObj& read(const std::string name);
+    template <typename IoT>
+    const IoT& read(const std::string name);
     // tests
     virtual bool isOpen(void) const;
     // Io
@@ -124,8 +124,8 @@ private:
 };
 
 // Template implementations
-template <typename IoObj>
-const IoObj& AsciiFile::read(const std::string dataName)
+template <typename IoT>
+const IoT& AsciiFile::read(const std::string dataName)
 {
     if ((mode_ & FileMode::read)&&(isOpen()))
     {
@@ -134,7 +134,7 @@ const IoObj& AsciiFile::read(const std::string dataName)
             parse();
         }
         
-        return getData<IoObj>(dataName);
+        return getData<IoT>(dataName);
     }
     else
     {

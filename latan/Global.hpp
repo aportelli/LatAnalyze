@@ -1,6 +1,7 @@
 #ifndef LATAN_GLOBAL_HPP_
 #define	LATAN_GLOBAL_HPP_
 
+#include <map>
 #include <string>
 #include <latan/Eigen/Dense>
 
@@ -44,6 +45,13 @@ std::string strFrom(T x)
     stream << x;
     
     return stream.str();
+}
+
+// key test in maps
+template <typename K, typename T>
+bool keyExists(const K &key, const std::map<K, T> &map)
+{
+    return (map.find(key) != map.end());
 }
 
 LATAN_END_CPPDECL
