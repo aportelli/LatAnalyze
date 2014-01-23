@@ -24,9 +24,10 @@ public:
     public:
         enum
         {
-            Constant = 0,
-            Operator = 1,
-            Variable = 2
+            cst  = 0,
+            op   = 1,
+            var  = 2,
+            keyw = 3
         };
     };
 public:
@@ -40,27 +41,15 @@ public:
     const std::string& getName(void) const;
     unsigned int       getType(void) const;
     unsigned int       getNArg(void) const;
-    // operators
+    // operator
     const MathNode &operator[](const unsigned int i) const;
+    // test
+    bool isRoot(void) const;
 private:
-    // private members
-    std::string            name_;
-    unsigned int           type_;
-    std::vector<MathNode*> arg_;
-};
-
-class MathParserState: public ParserState<MathNode *>
-{
-public:
-    // constructor
-    explicit MathParserState(std::istream *stream, std::string *name,
-                             MathNode **data);
-    // destructor
-    virtual ~MathParserState(void);
-private:
-    // allocation/deallocation functions defined in MathLexer.lpp
-    virtual void initScanner(void);
-    virtual void destroyScanner(void);
+    std::string             name_;
+    unsigned int            type_;
+    std::vector<MathNode *> arg_;
+    const MathNode *        parent_;
 };
 
 /******************************************************************************
@@ -80,7 +69,7 @@ private:
     virtual void print(std::ostream &out) const = 0;
 };
 
-// push and pop
+// push, pop and store
 class Push: public Instruction
 {
 private:
@@ -120,6 +109,19 @@ private:
     std::string name_;
 };
 
+class Store: public Instruction
+{
+public:
+    //constructor
+    explicit Store(const std::string &name);
+    // instruction execution
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable);
+private:
+    virtual void print(std::ostream& out) const;
+private:
+    std::string name_;
+};
+
 // Float operations
 #define DECL_OP(name)\
 class name: public Instruction\
@@ -150,7 +152,23 @@ public:
  ******************************************************************************/
 class MathCompiler
 {
+public:
+    // parser state
+    class MathParserState: public ParserState<std::vector<MathNode *> >
+    {
+    public:
+        // constructor
+        explicit MathParserState(std::istream *stream, std::string *name,
+                                 std::vector<MathNode *> *data);
+        // destructor
+        virtual ~MathParserState(void);
+    private:
+        // allocation/deallocation functions defined in MathLexer.lpp
+        virtual void initScanner(void);
+        virtual void destroyScanner(void);
+    };
 private:
+    // status flags
     class Status
     {
     public:
@@ -173,15 +191,16 @@ public:
     const VirtualProgram &operator()(void);
 private:
     void parse(void);
-    void compile(const MathNode& node);
+    void compile(const std::vector<MathNode *> &expr);
+    void compile(const MathNode &node);
     void reset(void);
 private:
-    std::istream     *code_;
-    std::string      codeName_;
-    MathParserState  *state_;
-    MathNode         *root_;
-    VirtualProgram   out_;
-    unsigned int     status_;
+    std::istream            *code_;
+    std::string             codeName_;
+    MathParserState         *state_;
+    std::vector<MathNode *> expr_;
+    VirtualProgram          out_;
+    unsigned int            status_;
 };
 
 LATAN_END_CPPDECL

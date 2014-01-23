@@ -14,7 +14,7 @@
 %locations
 %defines
 %error-verbose
-%parse-param { Latan::MathParserState* state }
+%parse-param { Latan::MathCompiler::MathParserState *state }
 %initial-action {yylloc.last_column = 0;}
 %lex-param { void* scanner }
 
@@ -23,30 +23,34 @@
 	double           val_double;
     char             val_char;
     char             val_str[MAXIDLENGTH];
-    Latan::MathNode* val_nodept;
+    Latan::MathNode *val_node;
 }
 
+%token            END
 %token <val_char> ERR
 %token <val_str>  FLOAT
 %token <val_str>  ID
+%token <val_str>  KEYWORD
 
+%left '='
 %left '+' '-'
 %left '*' '/'
 %left '^'
 %nonassoc UMINUS
 
-%type <val_nodept> expr
+%type <val_node> expr
 
 %{
-	int _math_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+	int _math_lex(YYSTYPE *lvalp, YYLTYPE *llocp, void *scanner);
 
-	void _math_error(YYLTYPE* locp, MathParserState* state, const char* err)
+	void _math_error(YYLTYPE *locp, MathCompiler::MathParserState *state,
+                     const char *err)
 	{
         stringstream buf;
         
-        buf << *state->streamName << ":" << locp->first_line << ":"\
+        buf << *(state->streamName) << ":" << locp->first_line << ":"\
             << locp->first_column << ": " << err;
-        LATAN_ERROR(Parsing,buf.str());
+        LATAN_ERROR(Parsing, buf.str());
 	}
 
 	#define scanner state->scanner
@@ -56,25 +60,30 @@
 
 program:
      /* empty string */
-    | expr {*state->data = $1;}
+    | program expr END {state->data->push_back($2);}
     ;
 
 expr:
       FLOAT
-    {$$ = new MathNode($FLOAT, MathNode::Type::Constant);}
+    {$$ = new MathNode($FLOAT, MathNode::Type::cst);}
     | ID
-    {$$ = new MathNode($ID,MathNode::Type::Variable);}
+    {$$ = new MathNode($ID,MathNode::Type::var);}
+    | 'r' expr
+    {$$ = new MathNode("return", MathNode::Type::keyw, 1, $2);}
     | '-' expr %prec UMINUS
-    {$$ = new MathNode("-", MathNode::Type::Operator, 1,$2);}
+    {$$ = new MathNode("-", MathNode::Type::op, 1, $2);}
+    | expr '=' expr
+    {$$ = new MathNode("=", MathNode::Type::op, 2, $1, $3);}
     | expr '+' expr
-    {$$ = new MathNode("+", MathNode::Type::Operator, 2, $1, $3);}
+    {$$ = new MathNode("+", MathNode::Type::op, 2, $1, $3);}
     | expr '-' expr
-    {$$ = new MathNode("-", MathNode::Type::Operator, 2, $1, $3);}
+    {$$ = new MathNode("-", MathNode::Type::op, 2, $1, $3);}
     | expr '*' expr
-    {$$ = new MathNode("*", MathNode::Type::Operator, 2, $1, $3);}
+    {$$ = new MathNode("*", MathNode::Type::op, 2, $1, $3);}
     | expr '/' expr
-    {$$ = new MathNode("/", MathNode::Type::Operator, 2, $1, $3);}
+    {$$ = new MathNode("/", MathNode::Type::op, 2, $1, $3);}
     | expr '^' expr
-    {$$ = new MathNode("^", MathNode::Type::Operator, 2, $1, $3);}
-    | '(' expr ')' {$$ = $2;}
+    {$$ = new MathNode("^", MathNode::Type::op, 2, $1, $3);}
+    | '(' expr ')'
+    {$$ = $2;}
     ;
