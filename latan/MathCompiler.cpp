@@ -29,7 +29,7 @@ MathNode::MathNode(const std::string &name, const unsigned int type,\
     va_start(va, nArg);
     for (unsigned int i = 0; i < nArg; ++i)
     {
-        arg_[i] = va_arg(va, MathNode*);
+        arg_[i] = va_arg(va, MathNode *);
         arg_[i]->parent_ = this;
     }
     va_end(va);
@@ -60,6 +60,16 @@ unsigned int MathNode::getType(void) const
 unsigned int MathNode::getNArg(void) const
 {
     return static_cast<unsigned int>(arg_.size());
+}
+
+void MathNode::setName(const std::string &name)
+{
+    name_ = name;
+}
+
+void MathNode::pushArg(MathNode *node)
+{
+    arg_.push_back(node);
 }
 
 // operator ////////////////////////////////////////////////////////////////////
@@ -102,7 +112,8 @@ Push::Push(const string &name)
 , name_(name)
 {}
 
-void Push::operator()(std::stack<double> &dStack, VarTable &vTable)
+void Push::operator()(std::stack<double> &dStack, VarTable &vTable,
+                      FunctionTable &fTable __dumb)
 {
     if (type_ == ArgType::Constant)
     {
@@ -138,8 +149,8 @@ Pop::Pop(const string &name)
 : name_(name)
 {}
 
-
-void Pop::operator()(std::stack<double> &dStack, VarTable &vTable)
+void Pop::operator()(std::stack<double> &dStack, VarTable &vTable,
+                     FunctionTable &fTable __dumb)
 {
     if (!name_.empty())
     {
@@ -157,8 +168,8 @@ Store::Store(const string &name)
 : name_(name)
 {}
 
-
-void Store::operator()(std::stack<double> &dStack, VarTable &vTable)
+void Store::operator()(std::stack<double> &dStack, VarTable &vTable,
+                       FunctionTable &fTable __dumb)
 {
     if (!name_.empty())
     {
@@ -171,8 +182,31 @@ void Store::print(std::ostream &out) const
     out << CODE_MOD << "store" << CODE_MOD << name_;
 }
 
+Call::Call(const string &name)
+: name_(name)
+{}
+
+void Call::operator()(std::stack<double> &dStack, VarTable &vTable __dumb,
+                       FunctionTable &fTable)
+{
+    if (keyExists(name_, fTable))
+    {
+        dStack.push((*fTable[name_])(dStack));
+    }
+    else
+    {
+        LATAN_ERROR(Range, "unknown function '" + name_ + "'");
+    }
+}
+
+void Call::print(std::ostream &out) const
+{
+    out << CODE_MOD << "call" << CODE_MOD << name_;
+}
+
 #define DEF_OP(name, nArg, exp, insName)\
-void name::operator()(stack<double> &dStack, VarTable &vTable __dumb)\
+void name::operator()(stack<double> &dStack, VarTable &vTable __dumb,\
+                      FunctionTable &fTable __dumb)\
 {\
     double x[nArg];\
     for (int i = 0; i < nArg; ++i)\
@@ -320,14 +354,21 @@ void MathCompiler::compile(const MathNode& n)
         case MathNode::Type::op:
             if (n.getName() == "=")
             {
-                compile(n[1]);
-                if (n.isRoot())
+                if (n[0].getType() == MathNode::Type::var)
                 {
-                    out_.push_back(new Pop(n[0].getName()));
+                    compile(n[1]);
+                    if (n.isRoot())
+                    {
+                        out_.push_back(new Pop(n[0].getName()));
+                    }
+                    else
+                    {
+                        out_.push_back(new Store(n[0].getName()));
+                    }
                 }
                 else
                 {
-                    out_.push_back(new Store(n[0].getName()));
+                    LATAN_ERROR(Compilation, "invalid LHS for '='");
                 }
             }
             else
@@ -351,6 +392,13 @@ void MathCompiler::compile(const MathNode& n)
             {
                 compile(n[i]);
             }
+            break;
+        case MathNode::Type::func:
+            for (unsigned int i = 0; i < n.getNArg(); ++i)
+            {
+                compile(n[i]);
+            }
+            out_.push_back(new Call(n.getName()));
             break;
         default:
             LATAN_ERROR(Compilation,

@@ -26,12 +26,14 @@ lib_LTLIBRARIES = liblatan.la
 	
 liblatan_la_SOURCES =  \
     Exceptions.cpp     \
+    Function.cpp       \
     Global.cpp         \
     includes.hpp       \
     Io.cpp             \
     IoAsciiParser.ypp  \
     IoAsciiLexer.lpp   \
     Mat.cpp            \
+    Math.cpp           \
     MathCompiler.cpp   \
     MathParser.ypp     \
     MathLexer.lpp      \
@@ -39,10 +41,12 @@ liblatan_la_SOURCES =  \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
 liblatan_la_HEADERS = \
+    Function.hpp      \
     Global.hpp        \
     Io.hpp            \
     IoObject.hpp      \
     Mat.hpp           \
+    Math.hpp          \
     MathCompiler.hpp  \
     Sample.hpp
 liblatan_la_CFLAGS = $(COM_CFLAGS)

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <latan/Function.hpp>
 #include <latan/MathCompiler.hpp>
 
 using namespace std;
@@ -8,15 +9,21 @@ int main(int argc, char* argv[])
 {
     MathCompiler C(argv[1]);
     VarTable vtable;
+    FunctionTable ftable;
     stack<double> dstack;
     const VirtualProgram& P = C();
     
+    ftable["exp"]   = &StdMath::exp;
+    ftable["atan2"] = &StdMath::atan2;
     cout << P << endl;
-    for (int i=0;i<P.size();++i)
+    for (unsigned int i=0;i<P.size();++i)
     {
-        (*(P[i]))(dstack,vtable);
+        (*(P[i]))(dstack,vtable,ftable);
     }
-    cout << "result= " << dstack.top() << endl;
+    if (!dstack.empty())
+    {
+        cout << "result= " << dstack.top() << endl;
+    }
     
     return EXIT_SUCCESS;
 }

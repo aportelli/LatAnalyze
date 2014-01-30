@@ -6,6 +6,7 @@
 #include <queue>
 #include <string>
 #include <stack>
+#include <latan/Function.hpp>
 #include <latan/Global.hpp>
 #include <latan/ParserState.hpp>
 
@@ -27,7 +28,8 @@ public:
             cst  = 0,
             op   = 1,
             var  = 2,
-            keyw = 3
+            keyw = 3,
+            func = 4
         };
     };
 public:
@@ -41,6 +43,8 @@ public:
     const std::string& getName(void) const;
     unsigned int       getType(void) const;
     unsigned int       getNArg(void) const;
+    void               setName(const std::string &name);
+    void               pushArg(MathNode *node);
     // operator
     const MathNode &operator[](const unsigned int i) const;
     // test
@@ -55,7 +59,8 @@ private:
 /******************************************************************************
  *                       Virtual machine code classes                         *
  ******************************************************************************/
-typedef std::map<std::string, double> VarTable;
+typedef std::map<std::string, double>           VarTable;
+typedef std::map<std::string, DoubleFunction *> FunctionTable;
 
 // Abstract base
 class Instruction
@@ -63,13 +68,14 @@ class Instruction
 public:
     virtual ~Instruction();
     // instruction execution
-    virtual void operator()(std::stack<double> &dStack, VarTable &vTable) = 0;
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable,
+                            FunctionTable &fTable) = 0;
     friend std::ostream& operator<<(std::ostream &out, const Instruction &ins);
 private:
     virtual void print(std::ostream &out) const = 0;
 };
 
-// push, pop and store
+// Push
 class Push: public Instruction
 {
 private:
@@ -87,7 +93,8 @@ public:
     explicit Push(const double val);
     explicit Push(const std::string &name);
     // instruction execution
-    virtual void operator()(std::stack<double> &dStack, VarTable &vTable);
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable,
+                            FunctionTable &fTable);
 private:
     virtual void print(std::ostream& out) const;
 private:
@@ -96,38 +103,58 @@ private:
     std::string  name_;
 };
 
+// Pop
 class Pop: public Instruction
 {
 public:
     //constructor
     explicit Pop(const std::string &name);
     // instruction execution
-    virtual void operator()(std::stack<double> &dStack, VarTable &vTable);
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable,
+                            FunctionTable &fTable);
 private:
     virtual void print(std::ostream& out) const;
 private:
     std::string name_;
 };
 
+// Store
 class Store: public Instruction
 {
 public:
     //constructor
     explicit Store(const std::string &name);
     // instruction execution
-    virtual void operator()(std::stack<double> &dStack, VarTable &vTable);
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable,
+                            FunctionTable &fTable);
 private:
     virtual void print(std::ostream& out) const;
 private:
     std::string name_;
 };
 
-// Float operations
+// Call function
+class Call: public Instruction
+{
+public:
+    //constructor
+    explicit Call(const std::string &name);
+    // instruction execution
+    virtual void operator()(std::stack<double> &dStack, VarTable &vTable,
+                            FunctionTable &fTable);
+private:
+    virtual void print(std::ostream& out) const;
+private:
+    std::string name_;
+};
+
+// Floating point operations
 #define DECL_OP(name)\
 class name: public Instruction\
 {\
 public:\
-    virtual void operator()(std::stack<double> &dStack, VarTable &vTable);\
+virtual void operator()(std::stack<double> &dStack, VarTable &vTable,\
+                        FunctionTable &fTable);\
 private:\
     virtual void print(std::ostream &out) const;\
 }

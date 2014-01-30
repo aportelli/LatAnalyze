@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cmath>
 #include <cstdarg>
 #include "../config.h"
 

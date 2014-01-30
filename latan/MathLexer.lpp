@@ -42,9 +42,9 @@ DIGIT   [0-9]
 ALPHA   [a-zA-Z_]
 FLOAT   (({DIGIT}+(\.{DIGIT}*)?)|({DIGIT}*\.{DIGIT}+))([eE][+-]?{DIGIT}+)?
 KEYWORD return
-END     ;
+PUNC    [;,()]
 OP      [+\-*/^=]
-PAR     [()]
+PAR     []
 BLANK   [ \t]
 
 %%
@@ -55,12 +55,11 @@ BLANK   [ \t]
                           }
 {OP}                      {RET(*yytext);}
 {KEYWORD}                 {RET(*yytext);}
-{PAR}                     {RET(*yytext);}
+{PUNC}                    {RET(*yytext);}
 {ALPHA}({ALPHA}|{DIGIT})* {
                                strncpy(yylval->val_str,yytext,MAXIDLENGTH);
                                RETTOK(ID);
                           }
-{END}                     {RETTOK(END);}
 <*>\n                     {yylloc->last_column = 0;}
 <*>{BLANK}
 <*>.                      {yylval->val_char = yytext[0]; RETTOK(ERR);}
