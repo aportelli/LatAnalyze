@@ -62,6 +62,23 @@ unsigned int MathNode::getNArg(void) const
     return static_cast<unsigned int>(arg_.size());
 }
 
+const MathNode * MathNode::getParent(void) const
+{
+    return parent_;
+}
+
+unsigned int MathNode::getLevel(void) const
+{
+    if (getParent())
+    {
+        return getParent()->getLevel() + 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 void MathNode::setName(const std::string &name)
 {
     name_ = name;
@@ -72,16 +89,38 @@ void MathNode::pushArg(MathNode *node)
     arg_.push_back(node);
 }
 
-// operator ////////////////////////////////////////////////////////////////////
+// operators ///////////////////////////////////////////////////////////////////
 const MathNode &MathNode::operator[](const unsigned int i) const
 {
     return *arg_[i];
 }
 
-// test ////////////////////////////////////////////////////////////////////////
-bool MathNode::isRoot(void) const
+ostream &Latan::operator<<(ostream &out, const MathNode &n)
 {
-    return (parent_ == NULL);
+    unsigned int level = n.getLevel();
+    
+    for (unsigned int i = 0; i <= level; ++i)
+    {
+        if (i == level)
+        {
+            out << "_";
+        }
+        else if (i == level - 1)
+        {
+            out << "|";
+        }
+        else
+        {
+            out << "  ";
+        }
+    }
+    out << " " << n.getName() << " (type " << n.getType() << ")" << endl;
+    for (unsigned int i = 0; i < n.getNArg(); ++i)
+    {
+        out << n[i];
+    }
+    
+    return out;
 }
 
 /******************************************************************************
@@ -228,10 +267,6 @@ DEF_OP(Mul, 2, x[0]*x[1],      "mul")
 DEF_OP(Div, 2, x[0]/x[1],      "div")
 DEF_OP(Pow, 2, pow(x[0],x[1]), "pow")
 
-VirtualProgram::VirtualProgram(void)
-: vector<Instruction *>(0)
-{}
-
 ostream &Latan::operator<<(ostream &out, const VirtualProgram &prog)
 {
     for (unsigned int i = 0; i < prog.size(); ++i)
@@ -247,8 +282,8 @@ ostream &Latan::operator<<(ostream &out, const VirtualProgram &prog)
  ******************************************************************************/
 // MathParserState constructor /////////////////////////////////////////////////
 MathCompiler::MathParserState::MathParserState(istream *stream, string *name,
-                                               vector<MathNode *> *data)
-: ParserState<vector<MathNode *> >(stream, name, data)
+                                               MathNode **data)
+: ParserState<MathNode *>(stream, name, data)
 {
     initScanner();
 }
@@ -264,11 +299,16 @@ MathCompiler::MathCompiler(void)
 : code_(NULL)
 , codeName_("<no_code>")
 , state_(NULL)
+, root_(NULL)
+, gotReturn_(false)
 , out_()
 , status_(Status::none)
 {}
 
 MathCompiler::MathCompiler(const std::string &code)
+: root_(NULL)
+, gotReturn_(false)
+, out_()
 {
     init(code);
 }
@@ -277,6 +317,19 @@ MathCompiler::MathCompiler(const std::string &code)
 MathCompiler::~MathCompiler(void)
 {
     reset();
+}
+
+// access //////////////////////////////////////////////////////////////////////
+const MathNode * MathCompiler::getAST(void) const
+{
+    if (root_)
+    {
+        return root_;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 // public methods //////////////////////////////////////////////////////////////
@@ -288,7 +341,7 @@ void MathCompiler::init(const std::string &code)
     }
     code_     = new stringstream(code);
     codeName_ = "<string>";
-    state_    = new MathParserState(code_, &codeName_, &expr_);
+    state_    = new MathParserState(code_, &codeName_, &root_);
     status_   = Status::initialised;
 }
 
@@ -302,7 +355,16 @@ const VirtualProgram& MathCompiler::operator()(void)
     }
     if (!(status_ & Status::compiled))
     {
-        compile(expr_);
+        if (root_)
+        {
+            gotReturn_ = false;
+            compile(*root_);
+            if (!gotReturn_)
+            {
+                LATAN_ERROR(Syntax, "expected 'return' in program '" +
+                            codeName_ + "'");
+            }
+        }
         status_ |= Status::compiled;
     }
     
@@ -315,95 +377,114 @@ void MathCompiler::parse(void)
     _math_parse(state_);
 }
 
-void MathCompiler::compile(const vector<MathNode *> &expr)
-{
-    string lastNode;
-    
-    for (unsigned int i = 0; i < expr.size(); ++i)
-    {
-        lastNode = expr[i]->getName();
-        if ((lastNode == "=")||(lastNode == "return"))
-        {
-            compile(*expr[i]);
-            if (lastNode == "return")
-            {
-                break;
-            }
-        }
-    }
-    
-    if (lastNode != "return")
-    {
-        LATAN_ERROR(Syntax, "expected 'return' in program '" + codeName_ + "'");
-    }
-}
-
 #define IFNODE(name, nArg) if ((n.getName() == (name))&&(n.getNArg() == nArg))
 #define ELIFNODE(name, nArg) else IFNODE(name, nArg)
 #define ELSE else
 void MathCompiler::compile(const MathNode& n)
 {
-    switch (n.getType())
+    if (!gotReturn_)
     {
-        case MathNode::Type::cst:
-            out_.push_back(new Push(strTo<double>(n.getName())));
-            break;
-        case MathNode::Type::var:
-            out_.push_back(new Push(n.getName()));
-            break;
-        case MathNode::Type::op:
-            if (n.getName() == "=")
-            {
-                if (n[0].getType() == MathNode::Type::var)
+        switch (n.getType())
+        {
+            case MathNode::Type::cst:
+                out_.push_back(new Push(strTo<double>(n.getName())));
+                break;
+            case MathNode::Type::var:
+                out_.push_back(new Push(n.getName()));
+                break;
+            case MathNode::Type::op:
+                // semicolon
+                if (n.getName() == ";")
                 {
-                    compile(n[1]);
-                    if (n.isRoot())
+                    // compile relevant statements
+                    for (unsigned int i = 0; i < n.getNArg(); ++i)
                     {
-                        out_.push_back(new Pop(n[0].getName()));
+                        bool isAssign =
+                            ((n[i].getType() == MathNode::Type::op)&&
+                            (n[i].getName() == "="));
+                        bool isSemiColumn =
+                            ((n[i].getType() == MathNode::Type::op)&&
+                             (n[i].getName() == ";"));
+                        bool isKeyword =
+                            (n[i].getType() == MathNode::Type::keyw);
+                        
+                        if (isAssign||isSemiColumn||isKeyword)
+                        {
+                            compile(n[i]);
+                        }
+                    }
+                }
+                // assignment
+                else if (n.getName() == "=")
+                {
+                    // variable assignement
+                    if (n[0].getType() == MathNode::Type::var)
+                    {
+                        bool hasSemicolonParent = ((n.getParent() != NULL) &&
+                                                   (n.getParent()->getType()
+                                                        == MathNode::Type::op)&&
+                                                   (n.getParent()->getName()
+                                                        == ";"));
+                        // compile the RHS
+                        compile(n[1]);
+                        // pop instruction if at the end of a statement
+                        if (hasSemicolonParent)
+                        {
+                            out_.push_back(new Pop(n[0].getName()));
+                        }
+                        // store instruction else
+                        else
+                        {
+                            out_.push_back(new Store(n[0].getName()));
+                        }
                     }
                     else
                     {
-                        out_.push_back(new Store(n[0].getName()));
+                        LATAN_ERROR(Compilation, "invalid LHS for '='");
                     }
+                }
+                // arithmetic operators
+                else
+                {
+                    for (unsigned int i = 0; i < n.getNArg(); ++i)
+                    {
+                        compile(n[i]);
+                    }
+                      IFNODE("-", 1) out_.push_back(new Neg);
+                    ELIFNODE("+", 2) out_.push_back(new Add);
+                    ELIFNODE("-", 2) out_.push_back(new Sub);
+                    ELIFNODE("*", 2) out_.push_back(new Mul);
+                    ELIFNODE("/", 2) out_.push_back(new Div);
+                    ELIFNODE("^", 2) out_.push_back(new Pow);
+                    ELSE LATAN_ERROR(Compilation, "unknown operator '"
+                                     + n.getName() + "'");
+                }
+                break;
+            case MathNode::Type::keyw:
+                if (n.getName() == "return")
+                {
+                    compile(n[0]);
+                    gotReturn_ = true;
                 }
                 else
                 {
-                    LATAN_ERROR(Compilation, "invalid LHS for '='");
+                    LATAN_ERROR(Compilation, "unknown keyword '" + n.getName()
+                                + "'");
                 }
-            }
-            else
-            {
+                break;
+            case MathNode::Type::func:
                 for (unsigned int i = 0; i < n.getNArg(); ++i)
                 {
                     compile(n[i]);
                 }
-                  IFNODE("-", 1) out_.push_back(new Neg);
-                ELIFNODE("+", 2) out_.push_back(new Add);
-                ELIFNODE("-", 2) out_.push_back(new Sub);
-                ELIFNODE("*", 2) out_.push_back(new Mul);
-                ELIFNODE("/", 2) out_.push_back(new Div);
-                ELIFNODE("^", 2) out_.push_back(new Pow);
-                ELSE LATAN_ERROR(Compilation, "unknown operator (node '"
-                                 + n.getName() + "')");
-            }
-            break;
-        case MathNode::Type::keyw: 
-            for (unsigned int i = 0; i < n.getNArg(); ++i)
-            {
-                compile(n[i]);
-            }
-            break;
-        case MathNode::Type::func:
-            for (unsigned int i = 0; i < n.getNArg(); ++i)
-            {
-                compile(n[i]);
-            }
-            out_.push_back(new Call(n.getName()));
-            break;
-        default:
-            LATAN_ERROR(Compilation,
-                        "unknown node type (node '" + n.getName() + "')");
-            break;
+                out_.push_back(new Call(n.getName()));
+                break;
+            default:
+                LATAN_ERROR(Compilation,
+                            "unknown node type (node named '" + n.getName()
+                            + "')");
+                break;
+        }
     }
 }
 
@@ -412,11 +493,7 @@ void MathCompiler::reset(void)
     delete code_;
     codeName_ = "<no_code>";
     delete state_;
-    for (vector<MathNode *>::iterator i = expr_.begin(); i != expr_.end(); ++i)
-    {
-        delete *i;
-    }
-    expr_.clear();
+    delete root_;
     for (VirtualProgram::iterator i = out_.begin(); i != out_.end(); ++i)
     {
         delete *i;

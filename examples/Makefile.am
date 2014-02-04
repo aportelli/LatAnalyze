@@ -15,10 +15,10 @@ endif
 endif
 
 noinst_PROGRAMS = \
-    ex_test
+    exMathCompiler
 
-ex_test_SOURCES = ex_test.cpp
-ex_test_CFLAGS  = -g -O2
-ex_test_LDFLAGS = -L../latan/.libs -llatan
+exMathCompiler_SOURCES = exMathCompiler.cpp
+exMathCompiler_CFLAGS  = -g -O2
+exMathCompiler_LDFLAGS = -L../latan/.libs -llatan
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

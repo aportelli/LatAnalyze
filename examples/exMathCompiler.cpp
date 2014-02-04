@@ -1,5 +1,5 @@
 #include <iostream>
-#include <latan/Function.hpp>
+#include <latan/Math.hpp>
 #include <latan/MathCompiler.hpp>
 
 using namespace std;
@@ -7,22 +7,31 @@ using namespace Latan;
 
 int main(int argc, char* argv[])
 {
-    MathCompiler C(argv[1]);
+    string source;
+    
+    if (argc != 2)
+    {
+        cerr << "usage: " << argv[0] << " <program>" << endl;
+    }
+    source = argv[1];
+    
+    MathCompiler C(source);
     VarTable vtable;
     FunctionTable ftable;
     stack<double> dstack;
     const VirtualProgram& P = C();
     
-    ftable["exp"]   = &StdMath::exp;
-    ftable["atan2"] = &StdMath::atan2;
-    cout << P << endl;
+    cout << "-- Source code:" << endl << source << endl << endl;
+    cout << "-- Abstract Syntax Tree:" << endl << *C.getAST() << endl;
+    cout << "-- Program:" << endl << P << endl;
+    StdMath::addStdMathFunc(ftable);
     for (unsigned int i=0;i<P.size();++i)
     {
-        (*(P[i]))(dstack,vtable,ftable);
+        (*(P[i]))(dstack, vtable, ftable);
     }
     if (!dstack.empty())
     {
-        cout << "result= " << dstack.top() << endl;
+        cout << "-- Result: " << dstack.top() << endl;
     }
     
     return EXIT_SUCCESS;

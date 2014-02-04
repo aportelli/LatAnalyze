@@ -29,7 +29,7 @@
 %token <val_char> ERR
 %token <val_str>  FLOAT
 %token <val_str>  ID
-%token <val_str>  KEYWORD
+%token RETURN
 
 %left '='
 %left '+' '-'
@@ -37,8 +37,7 @@
 %left '^'
 %nonassoc UMINUS
 
-%type <val_node> expr
-%type <val_node> funcargs
+%type <val_node> stmt stmt_list expr func_args
 
 %{
 	int _math_lex(YYSTYPE *lvalp, YYLTYPE *llocp, void *scanner);
@@ -60,21 +59,37 @@
 
 program:
      /* empty string */
-    | program expr ';' {state->data->push_back($2);}
+    | stmt_list {*(state->data) = $1;}
+    ;
+
+stmt:
+      ';'
+    {$$ = new MathNode(";", MathNode::Type::op, 0);}
+    | expr ';'
+    {$$ = $1;}
+    | ID '=' expr ';'
+    {
+        $$ = new MathNode("=", MathNode::Type::op, 2,              \
+                          new MathNode($ID,MathNode::Type::var), $3);
+    }
+    | RETURN expr ';'
+    {$$ = new MathNode("return", MathNode::Type::keyw, 1, $2);}
+    | '{' stmt_list '}'
+    {$$ = $2;}
+    ;
+        
+stmt_list:
+      stmt
+    {$$ = $1;}
+    | stmt_list stmt
+    {$$ = new MathNode(";", MathNode::Type::op, 2, $1, $2);}
     ;
 
 expr:
       FLOAT
     {$$ = new MathNode($FLOAT, MathNode::Type::cst);}
     | ID
-    {$$ = new MathNode($ID,MathNode::Type::var);}
-    | ID '=' expr
-    {
-        $$ = new MathNode("=", MathNode::Type::op, 2,              \
-                          new MathNode($ID,MathNode::Type::var), $3);
-    }
-    | 'r' expr
-    {$$ = new MathNode("return", MathNode::Type::keyw, 1, $2);}
+    {$$ = new MathNode($ID, MathNode::Type::var);}
     | '-' expr %prec UMINUS
     {$$ = new MathNode("-", MathNode::Type::op, 1, $2);}
     | expr '+' expr
@@ -89,16 +104,16 @@ expr:
     {$$ = new MathNode("^", MathNode::Type::op, 2, $1, $3);}
     | '(' expr ')'
     {$$ = $2;}
-    | ID '(' funcargs ')'
+    | ID '(' func_args ')'
     {$$ = $3; $$->setName($ID);}
     ;
 
-funcargs:
+func_args:
      /* empty string */
     {$$ = new MathNode("", MathNode::Type::func);}
     | expr
     {$$ = new MathNode("", MathNode::Type::func, 1, $1);}
-    | funcargs ',' expr
+    | func_args ',' expr
     {$$ = $1; $$->pushArg($3);}
     ;
 

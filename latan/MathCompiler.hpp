@@ -25,11 +25,12 @@ public:
     public:
         enum
         {
-            cst  = 0,
-            op   = 1,
-            var  = 2,
-            keyw = 3,
-            func = 4
+            undef = -1,
+            cst   =  0,
+            op    =  1,
+            var   =  2,
+            keyw  =  3,
+            func  =  4
         };
     };
 public:
@@ -40,21 +41,26 @@ public:
     // destructor
     virtual ~MathNode();
     // access
-    const std::string& getName(void) const;
-    unsigned int       getType(void) const;
-    unsigned int       getNArg(void) const;
+    const std::string& getName(void)   const;
+    unsigned int       getType(void)   const;
+    unsigned int       getNArg(void)   const;
+    const MathNode *   getParent(void) const;
+    unsigned int       getLevel(void)  const;
     void               setName(const std::string &name);
     void               pushArg(MathNode *node);
     // operator
     const MathNode &operator[](const unsigned int i) const;
-    // test
-    bool isRoot(void) const;
+private:
+    // IO
+    std::ostream &print(std::ostream &out) const;
 private:
     std::string             name_;
     unsigned int            type_;
     std::vector<MathNode *> arg_;
     const MathNode *        parent_;
 };
+
+std::ostream &operator<<(std::ostream &out, const MathNode &n);
 
 /******************************************************************************
  *                       Virtual machine code classes                         *
@@ -166,13 +172,10 @@ DECL_OP(Mul);
 DECL_OP(Div);
 DECL_OP(Pow);
 
-class VirtualProgram: public std::vector<Instruction *>
-{
-public:
-    VirtualProgram(void);
-    friend std::ostream &operator<<(std::ostream &out,
-                                    const VirtualProgram &program);
-};
+// Virtual program type
+typedef std::vector<Instruction *> VirtualProgram;
+
+std::ostream &operator<<(std::ostream &out, const VirtualProgram &program);
 
 /******************************************************************************
  *                               Compiler class                               *
@@ -181,12 +184,12 @@ class MathCompiler
 {
 public:
     // parser state
-    class MathParserState: public ParserState<std::vector<MathNode *> >
+    class MathParserState: public ParserState<MathNode *>
     {
     public:
         // constructor
         explicit MathParserState(std::istream *stream, std::string *name,
-                                 std::vector<MathNode *> *data);
+                                 MathNode **data);
         // destructor
         virtual ~MathParserState(void);
     private:
@@ -213,21 +216,24 @@ public:
     MathCompiler(const std::string &code);
     // destructor
     ~MathCompiler(void);
+    // access
+    const MathNode * getAST(void) const;
     // initialization
     void init(const std::string &code);
+    // compilation
     const VirtualProgram &operator()(void);
 private:
     void parse(void);
-    void compile(const std::vector<MathNode *> &expr);
     void compile(const MathNode &node);
     void reset(void);
 private:
-    std::istream            *code_;
-    std::string             codeName_;
-    MathParserState         *state_;
-    std::vector<MathNode *> expr_;
-    VirtualProgram          out_;
-    unsigned int            status_;
+    std::istream    *code_;
+    std::string     codeName_;
+    MathParserState *state_;
+    MathNode        *root_;
+    bool            gotReturn_;
+    VirtualProgram  out_;
+    unsigned int    status_;
 };
 
 LATAN_END_CPPDECL

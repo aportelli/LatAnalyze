@@ -3,7 +3,7 @@
 *.a
 *.so
 *.dylib
-examples/ex_test
+examples/exMathCompiler
 sandbox/*
 
 # Apple stuffs
