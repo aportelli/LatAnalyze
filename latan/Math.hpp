@@ -1,12 +1,31 @@
-#ifndef LATAN_MATH_HPP_
-#define	LATAN_MATH_HPP_
+/*
+ * Math.hpp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef Latan_Math_hpp_
+#define	Latan_Math_hpp_
 
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
 #include <latan/MathInterpreter.hpp>
 #include <vector>
 
-LATAN_BEGIN_CPPDECL
+BEGIN_NAMESPACE
 
 /******************************************************************************
  *                             Standard C functions                           *
@@ -68,6 +87,6 @@ namespace STDMATH_NAMESPACE
     void addStdMathFunc(FunctionTable &fTable);
 }
 
-LATAN_END_CPPDECL
+END_NAMESPACE
 
-#endif
+#endif // Latan_Math_hpp_

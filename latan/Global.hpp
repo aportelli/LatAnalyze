@@ -1,12 +1,31 @@
-#ifndef LATAN_GLOBAL_HPP_
-#define	LATAN_GLOBAL_HPP_
+/*
+ * Global.hpp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef Latan_Global_hpp_
+#define	Latan_Global_hpp_
 
 #include <map>
 #include <string>
 #include <latan/Eigen/Dense>
 
-#define LATAN_BEGIN_CPPDECL namespace Latan {
-#define LATAN_END_CPPDECL }
+#define BEGIN_NAMESPACE namespace Latan {
+#define END_NAMESPACE }
 
 // attribute to switch off unused warnings with gcc
 #ifdef __GNUC__
@@ -15,7 +34,7 @@
 #define __dumb
 #endif
 
-LATAN_BEGIN_CPPDECL
+BEGIN_NAMESPACE
 
 // Environment
 namespace Env
@@ -54,8 +73,8 @@ bool keyExists(const K &key, const std::map<K, T> &map)
     return (map.find(key) != map.end());
 }
 
-LATAN_END_CPPDECL
+END_NAMESPACE
 
 #include <latan/Exceptions.hpp>
 
-#endif
+#endif // Latan_Global_hpp_
