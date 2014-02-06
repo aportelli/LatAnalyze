@@ -16,9 +16,9 @@ class Function
 public:
     // constructor/destructor
     explicit Function(const unsigned nArg);
-    ~Function(void);
+    virtual ~Function(void);
     // access
-    unsigned int getNArg(void);
+    unsigned int getNArg(void) const;
 private:
     const unsigned int nArg_;
 };

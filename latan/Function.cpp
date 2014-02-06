@@ -34,7 +34,7 @@ Function::~Function(void)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
-unsigned int Function::getNArg(void)
+unsigned int Function::getNArg(void) const
 {
     return nArg_;
 }
@@ -77,5 +77,3 @@ double DoubleFunction::operator()(const double x0, ...)
     
     return (*this)(buffer_);
 }
-
-

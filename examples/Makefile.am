@@ -14,11 +14,16 @@ if CXX_INTEL
 endif
 endif
 
-noinst_PROGRAMS = \
-    exMathCompiler
+noinst_PROGRAMS =           \
+    exMathInterpreter          \
+    exCompiledDoubleFunction
 
-exMathCompiler_SOURCES = exMathCompiler.cpp
-exMathCompiler_CFLAGS  = -g -O2
-exMathCompiler_LDFLAGS = -L../latan/.libs -llatan
+exMathInterpreter_SOURCES        = exMathInterpreter.cpp
+exMathInterpreter_CFLAGS         = -g -O2
+exMathInterpreter_LDFLAGS        = -L../latan/.libs -llatan
+
+exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
+exCompiledDoubleFunction_CFLAGS  = -g -O2
+exCompiledDoubleFunction_LDFLAGS = -L../latan/.libs -llatan
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

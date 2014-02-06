@@ -3,7 +3,7 @@
     #include <sstream>
     #include <cstring>
     #include <latan/Global.hpp>
-	#include <latan/MathCompiler.hpp>
+	#include <latan/MathInterpreter.hpp>
 
     using namespace std;
     using namespace Latan;
@@ -14,7 +14,7 @@
 %locations
 %defines
 %error-verbose
-%parse-param { Latan::MathCompiler::MathParserState *state }
+%parse-param { Latan::MathInterpreter::MathParserState *state }
 %initial-action {yylloc.last_column = 0;}
 %lex-param { void* scanner }
 
@@ -42,7 +42,7 @@
 %{
 	int _math_lex(YYSTYPE *lvalp, YYLTYPE *llocp, void *scanner);
 
-	void _math_error(YYLTYPE *locp, MathCompiler::MathParserState *state,
+	void _math_error(YYLTYPE *locp, MathInterpreter::MathParserState *state,
                      const char *err)
 	{
         stringstream buf;

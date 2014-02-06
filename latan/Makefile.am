@@ -24,30 +24,32 @@ BUILT_SOURCES = IoAsciiParser.hpp MathParser.hpp
 
 lib_LTLIBRARIES = liblatan.la
 	
-liblatan_la_SOURCES =  \
-    Exceptions.cpp     \
-    Function.cpp       \
-    Global.cpp         \
-    includes.hpp       \
-    Io.cpp             \
-    IoAsciiParser.ypp  \
-    IoAsciiLexer.lpp   \
-    Mat.cpp            \
-    Math.cpp           \
-    MathCompiler.cpp   \
-    MathParser.ypp     \
-    MathLexer.lpp      \
-    Sample.cpp         \
+liblatan_la_SOURCES =   \
+    CompiledFunction.cpp\
+    Exceptions.cpp      \
+    Function.cpp        \
+    Global.cpp          \
+    includes.hpp        \
+    Io.cpp              \
+    IoAsciiParser.ypp   \
+    IoAsciiLexer.lpp    \
+    Mat.cpp             \
+    Math.cpp            \
+    MathInterpreter.cpp \
+    MathParser.ypp      \
+    MathLexer.lpp       \
+    Sample.cpp          \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
-liblatan_la_HEADERS = \
-    Function.hpp      \
-    Global.hpp        \
-    Io.hpp            \
-    IoObject.hpp      \
-    Mat.hpp           \
-    Math.hpp          \
-    MathCompiler.hpp  \
+liblatan_la_HEADERS =   \
+    CompiledFunction.hpp\
+    Function.hpp        \
+    Global.hpp          \
+    Io.hpp              \
+    IoObject.hpp        \
+    Mat.hpp             \
+    Math.hpp            \
+    MathInterpreter.hpp \
     Sample.hpp
 liblatan_la_CFLAGS = $(COM_CFLAGS)
 liblatan_la_CXXFLAGS = $(COM_CXXFLAGS)

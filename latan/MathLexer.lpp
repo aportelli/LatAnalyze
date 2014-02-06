@@ -7,7 +7,7 @@
 
 %{
     #include <iostream>
-    #include <latan/MathCompiler.hpp>
+    #include <latan/MathInterpreter.hpp>
     #include <latan/MathParser.hpp>
     #pragma GCC diagnostic ignored "-Wsign-compare"
     #pragma GCC diagnostic ignored "-Wunused-function"
@@ -16,7 +16,7 @@
     using namespace std;
     using namespace Latan;
     
-	#define YY_EXTRA_TYPE  MathCompiler::MathParserState *
+	#define YY_EXTRA_TYPE  MathInterpreter::MathParserState *
 	#define YY_USER_ACTION \
     yylloc->first_line   = yylloc->last_line = yylineno;\
     yylloc->first_column = yylloc->last_column + 1;\
@@ -62,13 +62,13 @@ return                    {RETTOK(RETURN);}
 
 %%
 
-void MathCompiler::MathParserState::initScanner()
+void MathInterpreter::MathParserState::initScanner()
 {
 	yylex_init(&scanner);
 	yyset_extra(this, scanner);
 }
 
-void MathCompiler::MathParserState::destroyScanner()
+void MathInterpreter::MathParserState::destroyScanner()
 {
 	yylex_destroy(scanner);
 }
