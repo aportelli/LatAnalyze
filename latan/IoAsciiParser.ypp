@@ -15,7 +15,7 @@
 %locations
 %defines
 %error-verbose
-%parse-param { Latan::AsciiParserState* state }
+%parse-param { Latan::AsciiFile::AsciiParserState* state }
 %initial-action {yylloc.last_column = 0;}
 %lex-param { void* scanner }
 
@@ -38,7 +38,8 @@
 %{
 	int _ioAscii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 
-	void _ioAscii_error(YYLTYPE* locp, AsciiParserState* state, const char* err)
+	void _ioAscii_error(YYLTYPE* locp, AsciiFile::AsciiParserState* state,
+                        const char* err)
 	{
         stringstream buf;
         

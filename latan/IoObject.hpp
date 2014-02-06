@@ -20,8 +20,8 @@ public:
         };
     };
 public:
-    virtual ~IoObject(void)            = 0;
-    virtual unsigned int getType(void) = 0;
+    virtual ~IoObject(void) {};
+    virtual unsigned int getType(void) const = 0;
 };
 
 LATAN_END_CPPDECL

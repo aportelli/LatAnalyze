@@ -20,7 +20,7 @@ DMat::DMat(const unsigned int nRow, const unsigned int nCol)
 : DMatBase(nRow,nCol)
 {}
 
-unsigned int DMat::getType(void)
+unsigned int DMat::getType(void) const
 {
     return IoType::dMat;
 }

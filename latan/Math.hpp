@@ -3,7 +3,7 @@
 
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
-#include <latan/MathCompiler.hpp>
+#include <latan/MathInterpreter.hpp>
 #include <vector>
 
 LATAN_BEGIN_CPPDECL

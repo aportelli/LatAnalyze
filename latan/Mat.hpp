@@ -21,7 +21,7 @@ public:
     DMat(const DMat& M);
     DMat(const unsigned int nRow, const unsigned int nCol);
     // IO
-    virtual unsigned int getType(void);
+    virtual unsigned int getType(void) const;
 };
 
 LATAN_END_CPPDECL

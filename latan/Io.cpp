@@ -4,9 +4,6 @@
 using namespace std;
 using namespace Latan;
 
-// ASCII data format Bison/Flex parser declaration
-int _ioAscii_parse(AsciiParserState* state);
-
 /******************************************************************************
  *                          File implementation                               *
  ******************************************************************************/
@@ -17,7 +14,7 @@ File::File(void)
 , data_()
 {}
 
-File::File(const string name, const unsigned int mode)
+File::File(const string &name, const unsigned int mode)
 : name_(name)
 , mode_(mode)
 , data_()
@@ -25,7 +22,9 @@ File::File(const string name, const unsigned int mode)
 
 // destructor //////////////////////////////////////////////////////////////////
 File::~File(void)
-{}
+{
+    deleteData();
+}
 
 // access //////////////////////////////////////////////////////////////////////
 string File::getName(void) const
@@ -54,15 +53,15 @@ void File::deleteData(void)
  *                     AsciiParserState implementation                        *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-AsciiParserState::AsciiParserState(istream* stream, string* name,
-                                   IoDataTable* data)
+AsciiFile::AsciiParserState::AsciiParserState(istream* stream, string* name,
+                                              IoDataTable* data)
 : ParserState<IoDataTable>(stream, name, data)
 {
     initScanner();
 }
 
 // destructor //////////////////////////////////////////////////////////////////
-AsciiParserState::~AsciiParserState(void)
+AsciiFile::AsciiParserState::~AsciiParserState(void)
 {
     destroyScanner();
 }
@@ -77,7 +76,7 @@ AsciiFile::AsciiFile(void)
 , state_(NULL)
 {}
 
-AsciiFile::AsciiFile(const string name, const unsigned int mode)
+AsciiFile::AsciiFile(const string &name, const unsigned int mode)
 {
     openAscii(name, mode);
 }
@@ -85,7 +84,7 @@ AsciiFile::AsciiFile(const string name, const unsigned int mode)
 // destructor //////////////////////////////////////////////////////////////////
 AsciiFile::~AsciiFile(void)
 {
-    clear();
+    closeAscii();
 }
 
 // tests ///////////////////////////////////////////////////////////////////////
@@ -97,10 +96,11 @@ bool AsciiFile::isOpen() const
 // IO //////////////////////////////////////////////////////////////////////////
 void AsciiFile::close(void)
 {
-    clear();
+    closeAscii();
+    deleteData();
 }
 
-void AsciiFile::open(const string name, const unsigned int mode)
+void AsciiFile::open(const string &name, const unsigned int mode)
 {
     if (isOpen())
     {
@@ -114,19 +114,12 @@ void AsciiFile::save(void)
     LATAN_ERROR(Implementation, "saving Ascii files not implemented yet");
 }
 
-void AsciiFile::saveAs(const string name __dumb)
+void AsciiFile::saveAs(const string &name __dumb)
 {
     LATAN_ERROR(Implementation, "saving Ascii files not implemented yet");
 }
 
-// internal functions //////////////////////////////////////////////////////////
-void AsciiFile::clear()
-{
-    deleteData();
-    closeAscii();
-}
-
-void AsciiFile::openAscii(const string name, const unsigned int mode)
+void AsciiFile::openAscii(const string &name, const unsigned int mode)
 {
     if (!isOpen())
     {
@@ -160,6 +153,33 @@ void AsciiFile::closeAscii(void)
     mode_     = FileMode::null;
     isParsed_ = false;
 }
+
+void AsciiFile::load(const string &name __dumb)
+{
+    if ((mode_ & FileMode::read)&&(isOpen()))
+    {
+        if (!isParsed_)
+        {
+            parse();
+        }
+    }
+    else
+    {
+        if (isOpen())
+        {
+            LATAN_ERROR(Io, "file '" + name_ + "' is not opened in read mode");
+        }
+        else
+        {
+            LATAN_ERROR(Io, "file not opened");
+        }
+    }
+}
+
+// parser //////////////////////////////////////////////////////////////////////
+
+// Bison/Flex parser declaration
+int _ioAscii_parse(AsciiFile::AsciiParserState* state);
 
 void AsciiFile::parse()
 {

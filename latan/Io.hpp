@@ -36,24 +36,28 @@ public:
 public:
     // constructors
     File(void);
-    File(const std::string name, const unsigned int mode);
+    File(const std::string &name, const unsigned int mode);
     // destructor
     virtual ~File(void);
     // access
     std::string  getName(void) const;
     unsigned int getMode(void) const;
+    template <typename IoT>
+    const IoT&   read(const std::string &name);
     // tests
     virtual bool isOpen(void) const = 0;
-    // Io
-    virtual void close(void)                                           = 0;
-    virtual void open(const std::string name, const unsigned int mode) = 0;
-    virtual void save(void)                                            = 0;
-    virtual void saveAs(const std::string name)                        = 0;
+    // IO
+    virtual void close(void)                                            = 0;
+    virtual void open(const std::string &name, const unsigned int mode) = 0;
+    virtual void save(void)                                             = 0;
+    virtual void saveAs(const std::string &name)                        = 0;
 protected:
     // data access
     void         deleteData(void);
     template <typename IoT>
-    const IoT& getData(const std::string dataName);
+    const IoT& getData(const std::string &name) const;
+    // IO
+    virtual void load(const std::string &name) = 0;
 protected:
     std::string  name_;
     unsigned int mode_;
@@ -62,92 +66,75 @@ protected:
 
 // Template implementations
 template <typename IoT>
-const IoT& File::getData(const std::string dataName)
+const IoT& File::read(const std::string &name)
 {
-    if (keyExists(dataName, data_))
+    load(name);
+    
+    return getData<IoT>(name);
+}
+
+template <typename IoT>
+const IoT& File::getData(const std::string &name) const
+{
+    IoDataTable::const_iterator i = data_.find(name);
+    
+    if (i != data_.end())
     {
-        return dynamic_cast<const IoT&>(*(data_[dataName]));
+        return dynamic_cast<const IoT&>(*(i->second));
     }
     else
     {
-        LATAN_ERROR(Range, "no data with name '" + dataName + "'");
+        LATAN_ERROR(Definition, "no data with name '" + name + "'");
     }
 }
 
 /******************************************************************************
  *                          ASCII datafile class                              *
  ******************************************************************************/
-class AsciiParserState: public ParserState<IoDataTable>
-{
-public:
-    // constructor
-    explicit AsciiParserState(std::istream* stream, std::string* name,\
-                              IoDataTable* data);
-    // destructor
-    virtual ~AsciiParserState(void);
-    // public members
-    std::stack<DMat>   dMatBuf;
-    std::stack<double> doubleBuf;
-private:
-    // allocation/deallocation functions defined in IoAsciiLexer.lpp
-    virtual void initScanner(void);
-    virtual void destroyScanner(void);
-};
-
 class AsciiFile: public File
 {
 public:
+    class AsciiParserState: public ParserState<IoDataTable>
+    {
+    public:
+        // constructor
+        explicit AsciiParserState(std::istream* stream, std::string* name,\
+                                  IoDataTable* data);
+        // destructor
+        virtual ~AsciiParserState(void);
+        // public members
+        std::stack<DMat>   dMatBuf;
+        std::stack<double> doubleBuf;
+    private:
+        // allocation/deallocation functions defined in IoAsciiLexer.lpp
+        virtual void initScanner(void);
+        virtual void destroyScanner(void);
+    };
+public:
     // constructors
     AsciiFile(void);
-    AsciiFile(const std::string name, const unsigned int mode);
+    AsciiFile(const std::string &name, const unsigned int mode);
     // destructor
     virtual ~AsciiFile(void);
-    // access
-    template <typename IoT>
-    const IoT& read(const std::string name);
     // tests
     virtual bool isOpen(void) const;
-    // Io
+    // IO
     virtual void close(void);
-    virtual void open(const std::string name, const unsigned int mode);
+    virtual void open(const std::string &name, const unsigned int mode);
     virtual void save(void);
-    virtual void saveAs(const std::string name);
+    virtual void saveAs(const std::string &name);
 private:
-    void clear(void);
-    void openAscii(const std::string name, const unsigned int mode);
+    // IO
+    void openAscii(const std::string &name, const unsigned int mode);
     void closeAscii(void);
+    virtual void load(const std::string &name);
+    // parser
     void parse(void);
 private:
     std::fstream      fileStream_;
     bool              isParsed_;
     AsciiParserState* state_;
 };
-
-// Template implementations
-template <typename IoT>
-const IoT& AsciiFile::read(const std::string dataName)
-{
-    if ((mode_ & FileMode::read)&&(isOpen()))
-    {
-        if (!isParsed_)
-        {
-            parse();
-        }
-        
-        return getData<IoT>(dataName);
-    }
-    else
-    {
-        if (isOpen())
-        {
-            LATAN_ERROR(Io,"file '" + name_ + "' is not opened in read mode");
-        }
-        else
-        {
-            LATAN_ERROR(Io,"file not opened");
-        }
-    }
-}
 
 LATAN_END_CPPDECL
 
