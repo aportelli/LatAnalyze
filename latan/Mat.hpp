@@ -37,7 +37,8 @@ class DMat: public DMatBase, public IoObject
 public:
     // constructors
     DMat(void);
-    DMat(const DMat& M);
+    DMat(const DMatBase &m);
+    DMat(const DMat &m);
     DMat(const unsigned int nRow, const unsigned int nCol);
     // IO
     virtual unsigned int getType(void) const;
