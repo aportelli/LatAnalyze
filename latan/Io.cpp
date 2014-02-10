@@ -29,7 +29,7 @@ using namespace Latan;
 // constructors ////////////////////////////////////////////////////////////////
 File::File(void)
 : name_("")
-, mode_(FileMode::null)
+, mode_(Mode::null)
 , data_()
 {}
 
@@ -68,10 +68,18 @@ void File::deleteData(void)
     data_.clear();
 }
 
+void File::checkWritability(void)
+{
+    if (!((mode_ & Mode::write)||(mode_ & Mode::append))||!isOpen())
+    {
+        LATAN_ERROR(Io, "file '" + name_ + "' is not writable");
+    }
+}
+
 /******************************************************************************
- *                     AsciiParserState implementation                        *
+ *                        AsciiFile implementation                            *
  ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
+// AsciiParserState constructor ////////////////////////////////////////////////
 AsciiFile::AsciiParserState::AsciiParserState(istream* stream, string* name,
                                               IoDataTable* data)
 : ParserState<IoDataTable>(stream, name, data)
@@ -79,15 +87,12 @@ AsciiFile::AsciiParserState::AsciiParserState(istream* stream, string* name,
     initScanner();
 }
 
-// destructor //////////////////////////////////////////////////////////////////
+// AsciiParserState destructor /////////////////////////////////////////////////
 AsciiFile::AsciiParserState::~AsciiParserState(void)
 {
     destroyScanner();
 }
 
-/******************************************************************************
- *                        AsciiFile implementation                            *
- ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
 AsciiFile::AsciiFile(void)
 : File(), fileStream_()
@@ -97,13 +102,23 @@ AsciiFile::AsciiFile(void)
 
 AsciiFile::AsciiFile(const string &name, const unsigned int mode)
 {
-    openAscii(name, mode);
+    open(name, mode);
 }
 
 // destructor //////////////////////////////////////////////////////////////////
 AsciiFile::~AsciiFile(void)
 {
-    closeAscii();
+    close();
+}
+
+// access //////////////////////////////////////////////////////////////////////
+void AsciiFile::save(const DMat &m, const std::string &name)
+{
+    checkWritability();
+    fileStream_ << "#L latan_begin mat " << name << endl;
+    fileStream_ << m.cols() << endl;
+    fileStream_ << m << endl;
+    fileStream_ << "#L latan_end mat " << endl;
 }
 
 // tests ///////////////////////////////////////////////////////////////////////
@@ -115,7 +130,15 @@ bool AsciiFile::isOpen() const
 // IO //////////////////////////////////////////////////////////////////////////
 void AsciiFile::close(void)
 {
-    closeAscii();
+    delete state_;
+    state_ = NULL;
+    if (isOpen())
+    {
+        fileStream_.close();
+    }
+    name_     = "";
+    mode_     = Mode::null;
+    isParsed_ = false;
     deleteData();
 }
 
@@ -125,28 +148,27 @@ void AsciiFile::open(const string &name, const unsigned int mode)
     {
         LATAN_ERROR(Io, "file already opened with name '" + name_ + "'");
     }
-    openAscii(name, mode);
-}
-
-void AsciiFile::save(void)
-{
-    LATAN_ERROR(Implementation, "saving Ascii files not implemented yet");
-}
-
-void AsciiFile::saveAs(const string &name __dumb)
-{
-    LATAN_ERROR(Implementation, "saving Ascii files not implemented yet");
-}
-
-void AsciiFile::openAscii(const string &name, const unsigned int mode)
-{
-    if (!isOpen())
+    else
     {
+        ios_base::openmode stdMode = 0;
+        
+        if (mode & Mode::write)
+        {
+            stdMode |= ios::out|ios::trunc;
+        }
+        if (mode & Mode::read)
+        {
+            stdMode |= ios::in;
+        }
+        if (mode & Mode::append)
+        {
+            stdMode |= ios::out|ios::app;
+        }
         name_     = name;
         mode_     = mode;
         isParsed_ = false;
-        fileStream_.open(name_.c_str());
-        if (mode_ & FileMode::read)
+        fileStream_.open(name_.c_str(), stdMode);
+        if (mode_ & Mode::read)
         {
             state_ = new AsciiParserState(&fileStream_, &name_, &data_);
         }
@@ -157,25 +179,9 @@ void AsciiFile::openAscii(const string &name, const unsigned int mode)
     }
 }
 
-void AsciiFile::closeAscii(void)
-{
-    if (state_)
-    {
-        delete state_;
-        state_ = NULL;
-    }
-    if (isOpen())
-    {
-        fileStream_.close();
-    }
-    name_     = "";
-    mode_     = FileMode::null;
-    isParsed_ = false;
-}
-
 void AsciiFile::load(const string &name __dumb)
 {
-    if ((mode_ & FileMode::read)&&(isOpen()))
+    if ((mode_ & Mode::read)&&(isOpen()))
     {
         if (!isParsed_)
         {

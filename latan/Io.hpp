@@ -36,12 +36,12 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                          Generic datafile class                            *
  ******************************************************************************/
-typedef std::map<std::string, IoObject*> IoDataTable;
+typedef std::map<std::string, IoObject *> IoDataTable;
 
 class File
 {
 public:
-    class FileMode
+    class Mode
     {
     public:
         enum
@@ -62,14 +62,13 @@ public:
     std::string  getName(void) const;
     unsigned int getMode(void) const;
     template <typename IoT>
-    const IoT&   read(const std::string &name);
+    const IoT &  read(const std::string &name);
+    virtual void save(const DMat &m, const std::string &name) = 0;
     // tests
     virtual bool isOpen(void) const = 0;
     // IO
     virtual void close(void)                                            = 0;
     virtual void open(const std::string &name, const unsigned int mode) = 0;
-    virtual void save(void)                                             = 0;
-    virtual void saveAs(const std::string &name)                        = 0;
 protected:
     // data access
     void         deleteData(void);
@@ -77,6 +76,8 @@ protected:
     const IoT& getData(const std::string &name) const;
     // IO
     virtual void load(const std::string &name) = 0;
+    // error checking
+    void checkWritability(void);
 protected:
     std::string  name_;
     unsigned int mode_;
@@ -117,8 +118,8 @@ public:
     {
     public:
         // constructor
-        explicit AsciiParserState(std::istream* stream, std::string* name,\
-                                  IoDataTable* data);
+        explicit AsciiParserState(std::istream *stream, std::string *name,\
+                                  IoDataTable *data);
         // destructor
         virtual ~AsciiParserState(void);
         // public members
@@ -135,17 +136,15 @@ public:
     AsciiFile(const std::string &name, const unsigned int mode);
     // destructor
     virtual ~AsciiFile(void);
+    // access
+    virtual void save(const DMat &m, const std::string &name);
     // tests
     virtual bool isOpen(void) const;
     // IO
     virtual void close(void);
     virtual void open(const std::string &name, const unsigned int mode);
-    virtual void save(void);
-    virtual void saveAs(const std::string &name);
 private:
     // IO
-    void openAscii(const std::string &name, const unsigned int mode);
-    void closeAscii(void);
     virtual void load(const std::string &name);
     // parser
     void parse(void);
