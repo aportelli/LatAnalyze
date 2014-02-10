@@ -115,10 +115,20 @@ AsciiFile::~AsciiFile(void)
 void AsciiFile::save(const DMat &m, const std::string &name)
 {
     checkWritability();
+    isParsed_ = false;
     fileStream_ << "#L latan_begin mat " << name << endl;
     fileStream_ << m.cols() << endl;
     fileStream_ << m << endl;
     fileStream_ << "#L latan_end mat " << endl;
+}
+
+void AsciiFile::save(const RandGen::State &state, const std::string &name)
+{
+    checkWritability();
+    isParsed_ = false;
+    fileStream_ << "#L latan_begin rg_state " << name << endl;
+    fileStream_ << state << endl;
+    fileStream_ << "#L latan_end rg_state " << endl;
 }
 
 // tests ///////////////////////////////////////////////////////////////////////
@@ -208,6 +218,7 @@ int _ioAscii_parse(AsciiFile::AsciiParserState* state);
 
 void AsciiFile::parse()
 {
+    fileStream_.seekg(0);
     _ioAscii_parse(state_);
     isParsed_ = true;
 }

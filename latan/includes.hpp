@@ -24,6 +24,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cfloat>
+#include <climits>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>

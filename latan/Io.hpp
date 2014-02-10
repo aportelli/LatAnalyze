@@ -29,6 +29,7 @@
 #include <latan/IoObject.hpp>
 #include <latan/Mat.hpp>
 #include <latan/ParserState.hpp>
+#include <latan/RandGen.hpp>
 #include <latan/Sample.hpp>
 
 BEGIN_NAMESPACE
@@ -63,7 +64,8 @@ public:
     unsigned int getMode(void) const;
     template <typename IoT>
     const IoT &  read(const std::string &name);
-    virtual void save(const DMat &m, const std::string &name) = 0;
+    virtual void save(const DMat &m, const std::string &name)               = 0;
+    virtual void save(const RandGen::State &state, const std::string &name) = 0;
     // tests
     virtual bool isOpen(void) const = 0;
     // IO
@@ -125,6 +127,7 @@ public:
         // public members
         std::stack<DMat>   dMatBuf;
         std::stack<double> doubleBuf;
+        std::stack<int>    intBuf;
     private:
         // allocation/deallocation functions defined in IoAsciiLexer.lpp
         virtual void initScanner(void);
@@ -138,6 +141,7 @@ public:
     virtual ~AsciiFile(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
+    virtual void save(const RandGen::State &state, const std::string &name);
     // tests
     virtual bool isOpen(void) const;
     // IO

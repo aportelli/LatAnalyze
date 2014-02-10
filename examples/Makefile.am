@@ -18,7 +18,8 @@ noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exMat                   \
     exMathInterpreter       \
-    exPlot
+    exPlot                  \
+    exRand
 
 exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
 exCompiledDoubleFunction_CFLAGS  = -g -O2
@@ -35,5 +36,9 @@ exMathInterpreter_LDFLAGS        = -L../latan/.libs -llatan
 exPlot_SOURCES                   = exPlot.cpp
 exPlot_CFLAGS                    = -g -O2
 exPlot_LDFLAGS                   = -L../latan/.libs -llatan
+
+exRand_SOURCES                   = exRand.cpp
+exRand_CFLAGS                    = -g -O2
+exRand_LDFLAGS                   = -L../latan/.libs -llatan
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

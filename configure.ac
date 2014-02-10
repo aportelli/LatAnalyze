@@ -25,6 +25,16 @@ m4_ifdef([AM_PROG_AR],[AM_PROG_AR])
 
 LT_INIT
 
+# Option to enable SSE random generator
+AC_ARG_ENABLE([SSE],
+	[AS_HELP_STRING([--enable-SSE],
+		[compiles SSE version of ranlux random generator])],
+	[AC_DEFINE([HAVE_SSE],
+				[1],
+				[Define to 1 if your CPU support SSE instructions.])],
+	[]
+)
+
 # Get compilers informations
 AX_COMPILER_VENDOR
 AC_DEFINE_UNQUOTED([C_COMP_VENDOR],["$ax_cv_c_compiler_vendor"],

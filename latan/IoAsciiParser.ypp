@@ -23,6 +23,8 @@
     #include <cstring>
     #include <latan/Global.hpp>
 	#include <latan/IO.hpp>
+    #include <latan/Mat.hpp>
+    #include <latan/RandGen.hpp>
     #include <latan/Sample.hpp>
 
     using namespace std;
@@ -52,6 +54,7 @@
 %token <val_int>    INT
 %token <val_str>    ID
 %token              MAT
+%token              RG_STATE
 %token              OPEN
 
 %{
@@ -74,25 +77,63 @@
 
 datas:
       /* empty string */
-    | datas mat
+    | datas data
 	;
+
+data:
+      mat
+    | rg_state
+    ;
 
 mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
         const int nRow = state->doubleBuf.size()/$INT, nCol = $INT;
-        (*state->data)[$ID] = new DMat(nRow,nCol);
-        DMat &M = static_cast<DMat &>(*((*state->data)[$ID]));
-        int r,i,j;
+        (*state->data)[$ID] = new DMat(nRow, nCol);
+        DMat &m = static_cast<DMat &>(*((*state->data)[$ID]));
+        int r, i, j;
         
         r = 0;
         while (!state->doubleBuf.empty())
         {
             j = r % nCol;
             i = (r - j)/nCol;
-            M(i,j) = state->doubleBuf.top();
+            m(i, j) = state->doubleBuf.top();
             state->doubleBuf.pop();
             ++r;
+        }
+        if (r != nRow*nCol)
+        {
+            LATAN_ERROR(Range, "matrix '" + *state->streamName + ":" + $ID +
+                        "' has a wrong size");
+        }
+    }
+    ;
+
+rg_state:
+      OPEN RG_STATE ID ints CLOSE RG_STATE
+    {
+        (*state->data)[$ID] = new RandGen::State;
+        RandGen::State &rgState =
+            static_cast<RandGen::State &>(*((*state->data)[$ID]));
+        
+        for (int i = 0; i < RLXG_STATE_SIZE; ++i)
+        {
+            if (!state->intBuf.empty())
+            {
+                rgState[i] = state->intBuf.top();
+                state->intBuf.pop();
+            }
+            else
+            {
+                LATAN_ERROR(Range, "random generator state '" +
+                            *state->streamName + ":" + $ID + "' is too short");
+            }
+        }
+        if (!state->intBuf.empty())
+        {
+            LATAN_ERROR(Range, "random generator state '" +
+                        *state->streamName + ":" + $ID + "' is too long");
         }
     }
     ;
@@ -102,4 +143,9 @@ floats:
     | INT   floats {state->doubleBuf.push(static_cast<double>($1));}
     | FLOAT {state->doubleBuf.push($1);}
     | INT   {state->doubleBuf.push(static_cast<double>($1));}
+    ;
+
+ints:
+      INT ints {state->intBuf.push($1);}
+    | INT {state->intBuf.push($1);}
     ;

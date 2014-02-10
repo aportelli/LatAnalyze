@@ -75,6 +75,7 @@ BLANK   [ \t]
 <MARK>latan_begin  {BEGIN(TYPE); RETTOK(OPEN);}
 <MARK>latan_end    {BEGIN(TYPE); RETTOK(CLOSE);}
 <TYPE>mat          {BEGIN(INITIAL); RETTOK(MAT);}
+<TYPE>rg_state     {BEGIN(INITIAL); RETTOK(RG_STATE);}
 <*>\n              {yylloc->last_column = 0;}
 <*>[ \t]
 <*>.               {yylval->val_char = yytext[0]; RETTOK(ERR);}

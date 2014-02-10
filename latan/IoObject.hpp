@@ -33,9 +33,10 @@ public:
     public:
         enum
         {
-            noType = 0,
-            dMat   = 1,
-            sample = 2
+            noType  = 0,
+            dMat    = 1,
+            sample  = 2,
+            rgState = 3
         };
     };
 public:
