@@ -40,10 +40,10 @@ private:
     virtual void initScanner(void)    = 0;
     virtual void destroyScanner(void) = 0;
 public:
-    DataObj*      data;
-    void*         scanner;
-    std::istream* stream;
-    std::string*  streamName;
+    DataObj       *data;
+    void          *scanner;
+    std::istream  *stream;
+    std::string   *streamName;
     
 };
 

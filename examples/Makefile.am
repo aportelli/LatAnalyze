@@ -15,15 +15,25 @@ endif
 endif
 
 noinst_PROGRAMS =           \
-    exMathInterpreter          \
-    exCompiledDoubleFunction
+    exCompiledDoubleFunction\
+    exMat                   \
+    exMathInterpreter       \
+    exPlot
+
+exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
+exCompiledDoubleFunction_CFLAGS  = -g -O2
+exCompiledDoubleFunction_LDFLAGS = -L../latan/.libs -llatan
+
+exMat_SOURCES                    = exMat.cpp
+exMat_CFLAGS                     = -g -O2
+exMat_LDFLAGS                    = -L../latan/.libs -llatan
 
 exMathInterpreter_SOURCES        = exMathInterpreter.cpp
 exMathInterpreter_CFLAGS         = -g -O2
 exMathInterpreter_LDFLAGS        = -L../latan/.libs -llatan
 
-exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
-exCompiledDoubleFunction_CFLAGS  = -g -O2
-exCompiledDoubleFunction_LDFLAGS = -L../latan/.libs -llatan
+exPlot_SOURCES                   = exPlot.cpp
+exPlot_CFLAGS                    = -g -O2
+exPlot_LDFLAGS                   = -L../latan/.libs -llatan
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4
