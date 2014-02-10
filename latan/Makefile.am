@@ -38,6 +38,7 @@ liblatan_la_SOURCES =   \
     MathInterpreter.cpp \
     MathParser.ypp      \
     MathLexer.lpp       \
+    Plot.cpp            \
     Sample.cpp          \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
@@ -50,6 +51,8 @@ liblatan_la_HEADERS =   \
     Mat.hpp             \
     Math.hpp            \
     MathInterpreter.hpp \
+    ParserState.hpp     \
+    Plot.hpp            \
     Sample.hpp
 liblatan_la_CFLAGS = $(COM_CFLAGS)
 liblatan_la_CXXFLAGS = $(COM_CXXFLAGS)

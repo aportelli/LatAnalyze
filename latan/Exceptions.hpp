@@ -25,9 +25,9 @@
 #include <latan/Global.hpp>
 #endif
 
-#define SRC_LOC strFrom<const char*>(__FUNCTION__) + " at "\
-                + strFrom<const char*>(__FILE__) + ":" + strFrom<int>(__LINE__)
-#define LATAN_ERROR(exc,msg) throw(Exceptions::exc(msg,SRC_LOC))
+#define SRC_LOC strFrom(__FUNCTION__) + " at " + strFrom(__FILE__) + ":"\
+                + strFrom(__LINE__)
+#define LATAN_ERROR(exc,msg) throw(Exceptions::exc(msg, SRC_LOC))
 
 #define DECL_EXC(name, base) \
 class name: public base\
@@ -53,6 +53,7 @@ namespace Exceptions
     DECL_EXC(Parsing, Runtime);
     DECL_EXC(Program, Runtime);
     DECL_EXC(Syntax, Runtime);
+    DECL_EXC(System, Runtime);
 }
 
 END_NAMESPACE

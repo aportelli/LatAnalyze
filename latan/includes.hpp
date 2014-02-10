@@ -26,6 +26,10 @@
 #include <sstream>
 #include <cmath>
 #include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "../config.h"
 
 #endif // Latan_includes_hpp_
