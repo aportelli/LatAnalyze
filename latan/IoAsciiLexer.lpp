@@ -56,7 +56,7 @@
 %}
 
 DIGIT   [0-9]
-ALPHA   [a-zA-Z_]
+ALPHA   [a-zA-Z_\-]
 SIGN    \+|-
 EXP     e|E
 INT     {SIGN}?{DIGIT}+
