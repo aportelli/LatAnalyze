@@ -35,22 +35,22 @@ BEGIN_NAMESPACE
 class CompiledDoubleFunction: public DoubleFunction
 {
 public:
-    // constructor/destructor
+    // constructors
     explicit CompiledDoubleFunction(const unsigned nArg);
     explicit CompiledDoubleFunction(const unsigned nArg,
                                     const std::string &code);
+    // destructor
     virtual ~CompiledDoubleFunction(void);
     // access
     void setCode(const std::string &code);
     // function call
-    using DoubleFunction::operator();
-    virtual double operator()(std::vector<double> &arg);
+    virtual double evaluate(const std::vector<double> &arg) const;
     // IO
     friend std::ostream &operator<<(std::ostream &out,
                                     CompiledDoubleFunction &f);
 private:
-    MathInterpreter interpreter_;
-    RunContext      context_;
+    MathInterpreter* interpreter_;
+    RunContext*      context_;
 };
 
 END_NAMESPACE

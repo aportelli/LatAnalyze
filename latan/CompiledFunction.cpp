@@ -27,30 +27,39 @@ using namespace Latan;
 /******************************************************************************
  *                   Compiled double function implementation                  *
  ******************************************************************************/
-// constructor/destructor //////////////////////////////////////////////////////
+// constructor /////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
 : DoubleFunction(nArg)
-{}
+{
+    interpreter_ = new MathInterpreter;
+    context_     = new RunContext;
+}
 
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
                                                const string &code)
 : DoubleFunction(nArg)
 {
+    interpreter_ = new MathInterpreter;
+    context_     = new RunContext;
     setCode(code);
 }
 
+// destructor //////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::~CompiledDoubleFunction(void)
-{}
+{
+    delete interpreter_;
+    delete context_;
+}
 
 // access //////////////////////////////////////////////////////////////////////
 void CompiledDoubleFunction::setCode(const string &code)
 {
-    interpreter_.setCode(code);
-    StdMath::addStdMathFunc(context_.fTable);
+    interpreter_->setCode(code);
+    StdMath::addStdMathFunc(context_->fTable);
 }
 
 // function call ///////////////////////////////////////////////////////////////
-double CompiledDoubleFunction::operator()(vector<double> &arg)
+double CompiledDoubleFunction::evaluate(const vector<double> &arg) const
 {
     double result;
     
@@ -62,13 +71,13 @@ double CompiledDoubleFunction::operator()(vector<double> &arg)
     }
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        context_.vTable["x_" + strFrom(i)] = arg[i];
+        context_->vTable["x_" + strFrom(i)] = arg[i];
     }
-    interpreter_(context_);
-    if (!context_.dStack.empty())
+    (*interpreter_)(*context_);
+    if (!context_->dStack.empty())
     {
-        result = context_.dStack.top();
-        context_.dStack.pop();
+        result = context_->dStack.top();
+        context_->dStack.pop();
     }
     else
     {
@@ -82,7 +91,8 @@ double CompiledDoubleFunction::operator()(vector<double> &arg)
 // IO //////////////////////////////////////////////////////////////////////////
 ostream &Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
 {
-    out << f.interpreter_;
+    f.interpreter_->compile();
+    out << *(f.interpreter_);
     
     return out;
 }

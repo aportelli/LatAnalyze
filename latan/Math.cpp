@@ -27,58 +27,54 @@ using namespace Latan;
  *                             Standard C functions                           *
  ******************************************************************************/
 
-#define DEF_STD_FUNC_1ARG(name, funcName) \
-name##Function::name##Function(void): DoubleFunction(1) {}\
-name##Function::~name##Function(void) {}\
-double name##Function::operator()(std::vector<double> &arg)\
+#define DEF_STD_FUNC_1ARG(name) \
+static double name##VecFunc(const vector<double> &arg)\
 {\
-    return funcName(arg[0]);\
+    return (name)(arg[0]);\
 }\
-name##Function STDMATH_NAMESPACE::funcName;
+DoubleFunction STDMATH_NAMESPACE::name(1, &name##VecFunc);
 
-#define DEF_STD_FUNC_2ARG(name, funcName) \
-name##Function::name##Function(void): DoubleFunction(2) {}\
-name##Function::~name##Function(void) {}\
-double name##Function::operator()(std::vector<double> &arg)\
+#define DEF_STD_FUNC_2ARG(name) \
+static double name##VecFunc(const vector<double> &arg)\
 {\
-    return funcName(arg[0], arg[1]);\
+return (name)(arg[0], arg[1]);\
 }\
-name##Function STDMATH_NAMESPACE::funcName;
+DoubleFunction STDMATH_NAMESPACE::name(2, &name##VecFunc);
 
 // Trigonometric functions
-DEF_STD_FUNC_1ARG(Cos,   cos)
-DEF_STD_FUNC_1ARG(Sin,   sin)
-DEF_STD_FUNC_1ARG(Tan,   tan)
-DEF_STD_FUNC_1ARG(ACos,  acos)
-DEF_STD_FUNC_1ARG(ASin,  asin)
-DEF_STD_FUNC_1ARG(ATan,  atan)
-DEF_STD_FUNC_2ARG(ATan2, atan2)
+DEF_STD_FUNC_1ARG(cos)
+DEF_STD_FUNC_1ARG(sin)
+DEF_STD_FUNC_1ARG(tan)
+DEF_STD_FUNC_1ARG(acos)
+DEF_STD_FUNC_1ARG(asin)
+DEF_STD_FUNC_1ARG(atan)
+DEF_STD_FUNC_2ARG(atan2)
 
 // Hyperbolic functions
-DEF_STD_FUNC_1ARG(Cosh, cosh)
-DEF_STD_FUNC_1ARG(Sinh, sinh)
-DEF_STD_FUNC_1ARG(Tanh, tanh)
+DEF_STD_FUNC_1ARG(cosh)
+DEF_STD_FUNC_1ARG(sinh)
+DEF_STD_FUNC_1ARG(tanh)
 
 // Exponential and logarithmic functions
-DEF_STD_FUNC_1ARG(Exp, exp)
-DEF_STD_FUNC_1ARG(Log, log)
+DEF_STD_FUNC_1ARG(exp)
+DEF_STD_FUNC_1ARG(log)
 
 // Power functions
-DEF_STD_FUNC_2ARG(Pow,  pow)
-DEF_STD_FUNC_1ARG(Sqrt, sqrt)
+DEF_STD_FUNC_2ARG(pow)
+DEF_STD_FUNC_1ARG(sqrt)
 
 // Rounding and remainder functions
-DEF_STD_FUNC_1ARG(Ceil,  ceil)
-DEF_STD_FUNC_1ARG(Floor, floor)
-DEF_STD_FUNC_2ARG(FMod,  fmod)
+DEF_STD_FUNC_1ARG(ceil)
+DEF_STD_FUNC_1ARG(floor)
+DEF_STD_FUNC_2ARG(fmod)
 
 // Minimum, maximum, difference functions
-DEF_STD_FUNC_2ARG(FDim, fdim)
-DEF_STD_FUNC_2ARG(FMax, fmax)
-DEF_STD_FUNC_2ARG(FMin, fmin)
+DEF_STD_FUNC_2ARG(fdim)
+DEF_STD_FUNC_2ARG(fmax)
+DEF_STD_FUNC_2ARG(fmin)
 
 // Absolute value
-DEF_STD_FUNC_1ARG(Abs, abs)
+DEF_STD_FUNC_1ARG(fabs)
 
 #define ADD_FUNC(func) fTable[#func] = &STDMATH_NAMESPACE::func
 void STDMATH_NAMESPACE::addStdMathFunc(FunctionTable &fTable)
@@ -110,5 +106,5 @@ void STDMATH_NAMESPACE::addStdMathFunc(FunctionTable &fTable)
     ADD_FUNC(fmax);
     ADD_FUNC(fmin);
     // Absolute value
-    ADD_FUNC(abs);
+    ADD_FUNC(fabs);
 }

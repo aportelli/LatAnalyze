@@ -61,27 +61,38 @@ unsigned int Function::getNArg(void) const
 /******************************************************************************
  *                        DoubleFunction implementation                       *
  ******************************************************************************/
-DoubleFunction::DoubleFunction(const unsigned nArg)
-: Function(nArg), buffer_(nArg)
-{}
+DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc *f)
+: Function(nArg)
+, f_(f)
+{
+    buffer_ = new vector<double>(nArg);
+}
 
 DoubleFunction::~DoubleFunction(void)
-{}
+{
+    delete buffer_;
+}
 
-double DoubleFunction::operator()(std::stack<double> &arg)
+double DoubleFunction::evaluate(const std::vector<double> &arg) const
+{
+    std::cout << "double()" << endl;
+    return f_(arg);
+}
+
+double DoubleFunction::operator()(std::stack<double> &arg) const
 {
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        buffer_[getNArg() - i - 1] = arg.top();
+        (*buffer_)[getNArg() - i - 1] = arg.top();
         arg.pop();
     }
     
-    return (*this)(buffer_);
+    return this->evaluate(*buffer_);
 }
 
-double DoubleFunction::operator()(const double x0, ...)
+double DoubleFunction::operator()(const double x0, ...) const
 {
-    buffer_[0] = x0;
+    (*buffer_)[0] = x0;
     if (getNArg() > 1)
     {
         va_list va;
@@ -89,10 +100,10 @@ double DoubleFunction::operator()(const double x0, ...)
         va_start(va, x0);
         for (unsigned int i = 1; i < getNArg(); ++i)
         {
-            buffer_[i] = va_arg(va, double);
+            (*buffer_)[i] = va_arg(va, double);
         }
         va_end(va);
     }
     
-    return (*this)(buffer_);
+    return this->evaluate(*buffer_);
 }

@@ -47,16 +47,19 @@ private:
  ******************************************************************************/
 class DoubleFunction: public Function
 {
+private:
+    typedef double vecFunc(const std::vector<double> &);
 public:
     // constructor/destructor
-    explicit DoubleFunction(const unsigned nArg);
+    explicit DoubleFunction(const unsigned nArg, vecFunc *f = NULL);
     virtual ~DoubleFunction(void);
     // function call
-    virtual double operator()(std::vector<double> &arg) = 0;
-    double operator()(std::stack<double> &arg);
-    double operator()(const double x0, ...);
+    virtual double evaluate(const std::vector<double> &arg) const;
+    double operator()(std::stack<double> &arg) const;
+    double operator()(const double x0, ...) const;
 private:
-    std::vector<double> buffer_;
+    std::vector<double> *buffer_;
+    vecFunc *f_;
 };
 
 END_NAMESPACE
