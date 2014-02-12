@@ -28,19 +28,11 @@ using namespace Latan;
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 DMat::DMat(void)
-: DMatBase()
-{}
-
-DMat::DMat(const DMatBase &m)
-: DMatBase(m)
-{}
-
-DMat::DMat(const DMat &m)
-: DMatBase(m)
+: Base()
 {}
 
 DMat::DMat(const unsigned int nRow, const unsigned int nCol)
-: DMatBase(nRow, nCol)
+: Base(nRow, nCol)
 {}
 
 unsigned int DMat::getType(void) const

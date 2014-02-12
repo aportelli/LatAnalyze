@@ -26,23 +26,24 @@
 
 BEGIN_NAMESPACE
 
-// Eigen aliases
-typedef Eigen::MatrixXd  DMatBase;
-typedef Eigen::MatrixXcd CMatBase;
-typedef Eigen::VectorXd  DVecBase;
-typedef Eigen::VectorXcd CVecBase;
-
-class DMat: public DMatBase, public IoObject
+class DMat: public Eigen::MatrixXd, public IoObject
 {
+private:
+    typedef Eigen::MatrixXd Base;
 public:
     // constructors
     DMat(void);
-    DMat(const DMatBase &m);
-    DMat(const DMat &m);
     DMat(const unsigned int nRow, const unsigned int nCol);
+    template <typename Derived>
+    DMat(const  Eigen::EigenBase<Derived> &m);
     // IO
     virtual unsigned int getType(void) const;
 };
+
+template <typename Derived>
+DMat::DMat(const Eigen::EigenBase<Derived> &m)
+: Base(m)
+{}
 
 END_NAMESPACE
 
