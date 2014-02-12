@@ -21,25 +21,97 @@
 #define	Latan_Sample_hpp_
 
 #include <latan/Global.hpp>
+#include <latan/IoObject.hpp>
 #include <latan/Mat.hpp>
+#include <latan/StatArray.hpp>
 
 BEGIN_NAMESPACE
 
-const int Central = -1;
+const int central = -1;
 
-typedef Eigen::Array<DMat, Eigen::Dynamic, 1> DSampleBase;
-
-class DSample: public DSampleBase
+/******************************************************************************
+ *                              Sample class                                  *
+ ******************************************************************************/
+template <typename T>
+class Sample: public StatArray<T>, public IoObject
 {
+private:
+    typedef StatArray<T> Base;
 public:
-    // Constructors/destructor
-    DSample(void);
-    DSample(const unsigned int nSample, const unsigned int nRow,
-            const unsigned int nCol);
-    ~DSample(void);
-    // Operators
-    DMat& operator()(const int s);
+    // constructors
+    Sample(void);
+    Sample(const unsigned int nSample);
+    template <typename Derived>
+    Sample(const Eigen::EigenBase<Derived> &s);
+    // destructor
+    virtual ~Sample(void);
+    // operators
+    T& operator[](const int s);
+    // IO type
+    virtual unsigned int getType(void) const;
+private:
+    // index of the first element to take into account for statistics
+    virtual unsigned int getOffset(void) const;
 };
+
+template <>
+unsigned int Sample<DMat>::getType(void) const;
+
+// specialization aliases
+typedef Sample<DMat> DMatSample;
+
+/******************************************************************************
+ *                    Sample class template implementation                    *
+ ******************************************************************************/
+// constructor /////////////////////////////////////////////////////////////////
+template <typename T>
+Sample<T>::Sample(void)
+: Base(static_cast<typename Base::Index>(getOffset()))
+{}
+
+template <typename T>
+Sample<T>::Sample(const unsigned int nSample)
+: Base(static_cast<typename Base::Index>(nSample + getOffset()))
+{}
+
+template <typename T>
+template <typename Derived>
+Sample<T>::Sample(const  Eigen::EigenBase<Derived> &s)
+: Base(s)
+{}
+
+// destructor //////////////////////////////////////////////////////////////////
+template <typename T>
+Sample<T>::~Sample(void)
+{}
+
+// operators ///////////////////////////////////////////////////////////////////
+template <typename T>
+T& Sample<T>::operator[](const int s)
+{
+    if (s >= 0)
+    {
+        return Base::operator[](s + 1);
+    }
+    else
+    {
+        return Base::operator[](0);
+    }
+}
+
+// IO type /////////////////////////////////////////////////////////////////////
+template <typename T>
+unsigned int Sample<T>::getType(void) const
+{
+    return IoType::noType;
+}
+
+// statistics //////////////////////////////////////////////////////////////////
+template <typename T>
+unsigned int Sample<T>::getOffset(void) const
+{
+    return 1u;
+}
 
 END_NAMESPACE
 

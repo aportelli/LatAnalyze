@@ -45,6 +45,7 @@ liblatan_la_SOURCES =   \
 liblatan_ladir = $(pkgincludedir)
 liblatan_la_HEADERS =   \
     CompiledFunction.hpp\
+    Dataset.hpp         \
     Function.hpp        \
     Global.hpp          \
     Io.hpp              \
@@ -55,7 +56,8 @@ liblatan_la_HEADERS =   \
     ParserState.hpp     \
     Plot.hpp            \
     RandGen.hpp         \
-    Sample.hpp
+    Sample.hpp          \
+    StatArray.hpp
 liblatan_la_CFLAGS = $(COM_CFLAGS)
 liblatan_la_CXXFLAGS = $(COM_CXXFLAGS)
 
