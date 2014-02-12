@@ -49,7 +49,7 @@ namespace Env
 
 // string conversions
 template <typename T>
-T strTo(std::string str)
+T strTo(const std::string &str)
 {
     T buf;
     std::istringstream stream(str);
@@ -59,8 +59,16 @@ T strTo(std::string str)
     return buf;
 }
 
+//// optimized specializations
+template <>
+float strTo<float>(const std::string &str);
+template <>
+double strTo<double>(const std::string &str);
+template <>
+int strTo<int>(const std::string &str);
+
 template <typename T>
-std::string strFrom(T x)
+std::string strFrom(const T x)
 {
     std::ostringstream stream;
     

@@ -26,3 +26,21 @@ using namespace Latan;
 const string Env::fullName = PACKAGE_STRING;
 const string Env::name     = PACKAGE_NAME;
 const string Env::version  = PACKAGE_VERSION;
+
+template <>
+float Latan::strTo<float>(const string &str)
+{
+    return strtof(str.c_str(), (char **)NULL);
+}
+
+template <>
+double Latan::strTo<double>(const string &str)
+{
+    return strtod(str.c_str(), (char **)NULL);
+}
+
+template <>
+int Latan::strTo<int>(const string &str)
+{
+    return (int)(strtol(str.c_str(), (char **)NULL, 10));
+}
