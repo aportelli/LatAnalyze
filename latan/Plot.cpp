@@ -91,13 +91,11 @@ Plot & Plot::operator<<(const PlotCommand &command)
 }
 
 // find gnuplot ////////////////////////////////////////////////////////////////
-#define PATH_MAX_SIZE 4096
-
 void Plot::getProgramPath(void)
 {
     int         i, j, lg;
     char        *path;
-    static char buf[PATH_MAX_SIZE];
+    static char buf[MAX_PATH_LENGTH];
     
     /* Trivial case: try in CWD */
     sprintf(buf,"./%s", gnuplotBin_.c_str()) ;

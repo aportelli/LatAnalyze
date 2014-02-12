@@ -34,6 +34,9 @@
 #define __dumb
 #endif
 
+// max length for paths
+#define MAX_PATH_LENGTH 512
+
 BEGIN_NAMESPACE
 
 // Environment
