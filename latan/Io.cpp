@@ -138,7 +138,7 @@ bool AsciiFile::isOpen() const
 // IO //////////////////////////////////////////////////////////////////////////
 void AsciiFile::close(void)
 {
-    state_.reset(nullptr);
+    state_.reset();
     if (isOpen())
     {
         fileStream_.close();
@@ -181,7 +181,7 @@ void AsciiFile::open(const string &name, const unsigned int mode)
         }
         else
         {
-            state_.reset(nullptr);
+            state_.reset();
         }
     }
 }

@@ -350,10 +350,10 @@ void MathInterpreter::setCode(const std::string &code)
 
 void MathInterpreter::reset(void)
 {
-    code_.reset(nullptr);
+    code_.reset();
     codeName_ = "<no_code>";
-    state_.reset(nullptr);
-    root_.reset(nullptr);
+    state_.reset();
+    root_.reset();
     program_.clear();
     status_ = 0;
 }
