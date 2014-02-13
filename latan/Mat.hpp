@@ -37,7 +37,7 @@ public:
     template <typename Derived>
     DMat(const  Eigen::EigenBase<Derived> &m);
     // IO
-    virtual unsigned int getType(void) const;
+    virtual IoType getType(void) const;
 };
 
 template <typename Derived>

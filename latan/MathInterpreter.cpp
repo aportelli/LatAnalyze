@@ -26,26 +26,26 @@ using namespace Latan;
 /******************************************************************************
  *                        MathNode implementation                             *
  ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
-MathNode::MathNode(const string &name, const unsigned int type)
+// constructors ////////////////////////////////////////////////////////////////
+MathNode::MathNode(const string &name, const Type type)
 : name_(name)
 , type_(type)
-, parent_(NULL)
+, parent_(nullptr)
 {}
 
-MathNode::MathNode(const std::string &name, const unsigned int type,\
+MathNode::MathNode(const std::string &name, const Type type,\
                    const unsigned int nArg, ...)
 : name_(name)
 , type_(type)
 , arg_(nArg)
-, parent_(NULL)
+, parent_(nullptr)
 {
     va_list va;
 
     va_start(va, nArg);
     for (unsigned int i = 0; i < nArg; ++i)
     {
-        arg_[i] = va_arg(va, MathNode *);
+        arg_[i].reset(va_arg(va, MathNode *));
         arg_[i]->parent_ = this;
     }
     va_end(va);
@@ -53,14 +53,7 @@ MathNode::MathNode(const std::string &name, const unsigned int type,\
 
 // destructor //////////////////////////////////////////////////////////////////
 MathNode::~MathNode(void)
-{
-    vector<MathNode *>::iterator i;
-    
-    for (i = arg_.begin(); i != arg_.end(); ++i)
-    {
-        delete *i;
-    }
-}
+{}
 
 // access //////////////////////////////////////////////////////////////////////
 const string &MathNode::getName(void) const
@@ -68,7 +61,7 @@ const string &MathNode::getName(void) const
     return name_;
 }
 
-unsigned int MathNode::getType(void) const
+MathNode::Type MathNode::getType(void) const
 {
     return type_;
 }
@@ -102,7 +95,7 @@ void MathNode::setName(const std::string &name)
 
 void MathNode::pushArg(MathNode *node)
 {
-    arg_.push_back(node);
+    arg_.push_back(unique_ptr<MathNode>(node));
 }
 
 // operators ///////////////////////////////////////////////////////////////////
@@ -130,7 +123,8 @@ ostream &Latan::operator<<(ostream &out, const MathNode &n)
             out << "  ";
         }
     }
-    out << " " << n.getName() << " (type " << n.getType() << ")" << endl;
+    out << " " << n.getName() << " (type " << static_cast<int>(n.getType())
+        << ")" << endl;
     for (unsigned int i = 0; i < n.getNArg(); ++i)
     {
         out << n[i];
@@ -175,11 +169,11 @@ void Push::operator()(RunContext &context) const
     }
     else
     {
-        if (keyExists(name_, context.vTable))
+        try
         {
-            context.dStack.push(context.vTable[name_]);
+            context.dStack.push(context.vTable.at(name_));
         }
-        else
+        catch (out_of_range)
         {
             LATAN_ERROR(Range, "unknown variable '" + name_ + "'");
         }
@@ -187,7 +181,7 @@ void Push::operator()(RunContext &context) const
     context.insIndex++;
 }
 
-void Push::print(std::ostream &out) const
+void Push::print(ostream &out) const
 {
     out << CODE_MOD << "push";
     if (type_ == ArgType::Constant)
@@ -214,7 +208,7 @@ void Pop::operator()(RunContext &context) const
     context.insIndex++;
 }
 
-void Pop::print(std::ostream &out) const
+void Pop::print(ostream &out) const
 {
     out << CODE_MOD << "pop" << CODE_MOD << name_;
 }
@@ -232,7 +226,7 @@ void Store::operator()(RunContext &context) const
     context.insIndex++;
 }
 
-void Store::print(std::ostream &out) const
+void Store::print(ostream &out) const
 {
     out << CODE_MOD << "store" << CODE_MOD << name_;
 }
@@ -243,18 +237,18 @@ Call::Call(const string &name)
 
 void Call::operator()(RunContext &context) const
 {
-    if (keyExists(name_, context.fTable))
+    try
     {
-        context.dStack.push((*context.fTable[name_])(context.dStack));
+        context.dStack.push((*context.fTable.at(name_))(context.dStack));
     }
-    else
+    catch (out_of_range)
     {
         LATAN_ERROR(Range, "unknown function '" + name_ + "'");
     }
     context.insIndex++;
 }
 
-void Call::print(std::ostream &out) const
+void Call::print(ostream &out) const
 {
     out << CODE_MOD << "call" << CODE_MOD << name_;
 }
@@ -271,7 +265,7 @@ void name::operator()(RunContext &context) const\
     context.dStack.push(exp);\
     context.insIndex++;\
 }\
-void name::print(std::ostream &out) const\
+void name::print(ostream &out) const\
 {\
     out << CODE_MOD << insName;\
 }
@@ -287,9 +281,9 @@ DEF_OP(Pow, 2, pow(x[0],x[1]), "pow")
  *                       MathInterpreter implementation                       *
  ******************************************************************************/
 // MathParserState constructor /////////////////////////////////////////////////
-MathInterpreter::MathParserState::MathParserState(istream *stream, string *name,
-                                               MathNode **data)
-: ParserState<MathNode *>(stream, name, data)
+MathInterpreter::MathParserState::MathParserState
+(istream *stream, string *name, std::unique_ptr<MathNode> *data)
+: ParserState<std::unique_ptr<MathNode>>(stream, name, data)
 {
     initScanner();
 }
@@ -302,19 +296,19 @@ MathInterpreter::MathParserState::~MathParserState(void)
 
 // constructors ////////////////////////////////////////////////////////////////
 MathInterpreter::MathInterpreter(void)
-: code_(NULL)
+: code_(nullptr)
 , codeName_("<no_code>")
-, state_(NULL)
-, root_(NULL)
+, state_(nullptr)
+, root_(nullptr)
 , gotReturn_(false)
 , status_(Status::none)
 {}
 
 MathInterpreter::MathInterpreter(const std::string &code)
-: code_(NULL)
+: code_(nullptr)
 , codeName_("<string>")
-, state_(NULL)
-, root_(NULL)
+, state_(nullptr)
+, root_(nullptr)
 , gotReturn_(false)
 , status_(Status::none)
 {
@@ -323,31 +317,22 @@ MathInterpreter::MathInterpreter(const std::string &code)
 
 // destructor //////////////////////////////////////////////////////////////////
 MathInterpreter::~MathInterpreter(void)
-{
-    reset();
-}
+{}
 
 // access //////////////////////////////////////////////////////////////////////
 const Instruction * MathInterpreter::operator[](const unsigned int i) const
 {
-    return program_[i];
+    return program_[i].get();
 }
 
 const MathNode * MathInterpreter::getAST(void) const
 {
-    if (root_)
-    {
-        return root_;
-    }
-    else
-    {
-        return NULL;
-    }
+    return root_.get();
 }
 
 void MathInterpreter::push(const Instruction *i)
 {
-    program_.push_back(i);
+    program_.push_back(unique_ptr<const Instruction>(i));
 }
 
 // initialization //////////////////////////////////////////////////////////////
@@ -357,24 +342,18 @@ void MathInterpreter::setCode(const std::string &code)
     {
         reset();
     }
-    code_     = new stringstream(code);
+    code_.reset(new stringstream(code));
     codeName_ = "<string>";
-    state_    = new MathParserState(code_, &codeName_, &root_);
+    state_.reset(new MathParserState(code_.get(), &codeName_, &root_));
     status_   = Status::initialised;
 }
 
 void MathInterpreter::reset(void)
 {
-    InstructionContainer::iterator i;
-    
-    delete code_;
+    code_.reset(nullptr);
     codeName_ = "<no_code>";
-    delete state_;
-    delete root_;
-    for (i = program_.begin(); i != program_.end(); ++i)
-    {
-        delete *i;
-    }
+    state_.reset(nullptr);
+    root_.reset(nullptr);
     program_.clear();
     status_ = 0;
 }
@@ -382,11 +361,11 @@ void MathInterpreter::reset(void)
 // parser //////////////////////////////////////////////////////////////////////
 
 // Bison/Flex parser declaration
-int _math_parse(MathInterpreter::MathParserState* state);
+int _math_parse(MathInterpreter::MathParserState *state);
 
 void MathInterpreter::parse(void)
 {
-    _math_parse(state_);
+    _math_parse(state_.get());
 }
 
 // interpreter /////////////////////////////////////////////////////////////////
@@ -414,6 +393,9 @@ void MathInterpreter::compile(void)
 #define ELIFNODE(name, nArg) else IFNODE(name, nArg)
 #define ELSE else
 
+#define PUSH_INS(type, ...) \
+program_.push_back(unique_ptr<type>(new (type)(__VA_ARGS__)))
+
 void MathInterpreter::compileNode(const MathNode& n)
 {
     if (!gotReturn_)
@@ -421,10 +403,10 @@ void MathInterpreter::compileNode(const MathNode& n)
         switch (n.getType())
         {
             case MathNode::Type::cst:
-                program_.push_back(new Push(strTo<double>(n.getName())));
+                PUSH_INS(Push, strTo<double>(n.getName()));
                 break;
             case MathNode::Type::var:
-                program_.push_back(new Push(n.getName()));
+                PUSH_INS(Push, n.getName());
                 break;
             case MathNode::Type::op:
                 // semicolon
@@ -464,12 +446,12 @@ void MathInterpreter::compileNode(const MathNode& n)
                         // pop instruction if at the end of a statement
                         if (hasSemicolonParent)
                         {
-                            program_.push_back(new Pop(n[0].getName()));
+                            program_.push_back(unique_ptr<Pop>(new Pop(n[0].getName())));
                         }
                         // store instruction else
                         else
                         {
-                            program_.push_back(new Store(n[0].getName()));
+                            PUSH_INS(Store, n[0].getName());
                         }
                     }
                     else
@@ -484,12 +466,12 @@ void MathInterpreter::compileNode(const MathNode& n)
                     {
                         compileNode(n[i]);
                     }
-                    IFNODE("-", 1) program_.push_back(new Neg);
-                    ELIFNODE("+", 2) program_.push_back(new Add);
-                    ELIFNODE("-", 2) program_.push_back(new Sub);
-                    ELIFNODE("*", 2) program_.push_back(new Mul);
-                    ELIFNODE("/", 2) program_.push_back(new Div);
-                    ELIFNODE("^", 2) program_.push_back(new Pow);
+                    IFNODE("-", 1)   PUSH_INS(Neg,);
+                    ELIFNODE("+", 2) PUSH_INS(Add,);
+                    ELIFNODE("-", 2) PUSH_INS(Sub,);
+                    ELIFNODE("*", 2) PUSH_INS(Mul,);
+                    ELIFNODE("/", 2) PUSH_INS(Div,);
+                    ELIFNODE("^", 2) PUSH_INS(Pow,);
                     ELSE LATAN_ERROR(Compilation, "unknown operator '"
                                      + n.getName() + "'");
                 }
@@ -511,7 +493,7 @@ void MathInterpreter::compileNode(const MathNode& n)
                 {
                     compileNode(n[i]);
                 }
-                program_.push_back(new Call(n.getName()));
+                PUSH_INS(Call, n.getName());
                 break;
             default:
                 LATAN_ERROR(Compilation,

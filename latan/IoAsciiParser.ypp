@@ -19,7 +19,9 @@
 
 %{
     #include <iostream>
+    #include <memory>
     #include <sstream>
+    #include <utility>
     #include <cstring>
     #include <latan/Global.hpp>
 	#include <latan/IO.hpp>
@@ -29,6 +31,8 @@
 
     using namespace std;
     using namespace Latan;
+    
+    #define STORE(ref) (*state->data)[(ref).first] = std::move((ref).second)
 %}
 
 %pure-parser
@@ -42,20 +46,19 @@
 
 %union
 {
-	int     val_int;
-	double  val_double;
-    char    val_char;
-    char    val_str[256];
+	int    val_int;
+	double val_double;
+    char   val_char;
+    char   val_str[256];
 }
 
-%token              CLOSE
 %token <val_char>   ERR
 %token <val_double> FLOAT
 %token <val_int>    INT
 %token <val_str>    ID
-%token              MAT
-%token              RG_STATE
-%token              OPEN
+%token OPEN CLOSE MAT RG_STATE
+
+%type <val_str> mat rg_state
 
 %{
 	int _ioAscii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
@@ -82,24 +85,25 @@ datas:
 
 data:
       mat
+      {(*state->data)[$1].reset(new DMat(state->dMatBuf));}
     | rg_state
+      {(*state->data)[$1].reset(new RandGen::State(state->stateBuf));}
     ;
 
 mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
-        const int nRow = state->doubleBuf.size()/$INT, nCol = $INT;
-        (*state->data)[$ID] = new DMat(nRow, nCol);
-        DMat &m = static_cast<DMat &>(*((*state->data)[$ID]));
+        const int nRow = state->doubleStack.size()/$INT, nCol = $INT;
         int r, i, j;
         
         r = 0;
-        while (!state->doubleBuf.empty())
+        state->dMatBuf.resize(nRow, nCol);
+        while (!state->doubleStack.empty())
         {
             j = r % nCol;
             i = (r - j)/nCol;
-            m(i, j) = state->doubleBuf.top();
-            state->doubleBuf.pop();
+            state->dMatBuf(i, j) = state->doubleStack.top();
+            state->doubleStack.pop();
             ++r;
         }
         if (r != nRow*nCol)
@@ -107,22 +111,19 @@ mat:
             LATAN_ERROR(Range, "matrix '" + *state->streamName + ":" + $ID +
                         "' has a wrong size");
         }
+        strcpy($$, $ID);
     }
     ;
 
 rg_state:
       OPEN RG_STATE ID ints CLOSE RG_STATE
     {
-        (*state->data)[$ID] = new RandGen::State;
-        RandGen::State &rgState =
-            static_cast<RandGen::State &>(*((*state->data)[$ID]));
-        
         for (int i = 0; i < RLXG_STATE_SIZE; ++i)
         {
-            if (!state->intBuf.empty())
+            if (!state->intStack.empty())
             {
-                rgState[i] = state->intBuf.top();
-                state->intBuf.pop();
+                state->stateBuf[i] = state->intStack.top();
+                state->intStack.pop();
             }
             else
             {
@@ -130,22 +131,23 @@ rg_state:
                             *state->streamName + ":" + $ID + "' is too short");
             }
         }
-        if (!state->intBuf.empty())
+        if (!state->intStack.empty())
         {
             LATAN_ERROR(Range, "random generator state '" +
                         *state->streamName + ":" + $ID + "' is too long");
         }
+        strcpy($$, $ID);
     }
     ;
 
 floats:
-      FLOAT floats {state->doubleBuf.push($1);}
-    | INT   floats {state->doubleBuf.push(static_cast<double>($1));}
-    | FLOAT {state->doubleBuf.push($1);}
-    | INT   {state->doubleBuf.push(static_cast<double>($1));}
+      FLOAT floats {state->doubleStack.push($1);}
+    | INT   floats {state->doubleStack.push(static_cast<double>($1));}
+    | FLOAT {state->doubleStack.push($1);}
+    | INT   {state->doubleStack.push(static_cast<double>($1));}
     ;
 
 ints:
-      INT ints {state->intBuf.push($1);}
-    | INT {state->intBuf.push($1);}
+      INT ints {state->intStack.push($1);}
+    | INT {state->intStack.push($1);}
     ;

@@ -115,6 +115,8 @@ private:
     std::vector<std::string> plotCommand_;
 };
 
+std::ostream & operator<<(std::ostream &out, const Plot &plot);
+
 END_NAMESPACE
 
 #endif // Latan_Plot_hpp_

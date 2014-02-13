@@ -39,9 +39,9 @@
 
 %union
 {
-	double           val_double;
-    char             val_char;
-    char             val_str[MAXIDLENGTH];
+	double          val_double;
+    char            val_char;
+    char            val_str[MAXIDLENGTH];
     Latan::MathNode *val_node;
 }
 
@@ -78,7 +78,7 @@
 
 program:
      /* empty string */
-    | stmt_list {*(state->data) = $1;}
+    | stmt_list {(*(state->data)).reset($1);}
     ;
 
 stmt:

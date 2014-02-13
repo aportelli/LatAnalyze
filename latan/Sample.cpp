@@ -24,7 +24,7 @@ using namespace Latan;
 using namespace std;
 
 template <>
-unsigned int Sample<DMat>::getType(void) const
+IoObject::IoType Sample<DMat>::getType(void) const
 {
     return IoType::dMatSample;
 }

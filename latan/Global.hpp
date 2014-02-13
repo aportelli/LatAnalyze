@@ -77,13 +77,6 @@ std::string strFrom(const T x)
     return stream.str();
 }
 
-// key test in maps
-template <typename K, typename T>
-bool keyExists(const K &key, const std::map<K, T> &map)
-{
-    return (map.find(key) != map.end());
-}
-
 END_NAMESPACE
 
 #include <latan/Exceptions.hpp>

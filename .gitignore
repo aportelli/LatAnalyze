@@ -48,3 +48,14 @@ latan/*Parser.hpp
 # Eigen headers
 latan/Eigen/*
 latan/eigen_files.mk
+
+# Examples
+examples/exCompiledDoubleFunction
+examples/exMat
+examples/exMathInterpreter
+examples/exPlot
+examples/exRand
+examples/exRand.seed
+
+# Utils
+utils/latan_sample_read

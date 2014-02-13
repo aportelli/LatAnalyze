@@ -39,29 +39,25 @@ BEGIN_NAMESPACE
 class MathNode
 {
 public:
-    class Type
+    enum class Type
     {
-    public:
-        enum
-        {
-            undef = -1,
-            cst   =  0,
-            op    =  1,
-            var   =  2,
-            keyw  =  3,
-            func  =  4
-        };
+        undef = -1,
+        cst   =  0,
+        op    =  1,
+        var   =  2,
+        keyw  =  3,
+        func  =  4
     };
 public:
-    // constructor
-    MathNode(const std::string &name, const unsigned int type);
-    MathNode(const std::string &name, const unsigned int type,
+    // constructors
+    MathNode(const std::string &name, const Type type);
+    MathNode(const std::string &name, const Type type,
              const unsigned int nArg, ...);
     // destructor
     virtual ~MathNode();
     // access
     const std::string& getName(void)   const;
-    unsigned int       getType(void)   const;
+    Type               getType(void)   const;
     unsigned int       getNArg(void)   const;
     const MathNode *   getParent(void) const;
     unsigned int       getLevel(void)  const;
@@ -70,10 +66,10 @@ public:
     // operator
     const MathNode &operator[](const unsigned int i) const;
 private:
-    std::string             name_;
-    unsigned int            type_;
-    std::vector<MathNode *> arg_;
-    const MathNode *        parent_;
+    std::string                             name_;
+    Type                                    type_;
+    std::vector<std::unique_ptr<MathNode>> arg_;
+    const MathNode *                        parent_;
 };
 
 std::ostream &operator<<(std::ostream &out, const MathNode &n);
@@ -99,23 +95,21 @@ public:
     virtual ~Instruction();
     // instruction execution
     virtual void operator()(RunContext &context) const = 0;
-    friend std::ostream& operator<<(std::ostream &out, const Instruction &ins);
+    friend std::ostream & operator<<(std::ostream &out, const Instruction &ins);
 private:
     virtual void print(std::ostream &out) const = 0;
 };
+
+std::ostream & operator<<(std::ostream &out, const Instruction &ins);
 
 // Push
 class Push: public Instruction
 {
 private:
-    class ArgType
+    enum class ArgType
     {
-    public:
-        enum
-        {
-            Constant = 0,
-            Variable = 1
-        };
+        Constant = 0,
+        Variable = 1
     };
 public:
     //constructors
@@ -126,7 +120,7 @@ public:
 private:
     virtual void print(std::ostream& out) const;
 private:
-    unsigned int type_;
+    ArgType     type_;
     double       val_;
     std::string  name_;
 };
@@ -198,12 +192,12 @@ class MathInterpreter
 
 public:
     // parser state
-    class MathParserState: public ParserState<MathNode *>
+    class MathParserState: public ParserState<std::unique_ptr<MathNode>>
     {
     public:
         // constructor
         explicit MathParserState(std::istream *stream, std::string *name,
-                                 MathNode **data);
+                                 std::unique_ptr<MathNode> *data);
         // destructor
         virtual ~MathParserState(void);
     private:
@@ -225,7 +219,7 @@ private:
         };
     };
     // instruction container
-    typedef std::vector<const Instruction *> InstructionContainer;
+    typedef std::vector<std::unique_ptr<const Instruction>> Program;
 public:
     // constructors
     MathInterpreter(void);
@@ -242,8 +236,8 @@ public:
     // execution
     void operator()(RunContext &context);
     // IO
-    friend std::ostream &operator<<(std::ostream &out,
-                                    const MathInterpreter &program);
+    friend std::ostream & operator<<(std::ostream &out,
+                                     const MathInterpreter &program);
 private:
     // initialization
     void reset(void);
@@ -256,14 +250,16 @@ private:
     // execution
     void execute(RunContext &context) const;
 private:
-    std::istream         *code_;
-    std::string          codeName_;
-    MathParserState      *state_;
-    MathNode             *root_;
-    bool                 gotReturn_;
-    InstructionContainer program_;
-    unsigned int         status_;
+    std::unique_ptr<std::istream>    code_;
+    std::string                      codeName_;
+    std::unique_ptr<MathParserState> state_;
+    std::unique_ptr<MathNode>        root_;
+    bool                             gotReturn_;
+    Program                          program_;
+    unsigned int                     status_;
 };
+
+std::ostream & operator<<(std::ostream &out, const MathInterpreter &program);
 
 END_NAMESPACE
 

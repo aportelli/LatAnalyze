@@ -61,21 +61,17 @@ unsigned int Function::getNArg(void) const
 /******************************************************************************
  *                        DoubleFunction implementation                       *
  ******************************************************************************/
-DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc *f)
+DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc f)
 : Function(nArg)
+, buffer_(new vector<double>(nArg))
 , f_(f)
-{
-    buffer_ = new vector<double>(nArg);
-}
+{}
 
 DoubleFunction::~DoubleFunction(void)
-{
-    delete buffer_;
-}
+{}
 
 double DoubleFunction::evaluate(const std::vector<double> &arg) const
 {
-    std::cout << "double()" << endl;
     return f_(arg);
 }
 

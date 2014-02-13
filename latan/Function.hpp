@@ -21,6 +21,8 @@
 #define	Latan_Function_hpp_
 
 #include <latan/Global.hpp>
+#include <functional>
+#include <memory>
 #include <stack>
 #include <vector>
 #include <cstdarg>
@@ -48,18 +50,18 @@ private:
 class DoubleFunction: public Function
 {
 private:
-    typedef double vecFunc(const std::vector<double> &);
+    typedef std::function<double(const std::vector<double> &)> vecFunc;
 public:
     // constructor/destructor
-    explicit DoubleFunction(const unsigned nArg, vecFunc *f = NULL);
+    explicit DoubleFunction(const unsigned nArg, vecFunc f = nullptr);
     virtual ~DoubleFunction(void);
     // function call
     virtual double evaluate(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;
     double operator()(const double x0, ...) const;
 private:
-    std::vector<double> *buffer_;
-    vecFunc *f_;
+    std::shared_ptr<std::vector<double>> buffer_;
+    vecFunc                              f_;
 };
 
 END_NAMESPACE

@@ -30,31 +30,24 @@ using namespace Latan;
 // constructor /////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
 : DoubleFunction(nArg)
-{
-    interpreter_ = new MathInterpreter;
-    context_     = new RunContext;
-}
+{}
 
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
                                                const string &code)
 : DoubleFunction(nArg)
 {
-    interpreter_ = new MathInterpreter;
-    context_     = new RunContext;
     setCode(code);
 }
 
 // destructor //////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::~CompiledDoubleFunction(void)
-{
-    delete interpreter_;
-    delete context_;
-}
+{}
 
 // access //////////////////////////////////////////////////////////////////////
 void CompiledDoubleFunction::setCode(const string &code)
 {
-    interpreter_->setCode(code);
+    interpreter_.reset(new MathInterpreter(code));
+    context_.reset(new RunContext);
     StdMath::addStdMathFunc(context_->fTable);
 }
 
@@ -89,7 +82,7 @@ double CompiledDoubleFunction::evaluate(const vector<double> &arg) const
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
-ostream &Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
+ostream & Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
 {
     f.interpreter_->compile();
     out << *(f.interpreter_);

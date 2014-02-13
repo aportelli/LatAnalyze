@@ -23,6 +23,7 @@
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
 #include <latan/MathInterpreter.hpp>
+#include <memory>
 #include <stack>
 #include <vector>
 #include <cstdarg>
@@ -46,12 +47,14 @@ public:
     // function call
     virtual double evaluate(const std::vector<double> &arg) const;
     // IO
-    friend std::ostream &operator<<(std::ostream &out,
-                                    CompiledDoubleFunction &f);
+    friend std::ostream & operator<<(std::ostream &out,
+                                     CompiledDoubleFunction &f);
 private:
-    MathInterpreter* interpreter_;
-    RunContext*      context_;
+    std::shared_ptr<MathInterpreter> interpreter_;
+    std::shared_ptr<RunContext>      context_;
 };
+
+std::ostream & operator<<(std::ostream &out, CompiledDoubleFunction &f);
 
 END_NAMESPACE
 

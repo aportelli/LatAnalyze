@@ -40,10 +40,10 @@ private:
     virtual void initScanner(void)    = 0;
     virtual void destroyScanner(void) = 0;
 public:
-    DataObj       *data;
-    void          *scanner;
-    std::istream  *stream;
-    std::string   *streamName;
+    DataObj      *data;
+    void         *scanner;
+    std::istream *stream;
+    std::string  *streamName;
     
 };
 
@@ -51,7 +51,7 @@ template <typename DataObj>
 ParserState<DataObj>::ParserState(std::istream *streamPt, std::string *namePt,
                                   DataObj *dataPt)
 : data(dataPt)
-, scanner(NULL)
+, scanner(nullptr)
 , stream(streamPt)
 , streamName(namePt)
 {}

@@ -28,20 +28,16 @@ BEGIN_NAMESPACE
 class IoObject
 {
 public:
-    class IoType
+    enum class IoType
     {
-    public:
-        enum
-        {
-            noType     = 0,
-            dMat       = 1,
-            dMatSample = 2,
-            rgState    = 3
-        };
+        noType     = 0,
+        dMat       = 1,
+        dMatSample = 2,
+        rgState    = 3
     };
 public:
     virtual ~IoObject(void) {};
-    virtual unsigned int getType(void) const = 0;
+    virtual IoType getType(void) const = 0;
 };
 
 END_NAMESPACE

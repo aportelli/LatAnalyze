@@ -59,11 +59,9 @@ unsigned int File::getMode(void) const
 // internal functions //////////////////////////////////////////////////////////
 void File::deleteData(void)
 {
-    IoDataTable::iterator i;
-    
-    for (i=data_.begin();i!=data_.end();++i)
+    for (auto &i : data_)
     {
-        delete i->second;
+        i.second.reset();
     }
     data_.clear();
 }
@@ -80,8 +78,8 @@ void File::checkWritability(void)
  *                        AsciiFile implementation                            *
  ******************************************************************************/
 // AsciiParserState constructor ////////////////////////////////////////////////
-AsciiFile::AsciiParserState::AsciiParserState(istream* stream, string* name,
-                                              IoDataTable* data)
+AsciiFile::AsciiParserState::AsciiParserState(istream *stream, string *name,
+                                              IoDataTable *data)
 : ParserState<IoDataTable>(stream, name, data)
 {
     initScanner();
@@ -97,7 +95,7 @@ AsciiFile::AsciiParserState::~AsciiParserState(void)
 AsciiFile::AsciiFile(void)
 : File(), fileStream_()
 , isParsed_(false)
-, state_(NULL)
+, state_(nullptr)
 {}
 
 AsciiFile::AsciiFile(const string &name, const unsigned int mode)
@@ -140,8 +138,7 @@ bool AsciiFile::isOpen() const
 // IO //////////////////////////////////////////////////////////////////////////
 void AsciiFile::close(void)
 {
-    delete state_;
-    state_ = NULL;
+    state_.reset(nullptr);
     if (isOpen())
     {
         fileStream_.close();
@@ -160,7 +157,7 @@ void AsciiFile::open(const string &name, const unsigned int mode)
     }
     else
     {
-        ios_base::openmode stdMode = 0;
+        ios_base::openmode stdMode = static_cast<ios_base::openmode>(0);
         
         if (mode & Mode::write)
         {
@@ -180,11 +177,11 @@ void AsciiFile::open(const string &name, const unsigned int mode)
         fileStream_.open(name_.c_str(), stdMode);
         if (mode_ & Mode::read)
         {
-            state_ = new AsciiParserState(&fileStream_, &name_, &data_);
+            state_.reset(new AsciiParserState(&fileStream_, &name_, &data_));
         }
         else
         {
-            state_ = NULL;
+            state_.reset(nullptr);
         }
     }
 }
@@ -214,11 +211,11 @@ void AsciiFile::load(const string &name __dumb)
 // parser //////////////////////////////////////////////////////////////////////
 
 // Bison/Flex parser declaration
-int _ioAscii_parse(AsciiFile::AsciiParserState* state);
+int _ioAscii_parse(AsciiFile::AsciiParserState *state);
 
 void AsciiFile::parse()
 {
     fileStream_.seekg(0);
-    _ioAscii_parse(state_);
+    _ioAscii_parse(state_.get());
     isParsed_ = true;
 }

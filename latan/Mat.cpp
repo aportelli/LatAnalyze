@@ -35,7 +35,7 @@ DMat::DMat(const unsigned int nRow, const unsigned int nCol)
 : Base(nRow, nCol)
 {}
 
-unsigned int DMat::getType(void) const
+IoObject::IoType DMat::getType(void) const
 {
     return IoType::dMat;
 }

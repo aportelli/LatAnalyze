@@ -36,13 +36,15 @@ class RandGen
 public:
     class State: public Eigen::Array<int, RLXG_STATE_SIZE, 1>, public IoObject
     {
+    private:
+        typedef Eigen::Array<int, RLXG_STATE_SIZE, 1> Base;
     public:
         // constructor
         State(void);
         // destructor
         ~State(void);
         // IO type
-        unsigned int getType(void) const;
+        IoType getType(void) const;
     };
 private:
     // Martin Luescher's ranlxd generator interface

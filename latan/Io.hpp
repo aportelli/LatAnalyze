@@ -21,10 +21,11 @@
 #define	Latan_Io_hpp_
 
 #include <fstream>
-#include <map>
+#include <memory>
 #include <stack>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <latan/Global.hpp>
 #include <latan/IoObject.hpp>
 #include <latan/Mat.hpp>
@@ -37,7 +38,7 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                          Generic datafile class                            *
  ******************************************************************************/
-typedef std::map<std::string, IoObject *> IoDataTable;
+typedef std::unordered_map<std::string, std::unique_ptr<IoObject>> IoDataTable;
 
 class File
 {
@@ -98,13 +99,11 @@ const IoT& File::read(const std::string &name)
 template <typename IoT>
 const IoT& File::getData(const std::string &name) const
 {
-    IoDataTable::const_iterator i = data_.find(name);
-    
-    if (i != data_.end())
+    try
     {
-        return dynamic_cast<const IoT&>(*(i->second));
+        return dynamic_cast<const IoT &>(*(data_.at(name)));
     }
-    else
+    catch(std::out_of_range)
     {
         LATAN_ERROR(Definition, "no data with name '" + name + "'");
     }
@@ -120,14 +119,16 @@ public:
     {
     public:
         // constructor
-        explicit AsciiParserState(std::istream *stream, std::string *name,\
+        explicit AsciiParserState(std::istream *stream, std::string *name,
                                   IoDataTable *data);
         // destructor
         virtual ~AsciiParserState(void);
-        // public members
-        std::stack<DMat>   dMatBuf;
-        std::stack<double> doubleBuf;
-        std::stack<int>    intBuf;
+        // parsing buffers
+        DMat               dMatBuf;
+        RandGen::State     stateBuf;
+        std::stack<DMat>   dMatStack;
+        std::stack<double> doubleStack;
+        std::stack<int>    intStack;
     private:
         // allocation/deallocation functions defined in IoAsciiLexer.lpp
         virtual void initScanner(void);
@@ -153,9 +154,9 @@ private:
     // parser
     void parse(void);
 private:
-    std::fstream      fileStream_;
-    bool              isParsed_;
-    AsciiParserState* state_;
+    std::fstream                      fileStream_;
+    bool                              isParsed_;
+    std::unique_ptr<AsciiParserState> state_;
 };
 
 END_NAMESPACE

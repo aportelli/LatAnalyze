@@ -48,14 +48,14 @@ public:
     // operators
     T& operator[](const int s);
     // IO type
-    virtual unsigned int getType(void) const;
+    virtual IoType getType(void) const;
 private:
     // index of the first element to take into account for statistics
     virtual unsigned int getOffset(void) const;
 };
 
 template <>
-unsigned int Sample<DMat>::getType(void) const;
+IoObject::IoType Sample<DMat>::getType(void) const;
 
 // specialization aliases
 typedef Sample<DMat> DMatSample;
@@ -101,7 +101,7 @@ T& Sample<T>::operator[](const int s)
 
 // IO type /////////////////////////////////////////////////////////////////////
 template <typename T>
-unsigned int Sample<T>::getType(void) const
+IoObject::IoType Sample<T>::getType(void) const
 {
     return IoType::noType;
 }

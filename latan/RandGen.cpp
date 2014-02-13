@@ -37,7 +37,7 @@ RandGen::State::State(void)
 RandGen::State::~State(void)
 {}
 
-unsigned int RandGen::State::getType(void) const
+IoObject::IoType RandGen::State::getType(void) const
 {
     return IoType::rgState;
 }
