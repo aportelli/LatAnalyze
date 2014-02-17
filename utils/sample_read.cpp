@@ -1,20 +1,23 @@
 #include <iostream>
-#include <latan/Dataset.hpp>
 #include <latan/Io.hpp>
-#include <latan/Sample.hpp>
 
 using namespace std;
 using namespace Latan;
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    Dataset<DMat, AsciiFile> dataset;
-    DMatSample s, r;
-    RandGen g;
+    if (argc != 2)
+    {
+        cerr << "usage: " << argv[0] << " <file>" << endl;
+        return EXIT_FAILURE;
+    }
     
-    dataset.load("man", "HVP_2_2_000_00_0_0");
-    s = dataset.bootstrapMean(100, g);
+    string fileName = argv[1];
+    AsciiFile f(fileName, File::Mode::read);
     
+    cout << "-- loading sample from '" << fileName << "'..." << endl;
+    const DMatSample &s = f.read<DMatSample>();
+    cout << scientific;
     cout << "central value:\n"      << s[central]               << endl;
     cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
     

@@ -14,11 +14,16 @@ if CXX_INTEL
 endif
 endif
 
-noinst_PROGRAMS =           \
-    latan_sample_read
+noinst_PROGRAMS =    \
+    latan_sample_read\
+    latan_resample
 
 latan_sample_read_SOURCES = sample_read.cpp
 latan_sample_read_CFLAGS  = -g -O2
 latan_sample_read_LDFLAGS = -L../latan/.libs -llatan
+
+latan_resample_SOURCES = resample.cpp
+latan_resample_CFLAGS  = -g -O2
+latan_resample_LDFLAGS = -L../latan/.libs -llatan
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4
