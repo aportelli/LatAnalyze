@@ -23,8 +23,33 @@
 using namespace Latan;
 using namespace std;
 
-template <>
-IoObject::IoType Sample<DMat>::getType(void) const
+/******************************************************************************
+ *                        DMatSample implementation                           *
+ ******************************************************************************/
+// constructors ////////////////////////////////////////////////////////////////
+DMatSample::DMatSample(void)
+: Sample<DMat>()
+{}
+
+DMatSample::DMatSample(const unsigned int nSample, const unsigned int nRow,
+                       const unsigned int nCol)
+: Sample<DMat>(nSample)
+{
+    resizeMat(nRow, nCol);
+}
+
+// destructor //////////////////////////////////////////////////////////////////
+DMatSample::~DMatSample(void)
+{}
+
+// resize all matrices /////////////////////////////////////////////////////////
+void DMatSample::resizeMat(const unsigned int nRow, const unsigned int nCol)
+{
+    this->unaryExpr([nRow, nCol](DMat &m){m.resize(nRow, nCol);});
+}
+
+// IO type /////////////////////////////////////////////////////////////////////
+IoObject::IoType DMatSample::getType(void) const
 {
     return IoType::dMatSample;
 }

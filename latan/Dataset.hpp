@@ -39,6 +39,7 @@ private:
     typedef StatArray<T> Base;
 public:
     // constructor
+    using Base::Base;
     Dataset(void);
     Dataset(const std::string &listFileName, const std::string &dataName);
     template <typename Derived>
@@ -70,12 +71,6 @@ Dataset<T, FileType>::Dataset(const std::string &listFileName,
 {
     load(listFileName, dataName);
 }
-
-template <typename T, typename FileType>
-template <typename Derived>
-Dataset<T, FileType>::Dataset(const Eigen::EigenBase<Derived> &dataset)
-: Base(dataset)
-{}
 
 // destructor //////////////////////////////////////////////////////////////////
 template <typename T, typename FileType>

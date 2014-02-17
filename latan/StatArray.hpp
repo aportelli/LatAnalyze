@@ -22,13 +22,14 @@
 
 #include <latan/Global.hpp>
 #include <latan/Mat.hpp>
+#include <iostream>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
  *                     Array class with statistics                            *
  ******************************************************************************/
-template <typename T>
+template <typename T, unsigned int offset = 0>
 class StatArray: public Eigen::Array<T, Eigen::Dynamic, 1>
 {
 private:
@@ -41,99 +42,149 @@ public:
     StatArray(const Eigen::EigenBase<Derived> &s);
     // destructor
     virtual ~StatArray(void);
+    // access
+    unsigned int size(void) const;
+    // operators
+          T & operator[](const int s);
+    const T & operator[](const int s) const;
     // statistics
-    T mean(void)     const;
-    T variance(void) const;
-private:
-    // index of the first element to take into account for statistics
-    virtual unsigned int getOffset(void) const;
-    // operations for reduction in statistical computations
-    static inline T square(const T &a);
-    static inline T sum(const T &a, const T &b);
+    void bin(unsigned int binSize);
+    T    mean(const unsigned int pos, const unsigned int n) const;
+    T    mean(void) const;
+    T    variance(const unsigned int pos, const unsigned int n) const;
+    T    variance(void) const;
 };
 
-template <>
-inline DMat StatArray<DMat>::square(const DMat &a);
+// reduction operations
+namespace ReducOp
+{
+    template <typename T>
+    inline T square(const T &a);
+    template <typename T>
+    inline T sum(const T &a, const T &b);
+    template <>
+    inline DMat square(const DMat &a);
+}
 
 /******************************************************************************
  *                 StatArray class template implementation                    *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-template <typename T>
-StatArray<T>::StatArray(void)
-: Base(static_cast<typename Base::Index>(1))
+template <typename T, unsigned int offset>
+StatArray<T, offset>::StatArray(void)
+: Base(static_cast<typename Base::Index>(offset))
 {}
 
-template <typename T>
-StatArray<T>::StatArray(const unsigned int size)
-: Base(static_cast<typename Base::Index>(size))
-{}
-
-template <typename T>
-template <typename Derived>
-StatArray<T>::StatArray(const  Eigen::EigenBase<Derived> &s)
-: Base(s)
+template <typename T, unsigned int offset>
+StatArray<T, offset>::StatArray(const unsigned int size)
+: Base(static_cast<typename Base::Index>(size + offset))
 {}
 
 // destructor //////////////////////////////////////////////////////////////////
-template <typename T>
-StatArray<T>::~StatArray(void)
+template <typename T, unsigned int offset>
+StatArray<T, offset>::~StatArray(void)
 {}
 
+// access //////////////////////////////////////////////////////////////////////
+template <typename T, unsigned int offset>
+unsigned int StatArray<T, offset>::size(void) const
+{
+    return Base::size() - offset;
+}
+
+// operators ///////////////////////////////////////////////////////////////////
+template <typename T, unsigned int offset>
+T & StatArray<T, offset>::operator[](const int s)
+{
+    return Base::operator[](s + offset);
+}
+
+template <typename T, unsigned int offset>
+const T & StatArray<T, offset>::operator[](const int s) const
+{
+    return Base::operator[](s + offset);
+}
+
+
 // statistics //////////////////////////////////////////////////////////////////
-template <typename T>
-T StatArray<T>::mean(void) const
+template <typename T, unsigned int offset>
+void StatArray<T, offset>::bin(unsigned int binSize)
+{
+    unsigned int q = size()/binSize, r = size()%binSize;
+
+    for (unsigned int i = 0; i < q; ++i)
+    {
+        (*this)[i] = mean(i*binSize, binSize);
+    }
+    if (r != 0)
+    {
+        (*this)[q] = mean(q*binSize, r);
+        this->conservativeResize(offset + q + 1);
+    }
+    else
+    {
+        this->conservativeResize(offset + q);
+    }
+}
+
+template <typename T, unsigned int offset>
+T StatArray<T, offset>::mean(const unsigned int pos, const unsigned int n) const
 {
     T result;
-    unsigned int size = this->size() - getOffset();
     
-    if (size)
+    if (n)
     {
-        result = this->tail(size).redux(&StatArray<T>::sum);
+        result = this->segment(pos+offset, n).redux(&ReducOp::sum<T>);
     }
     
-    return result/static_cast<double>(size);
+    return result/static_cast<double>(n);
 }
 
-template <typename T>
-T StatArray<T>::variance(void) const
+template <typename T, unsigned int offset>
+T StatArray<T, offset>::mean(void) const
+{
+    return mean(0, size());
+}
+
+template <typename T, unsigned int offset>
+T StatArray<T, offset>::variance(const unsigned int pos, const unsigned int n) const
 {
     T s, sqs, result;
-    unsigned int size = this->size() - getOffset();
     
-    if (size)
+    if (n)
     {
-        s      = this->tail(size).redux(&StatArray<T>::sum);
-        sqs    = this->tail(size).unaryExpr(&StatArray<T>::square)
-                                 .redux(&StatArray<T>::sum);
-        result = sqs - square(s)/static_cast<double>(size);
+        s   = this->segment(pos+offset, n).redux(&ReducOp::sum<T>);
+        sqs = this->segment(pos+offset, n).unaryExpr(&ReducOp::square<T>)
+                                          .redux(&ReducOp::sum<T>);
+        result = sqs - ReducOp::square(s)/static_cast<double>(n);
     }
     
-    return result/static_cast<double>(size - 1);
+    return result/static_cast<double>(n - 1);
 }
 
+template <typename T, unsigned int offset>
+T StatArray<T, offset>::variance(void) const
+{
+    return variance(0, size());
+}
+
+// reduction operations ////////////////////////////////////////////////////////
 template <typename T>
-inline T StatArray<T>::sum(const T &a, const T &b)
+inline T ReducOp::sum(const T &a, const T &b)
 {
     return a + b;
 }
 
 template <typename T>
-inline T StatArray<T>::square(const T &a)
+inline T ReducOp::square(const T &a)
 {
     return a*a;
 }
 
 template <>
-inline DMat StatArray<DMat>::square(const DMat &a)
+inline DMat ReducOp::square(const DMat &a)
 {
     return a.cwiseProduct(a);
-}
-
-template <typename T>
-unsigned int StatArray<T>::getOffset(void) const
-{
-    return 0u;
 }
 
 END_NAMESPACE
