@@ -41,10 +41,7 @@ private:
     typedef StatArray<T, SAMPLE_OFFSET> Base;
 public:
     // constructors
-    Sample(void);
-    Sample(const unsigned int nSample);
-    template <typename Derived>
-    Sample(const Eigen::EigenBase<Derived> &s);
+    using Base::Base;
     // destructor
     virtual ~Sample(void);
 };

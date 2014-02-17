@@ -42,8 +42,6 @@ public:
     using Base::Base;
     Dataset(void);
     Dataset(const std::string &listFileName, const std::string &dataName);
-    template <typename Derived>
-    Dataset(const Eigen::EigenBase<Derived> &dataset);
     // destructor
     virtual ~Dataset(void);
     // IO

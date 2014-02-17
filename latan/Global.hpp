@@ -27,6 +27,9 @@
 #define BEGIN_NAMESPACE namespace Latan {
 #define END_NAMESPACE }
 
+// macro utilities
+#define unique_arg(...) __VA_ARGS__
+
 // attribute to switch off unused warnings with gcc
 #ifdef __GNUC__
 #define __dumb __attribute__((unused))
@@ -35,7 +38,18 @@
 #endif
 
 // max length for paths
-#define MAX_PATH_LENGTH 512
+#define MAX_PATH_LENGTH 512u
+
+// copy/assignement from Eigen expression
+#define EIGEN_EXPR_CTOR(ctorName, Class, Base, EigenBase) \
+template <typename Derived>\
+ctorName(const Eigen::EigenBase<Derived> &m): Base(m) {};\
+template<typename Derived>\
+Class & operator=(const Eigen::EigenBase<Derived> &m)\
+{\
+    this->Base::operator=(m);\
+    return *this;\
+}
 
 BEGIN_NAMESPACE
 

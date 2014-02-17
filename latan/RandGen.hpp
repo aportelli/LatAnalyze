@@ -23,7 +23,7 @@
 #include <latan/Global.hpp>
 #include <latan/IoObject.hpp>
 
-#define RLXG_STATE_SIZE 105
+#define RLXG_STATE_SIZE 105u
 
 BEGIN_NAMESPACE
 

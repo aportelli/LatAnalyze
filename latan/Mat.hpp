@@ -34,16 +34,10 @@ public:
     // constructors
     DMat(void);
     DMat(const unsigned int nRow, const unsigned int nCol);
-    template <typename Derived>
-    DMat(const  Eigen::EigenBase<Derived> &m);
+    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase);
     // IO
     virtual IoType getType(void) const;
 };
-
-template <typename Derived>
-DMat::DMat(const Eigen::EigenBase<Derived> &m)
-: Base(m)
-{}
 
 END_NAMESPACE
 

@@ -38,8 +38,8 @@ public:
     // constructors
     StatArray(void);
     StatArray(const unsigned int size);
-    template <typename Derived>
-    StatArray(const Eigen::EigenBase<Derived> &s);
+    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
+                    ArrayBase);
     // destructor
     virtual ~StatArray(void);
     // access
