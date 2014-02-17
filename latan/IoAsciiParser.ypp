@@ -32,7 +32,12 @@
     using namespace std;
     using namespace Latan;
     
-    #define STORE(ref) (*state->data)[(ref).first] = std::move((ref).second)
+    #define TEST_FIRST(name) \
+    if (state->isFirst)\
+    {\
+        state->first   = (name);\
+        state->isFirst = false;\
+    }
 %}
 
 %pure-parser
@@ -56,9 +61,9 @@
 %token <val_double> FLOAT
 %token <val_int>    INT
 %token <val_str>    ID
-%token OPEN CLOSE MAT RG_STATE
+%token OPEN CLOSE MAT SAMPLE RG_STATE
 
-%type <val_str> mat rg_state
+%type <val_str> mat sample rg_state
 
 %{
 	int _ioAscii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
@@ -85,69 +90,99 @@ datas:
 
 data:
       mat
-      {(*state->data)[$1].reset(new DMat(state->dMatBuf));}
+      {
+          TEST_FIRST($1);
+          (*state->data)[$1].reset(new DMat(state->dMatQueue.front()));
+          state->dMatQueue.pop();
+      }
+    | sample
+      {
+          TEST_FIRST($1);
+          (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
+      }
     | rg_state
-      {(*state->data)[$1].reset(new RandGen::State(state->stateBuf));}
+      {
+          TEST_FIRST($1);
+          (*state->data)[$1].reset(new RandGen::State(state->stateBuf));
+      }
     ;
 
 mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
-        const int nRow = state->doubleStack.size()/$INT, nCol = $INT;
-        int r, i, j;
+        const unsigned int nRow = state->doubleQueue.size()/$INT, nCol = $INT;
+        int i, j, r = 0;
         
-        r = 0;
-        state->dMatBuf.resize(nRow, nCol);
-        while (!state->doubleStack.empty())
+        if (state->doubleQueue.size() != nRow*nCol)
+        {
+            LATAN_ERROR(Size, "matrix '" + *state->streamName + ":" + $ID +
+                        "' has a wrong size");
+        }
+        
+        state->dMatQueue.push(DMat(nRow, nCol));
+        while (!state->doubleQueue.empty())
         {
             j = r % nCol;
             i = (r - j)/nCol;
-            state->dMatBuf(i, j) = state->doubleStack.top();
-            state->doubleStack.pop();
-            ++r;
-        }
-        if (r != nRow*nCol)
-        {
-            LATAN_ERROR(Range, "matrix '" + *state->streamName + ":" + $ID +
-                        "' has a wrong size");
+            state->dMatQueue.back()(i, j) = state->doubleQueue.front();
+            state->doubleQueue.pop();
+            r++;
         }
         strcpy($$, $ID);
     }
     ;
+
+sample:
+      OPEN SAMPLE ID INT mats CLOSE SAMPLE
+    {
+        const unsigned int nSample = $INT + 1;
+        
+        if (state->dMatQueue.size() != nSample)
+        {
+            LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $ID +
+                        "' has a wrong size");
+        }
+        state->dMatSampleBuf.resize(nSample);
+        state->dMatSampleBuf[central] = state->dMatQueue.front();
+        state->dMatQueue.pop();
+        for (int i = 0; i < $INT; ++i)
+        {
+            state->dMatSampleBuf[i] = state->dMatQueue.front();
+            state->dMatQueue.pop();
+        }
+        strcpy($$, $ID);
+    }
 
 rg_state:
       OPEN RG_STATE ID ints CLOSE RG_STATE
     {
-        for (int i = 0; i < RLXG_STATE_SIZE; ++i)
+        if (state->intQueue.size() != RLXG_STATE_SIZE)
         {
-            if (!state->intStack.empty())
-            {
-                state->stateBuf[i] = state->intStack.top();
-                state->intStack.pop();
-            }
-            else
-            {
-                LATAN_ERROR(Range, "random generator state '" +
-                            *state->streamName + ":" + $ID + "' is too short");
-            }
+            LATAN_ERROR(Size, "random generator state '" + *state->streamName
+                        + ":" + $ID + "' has a wrong size");
         }
-        if (!state->intStack.empty())
+        for (unsigned int i = 0; i < RLXG_STATE_SIZE; ++i)
         {
-            LATAN_ERROR(Range, "random generator state '" +
-                        *state->streamName + ":" + $ID + "' is too long");
+            state->stateBuf[i] = state->intQueue.front();
+            state->intQueue.pop();
         }
         strcpy($$, $ID);
     }
     ;
 
+mats:
+      mats mat
+    | mat
+    ;
+
 floats:
-      FLOAT floats {state->doubleStack.push($1);}
-    | INT   floats {state->doubleStack.push(static_cast<double>($1));}
-    | FLOAT {state->doubleStack.push($1);}
-    | INT   {state->doubleStack.push(static_cast<double>($1));}
+      floats FLOAT {state->doubleQueue.push($FLOAT);}
+    | floats INT   {state->doubleQueue.push(static_cast<double>($INT));}
+    | FLOAT        {state->doubleQueue.push($FLOAT);}
+    | INT          {state->doubleQueue.push(static_cast<double>($INT));}
     ;
 
 ints:
-      INT ints {state->intStack.push($1);}
-    | INT {state->intStack.push($1);}
+      ints INT {state->intQueue.push($INT);}
+    | INT      {state->intQueue.push($INT);}
     ;

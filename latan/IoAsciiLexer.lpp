@@ -69,12 +69,13 @@ BLANK   [ \t]
 %%
 
 {LMARK}            {BEGIN(MARK);}
-{INT}              {yylval->val_int = strTo<int>(yytext); RETTOK(INT);}
+{INT}              {yylval->val_int    = strTo<int>(yytext);    RETTOK(INT);}
 {FLOAT}            {yylval->val_double = strTo<double>(yytext); RETTOK(FLOAT);}
 ({ALPHA}|{DIGIT})+ {strcpy(yylval->val_str,yytext); RETTOK(ID);}
 <MARK>latan_begin  {BEGIN(TYPE); RETTOK(OPEN);}
 <MARK>latan_end    {BEGIN(TYPE); RETTOK(CLOSE);}
 <TYPE>mat          {BEGIN(INITIAL); RETTOK(MAT);}
+<TYPE>rs_sample    {BEGIN(INITIAL); RETTOK(SAMPLE);}
 <TYPE>rg_state     {BEGIN(INITIAL); RETTOK(RG_STATE);}
 <*>\n              {yylloc->last_column = 0;}
 <*>[ \t]

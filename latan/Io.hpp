@@ -22,7 +22,7 @@
 
 #include <fstream>
 #include <memory>
-#include <stack>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -61,11 +61,12 @@ public:
     // destructor
     virtual ~File(void);
     // access
-    std::string  getName(void) const;
-    unsigned int getMode(void) const;
+    const std::string & getName(void) const;
+    unsigned int        getMode(void) const;
     template <typename IoT>
-    const IoT &  read(const std::string &name);
+    const IoT &  read(const std::string &name = "");
     virtual void save(const DMat &m, const std::string &name)               = 0;
+    virtual void save(const DMatSample &state, const std::string &name)     = 0;
     virtual void save(const RandGen::State &state, const std::string &name) = 0;
     // tests
     virtual bool isOpen(void) const = 0;
@@ -73,14 +74,19 @@ public:
     virtual void close(void)                                            = 0;
     virtual void open(const std::string &name, const unsigned int mode) = 0;
 protected:
+    // access
+    void setName(const std::string &name);
+    void setMode(const unsigned int mode);
     // data access
-    void         deleteData(void);
-    template <typename IoT>
-    const IoT& getData(const std::string &name) const;
-    // IO
-    virtual void load(const std::string &name) = 0;
+    void deleteData(void);
     // error checking
     void checkWritability(void);
+private:
+    // data access
+    template <typename IoT>
+    const IoT& getData(const std::string &name = "") const;
+    // IO
+    virtual std::string load(const std::string &name = "") = 0;
 protected:
     std::string  name_;
     unsigned int mode_;
@@ -91,9 +97,11 @@ protected:
 template <typename IoT>
 const IoT& File::read(const std::string &name)
 {
-    load(name);
+    std::string dataName;
     
-    return getData<IoT>(name);
+    dataName = load(name);
+    
+    return getData<IoT>(dataName);
 }
 
 template <typename IoT>
@@ -105,7 +113,8 @@ const IoT& File::getData(const std::string &name) const
     }
     catch(std::out_of_range)
     {
-        LATAN_ERROR(Definition, "no data with name '" + name + "'");
+        LATAN_ERROR(Definition, "no data with name '" + name + "' in file "
+                    + name_);
     }
 }
 
@@ -123,12 +132,15 @@ public:
                                   IoDataTable *data);
         // destructor
         virtual ~AsciiParserState(void);
+        // first element reference
+        bool        isFirst;
+        std::string first;
         // parsing buffers
-        DMat               dMatBuf;
         RandGen::State     stateBuf;
-        std::stack<DMat>   dMatStack;
-        std::stack<double> doubleStack;
-        std::stack<int>    intStack;
+        DMatSample         dMatSampleBuf;
+        std::queue<DMat>   dMatQueue;
+        std::queue<double> doubleQueue;
+        std::queue<int>    intQueue;
     private:
         // allocation/deallocation functions defined in IoAsciiLexer.lpp
         virtual void initScanner(void);
@@ -142,6 +154,7 @@ public:
     virtual ~AsciiFile(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
+    virtual void save(const DMatSample &s, const std::string &name);
     virtual void save(const RandGen::State &state, const std::string &name);
     // tests
     virtual bool isOpen(void) const;
@@ -150,7 +163,7 @@ public:
     virtual void open(const std::string &name, const unsigned int mode);
 private:
     // IO
-    virtual void load(const std::string &name);
+    virtual std::string load(const std::string &name = "");
     // parser
     void parse(void);
 private:

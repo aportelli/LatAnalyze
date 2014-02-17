@@ -46,7 +46,7 @@ File::~File(void)
 }
 
 // access //////////////////////////////////////////////////////////////////////
-string File::getName(void) const
+const string & File::getName(void) const
 {
     return name_;
 }
@@ -116,8 +116,22 @@ void AsciiFile::save(const DMat &m, const std::string &name)
     isParsed_ = false;
     fileStream_ << "#L latan_begin mat " << name << endl;
     fileStream_ << m.cols() << endl;
-    fileStream_ << m << endl;
+    fileStream_ << scientific << m << defaultfloat << endl;
     fileStream_ << "#L latan_end mat " << endl;
+}
+
+void AsciiFile::save(const DMatSample &s, const std::string &name)
+{
+    checkWritability();
+    isParsed_ = false;
+    fileStream_ << "#L latan_begin rs_sample " << name << endl;
+    fileStream_ << s.size() << endl;
+    save(s[central], name + "_C");
+    for (int i = 0; i < static_cast<int>(s.size()); ++i)
+    {
+        save(s[i], name + "_S_" + strFrom(i));
+    }
+    fileStream_ << "#L latan_end rs_sample " << endl;
 }
 
 void AsciiFile::save(const RandGen::State &state, const std::string &name)
@@ -186,13 +200,22 @@ void AsciiFile::open(const string &name, const unsigned int mode)
     }
 }
 
-void AsciiFile::load(const string &name __dumb)
+std::string AsciiFile::load(const string &name)
 {
     if ((mode_ & Mode::read)&&(isOpen()))
     {
         if (!isParsed_)
         {
+            state_->isFirst = true;
             parse();
+        }
+        if (name.empty())
+        {
+            return state_->first;
+        }
+        else
+        {
+            return name;
         }
     }
     else
@@ -210,7 +233,7 @@ void AsciiFile::load(const string &name __dumb)
 
 // parser //////////////////////////////////////////////////////////////////////
 
-// Bison/Flex parser declaration
+//// Bison/Flex parser declaration
 int _ioAscii_parse(AsciiFile::AsciiParserState *state);
 
 void AsciiFile::parse()
