@@ -90,21 +90,21 @@ datas:
 
 data:
       mat
-      {
-          TEST_FIRST($1);
-          (*state->data)[$1].reset(new DMat(state->dMatQueue.front()));
-          state->dMatQueue.pop();
-      }
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new DMat(state->dMatQueue.front()));
+        state->dMatQueue.pop();
+    }
     | sample
-      {
-          TEST_FIRST($1);
-          (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
-      }
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
+    }
     | rg_state
-      {
-          TEST_FIRST($1);
-          (*state->data)[$1].reset(new RandGen::State(state->stateBuf));
-      }
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new RandGen::State(state->stateBuf));
+    }
     ;
 
 mat:
