@@ -28,6 +28,9 @@
 #define SRC_LOC strFrom(__FUNCTION__) + " at " + strFrom(__FILE__) + ":"\
                 + strFrom(__LINE__)
 #define LATAN_ERROR(exc,msg) throw(Exceptions::exc(msg, SRC_LOC))
+#define LATAN_WARNING(msg) \
+std::cerr << Latan::Exceptions::prefix << "warning: " << msg\
+          << " ("  << SRC_LOC << ")" << std::endl
 
 #define DECL_EXC(name, base) \
 class name: public base\
@@ -40,6 +43,9 @@ BEGIN_NAMESPACE
 
 namespace Exceptions
 {
+    // prefix for messages
+    extern const std::string prefix;
+    
     // logic errors
     DECL_EXC(Logic, std::logic_error);
     DECL_EXC(Definition, Logic);
