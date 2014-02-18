@@ -34,47 +34,6 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                            Expression node class                           *
- ******************************************************************************/
-class MathNode
-{
-public:
-    enum class Type
-    {
-        undef = -1,
-        cst   =  0,
-        op    =  1,
-        var   =  2,
-        keyw  =  3,
-        func  =  4
-    };
-public:
-    // constructors
-    MathNode(const std::string &name, const Type type);
-    MathNode(const std::string &name, const Type type,
-             const unsigned int nArg, ...);
-    // destructor
-    virtual ~MathNode();
-    // access
-    const std::string& getName(void)   const;
-    Type               getType(void)   const;
-    unsigned int       getNArg(void)   const;
-    const MathNode *   getParent(void) const;
-    unsigned int       getLevel(void)  const;
-    void               setName(const std::string &name);
-    void               pushArg(MathNode *node);
-    // operator
-    const MathNode &operator[](const unsigned int i) const;
-private:
-    std::string                             name_;
-    Type                                    type_;
-    std::vector<std::unique_ptr<MathNode>> arg_;
-    const MathNode *                        parent_;
-};
-
-std::ostream &operator<<(std::ostream &out, const MathNode &n);
-
-/******************************************************************************
  *                         Instruction classes                                *
  ******************************************************************************/
 typedef std::map<std::string, double>           VarTable;
@@ -92,7 +51,8 @@ struct RunContext
 class Instruction
 {
 public:
-    virtual ~Instruction();
+    // destructor
+    virtual ~Instruction(void) = default;
     // instruction execution
     virtual void operator()(RunContext &context) const = 0;
     friend std::ostream & operator<<(std::ostream &out, const Instruction &ins);
@@ -101,6 +61,9 @@ private:
 };
 
 std::ostream & operator<<(std::ostream &out, const Instruction &ins);
+
+// Instruction container
+typedef std::vector<std::unique_ptr<const Instruction>> Program;
 
 // Push
 class Push: public Instruction
@@ -185,6 +148,59 @@ DECL_OP(Div);
 DECL_OP(Pow);
 
 /******************************************************************************
+ *                            Expression node classes                         *
+ ******************************************************************************/
+class ExprNode
+{
+public:
+    // constructors
+    ExprNode(const std::string &name);
+    // destructor
+    virtual ~ExprNode() = default;
+    // access
+    const std::string& getName(void)   const;
+    unsigned int       getNArg(void)   const;
+    const ExprNode *   getParent(void) const;
+    unsigned int       getLevel(void)  const;
+    void               setName(const std::string &name);
+    void               pushArg(ExprNode *node);
+    // operator
+    const ExprNode &operator[](const unsigned int i) const;
+    // compile
+    virtual void compile(Program &program) const = 0;
+private:
+    std::string                             name_;
+    std::vector<std::unique_ptr<ExprNode>>  arg_;
+    const ExprNode *                        parent_;
+};
+
+std::ostream &operator<<(std::ostream &out, const ExprNode &n);
+
+#define DECL_NODE(base, name) \
+class name: public base\
+{\
+public:\
+    using base::base;\
+    virtual void compile(Program &program) const;\
+}
+
+DECL_NODE(ExprNode, VarNode);
+DECL_NODE(ExprNode, CstNode);
+DECL_NODE(ExprNode, SemicolonNode);
+DECL_NODE(ExprNode, AssignNode);
+DECL_NODE(ExprNode, MathOpNode);
+DECL_NODE(ExprNode, FuncNode);
+
+class KeywordNode: public ExprNode
+{
+public:
+    using ExprNode::ExprNode;
+    virtual void compile(Program &program) const = 0;
+};
+
+DECL_NODE(KeywordNode, ReturnNode);
+
+/******************************************************************************
  *                            Interpreter class                               *
  ******************************************************************************/
 class MathInterpreter
@@ -192,12 +208,12 @@ class MathInterpreter
 
 public:
     // parser state
-    class MathParserState: public ParserState<std::unique_ptr<MathNode>>
+    class MathParserState: public ParserState<std::unique_ptr<ExprNode>>
     {
     public:
         // constructor
         explicit MathParserState(std::istream *stream, std::string *name,
-                                 std::unique_ptr<MathNode> *data);
+                                 std::unique_ptr<ExprNode> *data);
         // destructor
         virtual ~MathParserState(void);
     private:
@@ -218,8 +234,6 @@ private:
             compiled    = 1 << 2
         };
     };
-    // instruction container
-    typedef std::vector<std::unique_ptr<const Instruction>> Program;
 public:
     // constructors
     MathInterpreter(void);
@@ -228,7 +242,7 @@ public:
     ~MathInterpreter(void);
     // access
     const Instruction * operator[](const unsigned int i) const;
-    const MathNode * getAST(void) const;
+    const ExprNode * getAST(void) const;
     // initialization
     void setCode(const std::string &code);
     // interpreter
@@ -246,15 +260,14 @@ private:
     // parser
     void parse(void);
     // interpreter
-    void compileNode(const MathNode &node);
+    void compileNode(const ExprNode &node);
     // execution
     void execute(RunContext &context) const;
 private:
     std::unique_ptr<std::istream>    code_;
     std::string                      codeName_;
     std::unique_ptr<MathParserState> state_;
-    std::unique_ptr<MathNode>        root_;
-    bool                             gotReturn_;
+    std::unique_ptr<ExprNode>        root_;
     Program                          program_;
     unsigned int                     status_;
 };

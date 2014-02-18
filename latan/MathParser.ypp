@@ -42,7 +42,7 @@
 	double          val_double;
     char            val_char;
     char            val_str[MAXIDLENGTH];
-    Latan::MathNode *val_node;
+    Latan::ExprNode *val_node;
 }
 
 %token <val_char> ERR
@@ -70,6 +70,16 @@
             << locp->first_column << ": " << err;
         LATAN_ERROR(Parsing, buf.str());
 	}
+    
+    void _math_warning(YYLTYPE *locp, MathInterpreter::MathParserState *state,
+                       const char *err)
+	{
+        stringstream buf;
+        
+        buf << *(state->streamName) << ":" << locp->first_line << ":"\
+            << locp->first_column << ": " << err;
+        LATAN_WARNING(buf.str());
+	}
 
 	#define scanner state->scanner
 %}
@@ -83,16 +93,13 @@ program:
 
 stmt:
       ';'
-    {$$ = new MathNode(";", MathNode::Type::op, 0);}
+    {$$ = new SemicolonNode(";");}
     | expr ';'
-    {$$ = $1;}
+    {$$ = nullptr; _math_warning(&yylloc, state, "useless statement removed");}
     | ID '=' expr ';'
-    {
-        $$ = new MathNode("=", MathNode::Type::op, 2,              \
-                          new MathNode($ID,MathNode::Type::var), $3);
-    }
+    {$$ = new AssignNode("="); $$->pushArg(new VarNode($ID)); $$->pushArg($3);}
     | RETURN expr ';'
-    {$$ = new MathNode("return", MathNode::Type::keyw, 1, $2);}
+    {$$ = new ReturnNode("return"); $$->pushArg($2);}
     | '{' stmt_list '}'
     {$$ = $2;}
     ;
@@ -101,26 +108,26 @@ stmt_list:
       stmt
     {$$ = $1;}
     | stmt_list stmt
-    {$$ = new MathNode(";", MathNode::Type::op, 2, $1, $2);}
+    {$$ = new SemicolonNode(";"); $$->pushArg($1); $$->pushArg($2);}
     ;
 
 expr:
       FLOAT
-    {$$ = new MathNode($FLOAT, MathNode::Type::cst);}
+    {$$ = new CstNode($FLOAT);}
     | ID
-    {$$ = new MathNode($ID, MathNode::Type::var);}
+    {$$ = new VarNode($ID);}
     | '-' expr %prec UMINUS
-    {$$ = new MathNode("-", MathNode::Type::op, 1, $2);}
+    {$$ = new MathOpNode("-"); $$->pushArg($2);}
     | expr '+' expr
-    {$$ = new MathNode("+", MathNode::Type::op, 2, $1, $3);}
+    {$$ = new MathOpNode("+"); $$->pushArg($1); $$->pushArg($3);}
     | expr '-' expr
-    {$$ = new MathNode("-", MathNode::Type::op, 2, $1, $3);}
+    {$$ = new MathOpNode("-"); $$->pushArg($1); $$->pushArg($3);}
     | expr '*' expr
-    {$$ = new MathNode("*", MathNode::Type::op, 2, $1, $3);}
+    {$$ = new MathOpNode("*"); $$->pushArg($1); $$->pushArg($3);}
     | expr '/' expr
-    {$$ = new MathNode("/", MathNode::Type::op, 2, $1, $3);}
+    {$$ = new MathOpNode("/"); $$->pushArg($1); $$->pushArg($3);}
     | expr '^' expr
-    {$$ = new MathNode("^", MathNode::Type::op, 2, $1, $3);}
+    {$$ = new MathOpNode("^"); $$->pushArg($1); $$->pushArg($3);}
     | '(' expr ')'
     {$$ = $2;}
     | ID '(' func_args ')'
@@ -129,9 +136,9 @@ expr:
 
 func_args:
      /* empty string */
-    {$$ = new MathNode("", MathNode::Type::func);}
+    {$$ = new FuncNode("");}
     | expr
-    {$$ = new MathNode("", MathNode::Type::func, 1, $1);}
+    {$$ = new FuncNode(""); $$->pushArg($1);}
     | func_args ',' expr
     {$$ = $1; $$->pushArg($3);}
     ;
