@@ -61,9 +61,16 @@ namespace Env
     extern const std::string version;
 }
 
+// pointer type test
+template <typename Derived, typename Base>
+inline bool isDerivedFrom(const Base *pt)
+{
+    return (dynamic_cast<const Derived *>(pt) != nullptr);
+}
+
 // string conversions
 template <typename T>
-T strTo(const std::string &str)
+inline T strTo(const std::string &str)
 {
     T buf;
     std::istringstream stream(str);
@@ -75,14 +82,23 @@ T strTo(const std::string &str)
 
 //// optimized specializations
 template <>
-float strTo<float>(const std::string &str);
+inline float strTo<float>(const std::string &str)
+{
+    return strtof(str.c_str(), (char **)NULL);
+}
 template <>
-double strTo<double>(const std::string &str);
+inline double strTo<double>(const std::string &str)
+{
+    return strtod(str.c_str(), (char **)NULL);
+}
 template <>
-int strTo<int>(const std::string &str);
+inline int strTo<int>(const std::string &str)
+{
+    return (int)(strtol(str.c_str(), (char **)NULL, 10));
+}
 
 template <typename T>
-std::string strFrom(const T x)
+inline std::string strFrom(const T x)
 {
     std::ostringstream stream;
     
