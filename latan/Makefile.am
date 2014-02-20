@@ -20,19 +20,20 @@ AM_YFLAGS = -d
 include eigen_files.mk
 nobase_dist_pkginclude_HEADERS = $(eigen_files)
 
-BUILT_SOURCES = IoAsciiParser.hpp MathParser.hpp
+BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
 lib_LTLIBRARIES = liblatan.la
 	
 liblatan_la_SOURCES =   \
+    AsciiFile.cpp       \
+    AsciiParser.ypp     \
+    AsciiLexer.lpp      \
     CompiledFunction.cpp\
     Exceptions.cpp      \
     Function.cpp        \
     Global.cpp          \
     includes.hpp        \
-    Io.cpp              \
-    IoAsciiParser.ypp   \
-    IoAsciiLexer.lpp    \
+    File.cpp            \
     Mat.cpp             \
     Math.cpp            \
     MathInterpreter.cpp \
@@ -45,11 +46,12 @@ liblatan_la_SOURCES =   \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
 liblatan_la_HEADERS =   \
+    AsciiFile.hpp       \
     CompiledFunction.hpp\
     Dataset.hpp         \
     Function.hpp        \
     Global.hpp          \
-    Io.hpp              \
+    File.hpp            \
     IoObject.hpp        \
     Mat.hpp             \
     Math.hpp            \

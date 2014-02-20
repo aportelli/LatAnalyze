@@ -1,5 +1,5 @@
 #include <iostream>
-#include <latan/Io.hpp>
+#include <latan/AsciiFile.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -13,10 +13,9 @@ int main(int argc, char *argv[])
     }
     
     string fileName = argv[1];
-    AsciiFile f(fileName, File::Mode::read);
     
     cout << "-- loading sample from '" << fileName << "'..." << endl;
-    const DMatSample &s = f.read<DMatSample>();
+    const DMatSample &s = Io::load<DMatSample, AsciiFile>(fileName);
     cout << scientific;
     cout << "central value:\n"      << s[central]               << endl;
     cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;

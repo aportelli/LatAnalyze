@@ -1,0 +1,188 @@
+/*
+ * IoAsciiParser.ypp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+%{
+    #include <iostream>
+    #include <memory>
+    #include <sstream>
+    #include <utility>
+    #include <cstring>
+    #include <latan/Global.hpp>
+	#include <latan/AsciiFile.hpp>
+    #include <latan/Mat.hpp>
+    #include <latan/RandGen.hpp>
+    #include <latan/Sample.hpp>
+
+    using namespace std;
+    using namespace Latan;
+    
+    #define TEST_FIRST(name) \
+    if (state->isFirst)\
+    {\
+        state->first   = (name);\
+        state->isFirst = false;\
+    }
+%}
+
+%pure-parser
+%name-prefix="_Ascii_"
+%locations
+%defines
+%error-verbose
+%parse-param { Latan::AsciiFile::AsciiParserState* state }
+%initial-action {yylloc.last_column = 0;}
+%lex-param { void* scanner }
+
+%union
+{
+	int    val_int;
+	double val_double;
+    char   val_char;
+    char   val_str[256];
+}
+
+%token <val_char>   ERR
+%token <val_double> FLOAT
+%token <val_int>    INT
+%token <val_str>    ID
+%token OPEN CLOSE MAT SAMPLE RG_STATE
+
+%type <val_str> mat sample rg_state
+
+%{
+	int _Ascii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+
+	void _Ascii_error(YYLTYPE* locp, AsciiFile::AsciiParserState* state,
+                      const char* err)
+	{
+        stringstream buf;
+        
+        buf << *state->streamName << ":" << locp->first_line << ":"\
+            << locp->first_column << ": " << err;
+        LATAN_ERROR(Parsing, buf.str());
+	}
+
+	#define scanner state->scanner
+%}
+
+%%
+
+datas:
+      /* empty string */
+    | datas data
+	;
+
+data:
+      mat
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new DMat(state->dMatQueue.front()));
+        state->dMatQueue.pop();
+    }
+    | sample
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
+    }
+    | rg_state
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new RandGenState(state->stateBuf));
+    }
+    ;
+
+mat:
+      OPEN MAT ID INT floats CLOSE MAT
+    {
+        const unsigned int nRow = state->doubleQueue.size()/$INT, nCol = $INT;
+        int i, j, r = 0;
+        
+        if (state->doubleQueue.size() != nRow*nCol)
+        {
+            LATAN_ERROR(Size, "matrix '" + *state->streamName + ":" + $ID +
+                        "' has a wrong size");
+        }
+        
+        state->dMatQueue.push(DMat(nRow, nCol));
+        while (!state->doubleQueue.empty())
+        {
+            j = r % nCol;
+            i = (r - j)/nCol;
+            state->dMatQueue.back()(i, j) = state->doubleQueue.front();
+            state->doubleQueue.pop();
+            r++;
+        }
+        strcpy($$, $ID);
+    }
+    ;
+
+sample:
+      OPEN SAMPLE ID INT mats CLOSE SAMPLE
+    {
+        const unsigned int nSample = $INT + 1;
+        
+        if (state->dMatQueue.size() != nSample)
+        {
+            LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $ID +
+                        "' has a wrong size");
+        }
+        state->dMatSampleBuf.resize(nSample);
+        state->dMatSampleBuf[central] = state->dMatQueue.front();
+        state->dMatQueue.pop();
+        for (int i = 0; i < $INT; ++i)
+        {
+            state->dMatSampleBuf[i] = state->dMatQueue.front();
+            state->dMatQueue.pop();
+        }
+        strcpy($$, $ID);
+    }
+
+rg_state:
+      OPEN RG_STATE ID ints CLOSE RG_STATE
+    {
+        if (state->intQueue.size() != RLXG_STATE_SIZE)
+        {
+            LATAN_ERROR(Size, "random generator state '" + *state->streamName
+                        + ":" + $ID + "' has a wrong size");
+        }
+        for (unsigned int i = 0; i < RLXG_STATE_SIZE; ++i)
+        {
+            state->stateBuf[i] = state->intQueue.front();
+            state->intQueue.pop();
+        }
+        strcpy($$, $ID);
+    }
+    ;
+
+mats:
+      mats mat
+    | mat
+    ;
+
+floats:
+      floats FLOAT {state->doubleQueue.push($FLOAT);}
+    | floats INT   {state->doubleQueue.push(static_cast<double>($INT));}
+    | FLOAT        {state->doubleQueue.push($FLOAT);}
+    | INT          {state->doubleQueue.push(static_cast<double>($INT));}
+    ;
+
+ints:
+      ints INT {state->intQueue.push($INT);}
+    | INT      {state->intQueue.push($INT);}
+    ;

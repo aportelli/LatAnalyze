@@ -1,5 +1,5 @@
 #include <iostream>
-#include <latan/Io.hpp>
+#include <latan/AsciiFile.hpp>
 #include <latan/RandGen.hpp>
 
 using namespace std;
@@ -11,7 +11,7 @@ const string stateFileName = "exRand.seed";
 
 int main(void)
 {
-    RandGen::State state;
+    RandGenState state;
     RandGen gen[2];
     AsciiFile stateFile(stateFileName, File::Mode::write|File::Mode::read);
     
@@ -31,7 +31,7 @@ int main(void)
     }
     cout << "-- setting up another generator from '" << stateFileName << "'..."
          << endl;
-    gen[1].setState(stateFile.read<RandGen::State>("exRand"));
+    gen[1].setState(stateFile.read<RandGenState>("exRand"));
     cout << "-- generating a " << seqLength << " steps random sequence..."
          << endl;
     for (int i = 0; i < seqLength; ++i)

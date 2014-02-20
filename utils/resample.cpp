@@ -1,8 +1,8 @@
 #include <iostream>
 #include <libgen.h>
 #include <unistd.h>
+#include <latan/AsciiFile.hpp>
 #include <latan/Dataset.hpp>
-#include <latan/Io.hpp>
 
 #ifndef DEF_NSAMPLE
 #define DEF_NSAMPLE 100u
@@ -60,25 +60,25 @@ int main(int argc, char *argv[])
         usage(cmdName);
     }
     
-    Dataset<DMat, AsciiFile> dataset;
+    Dataset<DMat> dataset;
     DMatSample s;
     RandGen g;
     
     if (!stateFileName.empty())
     {
         AsciiFile f(stateFileName, File::Mode::read);
-        g.setState(f.read<RandGen::State>());
+        g.setState(f.read<RandGenState>());
     }
     cout << "-- loading data from manifest '" << manFileName << "'..." << endl;
-    dataset.load(manFileName, name);
+    dataset.load<AsciiFile>(manFileName, name);
     s = dataset.bootstrapMean(nSample, g);
     cout << scientific;
     cout << "central value:\n"      << s[central]               << endl;
     cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
     if (!outFileName.empty())
     {
-        AsciiFile f(outFileName, File::Mode::write);
-        f.save(s, manFileName + "_" + name);
+        Io::save<DMatSample, AsciiFile>(s, outFileName, File::Mode::write,
+                                        manFileName + "_" + name);
     }
     
     return EXIT_SUCCESS;

@@ -24,7 +24,9 @@
 
 BEGIN_NAMESPACE
 
-// Abstract base for IO objects
+/******************************************************************************
+ *                        Abstract class for IO objects                       *
+ ******************************************************************************/
 class IoObject
 {
 public:

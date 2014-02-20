@@ -28,18 +28,17 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
- *                        RandGen implementation                              *
+ *                      RandGenState implementation                           *
  ******************************************************************************/
-// State constructor ///////////////////////////////////////////////////////////
-RandGen::State::State(void)
-{}
-
-// State IO type ///////////////////////////////////////////////////////////////
-IoObject::IoType RandGen::State::getType(void) const
+// IO type ///////////////////////////////////////////////////////////////
+IoObject::IoType RandGenState::getType(void) const
 {
     return IoType::rgState;
 }
 
+/******************************************************************************
+ *                        RandGen implementation                              *
+ ******************************************************************************/
 // RanLxd implementation ///////////////////////////////////////////////////////
 RandGen::RanLxd::RanLxd(void)
 : init(0)
@@ -640,22 +639,22 @@ RandGen::RandGen(const int seed)
     generator_.rlxd_init(RLXD_LEVEL, seed);
 }
 
-RandGen::RandGen(const State &state)
+RandGen::RandGen(const RandGenState &state)
 {
     setState(state);
 }
 
 // state management ////////////////////////////////////////////////////////////
-RandGen::State RandGen::getState(void) const
+RandGenState RandGen::getState(void) const
 {
-    State state;
+    RandGenState state;
     
     generator_.rlxd_get(state.data());
     
     return state;
 }
 
-void RandGen::setState(const State &state)
+void RandGen::setState(const RandGenState &state)
 {
     generator_.rlxd_reset(state.data());
 }

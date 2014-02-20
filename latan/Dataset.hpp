@@ -21,7 +21,7 @@
 #define Latan_Dataset_hpp_
 
 #include <latan/Global.hpp>
-#include <latan/Io.hpp>
+#include <latan/File.hpp>
 #include <latan/Sample.hpp>
 #include <latan/RandGen.hpp>
 #include <fstream>
@@ -32,7 +32,7 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                              Dataset class                                 *
  ******************************************************************************/
-template <typename T, typename FileType>
+template <typename T>
 class Dataset: public StatArray<T>
 {
 private:
@@ -41,40 +41,43 @@ public:
     // constructors
     using Base::Base;
     Dataset(void);
+    template <typename FileType>
     Dataset(const std::string &listFileName, const std::string &dataName);
     // destructor
     virtual ~Dataset(void) = default;
     // IO
+    template <typename FileType>
     void load(const std::string &listFileName, const std::string &dataName);
     // resampling
     Sample<T> bootstrapMean(const unsigned int nSample, RandGen& generator);
 private:
     // mean from pointer vector for resampling
     void ptVectorMean(T &m, const std::vector<const T *> &v);
-private:
-    FileType file_;
 };
 
 /******************************************************************************
  *                      Dataset template implementation                       *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-template <typename T, typename FileType>
-Dataset<T, FileType>::Dataset(void)
+template <typename T>
+Dataset<T>::Dataset(void)
 {}
 
-template <typename T, typename FileType>
-Dataset<T, FileType>::Dataset(const std::string &listFileName,
-                              const std::string &dataName)
+template <typename T>
+template <typename FileType>
+Dataset<T>::Dataset(const std::string &listFileName,
+                    const std::string &dataName)
 {
-    load(listFileName, dataName);
+    load<FileType>(listFileName, dataName);
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
-template <typename T, typename FileType>
-void Dataset<T, FileType>::load(const std::string &listFileName,
-                                const std::string &dataName)
+template <typename T>
+template <typename FileType>
+void Dataset<T>::load(const std::string &listFileName,
+                      const std::string &dataName)
 {
+    FileType file;
     std::ifstream listFile;
     char dataFileNameBuf[MAX_PATH_LENGTH];
     std::vector<std::string> dataFileName;
@@ -92,16 +95,16 @@ void Dataset<T, FileType>::load(const std::string &listFileName,
     this->resize(dataFileName.size());
     for (unsigned int i = 0; i < dataFileName.size(); ++i)
     {
-        file_.open(dataFileName[i], File::Mode::read);
-        (*this)[i] = file_.template read<T>(dataName);
-        file_.close();
+        file.open(dataFileName[i], File::Mode::read);
+        (*this)[i] = file.template read<T>(dataName);
+        file.close();
     }
 }
 
 // resampling //////////////////////////////////////////////////////////////////
-template <typename T, typename FileType>
-Sample<T> Dataset<T, FileType>::bootstrapMean(const unsigned int nSample,
-                                              RandGen& generator)
+template <typename T>
+Sample<T> Dataset<T>::bootstrapMean(const unsigned int nSample,
+                                    RandGen& generator)
 {
     unsigned int nData = this->size();
     std::vector<const T *> data(nData);
@@ -124,8 +127,8 @@ Sample<T> Dataset<T, FileType>::bootstrapMean(const unsigned int nSample,
     return s;
 }
 
-template <typename T, typename FileType>
-void Dataset<T, FileType>::ptVectorMean(T &m, const std::vector<const T *> &v)
+template <typename T>
+void Dataset<T>::ptVectorMean(T &m, const std::vector<const T *> &v)
 {
     if (v.size())
     {

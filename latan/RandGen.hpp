@@ -27,25 +27,24 @@
 
 BEGIN_NAMESPACE
 
+class RandGenState: public Eigen::Array<int, RLXG_STATE_SIZE, 1>,
+                    public IoObject
+{
+private:
+    typedef Eigen::Array<int, RLXG_STATE_SIZE, 1> Base;
+public:
+    // destructor
+    virtual ~RandGenState(void) = default;
+    // IO type
+    IoType getType(void) const;
+};
+
 /******************************************************************************
  *                          Random generator class                            *
  ******************************************************************************/
 
 class RandGen
 {
-public:
-    class State: public Eigen::Array<int, RLXG_STATE_SIZE, 1>, public IoObject
-    {
-    private:
-        typedef Eigen::Array<int, RLXG_STATE_SIZE, 1> Base;
-    public:
-        // constructor
-        State(void);
-        // destructor
-        virtual ~State(void) = default;
-        // IO type
-        IoType getType(void) const;
-    };
 private:
     // Martin Luescher's ranlxd generator interface
     class RanLxd
@@ -85,12 +84,12 @@ public:
     // constructors
     RandGen(void);
     RandGen(const int seed);
-    RandGen(const State &state);
+    RandGen(const RandGenState &state);
     // destructor
     virtual ~RandGen(void) = default;
     // state management
-    State getState(void) const;
-    void  setState(const State &state);
+    RandGenState getState(void) const;
+    void         setState(const RandGenState &state);
     // generators
     double uniform(const double a = 0.0, const double b = 1.0);
     double discreteUniform(const unsigned int n);
