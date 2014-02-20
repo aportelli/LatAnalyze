@@ -38,6 +38,7 @@ liblatan_la_SOURCES =   \
     MathInterpreter.cpp \
     MathParser.ypp      \
     MathLexer.lpp       \
+    Minimizer.cpp       \
     Plot.cpp            \
     RandGen.cpp         \
     Sample.cpp          \
@@ -53,11 +54,18 @@ liblatan_la_HEADERS =   \
     Mat.hpp             \
     Math.hpp            \
     MathInterpreter.hpp \
+    Minimizer.hpp       \
     ParserState.hpp     \
     Plot.hpp            \
     RandGen.hpp         \
     Sample.hpp          \
     StatArray.hpp
+    
+if HAVE_MINUIT
+liblatan_la_SOURCES += MinuitMinimizer.cpp
+liblatan_la_HEADERS += MinuitMinimizer.hpp
+endif
+
 liblatan_la_CFLAGS = $(COM_CFLAGS)
 liblatan_la_CXXFLAGS = $(COM_CXXFLAGS)
 

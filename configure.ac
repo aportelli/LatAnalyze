@@ -12,7 +12,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
 
-# Checks for programs.
+# Checks for programs
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
@@ -26,7 +26,7 @@ m4_ifdef([AM_PROG_AR],[AM_PROG_AR])
 
 LT_INIT
 
-# Option to enable SSE random generator
+# Options
 AC_ARG_ENABLE([SSE],
 	[AS_HELP_STRING([--enable-SSE],
 		[compiles SSE version of ranlux random generator])],
@@ -35,6 +35,18 @@ AC_ARG_ENABLE([SSE],
 				[Define to 1 if your CPU support SSE instructions.])],
 	[]
 )
+AC_ARG_WITH([Minuit2],
+    [AS_HELP_STRING([--with-Minuit2=prefix],
+		[try this for a non-standard install prefix of the Minuit2 library])],
+    [AM_CFLAGS="$AM_CFLAGS -I$with_Minuit2/include"]
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_Minuit2/include"]
+	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"],
+	[]
+)
+
+CFLAGS="$AM_CFLAGS $CFLAGS"
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 
 # Get compilers informations
 AX_COMPILER_VENDOR
@@ -58,6 +70,22 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
+SAVED_LDFLAGS=$LDFLAGS
+LDFLAGS="$LDFLAGS -lMinuit2"
+AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM([#include <Minuit2/BasicMinimumError.h>],
+	[ROOT::Minuit2::BasicMinimumError dummy(0)])],
+	[LIBS="$LIBS -lMinuit2"]
+	[AC_DEFINE([HAVE_MINUIT2],
+				[1],
+				[Define to 1 if you have the `Minuit2' library (-lMinuit2).])]
+    [have_minuit=true]
+	[AC_MSG_RESULT([yes])],
+	[have_minuit=false]
+    [AC_MSG_RESULT([no])])
+AM_CONDITIONAL([HAVE_MINUIT], [test x$have_minuit = xtrue])
+LDFLAGS=$SAVED_LDFLAGS
 
 # Checks for header files.
 AC_HEADER_STDC

@@ -18,6 +18,7 @@ noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exMat                   \
     exMathInterpreter       \
+    exMin                   \
     exPlot                  \
     exRand
 
@@ -28,6 +29,10 @@ exCompiledDoubleFunction_LDFLAGS = -L../latan/.libs -llatan
 exMat_SOURCES                    = exMat.cpp
 exMat_CFLAGS                     = -g -O2
 exMat_LDFLAGS                    = -L../latan/.libs -llatan
+
+exMin_SOURCES                    = exMin.cpp
+exMin_CFLAGS                     = -g -O2
+exMin_LDFLAGS                    = -L../latan/.libs -llatan
 
 exMathInterpreter_SOURCES        = exMathInterpreter.cpp
 exMathInterpreter_CFLAGS         = -g -O2
