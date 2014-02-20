@@ -43,7 +43,7 @@
 // copy/assignement from Eigen expression
 #define EIGEN_EXPR_CTOR(ctorName, Class, Base, EigenBase) \
 template <typename Derived>\
-ctorName(const Eigen::EigenBase<Derived> &m): Base(m) {};\
+ctorName(const Eigen::EigenBase<Derived> &m): Base(m) {}\
 template<typename Derived>\
 Class & operator=(const Eigen::EigenBase<Derived> &m)\
 {\

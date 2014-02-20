@@ -116,7 +116,7 @@ void AsciiFile::save(const DMat &m, const std::string &name)
     isParsed_ = false;
     fileStream_ << "#L latan_begin mat " << name << endl;
     fileStream_ << m.cols() << endl;
-    fileStream_ << scientific << m << defaultfloat << endl;
+    fileStream_ << scientific << m << endl;
     fileStream_ << "#L latan_end mat " << endl;
 }
 

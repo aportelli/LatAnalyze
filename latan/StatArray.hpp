@@ -39,7 +39,7 @@ public:
     StatArray(void);
     StatArray(const unsigned int size);
     EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
-                    ArrayBase);
+                    ArrayBase)
     // destructor
     virtual ~StatArray(void);
     // access

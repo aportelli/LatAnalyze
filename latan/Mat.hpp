@@ -34,7 +34,7 @@ public:
     // constructors
     DMat(void);
     DMat(const unsigned int nRow, const unsigned int nCol);
-    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase);
+    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase)
     // IO
     virtual IoType getType(void) const;
 };
