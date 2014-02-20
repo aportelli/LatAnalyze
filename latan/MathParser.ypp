@@ -53,8 +53,8 @@
 %left '='
 %left '+' '-'
 %left '*' '/'
-%left '^'
 %nonassoc UMINUS
+%left '^'
 
 %type <val_node> stmt stmt_list expr func_args
 
