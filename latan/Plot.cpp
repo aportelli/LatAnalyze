@@ -36,16 +36,11 @@ PlotCommand::PlotCommand(const string &command)
 : command_(command)
 {}
 
-// destructor //////////////////////////////////////////////////////////////////
-PlotCommand::~PlotCommand(void)
-{}
-
 // access //////////////////////////////////////////////////////////////////////
 const std::string & PlotCommand::getCommand(void) const
 {
     return command_;
 }
-
 
 /******************************************************************************
  *                          Plot implementation                               *

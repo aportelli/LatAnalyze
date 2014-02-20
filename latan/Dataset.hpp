@@ -38,12 +38,12 @@ class Dataset: public StatArray<T>
 private:
     typedef StatArray<T> Base;
 public:
-    // constructor
+    // constructors
     using Base::Base;
     Dataset(void);
     Dataset(const std::string &listFileName, const std::string &dataName);
     // destructor
-    virtual ~Dataset(void);
+    virtual ~Dataset(void) = default;
     // IO
     void load(const std::string &listFileName, const std::string &dataName);
     // resampling
@@ -69,11 +69,6 @@ Dataset<T, FileType>::Dataset(const std::string &listFileName,
 {
     load(listFileName, dataName);
 }
-
-// destructor //////////////////////////////////////////////////////////////////
-template <typename T, typename FileType>
-Dataset<T, FileType>::~Dataset(void)
-{}
 
 // IO //////////////////////////////////////////////////////////////////////////
 template <typename T, typename FileType>

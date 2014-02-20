@@ -33,18 +33,14 @@ using namespace std;
 using namespace Latan;
 using namespace Exceptions;
 
-// prefix for messages
-const string Latan::Exceptions::prefix = "[" + strFrom(PACKAGE_NAME) + " v"
-                                         + strFrom(PACKAGE_VERSION) + "] ";
-
 // logic errors
-CONST_EXC(Logic, logic_error(prefix + msg + ERR_SUFF))
+CONST_EXC(Logic, logic_error(Env::msgPrefix + msg + ERR_SUFF))
 CONST_EXC(Definition, Logic("definition error: " + msg, loc))
 CONST_EXC(Implementation, Logic("implementation error: " + msg, loc))
 CONST_EXC(Range, Logic("range error: " + msg, loc))
 CONST_EXC(Size, Logic("size error: " + msg, loc))
 // runtime errors
-CONST_EXC(Runtime, runtime_error(prefix + msg + ERR_SUFF))
+CONST_EXC(Runtime, runtime_error(Env::msgPrefix + msg + ERR_SUFF))
 CONST_EXC(Compilation, Runtime("compilation error: " + msg, loc))
 CONST_EXC(Io, Runtime("IO error: " + msg, loc))
 CONST_EXC(Parsing, Runtime(msg, loc))

@@ -30,13 +30,11 @@ using namespace Latan;
 /******************************************************************************
  *                        RandGen implementation                              *
  ******************************************************************************/
-// State implentation //////////////////////////////////////////////////////////
+// State constructor ///////////////////////////////////////////////////////////
 RandGen::State::State(void)
 {}
 
-RandGen::State::~State(void)
-{}
-
+// State IO type ///////////////////////////////////////////////////////////////
 IoObject::IoType RandGen::State::getType(void) const
 {
     return IoType::rgState;
@@ -646,10 +644,6 @@ RandGen::RandGen(const State &state)
 {
     setState(state);
 }
-
-// destructor //////////////////////////////////////////////////////////////////
-RandGen::~RandGen(void)
-{}
 
 // state management ////////////////////////////////////////////////////////////
 RandGen::State RandGen::getState(void) const

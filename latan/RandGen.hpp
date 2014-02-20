@@ -42,7 +42,7 @@ public:
         // constructor
         State(void);
         // destructor
-        ~State(void);
+        virtual ~State(void) = default;
         // IO type
         IoType getType(void) const;
     };
@@ -61,6 +61,7 @@ private:
         } rlxd_dble_vec_t __attribute__ ((aligned (16)));
     public:
         RanLxd(void);
+        ~RanLxd(void) = default;
         void ranlxd(double r[],int n);
         void rlxd_init(int level,int seed);
         int  rlxd_size(void) const;
@@ -86,7 +87,7 @@ public:
     RandGen(const int seed);
     RandGen(const State &state);
     // destructor
-    virtual ~RandGen(void);
+    virtual ~RandGen(void) = default;
     // state management
     State getState(void) const;
     void  setState(const State &state);

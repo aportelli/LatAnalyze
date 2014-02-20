@@ -36,7 +36,9 @@ public:
         rgState    = 3
     };
 public:
-    virtual ~IoObject(void) {};
+    // destructor
+    virtual ~IoObject(void) = default;
+    // access
     virtual IoType getType(void) const = 0;
 };
 

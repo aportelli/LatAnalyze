@@ -37,6 +37,8 @@ public:
     DMat(void);
     DMat(const unsigned int nRow, const unsigned int nCol);
     EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase)
+    // destructor
+    virtual ~DMat(void) = default;
     // IO
     virtual IoType getType(void) const;
 };

@@ -27,7 +27,7 @@ using namespace Latan;
 /******************************************************************************
  *                   Compiled double function implementation                  *
  ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
+// constructors ////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
 : DoubleFunction(nArg)
 {}
@@ -38,10 +38,6 @@ CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
 {
     setCode(code);
 }
-
-// destructor //////////////////////////////////////////////////////////////////
-CompiledDoubleFunction::~CompiledDoubleFunction(void)
-{}
 
 // access //////////////////////////////////////////////////////////////////////
 void CompiledDoubleFunction::setCode(const string &code)

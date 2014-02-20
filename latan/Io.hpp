@@ -36,7 +36,7 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                          Generic datafile class                            *
+ *                          Abstract datafile class                           *
  ******************************************************************************/
 typedef std::unordered_map<std::string, std::unique_ptr<IoObject>> IoDataTable;
 

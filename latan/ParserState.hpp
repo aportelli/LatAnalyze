@@ -34,7 +34,7 @@ public:
     explicit ParserState(std::istream *streamPt, std::string *namePt,
                          DataObj *dataPt);
     // destructor
-    virtual ~ParserState(void);
+    virtual ~ParserState(void) = default;
 private:
     // scanner allocation/deallocation
     virtual void initScanner(void)    = 0;
@@ -54,10 +54,6 @@ ParserState<DataObj>::ParserState(std::istream *streamPt, std::string *namePt,
 , scanner(nullptr)
 , stream(streamPt)
 , streamName(namePt)
-{}
-
-template <typename DataObj>
-ParserState<DataObj>::~ParserState(void)
 {}
 
 END_NAMESPACE

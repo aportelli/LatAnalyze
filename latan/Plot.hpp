@@ -42,10 +42,11 @@ BEGIN_NAMESPACE
 class PlotCommand
 {
 public:
-    // constructors/destructor
+    // constructors
     PlotCommand(void);
     PlotCommand(const std::string &command);
-    virtual ~PlotCommand(void);
+    // destructor
+    virtual ~PlotCommand(void) = default;
     // access
     virtual const std::string & getCommand(void) const;
 protected:

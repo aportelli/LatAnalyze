@@ -400,10 +400,6 @@ MathInterpreter::MathInterpreter(const std::string &code)
     setCode(code);
 }
 
-// destructor //////////////////////////////////////////////////////////////////
-MathInterpreter::~MathInterpreter(void)
-{}
-
 // access //////////////////////////////////////////////////////////////////////
 const Instruction * MathInterpreter::operator[](const unsigned int i) const
 {

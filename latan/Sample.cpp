@@ -38,10 +38,6 @@ DMatSample::DMatSample(const unsigned int nSample, const unsigned int nRow,
     resizeMat(nRow, nCol);
 }
 
-// destructor //////////////////////////////////////////////////////////////////
-DMatSample::~DMatSample(void)
-{}
-
 // resize all matrices /////////////////////////////////////////////////////////
 void DMatSample::resizeMat(const unsigned int nRow, const unsigned int nCol)
 {

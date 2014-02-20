@@ -37,7 +37,7 @@ DoubleFunction STDMATH_NAMESPACE::name(1, &name##VecFunc);
 #define DEF_STD_FUNC_2ARG(name) \
 static double name##VecFunc(const vector<double> &arg)\
 {\
-return (name)(arg[0], arg[1]);\
+    return (name)(arg[0], arg[1]);\
 }\
 DoubleFunction STDMATH_NAMESPACE::name(2, &name##VecFunc);
 

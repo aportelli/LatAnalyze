@@ -43,7 +43,7 @@ public:
     // constructors
     using Base::Base;
     // destructor
-    virtual ~Sample(void);
+    virtual ~Sample(void) = default;
 };
 
 /******************************************************************************
@@ -58,20 +58,12 @@ public:
                const unsigned int nCol);
     using Sample<DMat>::Sample;
     // destructor
-    virtual ~DMatSample(void);
+    virtual ~DMatSample(void) = default;
     // resize all matrices
     void resizeMat(const unsigned int nRow, const unsigned int nCol);
     // IO type
     virtual IoType getType(void) const;
 };
-
-/******************************************************************************
- *                    Sample class template implementation                    *
- ******************************************************************************/
-// destructor //////////////////////////////////////////////////////////////////
-template <typename T>
-Sample<T>::~Sample(void)
-{}
 
 END_NAMESPACE
 

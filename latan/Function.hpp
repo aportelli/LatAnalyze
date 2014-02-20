@@ -35,9 +35,10 @@ BEGIN_NAMESPACE
 class Function
 {
 public:
-    // constructor/destructor
+    // constructor
     explicit Function(const unsigned nArg);
-    virtual ~Function(void);
+    // destructor
+    virtual ~Function(void) = default;
     // access
     unsigned int getNArg(void) const;
 private:
@@ -52,9 +53,10 @@ class DoubleFunction: public Function
 private:
     typedef std::function<double(const std::vector<double> &)> vecFunc;
 public:
-    // constructor/destructor
+    // constructor
     explicit DoubleFunction(const unsigned nArg, vecFunc f = nullptr);
-    virtual ~DoubleFunction(void);
+    // destructor
+    virtual ~DoubleFunction(void) = default;
     // function call
     virtual double evaluate(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;

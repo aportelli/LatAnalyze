@@ -41,7 +41,7 @@ public:
     explicit CompiledDoubleFunction(const unsigned nArg,
                                     const std::string &code);
     // destructor
-    virtual ~CompiledDoubleFunction(void);
+    virtual ~CompiledDoubleFunction(void) = default;
     // access
     void setCode(const std::string &code);
     // function call

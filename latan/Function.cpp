@@ -44,12 +44,9 @@ using namespace Latan;
 /******************************************************************************
  *                            Function implementation                         *
  ******************************************************************************/
-// constructor/destructor //////////////////////////////////////////////////////
+// constructor /////////////////////////////////////////////////////////////////
 Function::Function(const unsigned nArg)
 : nArg_(nArg)
-{}
-
-Function::~Function(void)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
@@ -61,15 +58,14 @@ unsigned int Function::getNArg(void) const
 /******************************************************************************
  *                        DoubleFunction implementation                       *
  ******************************************************************************/
+// constructor /////////////////////////////////////////////////////////////////
 DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc f)
 : Function(nArg)
 , buffer_(new vector<double>(nArg))
 , f_(f)
 {}
 
-DoubleFunction::~DoubleFunction(void)
-{}
-
+// function call ///////////////////////////////////////////////////////////////
 double DoubleFunction::evaluate(const std::vector<double> &arg) const
 {
     return f_(arg);

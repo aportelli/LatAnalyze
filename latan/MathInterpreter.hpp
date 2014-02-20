@@ -239,7 +239,7 @@ public:
     MathInterpreter(void);
     MathInterpreter(const std::string &code);
     // destructor
-    ~MathInterpreter(void);
+    ~MathInterpreter(void) = default;
     // access
     const Instruction * operator[](const unsigned int i) const;
     const ExprNode * getAST(void) const;

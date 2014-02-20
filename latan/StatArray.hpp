@@ -41,7 +41,7 @@ public:
     EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
                     ArrayBase)
     // destructor
-    virtual ~StatArray(void);
+    virtual ~StatArray(void) = default;
     // access
     unsigned int size(void) const;
     // operators
@@ -78,11 +78,6 @@ StatArray<T, offset>::StatArray(void)
 template <typename T, unsigned int offset>
 StatArray<T, offset>::StatArray(const unsigned int size)
 : Base(static_cast<typename Base::Index>(size + offset))
-{}
-
-// destructor //////////////////////////////////////////////////////////////////
-template <typename T, unsigned int offset>
-StatArray<T, offset>::~StatArray(void)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
