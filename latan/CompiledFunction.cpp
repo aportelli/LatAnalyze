@@ -48,16 +48,10 @@ void CompiledDoubleFunction::setCode(const string &code)
 }
 
 // function call ///////////////////////////////////////////////////////////////
-double CompiledDoubleFunction::evaluate(const vector<double> &arg) const
+double CompiledDoubleFunction::operator()(const double *arg) const
 {
     double result;
     
-    if (arg.size() != getNArg())
-    {
-        LATAN_ERROR(Size, "function argument vector has a wrong size (got " +
-                    strFrom(arg.size()) + ", expected " + strFrom(getNArg()) +
-                    ")");
-    }
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
         context_->vTable["x_" + strFrom(i)] = arg[i];

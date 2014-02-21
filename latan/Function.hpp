@@ -25,7 +25,6 @@
 #include <memory>
 #include <stack>
 #include <vector>
-#include <cstdarg>
 
 BEGIN_NAMESPACE
 
@@ -51,19 +50,23 @@ private:
 class DoubleFunction: public Function
 {
 private:
-    typedef std::function<double(const std::vector<double> &)> vecFunc;
+    typedef std::function<double(const double *)> vecFunc;
 public:
     // constructor
     explicit DoubleFunction(const unsigned nArg, vecFunc f = nullptr);
     // destructor
     virtual ~DoubleFunction(void) = default;
     // function call
-    virtual double evaluate(const std::vector<double> &arg) const;
+    double operator()(const DVec &arg) const;
+    double operator()(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;
     double operator()(const double x0, ...) const;
+protected:
+    // function call
+    virtual double operator()(const double *arg) const;
 private:
-    std::shared_ptr<std::vector<double>> buffer_;
-    vecFunc                              f_;
+    std::shared_ptr<DVec> buffer_;
+    vecFunc               f_;
 };
 
 END_NAMESPACE

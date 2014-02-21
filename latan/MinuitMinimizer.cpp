@@ -47,7 +47,7 @@ MinuitMinimizer::MinuitFunction::MinuitFunction(const DoubleFunction &f)
 double MinuitMinimizer::MinuitFunction::operator()
     (const vector<double> &x) const
 {
-    return f_->evaluate(x);
+    return (*f_)(x);
 }
 
 double MinuitMinimizer::MinuitFunction::Up(void) const

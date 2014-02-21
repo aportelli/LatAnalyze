@@ -28,14 +28,14 @@ using namespace Latan;
  ******************************************************************************/
 
 #define DEF_STD_FUNC_1ARG(name) \
-static double name##VecFunc(const vector<double> &arg)\
+static double name##VecFunc(const double *arg)\
 {\
     return (name)(arg[0]);\
 }\
 DoubleFunction STDMATH_NAMESPACE::name(1, &name##VecFunc);
 
 #define DEF_STD_FUNC_2ARG(name) \
-static double name##VecFunc(const vector<double> &arg)\
+static double name##VecFunc(const double *arg)\
 {\
     return (name)(arg[0], arg[1]);\
 }\

@@ -45,10 +45,13 @@ public:
     // access
     void setCode(const std::string &code);
     // function call
-    virtual double evaluate(const std::vector<double> &arg) const;
+    using DoubleFunction::operator();
     // IO
     friend std::ostream & operator<<(std::ostream &out,
                                      CompiledDoubleFunction &f);
+private:
+    // function call
+    virtual double operator()(const double *arg) const;
 private:
     std::shared_ptr<MathInterpreter> interpreter_;
     std::shared_ptr<RunContext>      context_;

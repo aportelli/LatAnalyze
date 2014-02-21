@@ -61,25 +61,55 @@ unsigned int Function::getNArg(void) const
 // constructor /////////////////////////////////////////////////////////////////
 DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc f)
 : Function(nArg)
-, buffer_(new vector<double>(nArg))
+, buffer_(new DVec(nArg))
 , f_(f)
 {}
 
 // function call ///////////////////////////////////////////////////////////////
-double DoubleFunction::evaluate(const std::vector<double> &arg) const
+double DoubleFunction::operator()(const double *arg) const
 {
     return f_(arg);
+}
+
+double DoubleFunction::operator()(const DVec &arg) const
+{
+    if (arg.size() != getNArg())
+    {
+        LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
+                    + strFrom(getNArg()) + ", got " + strFrom(arg.size())
+                    + ")");
+    }
+    
+    return (*this)(arg.data());
+}
+
+double DoubleFunction::operator()(const std::vector<double> &arg) const
+{
+    if (arg.size() != getNArg())
+    {
+        LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
+                    + strFrom(getNArg()) + ", got " + strFrom(arg.size())
+                    + ")");
+    }
+    
+    return (*this)(arg.data());
 }
 
 double DoubleFunction::operator()(std::stack<double> &arg) const
 {
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        (*buffer_)[getNArg() - i - 1] = arg.top();
+        if (arg.empty())
+        {
+            LATAN_ERROR(Size, "function argument stack has a wrong size (expected "
+                        + strFrom(getNArg()) + ", got " + strFrom(i)
+                        + ")");
+        }
+        (*buffer_)(getNArg() - i - 1) = arg.top();
         arg.pop();
     }
     
-    return this->evaluate(*buffer_);
+    return (*this)(*buffer_);
 }
 
 double DoubleFunction::operator()(const double x0, ...) const
@@ -92,10 +122,10 @@ double DoubleFunction::operator()(const double x0, ...) const
         va_start(va, x0);
         for (unsigned int i = 1; i < getNArg(); ++i)
         {
-            (*buffer_)[i] = va_arg(va, double);
+            (*buffer_)(i) = va_arg(va, double);
         }
         va_end(va);
     }
     
-    return this->evaluate(*buffer_);
+    return (*this)(*buffer_);
 }
