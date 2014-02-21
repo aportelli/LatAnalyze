@@ -62,6 +62,9 @@ namespace Env
     extern const std::string msgPrefix;
 }
 
+// vector type
+typedef Eigen::VectorXd DVec;
+
 // pointer type test
 template <typename Derived, typename Base>
 inline bool isDerivedFrom(const Base *pt)

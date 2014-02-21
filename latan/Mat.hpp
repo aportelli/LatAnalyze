@@ -26,8 +26,6 @@
 
 BEGIN_NAMESPACE
 
-typedef Eigen::VectorXd DVec;
-
 class DMat: public Eigen::MatrixXd, public IoObject
 {
 private:
