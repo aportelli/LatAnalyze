@@ -193,9 +193,9 @@ const string &ExprNode::getName(void) const
     return name_;
 }
 
-unsigned int ExprNode::getNArg(void) const
+Index ExprNode::getNArg(void) const
 {
-    return static_cast<unsigned int>(arg_.size());
+    return static_cast<Index>(arg_.size());
 }
 
 const ExprNode * ExprNode::getParent(void) const
@@ -203,7 +203,7 @@ const ExprNode * ExprNode::getParent(void) const
     return parent_;
 }
 
-unsigned int ExprNode::getLevel(void) const
+Index ExprNode::getLevel(void) const
 {
     if (getParent())
     {
@@ -230,16 +230,16 @@ void ExprNode::pushArg(ExprNode *node)
 }
 
 // ExprNode operators //////////////////////////////////////////////////////////
-const ExprNode &ExprNode::operator[](const unsigned int i) const
+const ExprNode &ExprNode::operator[](const Index i) const
 {
-    return *arg_[i];
+    return *arg_[static_cast<unsigned int>(i)];
 }
 
 ostream &Latan::operator<<(ostream &out, const ExprNode &n)
 {
-    unsigned int level = n.getLevel();
+    Index level = n.getLevel();
     
-    for (unsigned int i = 0; i <= level; ++i)
+    for (Index i = 0; i <= level; ++i)
     {
         if (i == level)
         {
@@ -255,7 +255,7 @@ ostream &Latan::operator<<(ostream &out, const ExprNode &n)
         }
     }
     out << " " << n.getName() << endl;
-    for (unsigned int i = 0; i < n.getNArg(); ++i)
+    for (Index i = 0; i < n.getNArg(); ++i)
     {
         out << n[i];
     }
@@ -283,7 +283,7 @@ void SemicolonNode::compile(Program &program) const
 {
     auto &n = *this;
     
-    for (unsigned int i = 0; i < getNArg(); ++i)
+    for (Index i = 0; i < getNArg(); ++i)
     {
         bool isAssign     = isDerivedFrom<AssignNode>(&n[i]);
         bool isSemiColumn = isDerivedFrom<SemicolonNode>(&n[i]);
@@ -330,7 +330,7 @@ void MathOpNode::compile(Program &program) const
 {
     auto &n = *this;
     
-    for (unsigned int i = 0; i < n.getNArg(); ++i)
+    for (Index i = 0; i < n.getNArg(); ++i)
     {
         n[i].compile(program);
     }
@@ -348,7 +348,7 @@ void FuncNode::compile(Program &program) const
 {
     auto &n = *this;
     
-    for (unsigned int i = 0; i < n.getNArg(); ++i)
+    for (Index i = 0; i < n.getNArg(); ++i)
     {
         n[i].compile(program);
     }
@@ -401,9 +401,9 @@ MathInterpreter::MathInterpreter(const std::string &code)
 }
 
 // access //////////////////////////////////////////////////////////////////////
-const Instruction * MathInterpreter::operator[](const unsigned int i) const
+const Instruction * MathInterpreter::operator[](const Index i) const
 {
-    return program_[i].get();
+    return program_[static_cast<unsigned int>(i)].get();
 }
 
 const ExprNode * MathInterpreter::getAST(void) const

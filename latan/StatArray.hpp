@@ -30,28 +30,28 @@ BEGIN_NAMESPACE
  *                     Array class with statistics                            *
  ******************************************************************************/
 template <typename T, unsigned int offset = 0>
-class StatArray: public Eigen::Array<T, Eigen::Dynamic, 1>
+class StatArray: public Array<T, dynamic, 1>
 {
 private:
-    typedef Eigen::Array<T, Eigen::Dynamic, 1> Base;
+    typedef Array<T, dynamic, 1> Base;
 public:
     // constructors
     StatArray(void);
-    StatArray(const unsigned int size);
+    StatArray(const Index size);
     EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
                     ArrayBase)
     // destructor
     virtual ~StatArray(void) = default;
     // access
-    unsigned int size(void) const;
+    Index size(void) const;
     // operators
           T & operator[](const int s);
     const T & operator[](const int s) const;
     // statistics
-    void bin(unsigned int binSize);
-    T    mean(const unsigned int pos, const unsigned int n) const;
+    void bin(Index binSize);
+    T    mean(const Index pos, const Index n) const;
     T    mean(void) const;
-    T    variance(const unsigned int pos, const unsigned int n) const;
+    T    variance(const Index pos, const Index n) const;
     T    variance(void) const;
 };
 
@@ -76,13 +76,13 @@ StatArray<T, offset>::StatArray(void)
 {}
 
 template <typename T, unsigned int offset>
-StatArray<T, offset>::StatArray(const unsigned int size)
+StatArray<T, offset>::StatArray(const Index size)
 : Base(static_cast<typename Base::Index>(size + offset))
 {}
 
 // access //////////////////////////////////////////////////////////////////////
 template <typename T, unsigned int offset>
-unsigned int StatArray<T, offset>::size(void) const
+Index StatArray<T, offset>::size(void) const
 {
     return Base::size() - offset;
 }
@@ -103,11 +103,11 @@ const T & StatArray<T, offset>::operator[](const int s) const
 
 // statistics //////////////////////////////////////////////////////////////////
 template <typename T, unsigned int offset>
-void StatArray<T, offset>::bin(unsigned int binSize)
+void StatArray<T, offset>::bin(Index binSize)
 {
-    unsigned int q = size()/binSize, r = size()%binSize;
+    Index q = size()/binSize, r = size()%binSize;
 
-    for (unsigned int i = 0; i < q; ++i)
+    for (Index i = 0; i < q; ++i)
     {
         (*this)[i] = mean(i*binSize, binSize);
     }
@@ -123,7 +123,7 @@ void StatArray<T, offset>::bin(unsigned int binSize)
 }
 
 template <typename T, unsigned int offset>
-T StatArray<T, offset>::mean(const unsigned int pos, const unsigned int n) const
+T StatArray<T, offset>::mean(const Index pos, const Index n) const
 {
     T result;
     
@@ -142,7 +142,7 @@ T StatArray<T, offset>::mean(void) const
 }
 
 template <typename T, unsigned int offset>
-T StatArray<T, offset>::variance(const unsigned int pos, const unsigned int n) const
+T StatArray<T, offset>::variance(const Index pos, const Index n) const
 {
     T s, sqs, result;
     

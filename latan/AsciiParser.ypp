@@ -111,7 +111,7 @@ mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
         const unsigned int nRow = state->doubleQueue.size()/$INT, nCol = $INT;
-        int i, j, r = 0;
+        Index i, j, r = 0;
         
         if (state->doubleQueue.size() != nRow*nCol)
         {
@@ -161,7 +161,7 @@ rg_state:
             LATAN_ERROR(Size, "random generator state '" + *state->streamName
                         + ":" + $ID + "' has a wrong size");
         }
-        for (unsigned int i = 0; i < RLXG_STATE_SIZE; ++i)
+        for (Index i = 0; i < RLXG_STATE_SIZE; ++i)
         {
             state->stateBuf[i] = state->intQueue.front();
             state->intQueue.pop();

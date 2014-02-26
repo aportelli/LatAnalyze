@@ -31,7 +31,7 @@ DMat::DMat(void)
 : Base()
 {}
 
-DMat::DMat(const unsigned int nRow, const unsigned int nCol)
+DMat::DMat(const Index nRow, const Index nCol)
 : Base(nRow, nCol)
 {}
 

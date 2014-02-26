@@ -5,7 +5,7 @@
 #include <latan/Dataset.hpp>
 
 #ifndef DEF_NSAMPLE
-#define DEF_NSAMPLE 100u
+#define DEF_NSAMPLE 100
 #endif
 
 using namespace std;
@@ -22,7 +22,7 @@ static void usage(const string &cmdName)
 int main(int argc, char *argv[])
 {
     int c;
-    unsigned int nSample = DEF_NSAMPLE;
+    Index nSample = DEF_NSAMPLE;
     string manFileName, name, outFileName, stateFileName;
     char *cmdName;
     
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         switch (c)
         {
             case 'n':
-                nSample = strTo<unsigned int>(optarg);
+                nSample = strTo<Index>(optarg);
                 break;
             case 'r':
                 stateFileName = optarg;

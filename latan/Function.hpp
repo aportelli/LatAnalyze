@@ -21,6 +21,7 @@
 #define	Latan_Function_hpp_
 
 #include <latan/Global.hpp>
+#include <latan/Mat.hpp>
 #include <functional>
 #include <memory>
 #include <stack>
@@ -29,33 +30,21 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                            Base function class                             *
- ******************************************************************************/
-class Function
-{
-public:
-    // constructor
-    explicit Function(const unsigned nArg);
-    // destructor
-    virtual ~Function(void) = default;
-    // access
-    unsigned int getNArg(void) const;
-private:
-    const unsigned int nArg_;
-};
-
-/******************************************************************************
  *                            Double function class                           *
  ******************************************************************************/
-class DoubleFunction: public Function
+class DoubleFunction
 {
 private:
     typedef std::function<double(const double *)> vecFunc;
 public:
     // constructor
-    explicit DoubleFunction(const unsigned nArg, vecFunc f = nullptr);
+    DoubleFunction(const Index nArg = 0, const vecFunc &f = nullFunction_);
     // destructor
     virtual ~DoubleFunction(void) = default;
+    // access
+    Index getNArg(void) const;
+    void  setFunction(const vecFunc &f);
+    void  setNArg(const Index nArg);
     // function call
     double operator()(const DVec &arg) const;
     double operator()(const std::vector<double> &arg) const;
@@ -67,6 +56,7 @@ protected:
 private:
     std::shared_ptr<DVec> buffer_;
     vecFunc               f_;
+    static const vecFunc  nullFunction_;
 };
 
 END_NAMESPACE

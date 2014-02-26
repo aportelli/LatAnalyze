@@ -52,7 +52,7 @@ double CompiledDoubleFunction::operator()(const double *arg) const
 {
     double result;
     
-    for (unsigned int i = 0; i < getNArg(); ++i)
+    for (Index i = 0; i < getNArg(); ++i)
     {
         context_->vTable["x_" + strFrom(i)] = arg[i];
     }

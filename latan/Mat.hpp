@@ -20,20 +20,23 @@
 #ifndef Latan_Mat_hpp_
 #define Latan_Mat_hpp_
 
-#include <latan/Eigen/Dense>
 #include <latan/Global.hpp>
 #include <latan/IOObject.hpp>
 
+#define FOR_MAT(mat, i, j) \
+for (Index j = 0; j < mat.cols(); ++j)\
+for (Index i = 0; i < mat.rows(); ++i)
+
 BEGIN_NAMESPACE
 
-class DMat: public Eigen::MatrixXd, public IoObject
+class DMat: public DMatBase, public IoObject
 {
 private:
-    typedef Eigen::MatrixXd Base;
+    typedef DMatBase Base;
 public:
     // constructors
     DMat(void);
-    DMat(const unsigned int nRow, const unsigned int nCol);
+    DMat(const Index nRow, const Index nCol);
     EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase)
     // destructor
     virtual ~DMat(void) = default;

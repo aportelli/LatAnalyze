@@ -20,9 +20,11 @@
 #ifndef Latan_Global_hpp_
 #define	Latan_Global_hpp_
 
+#include <latan/Eigen/Dense>
 #include <map>
 #include <string>
-#include <latan/Eigen/Dense>
+#include <sstream>
+#include <cstdlib>
 
 #define BEGIN_NAMESPACE namespace Latan {
 #define END_NAMESPACE }
@@ -53,7 +55,53 @@ Class & operator=(const Eigen::EigenBase<Derived> &m)\
 
 BEGIN_NAMESPACE
 
-// Environment
+// Eigen type aliases //////////////////////////////////////////////////////////
+const int dynamic = -1;
+
+// array types
+template <typename T, int nRow = dynamic, int nCol = dynamic>
+using Array = Eigen::Array<T, nRow, nCol>;
+
+// matrix types
+template <typename T, int nRow = dynamic, int nCol = dynamic>
+using Mat = Eigen::Matrix<T, nRow, nCol>;
+
+typedef Mat<int>    IMat;
+typedef Mat<double> DMatBase;
+
+// vector types
+template <typename T>
+using Vec = Mat<T, dynamic, 1>;
+
+typedef Vec<int>    IVec;
+typedef Vec<double> DVec;
+
+// block types
+template <typename Derived>
+using Block      = Eigen::Block<Derived>;
+template <typename Derived>
+using ConstBlock = const Eigen::Block<const Derived>;
+
+template <typename Derived>
+using Row      = typename Derived::RowXpr;
+template <typename Derived>
+using ConstRow = typename Derived::ConstRowXpr;
+
+template <typename Derived>
+using Col = typename Derived::ColXpr;
+template <typename Derived>
+using ConstCol = typename Derived::ConstColXpr;
+
+// map type
+template <typename Derived>
+using Map = Eigen::Map<Derived>;
+template <typename Derived>
+using ConstMap = Eigen::Map<const Derived>;
+
+// Index type //////////////////////////////////////////////////////////////////
+typedef DMatBase::Index Index;
+
+// Environment /////////////////////////////////////////////////////////////////
 namespace Env
 {
     extern const std::string fullName;
@@ -62,9 +110,6 @@ namespace Env
     extern const std::string msgPrefix;
 }
 
-// vector type
-typedef Eigen::VectorXd DVec;
-
 // pointer type test
 template <typename Derived, typename Base>
 inline bool isDerivedFrom(const Base *pt)
@@ -72,7 +117,7 @@ inline bool isDerivedFrom(const Base *pt)
     return (dynamic_cast<const Derived *>(pt) != nullptr);
 }
 
-// string conversions
+// string conversions //////////////////////////////////////////////////////////
 template <typename T>
 inline T strTo(const std::string &str)
 {

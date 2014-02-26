@@ -31,15 +31,15 @@ DMatSample::DMatSample(void)
 : Sample<DMat>()
 {}
 
-DMatSample::DMatSample(const unsigned int nSample, const unsigned int nRow,
-                       const unsigned int nCol)
+DMatSample::DMatSample(const Index nSample, const Index nRow,
+                       const Index nCol)
 : Sample<DMat>(nSample)
 {
     resizeMat(nRow, nCol);
 }
 
 // resize all matrices /////////////////////////////////////////////////////////
-void DMatSample::resizeMat(const unsigned int nRow, const unsigned int nCol)
+void DMatSample::resizeMat(const Index nRow, const Index nCol)
 {
     this->unaryExpr([nRow, nCol](DMat &m){m.resize(nRow, nCol);});
 }

@@ -70,7 +70,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     MinuitFunction minuitF(f);
     MnUserParameters parameters;
     
-    for (unsigned int i = 0; i < x.size(); ++i)
+    for (Index i = 0; i < x.size(); ++i)
     {
         parameters.Add("x_" + strFrom(i), x(i), 0.1*fabs(x(i)));
     }

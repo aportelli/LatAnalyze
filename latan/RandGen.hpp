@@ -27,11 +27,11 @@
 
 BEGIN_NAMESPACE
 
-class RandGenState: public Eigen::Array<int, RLXG_STATE_SIZE, 1>,
+class RandGenState: public Array<int, RLXG_STATE_SIZE, 1>,
                     public IoObject
 {
 private:
-    typedef Eigen::Array<int, RLXG_STATE_SIZE, 1> Base;
+    typedef Array<int, RLXG_STATE_SIZE, 1> Base;
 public:
     // destructor
     virtual ~RandGenState(void) = default;

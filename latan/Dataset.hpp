@@ -49,7 +49,7 @@ public:
     template <typename FileType>
     void load(const std::string &listFileName, const std::string &dataName);
     // resampling
-    Sample<T> bootstrapMean(const unsigned int nSample, RandGen& generator);
+    Sample<T> bootstrapMean(const Index nSample, RandGen& generator);
 private:
     // mean from pointer vector for resampling
     void ptVectorMean(T &m, const std::vector<const T *> &v);
@@ -93,7 +93,7 @@ void Dataset<T>::load(const std::string &listFileName,
     }
     listFile.close();
     this->resize(dataFileName.size());
-    for (unsigned int i = 0; i < dataFileName.size(); ++i)
+    for (Index i = 0; i < static_cast<Index>(dataFileName.size()); ++i)
     {
         file.open(dataFileName[i], File::Mode::read);
         (*this)[i] = file.template read<T>(dataName);
@@ -103,21 +103,20 @@ void Dataset<T>::load(const std::string &listFileName,
 
 // resampling //////////////////////////////////////////////////////////////////
 template <typename T>
-Sample<T> Dataset<T>::bootstrapMean(const unsigned int nSample,
-                                    RandGen& generator)
+Sample<T> Dataset<T>::bootstrapMean(const Index nSample, RandGen& generator)
 {
-    unsigned int nData = this->size();
+    Index nData = this->size();
     std::vector<const T *> data(nData);
     Sample<T> s(nSample);
     
-    for (unsigned int j = 0; j < nData; ++j)
+    for (Index j = 0; j < nData; ++j)
     {
         data[j] = &((*this)[j]);
     }
     ptVectorMean(s[central], data);
-    for (unsigned int i = 0; i < nSample; ++i)
+    for (Index i = 0; i < nSample; ++i)
     {
-        for (unsigned int j = 0; j < nData; ++j)
+        for (Index j = 0; j < nData; ++j)
         {
             data[j] = &((*this)[generator.discreteUniform(nData)]);
         }

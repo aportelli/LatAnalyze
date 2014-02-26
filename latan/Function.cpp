@@ -42,28 +42,31 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
- *                            Function implementation                         *
+ *                        DoubleFunction implementation                       *
  ******************************************************************************/
+const DoubleFunction::vecFunc DoubleFunction::nullFunction_ = nullptr;
+
 // constructor /////////////////////////////////////////////////////////////////
-Function::Function(const unsigned nArg)
-: nArg_(nArg)
+DoubleFunction::DoubleFunction(const Index nArg, const vecFunc &f)
+: buffer_(new DVec(nArg))
+, f_(f)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
-unsigned int Function::getNArg(void) const
+Index DoubleFunction::getNArg(void) const
 {
-    return nArg_;
+    return buffer_->size();
 }
 
-/******************************************************************************
- *                        DoubleFunction implementation                       *
- ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
-DoubleFunction::DoubleFunction(const unsigned nArg, vecFunc f)
-: Function(nArg)
-, buffer_(new DVec(nArg))
-, f_(f)
-{}
+void DoubleFunction::setFunction(const vecFunc &f)
+{
+    f_ = f;
+}
+
+void DoubleFunction::setNArg(const Index nArg)
+{
+    buffer_->resize(nArg);
+}
 
 // function call ///////////////////////////////////////////////////////////////
 double DoubleFunction::operator()(const double *arg) const
@@ -85,7 +88,7 @@ double DoubleFunction::operator()(const DVec &arg) const
 
 double DoubleFunction::operator()(const std::vector<double> &arg) const
 {
-    if (arg.size() != getNArg())
+    if (arg.size() != static_cast<unsigned int>(getNArg()))
     {
         LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
                     + strFrom(getNArg()) + ", got " + strFrom(arg.size())
@@ -97,7 +100,7 @@ double DoubleFunction::operator()(const std::vector<double> &arg) const
 
 double DoubleFunction::operator()(std::stack<double> &arg) const
 {
-    for (unsigned int i = 0; i < getNArg(); ++i)
+    for (Index i = 0; i < getNArg(); ++i)
     {
         if (arg.empty())
         {
@@ -120,7 +123,7 @@ double DoubleFunction::operator()(const double x0, ...) const
         va_list va;
         
         va_start(va, x0);
-        for (unsigned int i = 1; i < getNArg(); ++i)
+        for (Index i = 1; i < getNArg(); ++i)
         {
             (*buffer_)(i) = va_arg(va, double);
         }

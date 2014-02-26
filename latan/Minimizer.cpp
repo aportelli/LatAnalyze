@@ -32,9 +32,9 @@ Minimizer::Minimizer(Verbosity verbosity)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
-unsigned int Minimizer::getDim(void) const
+Index Minimizer::getDim(void) const
 {
-    return static_cast<unsigned int>(x_.size());
+    return x_.size();
 }
 
 DVec & Minimizer::getState(void)

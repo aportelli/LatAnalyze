@@ -54,13 +54,12 @@ class DMatSample: public Sample<DMat>, public IoObject
 public:
     // constructors
     DMatSample(void);
-    DMatSample(const unsigned int nSample, const unsigned int nRow,
-               const unsigned int nCol);
+    DMatSample(const Index nSample, const Index nRow, const Index nCol);
     using Sample<DMat>::Sample;
     // destructor
     virtual ~DMatSample(void) = default;
     // resize all matrices
-    void resizeMat(const unsigned int nRow, const unsigned int nCol);
+    void resizeMat(const Index nRow, const Index nCol);
     // IO type
     virtual IoType getType(void) const;
 };

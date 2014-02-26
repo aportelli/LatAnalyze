@@ -45,7 +45,7 @@ public:
     // destructor
     virtual ~Minimizer(void) = default;
     // access
-    unsigned int getDim(void) const;
+    Index        getDim(void) const;
     Verbosity    getVerbosity(void) const;
     void         setInit(const DVec &x0);
     void         setVerbosity(const Verbosity verbosity);

@@ -159,13 +159,13 @@ public:
     virtual ~ExprNode() = default;
     // access
     const std::string& getName(void)   const;
-    unsigned int       getNArg(void)   const;
+    Index              getNArg(void)   const;
     const ExprNode *   getParent(void) const;
-    unsigned int       getLevel(void)  const;
+    Index              getLevel(void)  const;
     void               setName(const std::string &name);
     void               pushArg(ExprNode *node);
     // operator
-    const ExprNode &operator[](const unsigned int i) const;
+    const ExprNode &operator[](const Index i) const;
     // compile
     virtual void compile(Program &program) const = 0;
 private:
@@ -241,7 +241,7 @@ public:
     // destructor
     ~MathInterpreter(void) = default;
     // access
-    const Instruction * operator[](const unsigned int i) const;
+    const Instruction * operator[](const Index i) const;
     const ExprNode * getAST(void) const;
     // initialization
     void setCode(const std::string &code);

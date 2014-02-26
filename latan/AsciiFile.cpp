@@ -76,7 +76,7 @@ void AsciiFile::save(const DMatSample &s, const std::string &name)
     fileStream_ << "#L latan_begin rs_sample " << name << endl;
     fileStream_ << s.size() << endl;
     save(s[central], name + "_C");
-    for (int i = 0; i < static_cast<int>(s.size()); ++i)
+    for (Index i = 0; i < s.size(); ++i)
     {
         save(s[i], name + "_S_" + strFrom(i));
     }
