@@ -53,6 +53,7 @@ namespace Exceptions
     DECL_EXC(Runtime, std::runtime_error);
     DECL_EXC(Compilation, Runtime);
     DECL_EXC(Io, Runtime);
+    DECL_EXC(Memory, Runtime);
     DECL_EXC(Parsing, Runtime);
     DECL_EXC(Program, Runtime);
     DECL_EXC(Syntax, Runtime);

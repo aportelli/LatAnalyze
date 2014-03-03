@@ -29,12 +29,12 @@ using namespace Latan;
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
-: DoubleFunction(nArg)
+: DoubleFunction(nArg, nullptr)
 {}
 
 CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
                                                const string &code)
-: DoubleFunction(nArg)
+: DoubleFunction(nArg, nullptr)
 {
     setCode(code);
 }

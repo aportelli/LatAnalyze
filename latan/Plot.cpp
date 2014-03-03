@@ -17,29 +17,127 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _POSIX_C_SOURCE 199209L
-
 #include <latan/Plot.hpp>
 #include <latan/includes.hpp>
+#include <latan/Mat.hpp>
 
 using namespace std;
 using namespace Latan;
 
 /******************************************************************************
- *                         PlotCommand implementation                         *
+ *                              Plot objects                                  *
  ******************************************************************************/
-// constructors ////////////////////////////////////////////////////////////////
-PlotCommand::PlotCommand(void)
-{}
+// PlotObject access ///////////////////////////////////////////////////////////
+const string & PlotObject::getCommand(void) const
+{
+    return command_;
+}
 
+void PlotObject::setCommand(const string &command)
+{
+    command_ = command;
+}
+
+string PlotObject::popTmpFile(void)
+{
+    string res = tmpFileName_.top();
+    
+    tmpFileName_.pop();
+    
+    return res;
+}
+
+void PlotObject::pushTmpFile(const std::string &fileName)
+{
+    tmpFileName_.push(fileName);
+}
+
+
+// PlotObject test /////////////////////////////////////////////////////////////
+bool PlotObject::gotTmpFile(void) const
+{
+    return !tmpFileName_.empty();
+}
+
+// PlotCommand constructor /////////////////////////////////////////////////////
 PlotCommand::PlotCommand(const string &command)
 : command_(command)
 {}
 
-// access //////////////////////////////////////////////////////////////////////
-const std::string & PlotCommand::getCommand(void) const
+// PlotData constructor ////////////////////////////////////////////////////////
+PlotData::PlotData(const XYStatData &data, const int i, const int j)
+: data_(data)
+, i_(i)
+, j_(j)
 {
-    return command_;
+    DMat d(data_.getNData(), 4);
+    char tmpFileName[MAX_PATH_LENGTH];
+    int fd;
+    FILE *tmpFile;
+    string usingCmd;
+    
+    d.col(0) = data_.x(i_, _);
+    d.col(2) = data_.y(j_, _);
+    d.col(1) = data_.xxVar(i_, i_).diagonal().array().sqrt();
+    d.col(3) = data_.yyVar(i_, i_).diagonal().array().sqrt();
+    usingCmd = (data_.isXExact(i_)) ? "u 1:3:4 w yerr" : "u 1:2:3:4 w xyerr";
+    strcpy(tmpFileName, "./latan_plot_tmp.XXXXXX.dat");
+    fd = mkstemps(tmpFileName, 4);
+    if (fd == -1)
+    {
+        LATAN_ERROR(System, "impossible to create a temporary file from template "
+                    + strFrom(tmpFileName));
+    }
+    tmpFile = fdopen(fd, "w");
+    for (Index r = 0; r < data_.getNData(); ++r)
+    {
+        fprintf(tmpFile, "%e %e %e %e\n", d(r, 0), d(r, 1), d(r, 2), d(r, 3));
+    }
+    fclose(tmpFile);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + string(tmpFileName) + "' " + usingCmd);
+}
+
+/******************************************************************************
+ *                             Plot modifiers                                 *
+ ******************************************************************************/
+// Color constructor ///////////////////////////////////////////////////////////
+Color::Color(const string &color)
+: color_(color)
+{}
+
+// Color modifier //////////////////////////////////////////////////////////////
+void Color::operator()(PlotOptions &option) const
+{
+    option.lineColor = color_;
+}
+
+// LogScale constructor ////////////////////////////////////////////////////////
+LogScale::LogScale(const Axis axis)
+: axis_(axis)
+{}
+
+// Logscale modifier ///////////////////////////////////////////////////////////
+void LogScale::operator()(PlotOptions &option) const
+{
+    option.scaleMode[static_cast<int>(axis_)] |= Plot::Scale::log;
+}
+
+// PlotRange constructor ////////////////////////////////////////////////////////
+PlotRange::PlotRange(const Axis axis, const double min, const double max)
+: axis_(axis)
+, min_(min)
+, max_(max)
+{}
+
+// PlotRange modifier ///////////////////////////////////////////////////////////
+void PlotRange::operator()(PlotOptions &option) const
+{
+    int a = static_cast<int>(axis_);
+    
+    option.scaleMode[a] |= Plot::Scale::manual;
+    option.scale[a].min  = min_;
+    option.scale[a].max  = max_;
 }
 
 /******************************************************************************
@@ -47,21 +145,7 @@ const std::string & PlotCommand::getCommand(void) const
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
 Plot::Plot(void)
-: gnuplotBin_(GNUPLOT_BIN)
-, gnuplotArgs_(GNUPLOT_ARGS)
-, gnuplotPath_("")
-, terminal_("")
-, title_("")
-{
-    scaleMode_[Axis::x] = 0;
-    scaleMode_[Axis::y] = 0;
-    scale_[Axis::x].min = 0.0;
-    scale_[Axis::x].max = 0.0;
-    scale_[Axis::y].min = 0.0;
-    scale_[Axis::y].max = 0.0;
-    label_[Axis::x]     = "";
-    label_[Axis::y]     = "";
-}
+{}
 
 // destructor //////////////////////////////////////////////////////////////////
 Plot::~Plot(void)
@@ -78,9 +162,28 @@ Plot::~Plot(void)
 }
 
 // plot objects ////////////////////////////////////////////////////////////////
-Plot & Plot::operator<<(const PlotCommand &command)
+Plot & Plot::operator<<(PlotObject &&command)
 {
-    plotCommand_.push_back(command.getCommand());
+    string commandStr;
+    
+    while (command.gotTmpFile())
+    {
+        tmpFileName_.push(command.popTmpFile());
+    }
+    commandStr = command.getCommand();
+    if (!options_.lineColor.empty())
+    {
+        commandStr += " lc " + options_.lineColor;
+        options_.lineColor = "";
+    }
+    plotCommand_.push_back(commandStr);
+    
+    return *this;
+}
+
+Plot & Plot::operator<<(PlotModifier &&modifier)
+{
+    modifier(options_);
     
     return *this;
 }
@@ -178,52 +281,53 @@ void Plot::display(void)
 ostream & Latan::operator<<(ostream &out, const Plot &plot)
 {
     std::string begin, end;
+    int x = static_cast<int>(Axis::x), y = static_cast<int>(Axis::y);
     
-    if (!plot.terminal_.empty())
+    if (!plot.options_.terminal.empty())
     {
-        out << "set term " << plot.terminal_ << endl;
+        out << "set term " << plot.options_.terminal << endl;
     }
-    if (!plot.output_.empty())
+    if (!plot.options_.output.empty())
     {
-        out << "set output '" << plot.terminal_ << "'" << endl;
+        out << "set output '" << plot.options_.terminal << "'" << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::x] & Plot::Scale::manual)
+    if (plot.options_.scaleMode[x] & Plot::Scale::manual)
     {
-        out << "xMin = " << plot.scale_[Plot::Axis::x].min << endl;
-        out << "xMax = " << plot.scale_[Plot::Axis::x].max << endl;
+        out << "xMin = " << plot.options_.scale[x].min << endl;
+        out << "xMax = " << plot.options_.scale[x].max << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::y] & Plot::Scale::manual)
+    if (plot.options_.scaleMode[y] & Plot::Scale::manual)
     {
-        out << "yMin = " << plot.scale_[Plot::Axis::y].min << endl;
-        out << "yMax = " << plot.scale_[Plot::Axis::y].max << endl;
+        out << "yMin = " << plot.options_.scale[y].min << endl;
+        out << "yMax = " << plot.options_.scale[y].max << endl;
     }
-    if (!plot.title_.empty())
+    if (!plot.options_.title.empty())
     {
-        out << "set title '" << plot.title_ << "'" << endl;
+        out << "set title '" << plot.options_.title << "'" << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::x] & Plot::Scale::manual)
+    if (plot.options_.scaleMode[x] & Plot::Scale::manual)
     {
         out << "set xrange [xMin:xMax]" << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::y] & Plot::Scale::manual)
+    if (plot.options_.scaleMode[y] & Plot::Scale::manual)
     {
         out << "set yrange [yMin:yMax]" << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::x] & Plot::Scale::log)
+    if (plot.options_.scaleMode[x] & Plot::Scale::log)
     {
         out << "set log x" << endl;
     }
-    if (plot.scaleMode_[Plot::Axis::y] & Plot::Scale::log)
+    if (plot.options_.scaleMode[y] & Plot::Scale::log)
     {
         out << "set log y" << endl;
     }
-    if (!plot.label_[Plot::Axis::x].empty())
+    if (!plot.options_.label[x].empty())
     {
-        out << "set xlabel '" << plot.label_[Plot::Axis::x] << "'" << endl;
+        out << "set xlabel '" << plot.options_.label[x] << "'" << endl;
     }
-    if (!plot.label_[Plot::Axis::y].empty())
+    if (!plot.options_.label[y].empty())
     {
-        out << "set ylabel '" << plot.label_[Plot::Axis::y] << "'" << endl;
+        out << "set ylabel '" << plot.options_.label[y] << "'" << endl;
     }
     for (unsigned int i = 0; i < plot.headCommand_.size(); ++i)
     {

@@ -48,9 +48,10 @@ const DoubleFunction::vecFunc DoubleFunction::nullFunction_ = nullptr;
 
 // constructor /////////////////////////////////////////////////////////////////
 DoubleFunction::DoubleFunction(const Index nArg, const vecFunc &f)
-: buffer_(new DVec(nArg))
-, f_(f)
-{}
+: buffer_(new DVec)
+{
+    setFunction(f, nArg);
+}
 
 // access //////////////////////////////////////////////////////////////////////
 Index DoubleFunction::getNArg(void) const
@@ -58,14 +59,21 @@ Index DoubleFunction::getNArg(void) const
     return buffer_->size();
 }
 
-void DoubleFunction::setFunction(const vecFunc &f)
+void DoubleFunction::setFunction(const vecFunc &f, const Index nArg)
 {
+    buffer_->resize(nArg);
     f_ = f;
 }
 
-void DoubleFunction::setNArg(const Index nArg)
+// error checking //////////////////////////////////////////////////////////////
+void DoubleFunction::checkSize(const Index nPar) const
 {
-    buffer_->resize(nArg);
+    if (nPar != getNArg())
+    {
+        LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
+                    + strFrom(getNArg()) + ", got " + strFrom(nPar)
+                    + ")");
+    }
 }
 
 // function call ///////////////////////////////////////////////////////////////
@@ -76,38 +84,23 @@ double DoubleFunction::operator()(const double *arg) const
 
 double DoubleFunction::operator()(const DVec &arg) const
 {
-    if (arg.size() != getNArg())
-    {
-        LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
-                    + strFrom(getNArg()) + ", got " + strFrom(arg.size())
-                    + ")");
-    }
+    checkSize(arg.size());
     
     return (*this)(arg.data());
 }
 
 double DoubleFunction::operator()(const std::vector<double> &arg) const
 {
-    if (arg.size() != static_cast<unsigned int>(getNArg()))
-    {
-        LATAN_ERROR(Size, "function argument vector has a wrong size (expected "
-                    + strFrom(getNArg()) + ", got " + strFrom(arg.size())
-                    + ")");
-    }
+    checkSize(static_cast<Index>(arg.size()));
     
     return (*this)(arg.data());
 }
 
 double DoubleFunction::operator()(std::stack<double> &arg) const
 {
+    checkSize(static_cast<Index>(arg.size()));
     for (Index i = 0; i < getNArg(); ++i)
     {
-        if (arg.empty())
-        {
-            LATAN_ERROR(Size, "function argument stack has a wrong size (expected "
-                        + strFrom(getNArg()) + ", got " + strFrom(i)
-                        + ")");
-        }
         (*buffer_)(getNArg() - i - 1) = arg.top();
         arg.pop();
     }

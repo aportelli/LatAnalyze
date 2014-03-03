@@ -67,7 +67,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // set parameters
-    MinuitFunction minuitF(f);
+    MinuitFunction   minuitF(f);
     MnUserParameters parameters;
     
     for (Index i = 0; i < x.size(); ++i)
@@ -76,8 +76,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // pre-minimization
-    MnMigrad migrad0(minuitF, parameters, 0);
-    FunctionMinimum min = migrad0();
+    MnMigrad        migrad1(minuitF, parameters, 1);
+    FunctionMinimum min = migrad1();
     
     if (verbosity >= Verbosity::Debug)
     {
@@ -93,7 +93,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // minimization and output
-    MnMigrad  migrad2(minuitF, parameters, 2);
+    MnMigrad migrad2(minuitF, parameters, 2);
     
     min = migrad2();
     for (unsigned int i = 0; i < x.size(); ++i)

@@ -24,8 +24,8 @@
 #include <latan/IOObject.hpp>
 
 #define FOR_MAT(mat, i, j) \
-for (Index j = 0; j < mat.cols(); ++j)\
-for (Index i = 0; i < mat.rows(); ++i)
+for (Latan::Index j = 0; j < mat.cols(); ++j)\
+for (Latan::Index i = 0; i < mat.rows(); ++i)
 
 BEGIN_NAMESPACE
 

@@ -28,6 +28,7 @@ liblatan_la_SOURCES =   \
     AsciiFile.cpp       \
     AsciiParser.ypp     \
     AsciiLexer.lpp      \
+    Chi2Function.cpp    \
     CompiledFunction.cpp\
     Exceptions.cpp      \
     Function.cpp        \
@@ -40,13 +41,16 @@ liblatan_la_SOURCES =   \
     MathParser.ypp      \
     MathLexer.lpp       \
     Minimizer.cpp       \
+    Model.cpp           \
     Plot.cpp            \
     RandGen.cpp         \
     Sample.cpp          \
+    XYStatData.cpp      \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
 liblatan_la_HEADERS =   \
     AsciiFile.hpp       \
+    Chi2Function.hpp    \
     CompiledFunction.hpp\
     Dataset.hpp         \
     Function.hpp        \
@@ -57,12 +61,13 @@ liblatan_la_HEADERS =   \
     Math.hpp            \
     MathInterpreter.hpp \
     Minimizer.hpp       \
+    Model.hpp           \
     ParserState.hpp     \
     Plot.hpp            \
     RandGen.hpp         \
     Sample.hpp          \
-    StatArray.hpp
-    
+    StatArray.hpp       \
+    XYStatData.hpp
 if HAVE_MINUIT
 liblatan_la_SOURCES += MinuitMinimizer.cpp
 liblatan_la_HEADERS += MinuitMinimizer.hpp

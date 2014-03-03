@@ -45,8 +45,8 @@ public:
     // access
     Index size(void) const;
     // operators
-          T & operator[](const int s);
-    const T & operator[](const int s) const;
+          T & operator[](const Index s);
+    const T & operator[](const Index s) const;
     // statistics
     void bin(Index binSize);
     T    mean(const Index pos, const Index n) const;
@@ -89,13 +89,13 @@ Index StatArray<T, offset>::size(void) const
 
 // operators ///////////////////////////////////////////////////////////////////
 template <typename T, unsigned int offset>
-T & StatArray<T, offset>::operator[](const int s)
+T & StatArray<T, offset>::operator[](const Index s)
 {
     return Base::operator[](s + offset);
 }
 
 template <typename T, unsigned int offset>
-const T & StatArray<T, offset>::operator[](const int s) const
+const T & StatArray<T, offset>::operator[](const Index s) const
 {
     return Base::operator[](s + offset);
 }

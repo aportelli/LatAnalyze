@@ -37,9 +37,8 @@ class CompiledDoubleFunction: public DoubleFunction
 {
 public:
     // constructors
-    explicit CompiledDoubleFunction(const unsigned nArg);
-    explicit CompiledDoubleFunction(const unsigned nArg,
-                                    const std::string &code);
+    CompiledDoubleFunction(const unsigned nArg);
+    CompiledDoubleFunction(const unsigned nArg, const std::string &code);
     // destructor
     virtual ~CompiledDoubleFunction(void) = default;
     // access

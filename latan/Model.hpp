@@ -1,5 +1,5 @@
 /*
- * Function.hpp, part of LatAnalyze 3
+ * Model.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2014 Antonin Portelli
  *
@@ -17,50 +17,51 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_Function_hpp_
-#define	Latan_Function_hpp_
+#ifndef Latan_Model_hpp_
+#define Latan_Model_hpp_
 
 #include <latan/Global.hpp>
 #include <latan/Mat.hpp>
-#include <functional>
 #include <memory>
-#include <stack>
 #include <vector>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                            Double function class                           *
+ *                           Double model class                               *
  ******************************************************************************/
-class DoubleFunction
+class DoubleModel
 {
 private:
-    typedef std::function<double(const double *)> vecFunc;
+    typedef std::function<double(const double *, const double *)> vecFunc;
+    struct ModelSize {Index nArg, nPar;};
 public:
     // constructor
-    DoubleFunction(const Index nArg = 0, const vecFunc &f = nullFunction_);
+    DoubleModel(const Index nArg = 0, const Index nPar = 0,
+                const vecFunc &f = nullFunction_);
     // destructor
-    virtual ~DoubleFunction(void) = default;
+    virtual ~DoubleModel(void) = default;
     // access
     virtual Index getNArg(void) const;
-    void    setFunction(const vecFunc &f, const Index nArg);
+    virtual Index getNPar(void) const;
+    void  setFunction(const Index nArg = 0, const Index nPar = 0,
+                      const vecFunc &f = nullFunction_);
     // function call
-    double operator()(const DVec &arg) const;
-    double operator()(const std::vector<double> &arg) const;
-    double operator()(std::stack<double> &arg) const;
-    double operator()(const double x0, ...) const;
+    double operator()(const DVec &data, const DVec &par) const;
+    double operator()(const std::vector<double> &data,
+                      const std::vector<double> &par) const;
 protected:
     // function call
-    virtual double operator()(const double *arg) const;
+    virtual double operator()(const double *data, const double *par) const;
 private:
     // error checking
-    void checkSize(const Index nPar) const;
+    void checkSize(const Index nArg, const Index nPar) const;
 private:
-    std::shared_ptr<DVec> buffer_{nullptr};
-    vecFunc               f_;
-    static const vecFunc  nullFunction_;
+    std::shared_ptr<ModelSize> size_;
+    vecFunc                    f_;
+    static const vecFunc       nullFunction_;
 };
 
 END_NAMESPACE
 
-#endif // Latan_Function_hpp_
+#endif // Latan_Model_hpp_

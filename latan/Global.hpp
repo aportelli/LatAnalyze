@@ -76,6 +76,9 @@ using Vec = Mat<T, dynamic, 1>;
 typedef Vec<int>    IVec;
 typedef Vec<double> DVec;
 
+#define FOR_VEC(vec, i) \
+for (Latan::Index i = 0; i < (vec).size(); ++i)
+
 // block types
 template <typename Derived>
 using Block      = Eigen::Block<Derived>;
@@ -129,7 +132,7 @@ inline T strTo(const std::string &str)
     return buf;
 }
 
-//// optimized specializations
+// optimized specializations
 template <>
 inline float strTo<float>(const std::string &str)
 {

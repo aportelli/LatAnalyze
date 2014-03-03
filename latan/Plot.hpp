@@ -24,6 +24,7 @@
 #include <stack>
 #include <vector>
 #include <latan/Global.hpp>
+#include <latan/XYStatData.hpp>
 
 // gnuplot default parameters
 #ifndef GNUPLOT_BIN
@@ -37,26 +38,125 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                             Plot commands                                  *
+ *                              Plot objects                                  *
  ******************************************************************************/
-class PlotCommand
+class PlotObject
+{
+public:
+    // destructor
+    virtual ~PlotObject(void) = default;
+    // access
+    std::string                 popTmpFile(void);
+    const std::string &         getCommand(void) const;
+    // test
+    bool                        gotTmpFile(void) const;
+protected:
+    // access
+    void pushTmpFile(const std::string &fileName);
+    void setCommand(const std::string &command);
+private:
+    // plot command
+    std::string command_;
+    // stack of created temporary files
+    std::stack<std::string>  tmpFileName_;
+};
+
+class PlotCommand: public PlotObject
 {
 public:
     // constructors
-    PlotCommand(void);
-    PlotCommand(const std::string &command);
+    explicit PlotCommand(const std::string &command);
     // destructor
     virtual ~PlotCommand(void) = default;
-    // access
-    virtual const std::string & getCommand(void) const;
-protected:
+private:
     std::string command_;
+};
+
+class PlotData: public PlotObject
+{
+public:
+    // constructors
+    explicit PlotData(const XYStatData &data, const int i = 0, const int j = 0);
+    // destructor
+    virtual ~PlotData(void) = default;
+private:
+    const XYStatData &data_;
+    const int i_, j_;
+};
+
+/******************************************************************************
+ *                             Plot modifiers                                 *
+ ******************************************************************************/
+enum class Axis {x = 0, y = 1};
+
+struct Range
+{
+    double min, max;
+};
+
+struct PlotOptions
+{
+    std::string  terminal     {""};
+    std::string  output       {""};
+    std::string  title        {""};
+    unsigned int scaleMode[2] {0,0};
+    Range        scale[2]     {{0.0,0.0},{0.0,0.0}};
+    std::string  label[2]     {"",""};
+    std::string  lineColor    {""};
+};
+
+class PlotModifier
+{
+public:
+    // destructor
+    virtual ~PlotModifier(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const = 0;
+};
+
+class Color: public PlotModifier
+{
+public:
+    // constructor
+    explicit Color(const std::string &color);
+    // destructor
+    virtual ~Color(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string color_;
+};
+
+class LogScale: public PlotModifier
+{
+public:
+    // constructor
+    explicit LogScale(const Axis axis);
+    // destructor
+    virtual ~LogScale(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const Axis axis_;
+};
+
+class PlotRange: public PlotModifier
+{
+public:
+    // constructor
+    explicit PlotRange(const Axis axis, const double min, const double max);
+    // destructor
+    virtual ~PlotRange(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const Axis   axis_;
+    const double min_, max_;
 };
 
 /******************************************************************************
  *                               Plot class                                   *
  ******************************************************************************/
-
 class Plot
 {
 public:
@@ -70,26 +170,13 @@ public:
             log    = 1 << 1
         };
     };
-private:
-    struct Range
-    {
-        double min, max;
-    };
-    class Axis
-    {
-    public:
-        enum
-        {
-            x = 0,
-            y = 1
-        };
-    };
 public:
     // constructor/destructor
     Plot(void);
     virtual ~Plot(void);
-    // plot objects
-    Plot & operator<<(const PlotCommand &command);
+    // plot operations
+    Plot & operator<<(PlotObject   &&command);
+    Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
@@ -98,20 +185,15 @@ private:
     void getProgramPath(void);
 private:
     // gnuplot execution parameters
-    std::string              gnuplotBin_;
-    std::string              gnuplotArgs_;
-    std::string              gnuplotPath_;
+    std::string              gnuplotBin_  {GNUPLOT_BIN};
+    std::string              gnuplotArgs_ {GNUPLOT_ARGS};
+    std::string              gnuplotPath_ {""};
     // string buffer for commands
     std::ostringstream       commandBuffer_;
     // stack of created temporary files
     std::stack<std::string>  tmpFileName_;
     // plot content
-    std::string              terminal_;
-    std::string              output_;
-    std::string              title_;
-    unsigned int             scaleMode_[2];
-    Range                    scale_[2];
-    std::string              label_[2];
+    PlotOptions              options_;
     std::vector<std::string> headCommand_;
     std::vector<std::string> plotCommand_;
 };
