@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <type_traits>
 #include <cstdlib>
 
 #define BEGIN_NAMESPACE namespace Latan {
@@ -33,10 +34,8 @@
 #define unique_arg(...) __VA_ARGS__
 
 // attribute to switch off unused warnings with gcc
-#ifdef __GNUC__
-#define __dumb __attribute__((unused))
-#else
-#define __dumb
+#ifndef __GNUC__
+#define __unused
 #endif
 
 // max length for paths
@@ -104,6 +103,27 @@ using ConstMap = Eigen::Map<const Derived>;
 // Index type //////////////////////////////////////////////////////////////////
 typedef DMatBase::Index Index;
 
+// Type utilities //////////////////////////////////////////////////////////////
+// pointer type test
+template <typename Derived, typename Base>
+inline bool isDerivedFrom(const Base *pt)
+{
+    return (dynamic_cast<const Derived *>(pt) != nullptr);
+}
+
+// static logical or
+template <bool... b>
+struct static_or;
+
+template <bool... tail>
+struct static_or<true, tail...> : static_or<tail...> {};
+
+template <bool... tail>
+struct static_or<false, tail...> : std::false_type {};
+
+template <>
+struct static_or<> : std::true_type {};
+
 // Environment /////////////////////////////////////////////////////////////////
 namespace Env
 {
@@ -113,14 +133,7 @@ namespace Env
     extern const std::string msgPrefix;
 }
 
-// pointer type test
-template <typename Derived, typename Base>
-inline bool isDerivedFrom(const Base *pt)
-{
-    return (dynamic_cast<const Derived *>(pt) != nullptr);
-}
-
-// string conversions //////////////////////////////////////////////////////////
+// String conversions //////////////////////////////////////////////////////////
 template <typename T>
 inline T strTo(const std::string &str)
 {

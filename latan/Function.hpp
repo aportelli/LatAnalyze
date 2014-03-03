@@ -48,7 +48,9 @@ public:
     double operator()(const DVec &arg) const;
     double operator()(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;
-    double operator()(const double x0, ...) const;
+    double operator()(void) const;
+    template <typename... Ts>
+    double operator()(const double arg0, const Ts... args) const;
 protected:
     // function call
     virtual double operator()(const double *arg) const;
@@ -60,6 +62,19 @@ private:
     vecFunc               f_;
     static const vecFunc  nullFunction_;
 };
+
+template <typename... Ts>
+double DoubleFunction::operator()(const double arg0, const Ts... args) const
+{
+    static_assert(static_or<std::is_trivially_assignable<double, Ts>::value...>::value,
+                  "DoubleFunction arguments are not compatible with double");
+    
+    const double arg[] = {arg0, args...};
+    
+    checkSize(sizeof...(args) + 1);
+    
+    return (*this)(arg);
+}
 
 END_NAMESPACE
 

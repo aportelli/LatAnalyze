@@ -20,24 +20,6 @@
 #include <latan/Function.hpp>
 #include <latan/includes.hpp>
 
-#define DEF_STD_FUNC_1ARG(name, funcName) \
-name##Function::name##Function(void): DoubleFunction(1) {}\
-name##Function::~name##Function(void) {}\
-double name##Function::operator()(std::vector<double> &arg)\
-{\
-    return funcName(arg[0]);\
-}\
-name##Function STDMATH_NAMESPACE::funcName;
-
-#define DEF_STD_FUNC_2ARG(name, funcName) \
-name##Function::name##Function(void): DoubleFunction(2) {}\
-name##Function::~name##Function(void) {}\
-double name##Function::operator()(std::vector<double> &arg)\
-{\
-return funcName(arg[0], arg[1]);\
-}\
-name##Function STDMATH_NAMESPACE::funcName;
-
 using namespace std;
 using namespace Latan;
 
@@ -108,20 +90,9 @@ double DoubleFunction::operator()(std::stack<double> &arg) const
     return (*this)(*buffer_);
 }
 
-double DoubleFunction::operator()(const double x0, ...) const
+double DoubleFunction::operator()(void) const
 {
-    (*buffer_)[0] = x0;
-    if (getNArg() > 1)
-    {
-        va_list va;
-        
-        va_start(va, x0);
-        for (Index i = 1; i < getNArg(); ++i)
-        {
-            (*buffer_)(i) = va_arg(va, double);
-        }
-        va_end(va);
-    }
+    checkSize(0);
     
-    return (*this)(*buffer_);
+    return (*this)(nullptr);
 }
