@@ -243,7 +243,7 @@ double Chi2Function::operator()(const double *arg) const
     FOR_VEC(buffer_->dInd, k)
     {
         const DoubleModel *f = model_[static_cast<unsigned int>(j)];
-        double            f_jk, y_jk = data_.y(j, buffer_->dInd(k))(0, 0);
+        double            f_jk, y_jk = data_.y(j, buffer_->dInd(k));
         
         if (!f)
         {
@@ -253,7 +253,7 @@ double Chi2Function::operator()(const double *arg) const
         {
             if (data_.isXExact(i))
             {
-                buffer_->x(i) = data_.x(i, buffer_->dInd(k))(0, 0);
+                buffer_->x(i) = data_.x(i, buffer_->dInd(k));
             }
             else
             {
@@ -269,7 +269,7 @@ double Chi2Function::operator()(const double *arg) const
     FOR_VEC(buffer_->xInd, i)
     FOR_VEC(buffer_->dInd, k)
     {
-        double x_ik  = data_.x(buffer_->xInd(i), buffer_->dInd(k))(0, 0);
+        double x_ik  = data_.x(buffer_->xInd(i), buffer_->dInd(k));
         double xi_ik = xi(i*nPoint + k);
         
         buffer_->v(i*nPoint + k) = xi_ik - x_ik;

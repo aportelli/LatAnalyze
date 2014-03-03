@@ -143,44 +143,95 @@ void XYStatData::resize(const Index nData, const Index xDim, const Index yDim)
     }
 }
 
+Block<DMatBase> XYStatData::x(const PlaceHolder ph1 __unused,
+                              const PlaceHolder ph2 __unused)
+{
+    return x_.block(0, 0, getNData(), getXDim());
+}
+
+ConstBlock<DMatBase> XYStatData::x(const PlaceHolder ph1 __unused,
+                                   const PlaceHolder ph2 __unused) const
+{
+    return x_.block(0, 0, getNData(), getXDim());
+}
+
+Block<DMatBase> XYStatData::x(const Index i, const PlaceHolder ph2 __unused)
+{
+    return x_.block(0, i, getNData(), 1);
+}
+
+ConstBlock<DMatBase> XYStatData::x(const Index i,
+                                   const PlaceHolder ph2 __unused) const
+{
+    return x_.block(0, i, getNData(), 1);
+}
+
+Block<DMatBase> XYStatData::x(const PlaceHolder ph1 __unused, const Index k)
+{
+    return x_.block(k, 0, 1, getXDim());
+}
+
+ConstBlock<DMatBase> XYStatData::x(const PlaceHolder ph1 __unused,
+                                   const Index k) const
+{
+    return x_.block(k, 0, 1, getXDim());
+}
+
+double & XYStatData::x(const Index i, const Index k)
+{
+    return x_(k, i);
+}
+
+const double & XYStatData::x(const Index i, const Index k) const
+{
+    return x_(k, i);
+}
+
+Block<DMatBase> XYStatData::y(const PlaceHolder ph1 __unused,
+                              const PlaceHolder ph2 __unused)
+{
+    return y_.block(0, 0, getNData(), getYDim());
+}
+
+ConstBlock<DMatBase> XYStatData::y(const PlaceHolder ph1 __unused,
+                                   const PlaceHolder ph2 __unused) const
+{
+    return y_.block(0, 0, getNData(), getYDim());
+}
+
+Block<DMatBase> XYStatData::y(const Index j, const PlaceHolder ph2 __unused)
+{
+    return y_.block(0, j, getNData(), 1);
+}
+
+ConstBlock<DMatBase> XYStatData::y(const Index j,
+                                   const PlaceHolder ph2 __unused) const
+{
+    return y_.block(0, j, getNData(), 1);
+}
+
+Block<DMatBase> XYStatData::y(const PlaceHolder ph1 __unused, const Index k)
+{
+    return y_.block(k, 0, 1, getYDim());
+}
+
+ConstBlock<DMatBase> XYStatData::y(const PlaceHolder ph1 __unused,
+                                   const Index k) const
+{
+    return y_.block(k, 0, 1, getYDim());
+}
+
+double & XYStatData::y(const Index j, const Index k)
+{
+    return y_(k, j);
+}
+
+const double & XYStatData::y(const Index j, const Index k) const
+{
+    return y_(k, j);
+}
+
 #define FULL_BLOCK(m) (m).block(0, 0, (m).rows(), (m).cols())
-#define ACCESS_DATA(xy, ij, k) \
-if ((ij >= 0)&&(k >= 0))\
-{\
-    return xy.block(k, ij, 1, 1);\
-}\
-else if ((ij < 0)&&(k >= 0))\
-{\
-    return xy.block(k, 0, 1, getXDim());\
-}\
-else if ((ij >= 0)&&(k < 0))\
-{\
-    return xy.block(0, ij, getNData(), 1);\
-}\
-else\
-{\
-    return xy.block(0, 0, getNData(), getXDim());\
-}
-
-Block<DMatBase> XYStatData::x(const Index i, const Index k)
-{
-    ACCESS_DATA(x_, i, k);
-}
-
-ConstBlock<DMatBase> XYStatData::x(const Index i, const Index k) const
-{
-    ACCESS_DATA(x_, i, k);
-}
-
-Block<DMatBase> XYStatData::y(const Index j, const Index k)
-{
-    ACCESS_DATA(y_, j, k);
-}
-
-ConstBlock<DMatBase> XYStatData::y(const Index j, const Index k) const
-{
-    ACCESS_DATA(y_, j, k);
-}
 
 Block<DMatBase> XYStatData::xxVar(const Index i1, const Index i2)
 {
@@ -249,7 +300,7 @@ FitResult XYStatData::fit(const vector<const DoubleModel *> &modelVector,
         for (Index k = 0; k < getNData(); ++k)
         if (isFitPoint(k))
         {
-            fullInit(chi2_.getNPar() + nPoint*is + kf) = x(i, k)(0, 0);
+            fullInit(chi2_.getNPar() + nPoint*is + kf) = x(i, k);
             kf++;
         }
         is++;

@@ -22,9 +22,9 @@ int main(void)
     
     for (Index k = 0; k < nPoint; ++k)
     {
-        x_k                = k*dx;
-        data.x(0, k)(0, 0) = x_k;
-        data.y(0, k)(0, 0) = f(&x_k, exactPar) + rg.gaussian(0.0, 0.1);
+        x_k          = k*dx;
+        data.x(0, k) = x_k;
+        data.y(0, k) = f(&x_k, exactPar) + rg.gaussian(0.0, 0.1);
     }
     data.yyVar(0, 0).diagonal() = DMat::Constant(nPoint, 1, 0.1*0.1);
     data.assumeXExact(0);

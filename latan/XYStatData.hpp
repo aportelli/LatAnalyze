@@ -55,7 +55,9 @@ private:
 /******************************************************************************
  *                    object for X vs. Y statistical data                     *
  ******************************************************************************/
-const Index _ = -1;
+struct PlaceHolder {};
+
+extern PlaceHolder _;
 
 class XYStatData
 {
@@ -89,10 +91,22 @@ public:
     void                 setYDim(const Index yDim);
     void                 resize(const Index nData, const Index xDim,
                                 const Index yDim);
-    Block<DMatBase>      x(const Index i = _, const Index k = _);
-    ConstBlock<DMatBase> x(const Index i = _, const Index k = _) const;
-    Block<DMatBase>      y(const Index j = _, const Index k = _);
-    ConstBlock<DMatBase> y(const Index j = _, const Index k = _) const;
+    Block<DMatBase>      x(const PlaceHolder ph1, const PlaceHolder ph2);
+    ConstBlock<DMatBase> x(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    Block<DMatBase>      x(const Index i, const PlaceHolder ph2 = _);
+    ConstBlock<DMatBase> x(const Index i, const PlaceHolder ph2 = _) const;
+    Block<DMatBase>      x(const PlaceHolder ph1, const Index k);
+    ConstBlock<DMatBase> x(const PlaceHolder ph1, const Index k) const;
+    double &             x(const Index i, const Index k);
+    const double &       x(const Index i, const Index k) const;
+    Block<DMatBase>      y(const PlaceHolder ph1, const PlaceHolder ph2);
+    ConstBlock<DMatBase> y(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    Block<DMatBase>      y(const Index i, const PlaceHolder ph2 = _);
+    ConstBlock<DMatBase> y(const Index i, const PlaceHolder ph2 = _) const;
+    Block<DMatBase>      y(const PlaceHolder ph1, const Index k);
+    ConstBlock<DMatBase> y(const PlaceHolder ph1, const Index k) const;
+    double &             y(const Index i, const Index k);
+    const double &       y(const Index i, const Index k) const;
     Block<DMatBase>      xxVar(const Index i1, const Index i2);
     ConstBlock<DMatBase> xxVar(const Index i1, const Index i2) const;
     Block<DMatBase>      yyVar(const Index j1, const Index j2);
