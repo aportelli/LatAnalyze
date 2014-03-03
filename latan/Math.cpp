@@ -48,19 +48,40 @@ DEF_STD_FUNC_2ARG(atan2)
 DEF_STD_FUNC_1ARG(cosh)
 DEF_STD_FUNC_1ARG(sinh)
 DEF_STD_FUNC_1ARG(tanh)
+DEF_STD_FUNC_1ARG(acosh)
+DEF_STD_FUNC_1ARG(asinh)
+DEF_STD_FUNC_1ARG(atanh)
 
 // Exponential and logarithmic functions
 DEF_STD_FUNC_1ARG(exp)
 DEF_STD_FUNC_1ARG(log)
+DEF_STD_FUNC_1ARG(log10)
+DEF_STD_FUNC_1ARG(exp2)
+DEF_STD_FUNC_1ARG(expm1)
+DEF_STD_FUNC_1ARG(log1p)
+DEF_STD_FUNC_1ARG(log2)
 
 // Power functions
 DEF_STD_FUNC_2ARG(pow)
 DEF_STD_FUNC_1ARG(sqrt)
+DEF_STD_FUNC_1ARG(cbrt)
+DEF_STD_FUNC_2ARG(hypot)
+
+// Error and gamma functions
+DEF_STD_FUNC_1ARG(erf)
+DEF_STD_FUNC_1ARG(erfc)
+DEF_STD_FUNC_1ARG(tgamma)
+DEF_STD_FUNC_1ARG(lgamma)
 
 // Rounding and remainder functions
 DEF_STD_FUNC_1ARG(ceil)
 DEF_STD_FUNC_1ARG(floor)
 DEF_STD_FUNC_2ARG(fmod)
+DEF_STD_FUNC_1ARG(trunc)
+DEF_STD_FUNC_1ARG(round)
+DEF_STD_FUNC_1ARG(rint)
+DEF_STD_FUNC_1ARG(nearbyint)
+DEF_STD_FUNC_2ARG(remainder)
 
 // Minimum, maximum, difference functions
 DEF_STD_FUNC_2ARG(fdim)
@@ -81,24 +102,51 @@ void STDMATH_NAMESPACE::addStdMathFunc(FunctionTable &fTable)
     ADD_FUNC(asin);
     ADD_FUNC(atan);
     ADD_FUNC(atan2);
+    
     // Hyperbolic functions
     ADD_FUNC(cosh);
     ADD_FUNC(sinh);
     ADD_FUNC(tanh);
+    ADD_FUNC(acosh);
+    ADD_FUNC(asinh);
+    ADD_FUNC(atanh);
+    
     // Exponential and logarithmic functions
     ADD_FUNC(exp);
     ADD_FUNC(log);
+    ADD_FUNC(log10);
+    ADD_FUNC(exp2);
+    ADD_FUNC(expm1);
+    ADD_FUNC(log1p);
+    ADD_FUNC(log2);
+    
     // Power functions
     ADD_FUNC(pow);
     ADD_FUNC(sqrt);
+    ADD_FUNC(cbrt);
+    ADD_FUNC(hypot);
+    
+    // Error and gamma functions
+    ADD_FUNC(erf);
+    ADD_FUNC(erfc);
+    ADD_FUNC(tgamma);
+    ADD_FUNC(lgamma);
+    
     // Rounding and remainder functions
     ADD_FUNC(ceil);
     ADD_FUNC(floor);
     ADD_FUNC(fmod);
+    ADD_FUNC(trunc);
+    ADD_FUNC(round);
+    ADD_FUNC(rint);
+    ADD_FUNC(nearbyint);
+    ADD_FUNC(remainder);
+    
     // Minimum, maximum, difference functions
     ADD_FUNC(fdim);
     ADD_FUNC(fmax);
     ADD_FUNC(fmin);
+    
     // Absolute value
     ADD_FUNC(fabs);
 }

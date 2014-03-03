@@ -50,19 +50,40 @@ DECL_STD_FUNC(atan2)
 DECL_STD_FUNC(cosh)
 DECL_STD_FUNC(sinh)
 DECL_STD_FUNC(tanh)
+DECL_STD_FUNC(acosh)
+DECL_STD_FUNC(asinh)
+DECL_STD_FUNC(atanh)
 
 // Exponential and logarithmic functions
 DECL_STD_FUNC(exp)
 DECL_STD_FUNC(log)
+DECL_STD_FUNC(log10)
+DECL_STD_FUNC(exp2)
+DECL_STD_FUNC(expm1)
+DECL_STD_FUNC(log1p)
+DECL_STD_FUNC(log2)
 
 // Power functions
 DECL_STD_FUNC(pow)
 DECL_STD_FUNC(sqrt)
+DECL_STD_FUNC(cbrt)
+DECL_STD_FUNC(hypot)
+
+// Error and gamma functions
+DECL_STD_FUNC(erf)
+DECL_STD_FUNC(erfc)
+DECL_STD_FUNC(tgamma)
+DECL_STD_FUNC(lgamma)
 
 // Rounding and remainder functions
 DECL_STD_FUNC(ceil)
 DECL_STD_FUNC(floor)
 DECL_STD_FUNC(fmod)
+DECL_STD_FUNC(trunc)
+DECL_STD_FUNC(round)
+DECL_STD_FUNC(rint)
+DECL_STD_FUNC(nearbyint)
+DECL_STD_FUNC(remainder)
 
 // Minimum, maximum, difference functions
 DECL_STD_FUNC(fdim)
