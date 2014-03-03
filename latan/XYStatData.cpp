@@ -37,6 +37,11 @@ double FitResult::getChi2PerDof(void) const
     return chi2_/static_cast<double>(nDof_);
 }
 
+const DoubleFunction & FitResult::getModel(const Index j) const
+{
+    return model_[static_cast<unsigned int>(j)];
+}
+
 /******************************************************************************
  *                         XYStatData implementation                          *
  ******************************************************************************/
@@ -254,9 +259,14 @@ FitResult XYStatData::fit(const vector<const DoubleModel *> &modelVector,
     // fit
     FitResult result;
     
-    result       = minimizer(chi2_);
-    result.chi2_ = chi2_(result);
-    result.nDof_ = chi2_.getNDof();
+    result        = minimizer(chi2_);
+    result.chi2_  = chi2_(result);
+    result.nDof_  = chi2_.getNDof();
+    result.model_.resize(modelVector.size());
+    for (unsigned int j = 0; j < modelVector.size(); ++j)
+    {
+        result.model_[j] = modelVector[j]->getBind(result);
+    }
     
     return result;
 }

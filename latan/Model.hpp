@@ -21,6 +21,7 @@
 #define Latan_Model_hpp_
 
 #include <latan/Global.hpp>
+#include <latan/Function.hpp>
 #include <latan/Mat.hpp>
 #include <vector>
 
@@ -33,7 +34,7 @@ class DoubleModel
 {
 private:
     typedef std::function<double(const double *, const double *)> vecFunc;
-    struct ModelSize {Index nArg, nPar;};
+    struct ModelSize{Index nArg, nPar;};
 public:
     // constructor
     DoubleModel(const Index nArg = 0, const Index nPar = 0,
@@ -49,9 +50,9 @@ public:
     double operator()(const DVec &data, const DVec &par) const;
     double operator()(const std::vector<double> &data,
                       const std::vector<double> &par) const;
-protected:
-    // function call
     virtual double operator()(const double *data, const double *par) const;
+    // model bind
+    DoubleFunction getBind(const DVec &par) const;
 private:
     // error checking
     void checkSize(const Index nArg, const Index nPar) const;

@@ -26,6 +26,7 @@
 #include <latan/Mat.hpp>
 #include <latan/Minimizer.hpp>
 #include <latan/Model.hpp>
+#include <vector>
 
 BEGIN_NAMESPACE
 
@@ -42,11 +43,13 @@ public:
     // destructor
     virtual ~FitResult(void) = default;
     // access
-    double getChi2(void) const;
-    double getChi2PerDof(void) const;
+    double                 getChi2(void) const;
+    double                 getChi2PerDof(void) const;
+    const DoubleFunction & getModel(const Index j = 0) const;
 private:
-    double chi2_{0.0};
-    Index  nDof_{0};
+    double                      chi2_{0.0};
+    Index                       nDof_{0};
+    std::vector<DoubleFunction> model_;
 };
 
 /******************************************************************************
@@ -113,10 +116,6 @@ private:
     IVec         isXExact_, isFitPoint_;
     Chi2Function chi2_;
 };
-
-/******************************************************************************
- *                      XYStatData template implementation                    *
- ******************************************************************************/
 
 END_NAMESPACE
 

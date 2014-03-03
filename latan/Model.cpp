@@ -19,8 +19,10 @@
 
 #include <latan/Model.hpp>
 #include <latan/includes.hpp>
+#include <functional>
 
 using namespace std;
+using namespace std::placeholders;
 using namespace Latan;
 
 /******************************************************************************
@@ -88,4 +90,14 @@ double DoubleModel::operator()(const vector<double> &arg,
 double DoubleModel::operator()(const double *data, const double *par) const
 {
     return f_(data, par);
+}
+
+// model bind //////////////////////////////////////////////////////////////////
+DoubleFunction DoubleModel::getBind(const DVec &par) const
+{
+    auto modelWithVec = [this](const double *_arg, const DVec &_par)
+                              {return (*this)(_arg, _par.data());};
+    auto modelBind    = bind(modelWithVec, _1, par);
+
+    return DoubleFunction(getNArg(), modelBind);
 }

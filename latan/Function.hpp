@@ -45,15 +45,13 @@ public:
     virtual Index getNArg(void) const;
     void    setFunction(const vecFunc &f, const Index nArg);
     // function call
+    virtual double operator()(const double *arg) const;
     double operator()(const DVec &arg) const;
     double operator()(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;
     double operator()(void) const;
     template <typename... Ts>
     double operator()(const double arg0, const Ts... args) const;
-protected:
-    // function call
-    virtual double operator()(const double *arg) const;
 private:
     // error checking
     void checkSize(const Index nPar) const;
