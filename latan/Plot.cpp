@@ -52,6 +52,36 @@ void PlotObject::pushTmpFile(const std::string &fileName)
     tmpFileName_.push(fileName);
 }
 
+// PlotObject dump a matrix to a temporary file ////////////////////////////////
+string PlotObject::dumpToTmpFile(const DMat &m)
+{
+    char tmpFileName[MAX_PATH_LENGTH];
+    int  fd;
+    FILE *tmpFile;
+    
+    for (Index j = 0; j < m.cols(); ++j)
+    {
+    }
+    strcpy(tmpFileName, "./latan_plot_tmp.XXXXXX.dat");
+    fd = mkstemps(tmpFileName, 4);
+    if (fd == -1)
+    {
+        LATAN_ERROR(System, "impossible to create a temporary file from template "
+                    + strFrom(tmpFileName));
+    }
+    tmpFile = fdopen(fd, "w");
+    for (Index i = 0; i < m.rows(); ++i)
+    {
+        for (Index j = 0; j < m.cols(); ++j)
+        {
+            fprintf(tmpFile, "%e ", m(i, j));
+        }
+        fprintf(tmpFile, "\n");
+    }
+    fclose(tmpFile);
+    
+    return string(tmpFileName);
+}
 
 // PlotObject test /////////////////////////////////////////////////////////////
 bool PlotObject::gotTmpFile(void) const
@@ -61,41 +91,42 @@ bool PlotObject::gotTmpFile(void) const
 
 // PlotCommand constructor /////////////////////////////////////////////////////
 PlotCommand::PlotCommand(const string &command)
-: command_(command)
-{}
+{
+    setCommand(command);
+}
 
 // PlotData constructor ////////////////////////////////////////////////////////
-PlotData::PlotData(const XYStatData &data, const int i, const int j)
-: data_(data)
-, i_(i)
-, j_(j)
+PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 {
-    DMat d(data_.getNData(), 4);
-    char tmpFileName[MAX_PATH_LENGTH];
-    int fd;
-    FILE *tmpFile;
-    string usingCmd;
+    DMat d(data.getNData(), 4);
+    string usingCmd, tmpFileName;
     
-    d.col(0) = data_.x(i_, _);
-    d.col(2) = data_.y(j_, _);
-    d.col(1) = data_.xxVar(i_, i_).diagonal().array().sqrt();
-    d.col(3) = data_.yyVar(i_, i_).diagonal().array().sqrt();
-    usingCmd = (data_.isXExact(i_)) ? "u 1:3:4 w yerr" : "u 1:2:3:4 w xyerr";
-    strcpy(tmpFileName, "./latan_plot_tmp.XXXXXX.dat");
-    fd = mkstemps(tmpFileName, 4);
-    if (fd == -1)
-    {
-        LATAN_ERROR(System, "impossible to create a temporary file from template "
-                    + strFrom(tmpFileName));
-    }
-    tmpFile = fdopen(fd, "w");
-    for (Index r = 0; r < data_.getNData(); ++r)
-    {
-        fprintf(tmpFile, "%e %e %e %e\n", d(r, 0), d(r, 1), d(r, 2), d(r, 3));
-    }
-    fclose(tmpFile);
+    d.col(0)    = data.x(i);
+    d.col(2)    = data.y(j);
+    d.col(1)    = data.xxVar(i, i).diagonal().array().sqrt();
+    d.col(3)    = data.yyVar(i, i).diagonal().array().sqrt();
+    usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:2:3:4 w xyerr";
+    tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + string(tmpFileName) + "' " + usingCmd);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
+// PlotFunction constructor ////////////////////////////////////////////////////
+PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
+                           const double xMax, const unsigned int nSample)
+{
+    DMat   d(nSample, 2);
+    string tmpFileName;
+    double dx = (xMax - xMin)/static_cast<double>(nSample - 1);
+    
+    for (Index i = 0; i < nSample; ++i)
+    {
+        d(i, 0) = xMin + i*dx;
+        d(i, 1) = function(d(i, 0));
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w lines");
 }
 
 /******************************************************************************
@@ -169,8 +200,17 @@ Plot & Plot::operator<<(PlotObject &&command)
     commandStr = command.getCommand();
     if (!options_.lineColor.empty())
     {
-        commandStr += " lc " + options_.lineColor;
-        options_.lineColor = "";
+        commandStr         += " lc " + options_.lineColor;
+        options_.lineColor  = "";
+    }
+    if (options_.title.empty())
+    {
+        commandStr += " notitle";
+    }
+    else
+    {
+        commandStr     += " t '" + options_.title + "'";
+        options_.title  = "";
     }
     plotCommand_.push_back(commandStr);
     

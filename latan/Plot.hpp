@@ -21,6 +21,7 @@
 #define Latan_Plot_hpp_
 
 #include <latan/Global.hpp>
+#include <latan/Mat.hpp>
 #include <latan/XYStatData.hpp>
 #include <sstream>
 #include <stack>
@@ -54,6 +55,8 @@ protected:
     // access
     void pushTmpFile(const std::string &fileName);
     void setCommand(const std::string &command);
+    // dump a matrix to a temporary file
+    std::string dumpToTmpFile(const DMat &m);
 private:
     // plot command
     std::string command_;
@@ -64,24 +67,29 @@ private:
 class PlotCommand: public PlotObject
 {
 public:
-    // constructors
+    // constructor
     explicit PlotCommand(const std::string &command);
     // destructor
     virtual ~PlotCommand(void) = default;
-private:
-    std::string command_;
 };
 
 class PlotData: public PlotObject
 {
 public:
-    // constructors
-    explicit PlotData(const XYStatData &data, const int i = 0, const int j = 0);
+    // constructor
+    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // destructor
     virtual ~PlotData(void) = default;
-private:
-    const XYStatData &data_;
-    const int i_, j_;
+};
+
+class PlotFunction: public PlotObject
+{
+public:
+    // constructor
+    PlotFunction(const DoubleFunction &function, const double xMin,
+                 const double xMax, const unsigned int nSample = 1000);
+    // destructor
+    virtual ~PlotFunction(void) = default;
 };
 
 /******************************************************************************

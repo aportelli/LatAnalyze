@@ -37,14 +37,16 @@ int main(void)
     MinuitMinimizer minimizer;
     
     data.fitAllPoints();
-    p = data.fit(model, minimizer, init, true, Minimizer::Verbosity::Debug);
+    p = data.fit(model, minimizer, init, true, Minimizer::Verbosity::Normal);
+    
     cout << "a= " << p(0) << " b= " << p(1)
          << " chi^2/ndof= " << p.getChi2PerDof() << endl;
-    
+
     // plot result
     Plot plot;
     
     plot << LogScale(Axis::y) << PlotData(data);
+    plot << Color("rgb 'blue'") << PlotFunction(p.getModel(), 0.0, 10.0);
     plot.display();
     
     return EXIT_SUCCESS;
