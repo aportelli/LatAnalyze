@@ -27,10 +27,6 @@ using namespace Latan;
  *                                 DMat class                                 *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-DMat::DMat(void)
-: Base()
-{}
-
 DMat::DMat(const Index nRow, const Index nCol)
 : Base(nRow, nCol)
 {}

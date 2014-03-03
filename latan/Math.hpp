@@ -23,7 +23,6 @@
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
 #include <latan/MathInterpreter.hpp>
-#include <vector>
 
 BEGIN_NAMESPACE
 

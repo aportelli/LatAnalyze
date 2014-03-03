@@ -23,7 +23,6 @@
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
 #include <latan/Model.hpp>
-#include <memory>
 
 BEGIN_NAMESPACE
 
@@ -45,7 +44,7 @@ private:
     };
 public:
     // constructor
-    Chi2Function(const XYStatData &data);
+    explicit Chi2Function(const XYStatData &data);
     Chi2Function(const XYStatData &data,
                  const std::vector<const DoubleModel *> &modelVector);
     // destructor

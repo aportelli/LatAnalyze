@@ -18,16 +18,15 @@
  */
 
 %{
-    #include <iostream>
-    #include <memory>
-    #include <sstream>
-    #include <utility>
-    #include <cstring>
     #include <latan/Global.hpp>
 	#include <latan/AsciiFile.hpp>
     #include <latan/Mat.hpp>
     #include <latan/RandGen.hpp>
     #include <latan/Sample.hpp>
+    #include <iostream>
+    #include <sstream>
+    #include <utility>
+    #include <cstring>
 
     using namespace std;
     using namespace Latan;

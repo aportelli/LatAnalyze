@@ -41,7 +41,7 @@ public:
     };
 public:
     // constructor
-    Minimizer(Verbosity verbosity = Verbosity::Silent);
+    explicit Minimizer(Verbosity verbosity = Verbosity::Silent);
     // destructor
     virtual ~Minimizer(void) = default;
     // access

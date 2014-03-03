@@ -41,7 +41,6 @@ IoObject::IoType RandGenState::getType(void) const
  ******************************************************************************/
 // RanLxd implementation ///////////////////////////////////////////////////////
 RandGen::RanLxd::RanLxd(void)
-: init(0)
 {
     // avoid a warning in the SSE case
     one_bit = 0.0;

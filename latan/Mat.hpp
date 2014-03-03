@@ -35,7 +35,7 @@ private:
     typedef DMatBase Base;
 public:
     // constructors
-    DMat(void);
+    DMat(void) = default;
     DMat(const Index nRow, const Index nCol);
     EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase)
     // destructor

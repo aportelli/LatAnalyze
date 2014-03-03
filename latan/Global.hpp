@@ -21,7 +21,7 @@
 #define	Latan_Global_hpp_
 
 #include <latan/Eigen/Dense>
-#include <map>
+#include <memory>
 #include <string>
 #include <sstream>
 #include <type_traits>

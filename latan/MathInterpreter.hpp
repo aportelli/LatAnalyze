@@ -84,8 +84,8 @@ private:
     virtual void print(std::ostream& out) const;
 private:
     ArgType     type_;
-    double       val_;
-    std::string  name_;
+    double      val_;
+    std::string name_;
 };
 
 // Pop
@@ -135,7 +135,7 @@ private:
 class name: public Instruction\
 {\
 public:\
-virtual void operator()(RunContext &context) const;\
+    virtual void operator()(RunContext &context) const;\
 private:\
     virtual void print(std::ostream &out) const;\
 }
@@ -154,7 +154,7 @@ class ExprNode
 {
 public:
     // constructors
-    ExprNode(const std::string &name);
+    explicit ExprNode(const std::string &name);
     // destructor
     virtual ~ExprNode() = default;
     // access
@@ -205,7 +205,6 @@ DECL_NODE(KeywordNode, ReturnNode);
  ******************************************************************************/
 class MathInterpreter
 {
-
 public:
     // parser state
     class MathParserState: public ParserState<std::unique_ptr<ExprNode>>
@@ -236,7 +235,7 @@ private:
     };
 public:
     // constructors
-    MathInterpreter(void);
+    MathInterpreter(void) = default;
     MathInterpreter(const std::string &code);
     // destructor
     ~MathInterpreter(void) = default;
@@ -264,12 +263,12 @@ private:
     // execution
     void execute(RunContext &context) const;
 private:
-    std::unique_ptr<std::istream>    code_;
-    std::string                      codeName_;
-    std::unique_ptr<MathParserState> state_;
-    std::unique_ptr<ExprNode>        root_;
+    std::unique_ptr<std::istream>    code_{nullptr};
+    std::string                      codeName_{"<no_code>"};
+    std::unique_ptr<MathParserState> state_{nullptr};
+    std::unique_ptr<ExprNode>        root_{nullptr};
     Program                          program_;
-    unsigned int                     status_;
+    unsigned int                     status_{Status::none};
 };
 
 std::ostream & operator<<(std::ostream &out, const MathInterpreter &program);

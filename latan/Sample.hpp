@@ -41,6 +41,7 @@ private:
     typedef StatArray<T, SAMPLE_OFFSET> Base;
 public:
     // constructors
+    Sample(void) = default;
     using Base::Base;
     // destructor
     virtual ~Sample(void) = default;
@@ -53,7 +54,7 @@ class DMatSample: public Sample<DMat>, public IoObject
 {
 public:
     // constructors
-    DMatSample(void);
+    DMatSample(void) = default;
     DMatSample(const Index nSample, const Index nRow, const Index nCol);
     using Sample<DMat>::Sample;
     // destructor

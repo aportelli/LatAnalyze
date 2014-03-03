@@ -27,16 +27,9 @@ using namespace Latan;
  *                          File implementation                               *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-File::File(void)
-: name_("")
-, mode_(Mode::null)
-, data_()
-{}
-
 File::File(const string &name, const unsigned int mode)
 : name_(name)
 , mode_(mode)
-, data_()
 {}
 
 // destructor //////////////////////////////////////////////////////////////////

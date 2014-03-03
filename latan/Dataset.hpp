@@ -39,10 +39,10 @@ private:
     typedef StatArray<T> Base;
 public:
     // constructors
-    using Base::Base;
-    Dataset(void);
+    Dataset(void) = default;
     template <typename FileType>
     Dataset(const std::string &listFileName, const std::string &dataName);
+    using Base::Base;
     // destructor
     virtual ~Dataset(void) = default;
     // IO
@@ -59,10 +59,6 @@ private:
  *                      Dataset template implementation                       *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-template <typename T>
-Dataset<T>::Dataset(void)
-{}
-
 template <typename T>
 template <typename FileType>
 Dataset<T>::Dataset(const std::string &listFileName,

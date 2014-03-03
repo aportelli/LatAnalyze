@@ -23,7 +23,6 @@
 #include <latan/Global.hpp>
 #include <latan/Mat.hpp>
 #include <functional>
-#include <memory>
 #include <stack>
 #include <vector>
 
@@ -38,7 +37,8 @@ private:
     typedef std::function<double(const double *)> vecFunc;
 public:
     // constructor
-    DoubleFunction(const Index nArg = 0, const vecFunc &f = nullFunction_);
+    explicit DoubleFunction(const Index nArg = 0,
+                            const vecFunc &f = nullFunction_);
     // destructor
     virtual ~DoubleFunction(void) = default;
     // access

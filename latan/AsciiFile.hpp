@@ -25,6 +25,7 @@
 #include <latan/Mat.hpp>
 #include <latan/RandGen.hpp>
 #include <latan/Sample.hpp>
+#include <fstream>
 
 BEGIN_NAMESPACE
 
@@ -38,8 +39,8 @@ public:
     {
     public:
         // constructor
-        explicit AsciiParserState(std::istream *stream, std::string *name,
-                                  IoDataTable *data);
+        AsciiParserState(std::istream *stream, std::string *name,
+                         IoDataTable *data);
         // destructor
         virtual ~AsciiParserState(void);
         // first element reference
@@ -58,7 +59,7 @@ public:
     };
 public:
     // constructors
-    AsciiFile(void);
+    AsciiFile(void) = default;
     AsciiFile(const std::string &name, const unsigned int mode);
     // destructor
     virtual ~AsciiFile(void);
@@ -78,8 +79,8 @@ private:
     void parse(void);
 private:
     std::fstream                      fileStream_;
-    bool                              isParsed_;
-    std::unique_ptr<AsciiParserState> state_;
+    bool                              isParsed_{false};
+    std::unique_ptr<AsciiParserState> state_{nullptr};
 };
 
 END_NAMESPACE

@@ -22,7 +22,6 @@
 
 #include <latan/Global.hpp>
 #include <iostream>
-#include <string>
 
 BEGIN_NAMESPACE
 
@@ -31,8 +30,7 @@ class ParserState
 {
 public:
     // constructor
-    explicit ParserState(std::istream *streamPt, std::string *namePt,
-                         DataObj *dataPt);
+    ParserState(std::istream *streamPt, std::string *namePt, DataObj *dataPt);
     // destructor
     virtual ~ParserState(void) = default;
 private:

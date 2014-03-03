@@ -37,7 +37,7 @@ private:
 public:
     // constructors
     StatArray(void);
-    StatArray(const Index size);
+    explicit StatArray(const Index size);
     EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
                     ArrayBase)
     // destructor

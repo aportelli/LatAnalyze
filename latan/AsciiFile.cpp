@@ -41,12 +41,6 @@ AsciiFile::AsciiParserState::~AsciiParserState(void)
 }
 
 // constructor /////////////////////////////////////////////////////////////////
-AsciiFile::AsciiFile(void)
-: File(), fileStream_()
-, isParsed_(false)
-, state_(nullptr)
-{}
-
 AsciiFile::AsciiFile(const string &name, const unsigned int mode)
 {
     open(name, mode);

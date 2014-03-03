@@ -382,20 +382,8 @@ MathInterpreter::MathParserState::~MathParserState(void)
 }
 
 // constructors ////////////////////////////////////////////////////////////////
-MathInterpreter::MathInterpreter(void)
-: code_(nullptr)
-, codeName_("<no_code>")
-, state_(nullptr)
-, root_(nullptr)
-, status_(Status::none)
-{}
-
 MathInterpreter::MathInterpreter(const std::string &code)
-: code_(nullptr)
-, codeName_("<string>")
-, state_(nullptr)
-, root_(nullptr)
-, status_(Status::none)
+: codeName_("<string>")
 {
     setCode(code);
 }

@@ -23,10 +23,8 @@
 #include <latan/Global.hpp>
 #include <latan/Function.hpp>
 #include <latan/MathInterpreter.hpp>
-#include <memory>
 #include <stack>
 #include <vector>
-#include <cstdarg>
 
 BEGIN_NAMESPACE
 
@@ -37,7 +35,7 @@ class CompiledDoubleFunction: public DoubleFunction
 {
 public:
     // constructors
-    CompiledDoubleFunction(const unsigned nArg);
+    explicit CompiledDoubleFunction(const unsigned nArg);
     CompiledDoubleFunction(const unsigned nArg, const std::string &code);
     // destructor
     virtual ~CompiledDoubleFunction(void) = default;

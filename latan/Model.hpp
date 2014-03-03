@@ -22,7 +22,6 @@
 
 #include <latan/Global.hpp>
 #include <latan/Mat.hpp>
-#include <memory>
 #include <vector>
 
 BEGIN_NAMESPACE

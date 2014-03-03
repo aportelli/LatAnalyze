@@ -26,7 +26,6 @@
 #include <latan/Mat.hpp>
 #include <latan/Minimizer.hpp>
 #include <latan/Model.hpp>
-#include <memory>
 
 BEGIN_NAMESPACE
 
@@ -38,7 +37,8 @@ class FitResult: public DVec
     friend class XYStatData;
 public:
     // constructors
-    using DVec::DVec;
+    FitResult(void) = default;
+    EIGEN_EXPR_CTOR(FitResult, FitResult, Base, MatrixBase)
     // destructor
     virtual ~FitResult(void) = default;
     // access
@@ -108,10 +108,10 @@ public:
                   const DVec &init, const bool reinitChi2 = true,
                   const FitVerbosity verbosity = FitVerbosity::Silent);
 private:
-    DMat                                   x_, y_;
-    Mat<DMat>                              var_[3];
-    IVec                                   isXExact_, isFitPoint_;
-    Chi2Function                           chi2_;
+    DMat         x_, y_;
+    Mat<DMat>    var_[3];
+    IVec         isXExact_, isFitPoint_;
+    Chi2Function chi2_;
 };
 
 /******************************************************************************

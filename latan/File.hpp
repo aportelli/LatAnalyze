@@ -20,15 +20,11 @@
 #ifndef Latan_Io_hpp_
 #define	Latan_Io_hpp_
 
-#include <fstream>
-#include <memory>
-#include <queue>
-#include <sstream>
-#include <string>
-#include <unordered_map>
 #include <latan/Global.hpp>
 #include <latan/IoObject.hpp>
 #include <latan/ParserState.hpp>
+#include <queue>
+#include <unordered_map>
 
 BEGIN_NAMESPACE
 
@@ -59,7 +55,7 @@ public:
     };
 public:
     // constructors
-    File(void);
+    File(void) = default;
     File(const std::string &name, const unsigned int mode);
     // destructor
     virtual ~File(void);
@@ -93,8 +89,8 @@ private:
     // IO
     virtual std::string load(const std::string &name = "") = 0;
 protected:
-    std::string  name_;
-    unsigned int mode_;
+    std::string  name_{""};
+    unsigned int mode_{Mode::null};
     IoDataTable  data_;
 };
 

@@ -36,7 +36,7 @@ std::cerr << Env::msgPrefix << "warning: " << msg\
 class name: public base\
 {\
 public:\
-    explicit name(std::string msg, std::string loc);\
+    name(std::string msg, std::string loc);\
 }
 
 BEGIN_NAMESPACE

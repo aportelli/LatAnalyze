@@ -50,14 +50,14 @@ private:
     class RanLxd
     {
     private:
-        typedef struct
+        typedef struct alignas(16)
         {
             float c1,c2,c3,c4;
-        } rlxd_vec_t __attribute__ ((aligned (16)));
-        typedef struct
+        } rlxd_vec_t;
+        typedef struct alignas(16)
         {
             rlxd_vec_t c1,c2;
-        } rlxd_dble_vec_t __attribute__ ((aligned (16)));
+        } rlxd_dble_vec_t;
     public:
         RanLxd(void);
         ~RanLxd(void) = default;
@@ -71,20 +71,20 @@ private:
         void update(void);
         void define_constants(void);
     private:
-        int        init, rlxd_pr, prm, ir, jr, is, is_old, next[96];
+        int        init{0}, rlxd_pr, prm, ir, jr, is, is_old, next[96];
         rlxd_vec_t one_sse, one_bit_sse, carry;
         double     one_bit;
-        union
+        union alignas(16)
         {
             rlxd_dble_vec_t vec[12];
             float num[96];
-        } rlxd_x __attribute__ ((aligned (16)));
+        } rlxd_x;
     };
 public:
     // constructors
     RandGen(void);
-    RandGen(const int seed);
-    RandGen(const RandGenState &state);
+    explicit RandGen(const int seed);
+    explicit RandGen(const RandGenState &state);
     // destructor
     virtual ~RandGen(void) = default;
     // state management

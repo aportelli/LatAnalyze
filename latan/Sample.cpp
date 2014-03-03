@@ -27,10 +27,6 @@ using namespace std;
  *                        DMatSample implementation                           *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-DMatSample::DMatSample(void)
-: Sample<DMat>()
-{}
-
 DMatSample::DMatSample(const Index nSample, const Index nRow,
                        const Index nCol)
 : Sample<DMat>(nSample)
@@ -41,7 +37,10 @@ DMatSample::DMatSample(const Index nSample, const Index nRow,
 // resize all matrices /////////////////////////////////////////////////////////
 void DMatSample::resizeMat(const Index nRow, const Index nCol)
 {
-    this->unaryExpr([nRow, nCol](DMat &m){m.resize(nRow, nCol);});
+    FOR_VEC(*this, s)
+    {
+        (*this)[s].resize(nRow, nCol);
+    }
 }
 
 // IO type /////////////////////////////////////////////////////////////////////

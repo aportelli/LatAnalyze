@@ -20,11 +20,11 @@
 #ifndef Latan_Plot_hpp_
 #define Latan_Plot_hpp_
 
+#include <latan/Global.hpp>
+#include <latan/XYStatData.hpp>
 #include <sstream>
 #include <stack>
 #include <vector>
-#include <latan/Global.hpp>
-#include <latan/XYStatData.hpp>
 
 // gnuplot default parameters
 #ifndef GNUPLOT_BIN
@@ -144,7 +144,7 @@ class PlotRange: public PlotModifier
 {
 public:
     // constructor
-    explicit PlotRange(const Axis axis, const double min, const double max);
+    PlotRange(const Axis axis, const double min, const double max);
     // destructor
     virtual ~PlotRange(void) = default;
     // modifier
@@ -172,7 +172,7 @@ public:
     };
 public:
     // constructor/destructor
-    Plot(void);
+    Plot(void) = default;
     virtual ~Plot(void);
     // plot operations
     Plot & operator<<(PlotObject   &&command);
