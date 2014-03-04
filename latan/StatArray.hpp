@@ -24,12 +24,15 @@
 #include <latan/Mat.hpp>
 #include <iostream>
 
+#define FOR_STAT_ARRAY(ar, i) \
+for (Latan::Index i = -(ar).offset; i < (ar).size(); ++i)
+
 BEGIN_NAMESPACE
 
 /******************************************************************************
  *                     Array class with statistics                            *
  ******************************************************************************/
-template <typename T, unsigned int offset = 0>
+template <typename T, Index os = 0>
 class StatArray: public Array<T, dynamic, 1>
 {
 private:
@@ -38,7 +41,7 @@ public:
     // constructors
     StatArray(void);
     explicit StatArray(const Index size);
-    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, offset>), Base,
+    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, os>), Base,
                     ArrayBase)
     // destructor
     virtual ~StatArray(void) = default;
@@ -53,6 +56,8 @@ public:
     T    mean(void) const;
     T    variance(const Index pos, const Index n) const;
     T    variance(void) const;
+public:
+    static const Index offset = os;
 };
 
 // reduction operations
@@ -70,40 +75,40 @@ namespace ReducOp
  *                 StatArray class template implementation                    *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-template <typename T, unsigned int offset>
-StatArray<T, offset>::StatArray(void)
-: Base(static_cast<typename Base::Index>(offset))
+template <typename T, Index os>
+StatArray<T, os>::StatArray(void)
+: Base(static_cast<typename Base::Index>(os))
 {}
 
-template <typename T, unsigned int offset>
-StatArray<T, offset>::StatArray(const Index size)
-: Base(static_cast<typename Base::Index>(size + offset))
+template <typename T, Index os>
+StatArray<T, os>::StatArray(const Index size)
+: Base(static_cast<typename Base::Index>(size + os))
 {}
 
 // access //////////////////////////////////////////////////////////////////////
-template <typename T, unsigned int offset>
-Index StatArray<T, offset>::size(void) const
+template <typename T, Index os>
+Index StatArray<T, os>::size(void) const
 {
-    return Base::size() - offset;
+    return Base::size() - os;
 }
 
 // operators ///////////////////////////////////////////////////////////////////
-template <typename T, unsigned int offset>
-T & StatArray<T, offset>::operator[](const Index s)
+template <typename T, Index os>
+T & StatArray<T, os>::operator[](const Index s)
 {
-    return Base::operator[](s + offset);
+    return Base::operator[](s + os);
 }
 
-template <typename T, unsigned int offset>
-const T & StatArray<T, offset>::operator[](const Index s) const
+template <typename T, Index os>
+const T & StatArray<T, os>::operator[](const Index s) const
 {
-    return Base::operator[](s + offset);
+    return Base::operator[](s + os);
 }
 
 
 // statistics //////////////////////////////////////////////////////////////////
-template <typename T, unsigned int offset>
-void StatArray<T, offset>::bin(Index binSize)
+template <typename T, Index os>
+void StatArray<T, os>::bin(Index binSize)
 {
     Index q = size()/binSize, r = size()%binSize;
 
@@ -114,42 +119,42 @@ void StatArray<T, offset>::bin(Index binSize)
     if (r != 0)
     {
         (*this)[q] = mean(q*binSize, r);
-        this->conservativeResize(offset + q + 1);
+        this->conservativeResize(os + q + 1);
     }
     else
     {
-        this->conservativeResize(offset + q);
+        this->conservativeResize(os + q);
     }
 }
 
-template <typename T, unsigned int offset>
-T StatArray<T, offset>::mean(const Index pos, const Index n) const
+template <typename T, Index os>
+T StatArray<T, os>::mean(const Index pos, const Index n) const
 {
     T result;
     
     if (n)
     {
-        result = this->segment(pos+offset, n).redux(&ReducOp::sum<T>);
+        result = this->segment(pos+os, n).redux(&ReducOp::sum<T>);
     }
     
     return result/static_cast<double>(n);
 }
 
-template <typename T, unsigned int offset>
-T StatArray<T, offset>::mean(void) const
+template <typename T, Index os>
+T StatArray<T, os>::mean(void) const
 {
     return mean(0, size());
 }
 
-template <typename T, unsigned int offset>
-T StatArray<T, offset>::variance(const Index pos, const Index n) const
+template <typename T, Index os>
+T StatArray<T, os>::variance(const Index pos, const Index n) const
 {
     T s, sqs, result;
     
     if (n)
     {
-        s   = this->segment(pos+offset, n).redux(&ReducOp::sum<T>);
-        sqs = this->segment(pos+offset, n).unaryExpr(&ReducOp::square<T>)
+        s   = this->segment(pos+os, n).redux(&ReducOp::sum<T>);
+        sqs = this->segment(pos+os, n).unaryExpr(&ReducOp::square<T>)
                                           .redux(&ReducOp::sum<T>);
         result = sqs - ReducOp::square(s)/static_cast<double>(n);
     }
@@ -157,8 +162,8 @@ T StatArray<T, offset>::variance(const Index pos, const Index n) const
     return result/static_cast<double>(n - 1);
 }
 
-template <typename T, unsigned int offset>
-T StatArray<T, offset>::variance(void) const
+template <typename T, Index os>
+T StatArray<T, os>::variance(void) const
 {
     return variance(0, size());
 }

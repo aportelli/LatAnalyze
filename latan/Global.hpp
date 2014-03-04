@@ -75,8 +75,8 @@ using Vec = Mat<T, dynamic, 1>;
 typedef Vec<int>    IVec;
 typedef Vec<double> DVec;
 
-#define FOR_VEC(vec, i) \
-for (Latan::Index i = 0; i < (vec).size(); ++i)
+#define FOR_VEC(vec, i)  for (Latan::Index i = 0; i < (vec).size(); ++i)
+#define FOR_ARRAY(ar, i) FOR_VEC(ar, i)
 
 // block types
 template <typename Derived>
