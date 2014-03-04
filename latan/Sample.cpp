@@ -34,10 +34,76 @@ DMatSample::DMatSample(const Index nSample, const Index nRow,
     resizeMat(nRow, nCol);
 }
 
+DMatSample::DMatSample(ConstBlock &sampleBlock)
+: DMatSample(sampleBlock.getSample().size(), sampleBlock.getNRow(),
+             sampleBlock.getNCol())
+{
+    const DMatSample &sample = sampleBlock.getSample();
+    
+    FOR_STAT_ARRAY(*this, s)
+    {
+        (*this)[s] = sample[s].block(sampleBlock.getStartRow(),
+                                     sampleBlock.getStartCol(),
+                                     sampleBlock.getNRow(),
+                                     sampleBlock.getNCol());
+    }
+}
+
+DMatSample::DMatSample(ConstBlock &&sampleBlock)
+: DMatSample(sampleBlock)
+{}
+
+// assignement operator ////////////////////////////////////////////////////////
+DMatSample & DMatSample::operator=(Block &sampleBlock)
+{
+    DMatSample tmp(sampleBlock);
+    
+    this->swap(tmp);
+    
+    return *this;
+}
+
+DMatSample & DMatSample::operator=(Block &&sampleBlock)
+{
+    *this = sampleBlock;
+    
+    return *this;
+}
+
+DMatSample & DMatSample::operator=(ConstBlock &sampleBlock)
+{
+    DMatSample tmp(sampleBlock);
+    
+    this->swap(tmp);
+    
+    return *this;
+}
+
+DMatSample & DMatSample::operator=(ConstBlock &&sampleBlock)
+{
+    *this = sampleBlock;
+    
+    return *this;
+}
+
+// block access ////////////////////////////////////////////////////////////////
+DMatSample::ConstBlock DMatSample::block(const Index i, const Index j,
+                                         const Index nRow,
+                                         const Index nCol) const
+{
+    return ConstBlock(*this, i, j, nRow, nCol);
+}
+
+DMatSample::Block DMatSample::block(const Index i, const Index j,
+                                    const Index nRow, const Index nCol)
+{
+    return Block(*this, i, j, nRow, nCol);
+}
+
 // resize all matrices /////////////////////////////////////////////////////////
 void DMatSample::resizeMat(const Index nRow, const Index nCol)
 {
-    FOR_VEC(*this, s)
+    FOR_STAT_ARRAY(*this, s)
     {
         (*this)[s].resize(nRow, nCol);
     }
