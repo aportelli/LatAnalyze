@@ -96,3 +96,18 @@ double DoubleFunction::operator()(void) const
     
     return (*this)(nullptr);
 }
+
+/******************************************************************************
+ *                    DoubleFunctionSample implementation                     *
+ ******************************************************************************/
+DSample DoubleFunctionSample::operator()(const DMatSample &arg) const
+{
+    DSample result(arg.size());
+    
+    FOR_STAT_ARRAY(arg, s)
+    {
+        result[s] = (*this)[s](arg[s]);
+    }
+    
+    return result;
+}

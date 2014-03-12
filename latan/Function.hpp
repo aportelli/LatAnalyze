@@ -22,6 +22,7 @@
 
 #include <latan/Global.hpp>
 #include <latan/Mat.hpp>
+#include <latan/MatSample.hpp>
 #include <functional>
 #include <stack>
 #include <vector>
@@ -73,6 +74,21 @@ double DoubleFunction::operator()(const double arg0, const Ts... args) const
     
     return (*this)(arg);
 }
+
+/******************************************************************************
+ *                      DoubleFunctionSample class                            *
+ ******************************************************************************/
+class DoubleFunctionSample: public Sample<DoubleFunction>
+{
+public:
+    // constructors
+    using Sample<DoubleFunction>::Sample;
+    // destructor
+    virtual ~DoubleFunctionSample(void) = default;
+    // function call
+    DSample operator()(const DMatSample &arg) const;
+};
+
 
 END_NAMESPACE
 
