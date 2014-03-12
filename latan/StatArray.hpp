@@ -41,21 +41,25 @@ public:
     // constructors
     StatArray(void);
     explicit StatArray(const Index size);
-    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, os>), Base,
-                    ArrayBase)
+    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, os>), Base, ArrayBase)
     // destructor
     virtual ~StatArray(void) = default;
     // access
     Index size(void) const;
+    void  resize(const Index size);
     // operators
           T & operator[](const Index s);
     const T & operator[](const Index s) const;
     // statistics
     void bin(Index binSize);
-    T    mean(const Index pos, const Index n) const;
+    T    mean(const Index pos = 0, const Index n = -1) const;
     T    mean(void) const;
-    T    variance(const Index pos, const Index n) const;
-    T    variance(void) const;
+    T    covariance(const StatArray<T, os> &array, const Index pos = 0,
+                    const Index n = -1) const;
+    T    covarianceMatrix(const StatArray<T, os> &array, const Index pos = 0,
+                          const Index n = -1) const;
+    T    variance(const Index pos = 0, const Index n = -1) const;
+    T    varianceMatrix(const Index pos = 0, const Index n = -1) const;
 public:
     static const Index offset = os;
 };
@@ -63,12 +67,18 @@ public:
 // reduction operations
 namespace ReducOp
 {
+    // general templates
     template <typename T>
-    inline T square(const T &a);
+    inline T prod(const T &a, const T &b);
+    template <typename T>
+    inline T tensProd(const T &v1, const T &v2);
     template <typename T>
     inline T sum(const T &a, const T &b);
+    // matrix specializations
     template <>
-    inline DMat square(const DMat &a);
+    inline DMat prod(const DMat &a, const DMat &b);
+    template <>
+    inline DMat tensProd(const DMat &v1, const DMat &v2);
 }
 
 /******************************************************************************
@@ -90,6 +100,12 @@ template <typename T, Index os>
 Index StatArray<T, os>::size(void) const
 {
     return Base::size() - os;
+}
+
+template <typename T, Index os>
+void StatArray<T, os>::resize(const Index size)
+{
+    Base::resize(size + os);
 }
 
 // operators ///////////////////////////////////////////////////////////////////
@@ -130,42 +146,71 @@ void StatArray<T, os>::bin(Index binSize)
 template <typename T, Index os>
 T StatArray<T, os>::mean(const Index pos, const Index n) const
 {
-    T result;
+    T           result;
+    const Index m = (n >= 0) ? n : size();
     
-    if (n)
+    if (m)
     {
-        result = this->segment(pos+os, n).redux(&ReducOp::sum<T>);
+        result = this->segment(pos+os, m).redux(&ReducOp::sum<T>);
     }
     
     return result/static_cast<double>(n);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::mean(void) const
+T StatArray<T, os>::covariance(const StatArray<T, os> &array, const Index pos,
+                               const Index n) const
 {
-    return mean(0, size());
+    T           s1, s2, prs, res;
+    const Index m = (n >= 0) ? n : size();
+    
+    if (m)
+    {
+        auto arraySeg = array.segment(pos+os, m);
+        auto thisSeg  = this->segment(pos+os, m);
+        
+        s1  = thisSeg.redux(&ReducOp::sum<T>);
+        s2  = arraySeg.redux(&ReducOp::sum<T>);
+        prs = thisSeg.binaryExpr(arraySeg, &ReducOp::prod<T>)
+                     .redux(&ReducOp::sum<T>);
+        res = prs - ReducOp::prod(s1, s2)/static_cast<double>(m);
+    }
+    
+    return res/static_cast<double>(m - 1);
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::covarianceMatrix(const StatArray<T, os> &array,
+                                     const Index pos, const Index n) const
+{
+    T           s1, s2, prs, res;
+    const Index m = (n >= 0) ? n : size();
+    
+    if (m)
+    {
+        auto arraySeg = array.segment(pos+os, m);
+        auto thisSeg  = this->segment(pos+os, m);
+
+        s1  = thisSeg.redux(&ReducOp::sum<T>);
+        s2  = arraySeg.redux(&ReducOp::sum<T>);
+        prs = thisSeg.binaryExpr(arraySeg, &ReducOp::tensProd<T>)
+                     .redux(&ReducOp::sum<T>);
+        res = prs - ReducOp::tensProd(s1, s2)/static_cast<double>(m);
+    }
+    
+    return res/static_cast<double>(m - 1);
 }
 
 template <typename T, Index os>
 T StatArray<T, os>::variance(const Index pos, const Index n) const
 {
-    T s, sqs, result;
-    
-    if (n)
-    {
-        s   = this->segment(pos+os, n).redux(&ReducOp::sum<T>);
-        sqs = this->segment(pos+os, n).unaryExpr(&ReducOp::square<T>)
-                                          .redux(&ReducOp::sum<T>);
-        result = sqs - ReducOp::square(s)/static_cast<double>(n);
-    }
-    
-    return result/static_cast<double>(n - 1);
+    return covariance(*this, pos, n);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::variance(void) const
+T StatArray<T, os>::varianceMatrix(const Index pos, const Index n) const
 {
-    return variance(0, size());
+    return covarianceMatrix(*this, pos, n);
 }
 
 // reduction operations ////////////////////////////////////////////////////////
@@ -176,15 +221,34 @@ inline T ReducOp::sum(const T &a, const T &b)
 }
 
 template <typename T>
-inline T ReducOp::square(const T &a)
+inline T ReducOp::prod(const T &a, const T &b)
 {
-    return a*a;
+    return a*b;
+}
+
+template <typename T>
+inline T ReducOp::tensProd(const T &v1 __unused, const T &v2 __unused)
+{
+    LATAN_ERROR(Implementation, 
+                "tensorial product not implemented for this type");
 }
 
 template <>
-inline DMat ReducOp::square(const DMat &a)
+inline DMat ReducOp::prod(const DMat  &a, const DMat  &b)
 {
-    return a.cwiseProduct(a);
+    return a.cwiseProduct(b);
+}
+
+template <>
+inline DMat ReducOp::tensProd(const DMat &v1, const DMat &v2)
+{
+    if ((v1.cols() != 1)||(v2.cols() != 1))
+    {
+        LATAN_ERROR(Size, 
+                    "tensorial product is only valid with column vectors");
+    }
+    
+    return v1*v2.transpose();
 }
 
 END_NAMESPACE
