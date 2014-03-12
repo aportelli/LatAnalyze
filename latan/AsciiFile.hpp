@@ -23,8 +23,8 @@
 #include <latan/Global.hpp>
 #include <latan/File.hpp>
 #include <latan/Mat.hpp>
+#include <latan/MatSample.hpp>
 #include <latan/RandGen.hpp>
-#include <latan/Sample.hpp>
 #include <fstream>
 
 BEGIN_NAMESPACE

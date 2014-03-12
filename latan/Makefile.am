@@ -41,11 +41,11 @@ liblatan_la_SOURCES =   \
     MathInterpreter.cpp \
     MathParser.ypp      \
     MathLexer.lpp       \
+    MatSample.cpp       \
     Minimizer.cpp       \
     Model.cpp           \
     Plot.cpp            \
     RandGen.cpp         \
-    Sample.cpp          \
     XYStatData.cpp      \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
@@ -62,13 +62,13 @@ liblatan_la_HEADERS =   \
     Mat.hpp             \
     Math.hpp            \
     MathInterpreter.hpp \
+    MatSample.hpp       \
     Minimizer.hpp       \
     Model.hpp           \
     ParserState.hpp     \
     Plot.hpp            \
     RandGen.hpp         \
-    Sample.hpp          \
-    StatArray.hpp       \
+    StatArray.hpp
     XYStatData.hpp
 if HAVE_MINUIT
 liblatan_la_SOURCES += MinuitMinimizer.cpp

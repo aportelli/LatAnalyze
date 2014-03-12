@@ -21,8 +21,8 @@
     #include <latan/Global.hpp>
 	#include <latan/AsciiFile.hpp>
     #include <latan/Mat.hpp>
+    #include <latan/MatSample.hpp>
     #include <latan/RandGen.hpp>
-    #include <latan/Sample.hpp>
     #include <iostream>
     #include <sstream>
     #include <utility>
@@ -134,9 +134,9 @@ mat:
 sample:
       OPEN SAMPLE ID INT mats CLOSE SAMPLE
     {
-        const unsigned int nSample = $INT + 1;
+        const unsigned int nSample = $INT;
         
-        if (state->dMatQueue.size() != nSample)
+        if (state->dMatQueue.size() != nSample + DMatSample::offset)
         {
             LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $ID +
                         "' has a wrong size");

@@ -81,6 +81,16 @@ namespace ReducOp
     inline DMat tensProd(const DMat &v1, const DMat &v2);
 }
 
+// Sample types
+#define SAMPLE_OFFSET 1
+
+const int central = -SAMPLE_OFFSET;
+
+template <typename T>
+using Sample = StatArray<T, SAMPLE_OFFSET>;
+
+typedef Sample<double> DSample;
+
 /******************************************************************************
  *                 StatArray class template implementation                    *
  ******************************************************************************/

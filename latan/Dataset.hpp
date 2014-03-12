@@ -22,7 +22,7 @@
 
 #include <latan/Global.hpp>
 #include <latan/File.hpp>
-#include <latan/Sample.hpp>
+#include <latan/StatArray.hpp>
 #include <latan/RandGen.hpp>
 #include <fstream>
 #include <vector>
