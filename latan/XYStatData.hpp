@@ -55,11 +55,7 @@ private:
 /******************************************************************************
  *                    object for X vs. Y statistical data                     *
  ******************************************************************************/
-struct PlaceHolder {};
-
-extern PlaceHolder _;
-
-class XYStatData
+class XYStatData: public FitInterface
 {
 public:
     enum
