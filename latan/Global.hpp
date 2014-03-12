@@ -20,6 +20,9 @@
 #ifndef Latan_Global_hpp_
 #define	Latan_Global_hpp_
 
+// supress warning for the osbolete use of 'register' keyword in Eigen
+#pragma GCC diagnostic ignored "-Wdeprecated-register"
+
 #include <latan/Eigen/Dense>
 #include <memory>
 #include <string>
