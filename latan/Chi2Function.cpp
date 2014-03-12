@@ -137,32 +137,37 @@ void Chi2Function::resizeBuffer(void) const
     Index size;
     
     size = (data_.getYDim() + data_.getStatXDim())*data_.getNFitPoint();
-    buffer_->v.conservativeResize(size);
-    buffer_->x.resize(data_.getXDim());
-    buffer_->invVar.resize(size, size);
-    buffer_->xInd.resize(data_.getStatXDim());
-    buffer_->dInd.resize(data_.getNFitPoint());
+    buffer_->v.setConstant(size, 0.0);
+    buffer_->x.setConstant(data_.getXDim(), 0.0);
+    buffer_->invVar.setConstant(size, size, 0.0);
+    buffer_->xInd.setConstant(data_.getStatXDim(), 0);
+    buffer_->dInd.setConstant(data_.getNFitPoint(), 0);
 }
 
 // compute variance matrix inverse /////////////////////////////////////////////
 void Chi2Function::setVarianceBlock(const Index l1, const Index l2,
                                     ConstBlock<DMatBase> m) const
 {
-    Index nPoint = data_.getNFitPoint();
+    const Index nPoint = data_.getNFitPoint();
     
     FOR_VEC(buffer_->dInd, k2)
     FOR_VEC(buffer_->dInd, k1)
     {
-        buffer_->invVar(l1*nPoint + k1, l2*nPoint + k2) = m(buffer_->dInd(k1),
-                                                            buffer_->dInd(k2));
+        if (data_.isDataCorrelated(buffer_->dInd(k1), buffer_->dInd(k2)))
+        {
+            buffer_->invVar(l1*nPoint + k1, l2*nPoint + k2) =
+                m(buffer_->dInd(k1), buffer_->dInd(k2));
+        }
     }
 }
 
 void Chi2Function::initBuffer(void) const
 {
-    const Index xDim  = data_.getXDim();
-    const Index yDim  = data_.getYDim();
-    const Index nData = data_.getNData();
+    const Index xDim     = data_.getXDim();
+    const Index statXDim = data_.getStatXDim();
+    const Index yDim     = data_.getYDim();
+    const Index nData    = data_.getNData();
+    const Index nPoint   = data_.getNFitPoint();
     Index       is, kf;
     
     // resize buffer
@@ -192,23 +197,37 @@ void Chi2Function::initBuffer(void) const
     for (Index j2 = 0; j2 < yDim; ++j2)
     for (Index j1 = 0; j1 < yDim; ++j1)
     {
-        setVarianceBlock(j1, j2, data_.yyVar(j1, j2));
+        if (data_.isYYCorrelated(j1, j2))
+        {
+            setVarianceBlock(j1, j2, data_.yyVar(j1, j2));
+        }
     }
 
     // set x/x variance matrix
     FOR_VEC(buffer_->xInd, i2)
     FOR_VEC(buffer_->xInd, i1)
     {
-        setVarianceBlock(i1, i2, data_.xxVar(buffer_->xInd(i1),
-                                             buffer_->xInd(i2)));
+        if (data_.isXXCorrelated(buffer_->xInd(i1), buffer_->xInd(i2)))
+        {
+            setVarianceBlock(i1 + yDim, i2 + yDim,
+                             data_.xxVar(buffer_->xInd(i1), buffer_->xInd(i2)));
+        }
     }
 
     // set y/x variance matrix
     FOR_VEC(buffer_->xInd, i)
     for (Index j = 0; j < yDim; ++j)
     {
-        setVarianceBlock(j, i, data_.yxVar(j, buffer_->xInd(i)));
+        if (data_.isYXCorrelated(j, buffer_->xInd(i)))
+        {
+            setVarianceBlock(j, i + yDim, data_.yxVar(j, buffer_->xInd(i)));
+        }
     }
+    auto lowerYX = buffer_->invVar.block(yDim*nPoint, 0, yDim*statXDim,
+                                         yDim*nPoint);
+    auto upperYX = buffer_->invVar.block(0, yDim*nPoint, yDim*nPoint,
+                                         yDim*statXDim);
+    lowerYX = upperYX.transpose();
 
     // inversion
     buffer_->invVar = buffer_->invVar.inverse().eval();
