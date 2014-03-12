@@ -35,6 +35,7 @@ liblatan_la_SOURCES =   \
     Global.cpp          \
     includes.hpp        \
     File.cpp            \
+    FitInterface.cpp    \
     Mat.cpp             \
     Math.cpp            \
     MathInterpreter.cpp \
@@ -53,6 +54,7 @@ liblatan_la_HEADERS =   \
     Chi2Function.hpp    \
     CompiledFunction.hpp\
     Dataset.hpp         \
+    FitInterface.hpp    \
     Function.hpp        \
     Global.hpp          \
     File.hpp            \

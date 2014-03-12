@@ -32,6 +32,11 @@ double FitResult::getChi2(void) const
     return chi2_;
 }
 
+Index FitResult::getNDof(void) const
+{
+    return nDof_;
+}
+
 double FitResult::getChi2PerDof(void) const
 {
     return chi2_/static_cast<double>(nDof_);
@@ -57,69 +62,6 @@ XYStatData::XYStatData(const Index nData, const Index xDim, const Index yDim)
 }
 
 // access //////////////////////////////////////////////////////////////////////
-void XYStatData::assumeXExact(const Index i, const bool isExact)
-{
-    isXExact_[i] = (isExact) ? 1 : 0;
-}
-
-void XYStatData::fitPoint(const Index i, const bool isFitPoint)
-{
-    isFitPoint_[i] = (isFitPoint) ? 1 : 0;
-}
-
-void XYStatData::fitPointRange(const Index k1, const Index k2,
-                               const bool isFitPoint)
-{
-    int size = static_cast<int>(k2-k1+1);
-    
-    isFitPoint_.segment(k1, size) = IVec::Constant(size, (isFitPoint) ? 1 : 0);
-}
-
-void XYStatData::fitAllPoints(const bool isFitPoint)
-{
-    fitPointRange(0, getNData()-1, isFitPoint);
-}
-
-Index XYStatData::getNData(void) const
-{
-    return x_.rows();
-}
-
-Index XYStatData::getNFitPoint(void) const
-{
-    return isFitPoint_.sum();
-}
-
-Index XYStatData::getXDim(void) const
-{
-    return x_.cols();
-}
-
-Index XYStatData::getYDim(void) const
-{
-    return y_.cols();
-}
-
-Index XYStatData::getStatXDim(void) const
-{
-    return isXExact_.size() - isXExact_.sum();
-}
-
-void XYStatData::setNData(const Index nData)
-{
-    resize(nData, getXDim(), getYDim());
-}
-
-void XYStatData::setXDim(const Index xDim)
-{
-    resize(getNData(), xDim, getYDim());
-}
-
-void XYStatData::setYDim(const Index yDim)
-{
-    resize(getNData(), getXDim(), yDim);
-}
-
 void XYStatData::resize(const Index nData, const Index xDim, const Index yDim)
 {
     x_.conservativeResize(nData, xDim);
@@ -261,17 +203,6 @@ Block<DMatBase> XYStatData::yxVar(const Index j, const Index i)
 ConstBlock<DMatBase> XYStatData::yxVar(const Index j, const Index i) const
 {
     return FULL_BLOCK(var_[yx](j, i));
-}
-
-// test ////////////////////////////////////////////////////////////////////////
-bool XYStatData::isFitPoint(const Index k) const
-{
-    return (isFitPoint_[k] == 1);
-}
-
-bool XYStatData::isXExact(const Index i) const
-{
-    return (isXExact_[i] == 1);
 }
 
 // fit /////////////////////////////////////////////////////////////////////////

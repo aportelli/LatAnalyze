@@ -22,6 +22,7 @@
 
 #include <latan/Global.hpp>
 #include <latan/Chi2Function.hpp>
+#include <latan/FitInterface.hpp>
 #include <latan/Function.hpp>
 #include <latan/Mat.hpp>
 #include <latan/Minimizer.hpp>
@@ -44,6 +45,7 @@ public:
     virtual ~FitResult(void) = default;
     // access
     double                 getChi2(void) const;
+    Index                  getNDof(void) const;
     double                 getChi2PerDof(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
 private:
@@ -64,7 +66,6 @@ public:
         yy = 1,
         yx = 2
     };
-    typedef Minimizer::Verbosity FitVerbosity;
 public:
     // constructors
     XYStatData(void);
@@ -72,19 +73,6 @@ public:
     // destructor
     virtual ~XYStatData(void) = default;
     // access
-    void                 assumeXExact(const Index i, const bool isExact = true);
-    void                 fitPoint(const Index k, const bool isFitPoint = true);
-    void                 fitPointRange(const Index k1, const Index k2,
-                                       const bool isFitPoint = true);
-    void                 fitAllPoints(const bool isFitPoint = true);
-    Index                getNData(void)     const;
-    Index                getNFitPoint(void) const;
-    Index                getXDim(void)      const;
-    Index                getYDim(void)      const;
-    Index                getStatXDim(void)  const;
-    void                 setNData(const Index nData);
-    void                 setXDim(const Index xDim);
-    void                 setYDim(const Index yDim);
     void                 resize(const Index nData, const Index xDim,
                                 const Index yDim);
     Block<DMatBase>      x(const PlaceHolder ph1, const PlaceHolder ph2);
@@ -109,9 +97,6 @@ public:
     ConstBlock<DMatBase> yyVar(const Index j1, const Index j2) const;
     Block<DMatBase>      yxVar(const Index j,  const Index i);
     ConstBlock<DMatBase> yxVar(const Index j,  const Index i) const;
-    // test
-    bool isFitPoint(const Index k) const;
-    bool isXExact(const Index i) const;
     // fit
     FitResult fit(const std::vector<const DoubleModel *> &modelVector,
                   Minimizer &minimizer, const DVec &init,
@@ -120,6 +105,7 @@ public:
     FitResult fit(const DoubleModel &model, Minimizer &minimizer,
                   const DVec &init, const bool reinitChi2 = true,
                   const FitVerbosity verbosity = FitVerbosity::Silent);
+                  
 private:
     DMat         x_, y_;
     Mat<DMat>    var_[3];
