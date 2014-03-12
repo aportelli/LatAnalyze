@@ -64,24 +64,23 @@ XYStatData::XYStatData(const Index nData, const Index xDim, const Index yDim)
 // access //////////////////////////////////////////////////////////////////////
 void XYStatData::resize(const Index nData, const Index xDim, const Index yDim)
 {
-    x_.conservativeResize(nData, xDim);
-    y_.conservativeResize(nData, yDim);
-    isXExact_.conservativeResize(xDim);
-    isFitPoint_.conservativeResize(nData);
-    var_[xx].conservativeResize(xDim, xDim);
-    var_[yy].conservativeResize(yDim, yDim);
-    var_[yx].conservativeResize(yDim, xDim);
+    FitInterface::resize(nData, xDim, yDim);
+    x_.resize(nData, xDim);
+    y_.resize(nData, yDim);
+    var_[xx].resize(xDim, xDim);
+    var_[yy].resize(yDim, yDim);
+    var_[yx].resize(yDim, xDim);
     FOR_MAT(var_[xx], i1, i2)
     {
-        var_[xx](i1, i2).conservativeResize(nData, nData);
+        var_[xx](i1, i2).resize(nData, nData);
     }
     FOR_MAT(var_[yy], j1, j2)
     {
-        var_[yy](j1, j2).conservativeResize(nData, nData);
+        var_[yy](j1, j2).resize(nData, nData);
     }
     FOR_MAT(var_[yx], j, i)
     {
-        var_[yx](j, i).conservativeResize(nData, nData);
+        var_[yx](j, i).resize(nData, nData);
     }
 }
 
