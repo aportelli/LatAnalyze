@@ -35,6 +35,8 @@
 
 // macro utilities
 #define unique_arg(...) __VA_ARGS__
+#define DEBUG_VAR(x) std::cout << #x << "= "  << x << std::endl
+#define DEBUG_MAT(m) std::cout << #m << "=\n" << m << std::endl
 
 // attribute to switch off unused warnings with gcc
 #ifndef __GNUC__
