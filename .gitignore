@@ -1,9 +1,5 @@
-# binaries
-*.o
-*.a
-*.so
-*.dylib
-examples/exMathCompiler
+# builds
+build/*
 sandbox/*
 
 # Apple stuffs
@@ -13,32 +9,14 @@ sandbox/*
 # VIM
 *.swp
 
-# debug
-*.dSYM
-
 # autotools
-*.la
-*.lo
-*.Plo
 autom4te.cache/*
+*.in
+*.in~
 config.h*
-Makefile.in
-Makefile
 configure
-libtool
-.buildutils/m4/*
 .buildutils/*
-latan/.libs/*
-latan/.deps/*
-examples/.deps/*
-examples/.libs/*
-utils/.deps/*
-utils/.libs/*
 aclocal.m4
-config.log
-config.status
-stamp-h1
-myconfig.sh
 
 # bison/flex generated sources
 latan/*Lexer.cpp
@@ -48,14 +26,3 @@ latan/*Parser.hpp
 # Eigen headers
 latan/Eigen/*
 latan/eigen_files.mk
-
-# Examples
-examples/exCompiledDoubleFunction
-examples/exMat
-examples/exMathInterpreter
-examples/exPlot
-examples/exRand
-examples/exRand.seed
-
-# Utils
-utils/latan_sample_read

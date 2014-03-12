@@ -29,6 +29,10 @@ for (Latan::Index i = 0; i < mat.rows(); ++i)
 
 BEGIN_NAMESPACE
 
+/******************************************************************************
+ *                          double matrix type                                *
+ ******************************************************************************/
+
 class DMat: public DMatBase, public IoObject
 {
 private:

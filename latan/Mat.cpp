@@ -24,7 +24,7 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
- *                                 DMat class                                 *
+ *                          DMat implementation                               *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 DMat::DMat(const Index nRow, const Index nCol)

@@ -46,6 +46,7 @@ liblatan_la_SOURCES =   \
     Model.cpp           \
     Plot.cpp            \
     RandGen.cpp         \
+    XYSampleData.cpp    \
     XYStatData.cpp      \
 	../config.h
 liblatan_ladir = $(pkgincludedir)
@@ -68,7 +69,8 @@ liblatan_la_HEADERS =   \
     ParserState.hpp     \
     Plot.hpp            \
     RandGen.hpp         \
-    StatArray.hpp
+    StatArray.hpp       \
+    XYSampleData.hpp    \
     XYStatData.hpp
 if HAVE_MINUIT
 liblatan_la_SOURCES += MinuitMinimizer.cpp

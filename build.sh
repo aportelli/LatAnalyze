@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PREFIX=`cat Makefile | grep '^prefix =' | awk '{print $3}'`
 case $1 in
     '')

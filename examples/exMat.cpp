@@ -9,19 +9,21 @@ using namespace Latan;
 int main(void)
 {
     AsciiFile F;
-    DMat A,B;
+    DMat A(2, 3), B(3, 2);
     const string fileName = "exMat.dat";
     
+    A << 1, 2, 3,
+         4, 5, 6;
+    
+    B << 1.0, 2.5,
+         4.5, 8.9,
+         1.2, 3.5;
+    
     // read
-    cout << "-- reading " << fileName << "..." << endl;
-    F.open(fileName, File::Mode::read);
-    A = F.read<DMat>("A");
-    B = F.read<DMat>("B");
-    cout << "A=\n"      << A                            << '\n' << endl;
-    cout << "B=\n"      << B                            << '\n' << endl;
-    cout << "A*B=\n"    << A*B                          << '\n' << endl;
-    cout << "cos(A)=\n" << A.unaryExpr(StdMath::cos)    << '\n' << endl;
-    F.close();
+    cout << "A=\n"      << A                         << '\n' << endl;
+    cout << "B=\n"      << B                         << '\n' << endl;
+    cout << "A*B=\n"    << A*B                       << '\n' << endl;
+    cout << "cos(A)=\n" << A.unaryExpr(StdMath::cos) << '\n' << endl;
     
     // write
     cout << "-- saving A*B..." << endl;
