@@ -42,13 +42,13 @@ public:
     // destructor
     virtual ~SampleFitResult(void) = default;
     // access
-    double                       getChi2(const Index s) const;
-    const DSample &              getChi2(const PlaceHolder ph = _) const;
-    double                       getChi2PerDof(const Index s) const;
-    DSample                      getChi2PerDof(const PlaceHolder ph = _) const;
-    const DoubleFunction &       getModel(const Index s,
+    double                       getChi2(const Index s = central) const;
+    const DSample &              getChi2(const PlaceHolder ph) const;
+    double                       getChi2PerDof(const Index s = central) const;
+    DSample                      getChi2PerDof(const PlaceHolder ph) const;
+    const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
-    const DoubleFunctionSample & getModel(const PlaceHolder ph = _,
+    const DoubleFunctionSample & getModel(const PlaceHolder ph,
                                           const Index j = 0) const;
 private:
     DSample                           chi2_;
@@ -75,16 +75,18 @@ public:
     const XYStatData & getData(const Index s = central);
     void             resize(const Index nData, const Index xDim,
                             const Index yDim, const Index nSample);
-    SampleBlock      x(const PlaceHolder ph1, const PlaceHolder ph2);
-    ConstSampleBlock x(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    SampleBlock      x(const PlaceHolder ph1 = _, const PlaceHolder ph2 = _);
+    ConstSampleBlock x(const PlaceHolder ph1 = _,
+                       const PlaceHolder ph2 = _) const;
     SampleBlock      x(const Index i, const PlaceHolder ph2 = _);
     ConstSampleBlock x(const Index i, const PlaceHolder ph2 = _) const;
     SampleBlock      x(const PlaceHolder ph1, const Index k);
     ConstSampleBlock x(const PlaceHolder ph1, const Index k) const;
     SampleBlock      x(const Index i, const Index k);
     ConstSampleBlock x(const Index i, const Index k) const;
-    SampleBlock      y(const PlaceHolder ph1, const PlaceHolder ph2);
-    ConstSampleBlock y(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    SampleBlock      y(const PlaceHolder ph1 = _, const PlaceHolder ph2 = _);
+    ConstSampleBlock y(const PlaceHolder ph1 = _,
+                       const PlaceHolder ph2 = _) const;
     SampleBlock      y(const Index i, const PlaceHolder ph2 = _);
     ConstSampleBlock y(const Index i, const PlaceHolder ph2 = _) const;
     SampleBlock      y(const PlaceHolder ph1, const Index k);

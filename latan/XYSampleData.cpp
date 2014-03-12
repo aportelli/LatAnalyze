@@ -289,6 +289,6 @@ void XYSampleData::setDataToSample(const Index s)
         isCovarianceInit_ = true;
     }
     // set data
-    data_.x(_, _) = x_[s];
-    data_.y(_, _) = y_[s];
+    data_.x() = x_[s];
+    data_.y() = y_[s];
 }

@@ -75,16 +75,20 @@ public:
     // access
     void                 resize(const Index nData, const Index xDim,
                                 const Index yDim);
-    Block<DMatBase>      x(const PlaceHolder ph1, const PlaceHolder ph2);
-    ConstBlock<DMatBase> x(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    Block<DMatBase>      x(const PlaceHolder ph1 = _,
+                           const PlaceHolder ph2 = _);
+    ConstBlock<DMatBase> x(const PlaceHolder ph1 = _,
+                           const PlaceHolder ph2 = _) const;
     Block<DMatBase>      x(const Index i, const PlaceHolder ph2 = _);
     ConstBlock<DMatBase> x(const Index i, const PlaceHolder ph2 = _) const;
     Block<DMatBase>      x(const PlaceHolder ph1, const Index k);
     ConstBlock<DMatBase> x(const PlaceHolder ph1, const Index k) const;
     double &             x(const Index i, const Index k);
     const double &       x(const Index i, const Index k) const;
-    Block<DMatBase>      y(const PlaceHolder ph1, const PlaceHolder ph2);
-    ConstBlock<DMatBase> y(const PlaceHolder ph1, const PlaceHolder ph2) const;
+    Block<DMatBase>      y(const PlaceHolder ph1 = _,
+                           const PlaceHolder ph2 = _);
+    ConstBlock<DMatBase> y(const PlaceHolder ph1 = _,
+                           const PlaceHolder ph2 = _) const;
     Block<DMatBase>      y(const Index i, const PlaceHolder ph2 = _);
     ConstBlock<DMatBase> y(const Index i, const PlaceHolder ph2 = _) const;
     Block<DMatBase>      y(const PlaceHolder ph1, const Index k);
