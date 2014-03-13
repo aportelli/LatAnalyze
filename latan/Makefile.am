@@ -30,6 +30,7 @@ liblatan_la_SOURCES =   \
     AsciiLexer.lpp      \
     Chi2Function.cpp    \
     CompiledFunction.cpp\
+    CompiledModel.cpp   \
     Exceptions.cpp      \
     Function.cpp        \
     Global.cpp          \
@@ -54,6 +55,7 @@ liblatan_la_HEADERS =   \
     AsciiFile.hpp       \
     Chi2Function.hpp    \
     CompiledFunction.hpp\
+    CompiledModel.hpp   \
     Dataset.hpp         \
     FitInterface.hpp    \
     Function.hpp        \

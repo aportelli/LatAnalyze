@@ -76,7 +76,7 @@ double DoubleModel::operator()(const DVec &arg, const DVec &par) const
 {
     checkSize(arg.size(), par.size());
     
-    return f_(arg.data(), par.data());
+    return (*this)(arg.data(), par.data());
 }
 
 double DoubleModel::operator()(const vector<double> &arg,
@@ -84,12 +84,12 @@ double DoubleModel::operator()(const vector<double> &arg,
 {
     checkSize(static_cast<Index>(arg.size()), static_cast<Index>(par.size()));
     
-    return f_(arg.data(), par.data());
+    return (*this)(arg.data(), par.data());
 }
 
 double DoubleModel::operator()(const double *data, const double *par) const
 {
-    return f_(data, par);
+    return (*this)(data, par);
 }
 
 // model bind //////////////////////////////////////////////////////////////////

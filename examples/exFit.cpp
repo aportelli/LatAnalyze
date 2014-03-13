@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <latan/CompiledModel.hpp>
 #include <latan/MinuitMinimizer.hpp>
 #include <latan/Plot.hpp>
 #include <latan/RandGen.hpp>
@@ -14,12 +15,11 @@ const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
 int main(void)
 {
     // generate fake data
-    XYStatData data(nPoint, 1, 1);
-    RandGen    rg;
-    double     x_k;
-    auto       f = [](const double x[1], const double p[2])
-                     {return p[1]*exp(-x[0]*p[0]);};
-    
+    XYStatData          data(nPoint, 1, 1);
+    RandGen             rg;
+    double              x_k;
+    CompiledDoubleModel f(1, 2, "return p_1*exp(-x_0*p_0);");
+
     for (Index k = 0; k < nPoint; ++k)
     {
         x_k          = k*dx;
@@ -31,13 +31,11 @@ int main(void)
     
     // fit
     DVec init = DVec::Constant(2, 0.5);
-    
-    DoubleModel model(1, 2, f);
     FitResult p;
     MinuitMinimizer minimizer;
     
     data.fitAllPoints();
-    p = data.fit(model, minimizer, init, true, Minimizer::Verbosity::Normal);
+    p = data.fit(f, minimizer, init, true, Minimizer::Verbosity::Normal);
     
     cout << "a= " << p(0) << " b= " << p(1)
          << " chi^2/ndof= " << p.getChi2PerDof() << endl;

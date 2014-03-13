@@ -1,5 +1,5 @@
 /*
- * CompiledFunction.hpp, part of LatAnalyze 3
+ * CompiledModel.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2014 Antonin Portelli
  *
@@ -17,41 +17,43 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_CompiledFunction_hpp_
-#define	Latan_CompiledFunction_hpp_
+#ifndef Latan_CompiledModel_hpp_
+#define Latan_CompiledModel_hpp_
 
 #include <latan/Global.hpp>
-#include <latan/Function.hpp>
+#include <latan/Model.hpp>
 #include <latan/MathInterpreter.hpp>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                      compiled double function class                        *
+ *                     compiled double model class                            *
  ******************************************************************************/
-class CompiledDoubleFunction: public DoubleFunction
+
+class CompiledDoubleModel: public DoubleModel
 {
 public:
-    // constructors
-    explicit CompiledDoubleFunction(const unsigned nArg);
-    CompiledDoubleFunction(const unsigned nArg, const std::string &code);
+    // constructor
+    explicit CompiledDoubleModel(const unsigned nArg, const unsigned nPar);
+    CompiledDoubleModel(const unsigned nArg, const unsigned nPar,
+                        const std::string &code);
     // destructor
-    virtual ~CompiledDoubleFunction(void) = default;
+    virtual ~CompiledDoubleModel(void) = default;
     // access
     void setCode(const std::string &code);
     // function call
-    using DoubleFunction::operator();
-    virtual double operator()(const double *arg) const;
+    using DoubleModel::operator();
+    virtual double operator()(const double *arg, const double *par) const;
     // IO
     friend std::ostream & operator<<(std::ostream &out,
-                                     CompiledDoubleFunction &f);
+                                     CompiledDoubleModel &f);
 private:
     std::shared_ptr<MathInterpreter> interpreter_;
     std::shared_ptr<RunContext>      context_;
 };
 
-std::ostream & operator<<(std::ostream &out, CompiledDoubleFunction &f);
+std::ostream & operator<<(std::ostream &out, CompiledDoubleModel &f);
 
 END_NAMESPACE
 
-#endif // Latan_CompiledFunction_hpp_
+#endif // Latan_CompiledModel_hpp_

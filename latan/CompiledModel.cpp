@@ -1,5 +1,5 @@
 /*
- * CompiledFunction.cpp, part of LatAnalyze 3
+ * CompiledModel.cpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2014 Antonin Portelli
  *
@@ -17,7 +17,7 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <latan/CompiledFunction.hpp>
+#include <latan/CompiledModel.hpp>
 #include <latan/Math.hpp>
 #include <latan/includes.hpp>
 
@@ -25,22 +25,24 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
- *                   Compiled double function implementation                  *
+ *                 CompiledDoubleModel implementation                         *
  ******************************************************************************/
-// constructors ////////////////////////////////////////////////////////////////
-CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
-: DoubleFunction(nArg, nullptr)
+// constructor /////////////////////////////////////////////////////////////////
+CompiledDoubleModel::CompiledDoubleModel(const unsigned nArg,
+                                         const unsigned nPar)
+: DoubleModel(nArg, nPar, nullptr)
 {}
 
-CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
-                                               const string &code)
-: CompiledDoubleFunction(nArg)
+CompiledDoubleModel::CompiledDoubleModel(const unsigned nArg,
+                                         const unsigned nPar,
+                                         const string &code)
+: CompiledDoubleModel(nArg, nPar)
 {
     setCode(code);
 }
 
 // access //////////////////////////////////////////////////////////////////////
-void CompiledDoubleFunction::setCode(const string &code)
+void CompiledDoubleModel::setCode(const std::string &code)
 {
     interpreter_.reset(new MathInterpreter(code));
     context_.reset(new RunContext);
@@ -48,13 +50,18 @@ void CompiledDoubleFunction::setCode(const string &code)
 }
 
 // function call ///////////////////////////////////////////////////////////////
-double CompiledDoubleFunction::operator()(const double *arg) const
+double CompiledDoubleModel::operator()(const double *arg,
+                                       const double *par) const
 {
     double result;
     
     for (Index i = 0; i < getNArg(); ++i)
     {
         context_->vTable["x_" + strFrom(i)] = arg[i];
+    }
+    for (Index j = 0; j < getNPar(); ++j)
+    {
+        context_->vTable["p_" + strFrom(j)] = par[j];
     }
     (*interpreter_)(*context_);
     if (!context_->dStack.empty())
@@ -72,10 +79,10 @@ double CompiledDoubleFunction::operator()(const double *arg) const
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
-ostream & Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
+ostream & Latan::operator<<(std::ostream &out, CompiledDoubleModel &m)
 {
-    f.interpreter_->compile();
-    out << *(f.interpreter_);
+    m.interpreter_->compile();
+    out << *(m.interpreter_);
     
     return out;
 }

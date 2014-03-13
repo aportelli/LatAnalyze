@@ -80,9 +80,14 @@ double DoubleFunction::operator()(const std::vector<double> &arg) const
 
 double DoubleFunction::operator()(std::stack<double> &arg) const
 {
-    checkSize(static_cast<Index>(arg.size()));
     for (Index i = 0; i < getNArg(); ++i)
     {
+        if (arg.empty())
+        {
+            LATAN_ERROR(Size, "function argument stack is empty (expected "
+                        + strFrom(getNArg()) + "arguments, got " + strFrom(i)
+                        + ")");
+        }
         (*buffer_)(getNArg() - i - 1) = arg.top();
         arg.pop();
     }
