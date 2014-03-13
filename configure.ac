@@ -2,9 +2,9 @@
 
 # Initialization
 AC_PREREQ([2.64])
-AC_INIT([LatAnalyze],[3.0alpha1],[antonin.portelli@me.com],[latan])
+AC_INIT([LatAnalyze],[3.0alpha1],[antonin.portelli@me.com],[LatAnalyze])
 AC_CONFIG_AUX_DIR([.buildutils])
-AC_CONFIG_SRCDIR([latan/Global.cpp])
+AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
 AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
@@ -94,5 +94,5 @@ AC_SUBST([LIBS])
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_CONFIG_FILES([Makefile latan/Makefile utils/Makefile examples/Makefile])
+AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile examples/Makefile])
 AC_OUTPUT

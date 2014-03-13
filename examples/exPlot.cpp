@@ -1,7 +1,7 @@
 #include <iostream>
-#include <latan/CompiledFunction.hpp>
-#include <latan/Math.hpp>
-#include <latan/Plot.hpp>
+#include <LatAnalyze/CompiledFunction.hpp>
+#include <LatAnalyze/Math.hpp>
+#include <LatAnalyze/Plot.hpp>
 
 using namespace std;
 using namespace Latan;

@@ -1,7 +1,7 @@
 #include <iostream>
-#include <latan/AsciiFile.hpp>
-#include <latan/Mat.hpp>
-#include <latan/Math.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Mat.hpp>
+#include <LatAnalyze/Math.hpp>
 
 using namespace std;
 using namespace Latan;

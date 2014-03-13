@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include <latan/CompiledFunction.hpp>
+#include <LatAnalyze/CompiledFunction.hpp>
 
 using namespace std;
 using namespace Latan;

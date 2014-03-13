@@ -19,10 +19,10 @@ configure
 aclocal.m4
 
 # bison/flex generated sources
-latan/*Lexer.cpp
-latan/*Parser.cpp
-latan/*Parser.hpp
+lib/*Lexer.cpp
+lib/*Parser.cpp
+lib/*Parser.hpp
 
 # Eigen headers
-latan/Eigen/*
-latan/eigen_files.mk
+lib/Eigen/*
+lib/eigen_files.mk

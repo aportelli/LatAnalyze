@@ -1,0 +1,145 @@
+/*
+ * MathParser.ypp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+%{
+    #include <iostream>
+    #include <sstream>
+    #include <cstring>
+    #include <LatAnalyze/Global.hpp>
+	#include <LatAnalyze/MathInterpreter.hpp>
+
+    using namespace std;
+    using namespace Latan;
+%}
+
+%pure-parser
+%name-prefix="_math_"
+%locations
+%defines
+%error-verbose
+%parse-param { Latan::MathInterpreter::MathParserState *state }
+%initial-action {yylloc.last_column = 0;}
+%lex-param { void* scanner }
+
+%union
+{
+	double          val_double;
+    char            val_char;
+    char            val_str[MAXIDLENGTH];
+    Latan::ExprNode *val_node;
+}
+
+%token <val_char> ERR
+%token <val_str>  FLOAT
+%token <val_str>  ID
+%token RETURN
+
+%left '='
+%left '+' '-'
+%left '*' '/'
+%nonassoc UMINUS
+%left '^'
+
+%type <val_node> stmt stmt_list expr func_args
+
+%{
+	int _math_lex(YYSTYPE *lvalp, YYLTYPE *llocp, void *scanner);
+
+	void _math_error(YYLTYPE *locp, MathInterpreter::MathParserState *state,
+                     const char *err)
+	{
+        stringstream buf;
+        
+        buf << *(state->streamName) << ":" << locp->first_line << ":"\
+            << locp->first_column << ": " << err;
+        LATAN_ERROR(Parsing, buf.str());
+	}
+    
+    void _math_warning(YYLTYPE *locp, MathInterpreter::MathParserState *state,
+                       const char *err)
+	{
+        stringstream buf;
+        
+        buf << *(state->streamName) << ":" << locp->first_line << ":"\
+            << locp->first_column << ": " << err;
+        LATAN_WARNING(buf.str());
+	}
+
+	#define scanner state->scanner
+%}
+
+%%
+
+program:
+     /* empty string */
+    | stmt_list {(*(state->data)).reset($1);}
+    ;
+
+stmt:
+      ';'
+    {$$ = new SemicolonNode(";");}
+    | expr ';'
+    {$$ = nullptr; _math_warning(&yylloc, state, "useless statement removed");}
+    | ID '=' expr ';'
+    {$$ = new AssignNode("="); $$->pushArg(new VarNode($ID)); $$->pushArg($3);}
+    | RETURN expr ';'
+    {$$ = new ReturnNode("return"); $$->pushArg($2);}
+    | '{' stmt_list '}'
+    {$$ = $2;}
+    ;
+        
+stmt_list:
+      stmt
+    {$$ = $1;}
+    | stmt_list stmt
+    {$$ = new SemicolonNode(";"); $$->pushArg($1); $$->pushArg($2);}
+    ;
+
+expr:
+      FLOAT
+    {$$ = new CstNode($FLOAT);}
+    | ID
+    {$$ = new VarNode($ID);}
+    | '-' expr %prec UMINUS
+    {$$ = new MathOpNode("-"); $$->pushArg($2);}
+    | expr '+' expr
+    {$$ = new MathOpNode("+"); $$->pushArg($1); $$->pushArg($3);}
+    | expr '-' expr
+    {$$ = new MathOpNode("-"); $$->pushArg($1); $$->pushArg($3);}
+    | expr '*' expr
+    {$$ = new MathOpNode("*"); $$->pushArg($1); $$->pushArg($3);}
+    | expr '/' expr
+    {$$ = new MathOpNode("/"); $$->pushArg($1); $$->pushArg($3);}
+    | expr '^' expr
+    {$$ = new MathOpNode("^"); $$->pushArg($1); $$->pushArg($3);}
+    | '(' expr ')'
+    {$$ = $2;}
+    | ID '(' func_args ')'
+    {$$ = $3; $$->setName($ID);}
+    ;
+
+func_args:
+     /* empty string */
+    {$$ = new FuncNode("");}
+    | expr
+    {$$ = new FuncNode(""); $$->pushArg($1);}
+    | func_args ',' expr
+    {$$ = $1; $$->pushArg($3);}
+    ;
+

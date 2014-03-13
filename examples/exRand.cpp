@@ -1,6 +1,6 @@
 #include <iostream>
-#include <latan/AsciiFile.hpp>
-#include <latan/RandGen.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/RandGen.hpp>
 
 using namespace std;
 using namespace Latan;

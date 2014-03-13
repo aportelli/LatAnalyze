@@ -1,8 +1,8 @@
 #include <iostream>
 #include <libgen.h>
 #include <unistd.h>
-#include <latan/AsciiFile.hpp>
-#include <latan/Dataset.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Dataset.hpp>
 
 #ifndef DEF_NSAMPLE
 #define DEF_NSAMPLE 100

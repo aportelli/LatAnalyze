@@ -1,6 +1,6 @@
 #include <iostream>
-#include <latan/AsciiFile.hpp>
-#include <latan/Plot.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Plot.hpp>
 
 using namespace std;
 using namespace Latan;

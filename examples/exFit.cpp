@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cmath>
-#include <latan/CompiledModel.hpp>
-#include <latan/MinuitMinimizer.hpp>
-#include <latan/Plot.hpp>
-#include <latan/RandGen.hpp>
-#include <latan/XYStatData.hpp>
+#include <LatAnalyze/CompiledModel.hpp>
+#include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/Plot.hpp>
+#include <LatAnalyze/RandGen.hpp>
+#include <LatAnalyze/XYStatData.hpp>
 
 using namespace std;
 using namespace Latan;

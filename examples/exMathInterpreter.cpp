@@ -1,6 +1,6 @@
 #include <iostream>
-#include <latan/Math.hpp>
-#include <latan/MathInterpreter.hpp>
+#include <LatAnalyze/Math.hpp>
+#include <LatAnalyze/MathInterpreter.hpp>
 
 using namespace std;
 using namespace Latan;

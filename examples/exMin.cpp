@@ -1,6 +1,6 @@
 #include <iostream>
-#include <latan/CompiledFunction.hpp>
-#include <latan/MinuitMinimizer.hpp>
+#include <LatAnalyze/CompiledFunction.hpp>
+#include <LatAnalyze/MinuitMinimizer.hpp>
 
 using namespace std;
 using namespace Latan;

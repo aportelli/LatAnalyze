@@ -1,0 +1,93 @@
+/*
+ * MathLexer.lpp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+%option reentrant
+%option prefix="_math_"
+%option bison-bridge
+%option bison-locations
+%option noyywrap
+%option yylineno
+
+%{
+    #include <iostream>
+    #include <LatAnalyze/MathInterpreter.hpp>
+    #include <LatAnalyze/MathParser.hpp>
+    #pragma GCC diagnostic ignored "-Wsign-compare"
+    #pragma GCC diagnostic ignored "-Wunused-function"
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
+
+    using namespace std;
+    using namespace Latan;
+    
+	#define YY_EXTRA_TYPE  MathInterpreter::MathParserState *
+	#define YY_USER_ACTION \
+    yylloc->first_line   = yylloc->last_line = yylineno;\
+    yylloc->first_column = yylloc->last_column + 1;\
+    yylloc->last_column  = yylloc->first_column + yyleng - 1;
+
+	#define YY_INPUT(buf, result, max_size) \
+	{ \
+        (*yyextra->stream).read(buf, max_size);\
+        result = (*yyextra->stream).gcount();\
+	}
+    
+    #define YY_DEBUG 0
+    #if (YY_DEBUG == 1)
+    #define RET(var) cout << (var) << "(" << yytext << ")" << endl; return (var)
+    #define RETTOK(tok) cout << #tok << "(" << yytext << ")" << endl; return tok
+    #else
+    #define RET(var) return (var)
+    #define RETTOK(tok) return tok
+    #endif
+%}
+
+DIGIT   [0-9]
+ALPHA   [a-zA-Z_]
+FLOAT   (({DIGIT}+(\.{DIGIT}*)?)|({DIGIT}*\.{DIGIT}+))([eE][+-]?{DIGIT}+)?
+SPECIAL [;,()+\-*/^={}]
+BLANK   [ \t]
+
+%%
+
+{FLOAT}                   {
+                               strncpy(yylval->val_str,yytext,MAXIDLENGTH);
+                               RETTOK(FLOAT);
+                          }
+{SPECIAL}                 {RET(*yytext);}
+return                    {RETTOK(RETURN);}
+{ALPHA}({ALPHA}|{DIGIT})* {
+                               strncpy(yylval->val_str,yytext,MAXIDLENGTH);
+                               RETTOK(ID);
+                          }
+<*>\n                     {yylloc->last_column = 0;}
+<*>{BLANK}
+<*>.                      {yylval->val_char = yytext[0]; RETTOK(ERR);}
+
+%%
+
+void MathInterpreter::MathParserState::initScanner()
+{
+	yylex_init(&scanner);
+	yyset_extra(this, scanner);
+}
+
+void MathInterpreter::MathParserState::destroyScanner()
+{
+	yylex_destroy(scanner);
+}
