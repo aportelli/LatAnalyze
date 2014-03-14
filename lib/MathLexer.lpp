@@ -27,7 +27,7 @@
 %{
     #include <iostream>
     #include <LatAnalyze/MathInterpreter.hpp>
-    #include <LatAnalyze/MathParser.hpp>
+    #include "MathParser.hpp"
     #pragma GCC diagnostic ignored "-Wsign-compare"
     #pragma GCC diagnostic ignored "-Wunused-function"
     #pragma GCC diagnostic ignored "-Wunused-parameter"

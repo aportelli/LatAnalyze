@@ -10,10 +10,10 @@ case $1 in
         echo '-- installing...'
         make uninstall 1>/dev/null
         make install 1>/dev/null
-        if [[ `basename \`pwd\`` == "latan" ]]
+        if [[ `basename \`pwd\`` == "lib" ]]
         then
             echo '-- creating debug symbols...'
-            dsymutil .libs/liblatan.0.dylib -o ${PREFIX}/lib/liblatan.0.dylib.dSYM
+            dsymutil .libs/libLatAnalyze.0.dylib -o ${PREFIX}/lib/libLatAnalyze.0.dylib.dSYM
         fi;;
     'clean')
         echo '-- cleaning...'

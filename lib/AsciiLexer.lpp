@@ -27,7 +27,7 @@
 %{
     #include <iostream>
 	#include <LatAnalyze/AsciiFile.hpp>
-	#include <LatAnalyze/AsciiParser.hpp>
+	#include "AsciiParser.hpp"
     #pragma GCC diagnostic ignored "-Wsign-compare"
     #pragma GCC diagnostic ignored "-Wunused-function"
     #pragma GCC diagnostic ignored "-Wunused-parameter"
