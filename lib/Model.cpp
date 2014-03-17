@@ -89,7 +89,7 @@ double DoubleModel::operator()(const vector<double> &arg,
 
 double DoubleModel::operator()(const double *data, const double *par) const
 {
-    return (*this)(data, par);
+    return f_(data, par);
 }
 
 // model bind //////////////////////////////////////////////////////////////////
