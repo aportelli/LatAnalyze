@@ -47,11 +47,11 @@
 #define MAX_PATH_LENGTH 512u
 
 // copy/assignement from Eigen expression
-#define EIGEN_EXPR_CTOR(ctorName, Class, Base, EigenBase) \
+#define EIGEN_EXPR_CTOR(ctorName, Class, Base, ExprType) \
 template <typename Derived>\
-ctorName(const Eigen::EigenBase<Derived> &m): Base(m) {}\
+ctorName(const ExprType<Derived> &m): Base(m) {}\
 template<typename Derived>\
-Class & operator=(const Eigen::EigenBase<Derived> &m)\
+Class & operator=(const ExprType<Derived> &m)\
 {\
     this->Base::operator=(m);\
     return *this;\
@@ -63,10 +63,16 @@ BEGIN_NAMESPACE
 const int dynamic = -1;
 
 // array types
+template <typename Derived>
+using ArrayExpr = Eigen::ArrayBase<Derived>;
+
 template <typename T, int nRow = dynamic, int nCol = dynamic>
 using Array = Eigen::Array<T, nRow, nCol>;
 
 // matrix types
+template <typename Derived>
+using MatExpr = Eigen::MatrixBase<Derived>;
+
 template <typename T, int nRow = dynamic, int nCol = dynamic>
 using Mat = Eigen::Matrix<T, nRow, nCol>;
 

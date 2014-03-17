@@ -40,7 +40,7 @@ class FitResult: public DVec
 public:
     // constructors
     FitResult(void) = default;
-    EIGEN_EXPR_CTOR(FitResult, FitResult, Base, MatrixBase)
+    EIGEN_EXPR_CTOR(FitResult, FitResult, Base, MatExpr)
     // destructor
     virtual ~FitResult(void) = default;
     // access

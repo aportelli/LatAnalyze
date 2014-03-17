@@ -41,7 +41,7 @@ public:
     // constructors
     DMat(void) = default;
     DMat(const Index nRow, const Index nCol);
-    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatrixBase)
+    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatExpr)
     // destructor
     virtual ~DMat(void) = default;
     // IO

@@ -41,7 +41,7 @@ public:
     // constructors
     StatArray(void);
     explicit StatArray(const Index size);
-    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, os>), Base, ArrayBase)
+    EIGEN_EXPR_CTOR(StatArray, unique_arg(StatArray<T, os>), Base, ArrayExpr)
     // destructor
     virtual ~StatArray(void) = default;
     // access
