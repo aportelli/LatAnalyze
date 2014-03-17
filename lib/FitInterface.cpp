@@ -42,25 +42,36 @@ void FitInterface::assumeXExact(const Index i, const bool isExact)
 void  FitInterface::assumeXXCorrelated(const Index i1, const Index i2,
                                        const bool isCorrelated)
 {
-    isXXCorr_(i1, i2) = (isCorrelated) ? 1 : 0;
+    int val = (isCorrelated) ? 1 : 0;
+    
+    isXXCorr_(i1, i2) = val;
+    isXXCorr_(i2, i1) = val;
 }
 
 void  FitInterface::assumeYYCorrelated(const Index j1, const Index j2,
                                        const bool isCorrelated)
 {
-    isYYCorr_(j1, j2) = (isCorrelated) ? 1 : 0;
+    int val = (isCorrelated) ? 1 : 0;
+    
+    isYYCorr_(j1, j2) = val;
+    isYYCorr_(j2, j1) = val;
 }
 
 void  FitInterface::assumeYXCorrelated(const Index j, const Index i,
                                        const bool isCorrelated)
 {
-    isYXCorr_(j, i) = (isCorrelated) ? 1 : 0;
+    int val = (isCorrelated) ? 1 : 0;
+    
+    isYXCorr_(j, i) = val;
 }
 
 void  FitInterface::assumeDataCorrelated(const Index k1, const Index k2,
                                          const bool isCorrelated)
 {
-    isDataCorr_(k1, k2) = (isCorrelated) ? 1 : 0;
+    int val = (isCorrelated) ? 1 : 0;
+    
+    isDataCorr_(k1, k2) = val;
+    isDataCorr_(k2, k1) = val;
 }
 
 void FitInterface::fitPoint(const Index i, const bool isFitPoint)
@@ -141,7 +152,7 @@ void FitInterface::resize(const Index nData, const Index xDim, const Index yDim)
     isXExact_.setConstant(xDim, 0);
     isFitPoint_.setConstant(nData, 0);
     isXXCorr_.setIdentity(xDim, xDim);
-    isYYCorr_.setIdentity(xDim, xDim);
+    isYYCorr_.setIdentity(yDim, yDim);
     isYXCorr_.setConstant(yDim, xDim, 0);
     isDataCorr_.setIdentity(nData, nData);
 }
