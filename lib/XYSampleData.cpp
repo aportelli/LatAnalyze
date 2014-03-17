@@ -150,14 +150,14 @@ XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
 {
     isCovarianceInit_ = false;
     
-    return y_.block(0, 0, getNData(), getXDim());
+    return y_.block(0, 0, getNData(), getYDim());
 }
 
 XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
                                                const PlaceHolder ph2 __unused)
                                                const
 {
-    return y_.block(0, 0, getNData(), getXDim());
+    return y_.block(0, 0, getNData(), getYDim());
 }
 
 XYSampleData::SampleBlock XYSampleData::y(const Index j, 
@@ -180,13 +180,13 @@ XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
 {
     isCovarianceInit_ = false;
     
-    return y_.block(k, 0, 1, getXDim());
+    return y_.block(k, 0, 1, getYDim());
 }
 
 XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
                                                const Index k) const
 {
-    return y_.block(k, 0, 1, getXDim());
+    return y_.block(k, 0, 1, getYDim());
 }
 
 XYSampleData::SampleBlock XYSampleData::y(const Index j, const Index k)
@@ -212,9 +212,6 @@ SampleFitResult XYSampleData::fit(
     FitResult       sampleResult;
     SampleFitResult result;
     bool            initChi2;
-    
-    // copy interface to sample data
-    data_.setFitInterface(*this);
     
     // sample loop
     result.resize(nSample);
@@ -288,6 +285,10 @@ void XYSampleData::setDataToSample(const Index s)
         }
         isCovarianceInit_ = true;
     }
+    
+    // copy interface to sample data
+    data_.setFitInterface(*this);
+    
     // set data
     data_.x() = x_[s];
     data_.y() = y_[s];
