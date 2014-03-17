@@ -171,6 +171,17 @@ void PlotRange::operator()(PlotOptions &option) const
     option.scale[a].max  = max_;
 }
 
+// Title constructor ///////////////////////////////////////////////////////////
+Title::Title(const string &title)
+: title_(title)
+{}
+
+// Title modifier //////////////////////////////////////////////////////////////
+void Title::operator()(PlotOptions &option) const
+{
+    option.title = title_;
+}
+
 /******************************************************************************
  *                          Plot implementation                               *
  ******************************************************************************/

@@ -162,6 +162,19 @@ private:
     const double min_, max_;
 };
 
+class Title: public PlotModifier
+{
+public:
+    // constructor
+    explicit Title(const std::string &title);
+    // destructor
+    virtual ~Title(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string title_;
+};
+
 /******************************************************************************
  *                               Plot class                                   *
  ******************************************************************************/
