@@ -18,7 +18,7 @@ AM_LFLAGS = -olex.yy.c
 AM_YFLAGS = -d
 
 include eigen_files.mk
-nobase_dist_pkginclude_HEADERS = $(eigen_files)
+nobase_dist_pkginclude_HEADERS = $(eigen_files) XML/tinyxml2.hpp
 
 BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
@@ -47,8 +47,10 @@ libLatAnalyze_la_SOURCES =\
     Model.cpp             \
     Plot.cpp              \
     RandGen.cpp           \
+    XmlReader.cpp         \
     XYSampleData.cpp      \
     XYStatData.cpp        \
+    XML/tinyxml2.cpp      \
 	../config.h
 libLatAnalyze_ladir = $(pkgincludedir)
 libLatAnalyze_la_HEADERS =\
@@ -57,6 +59,7 @@ libLatAnalyze_la_HEADERS =\
     CompiledFunction.hpp  \
     CompiledModel.hpp     \
     Dataset.hpp           \
+    Exceptions.hpp        \
     FitInterface.hpp      \
     Function.hpp          \
     Global.hpp            \
@@ -72,6 +75,7 @@ libLatAnalyze_la_HEADERS =\
     Plot.hpp              \
     RandGen.hpp           \
     StatArray.hpp         \
+    XmlReader.hpp         \
     XYSampleData.hpp      \
     XYStatData.hpp
 if HAVE_MINUIT

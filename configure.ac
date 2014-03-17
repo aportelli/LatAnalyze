@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
 AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
 
