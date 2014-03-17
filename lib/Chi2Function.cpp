@@ -246,7 +246,6 @@ double Chi2Function::operator()(const double *arg) const
     const Index    yDim   = data_.getYDim();
     const Index    nPoint = data_.getNFitPoint();
     Index          is;
-    ConstMap<DVec> p(arg, nPar_, 1);
     ConstMap<DVec> xi(arg + nPar_, getNArg() - nPar_, 1);
     double         res;
     
@@ -280,7 +279,8 @@ double Chi2Function::operator()(const double *arg) const
                 is++;
             }
         }
-        f_jk = (*f)(buffer_->x, p);
+        // call model on double pointers to avoid any copy
+        f_jk = (*f)(buffer_->x.data(), arg);
         buffer_->v(j*nPoint + k) = f_jk - y_jk;
     }
     
