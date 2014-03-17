@@ -141,6 +141,8 @@ namespace Env
     extern const std::string name;
     extern const std::string version;
     extern const std::string msgPrefix;
+    // empty function for library test
+    void function(void);
 }
 
 // String conversions //////////////////////////////////////////////////////////
