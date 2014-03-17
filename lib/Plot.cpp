@@ -104,8 +104,8 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
     d.col(0)    = data.x(i);
     d.col(2)    = data.y(j);
     d.col(1)    = data.xxVar(i, i).diagonal().array().sqrt();
-    d.col(3)    = data.yyVar(i, i).diagonal().array().sqrt();
-    usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:2:3:4 w xyerr";
+    d.col(3)    = data.yyVar(j, j).diagonal().array().sqrt();
+    usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);
