@@ -75,6 +75,7 @@ public:
     // access
     void                 resize(const Index nData, const Index xDim,
                                 const Index yDim);
+    void                 reinitChi2(const bool doReinit = true);
     Block<DMatBase>      x(const PlaceHolder ph1 = _,
                            const PlaceHolder ph2 = _);
     ConstBlock<DMatBase> x(const PlaceHolder ph1 = _,
@@ -102,20 +103,35 @@ public:
     Block<DMatBase>      yxVar(const Index j,  const Index i);
     ConstBlock<DMatBase> yxVar(const Index j,  const Index i) const;
     // fit
-    FitResult fit(const std::vector<const DoubleModel *> &modelVector,
-                  Minimizer &minimizer, const DVec &init,
-                  const bool reinitChi2 = true,
-                  const FitVerbosity verbosity = FitVerbosity::Silent);
-    FitResult fit(const DoubleModel &model, Minimizer &minimizer,
-                  const DVec &init, const bool reinitChi2 = true,
-                  const FitVerbosity verbosity = FitVerbosity::Silent);
+    FitResult fit(Minimizer &minimizer, const DVec &init,
+                  const std::vector<const DoubleModel *> &modelVector);
+    template <typename... Ts>
+    FitResult fit(Minimizer &minimizer, const DVec &init,
+                  const DoubleModel &model, const Ts... models);
                   
 private:
     DMat         x_, y_;
     Mat<DMat>    var_[3];
     IVec         isXExact_, isFitPoint_;
     Chi2Function chi2_;
+    bool         reinitChi2_{true};
 };
+
+/******************************************************************************
+ *                     XYStatData template implementation                     *
+ ******************************************************************************/
+template <typename... Ts>
+FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+                          const DoubleModel &model, const Ts... models)
+{
+    static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
+                  "model arguments are not compatible with DoubleModel &");
+    
+    std::vector<const DoubleModel *> modelVector{&model, &models...};
+    
+    return fit(minimizer, init, modelVector);
+}
+
 
 END_NAMESPACE
 

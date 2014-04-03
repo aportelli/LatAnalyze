@@ -84,6 +84,11 @@ void XYStatData::resize(const Index nData, const Index xDim, const Index yDim)
     }
 }
 
+void XYStatData::reinitChi2(const bool doReinit)
+{
+    reinitChi2_ = doReinit;
+}
+
 Block<DMatBase> XYStatData::x(const PlaceHolder ph1 __unused,
                               const PlaceHolder ph2 __unused)
 {
@@ -205,18 +210,15 @@ ConstBlock<DMatBase> XYStatData::yxVar(const Index j, const Index i) const
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
-FitResult XYStatData::fit(const vector<const DoubleModel *> &modelVector,
-                          Minimizer &minimizer, const DVec &init,
-                          const bool reinitChi2,
-                          const FitVerbosity verbosity)
+FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+                          const vector<const DoubleModel *> &modelVector)
 {
     // initialization
     chi2_.setModel(modelVector);
-    if (reinitChi2)
+    if (reinitChi2_)
     {
         chi2_.requestInit();
     }
-    minimizer.setVerbosity(verbosity);
     
     // initial parameters
     const Index nPoint = getNFitPoint();
@@ -250,15 +252,4 @@ FitResult XYStatData::fit(const vector<const DoubleModel *> &modelVector,
     }
     
     return result;
-}
-
-FitResult XYStatData::fit(const DoubleModel &model, Minimizer &minimizer,
-                          const DVec &init, const bool reinitChi2,
-                          const FitVerbosity verbosity)
-{
-    vector<const DoubleModel *> modelVector(1);
-    
-    modelVector[0] = &model;
-    
-    return fit(modelVector, minimizer, init, reinitChi2, verbosity);
 }

@@ -203,21 +203,28 @@ XYSampleData::ConstSampleBlock XYSampleData::y(const Index j, const Index k)
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
-SampleFitResult XYSampleData::fit(
-                    const std::vector<const DoubleModel *> &modelVector,
-                    Minimizer &minimizer, const DVec &init,
-                    const FitVerbosity verbosity)
+SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
+                            const std::vector<const DoubleModel *> &modelVector)
 {
     const Index     nSample = x_.size();
     FitResult       sampleResult;
     SampleFitResult result;
     bool            initChi2;
     
-    // sample loop
     result.resize(nSample);
     result.chi2_.resize(nSample);
     FOR_STAT_ARRAY(x_, s)
     {
+        // reinit chi^2 for central value only
+        if (s == central)
+        {
+            data_.reinitChi2(true);
+        }
+        else
+        {
+            data_.reinitChi2(false);
+        }
+        
         // set data
         setDataToSample(s);
         
@@ -225,8 +232,7 @@ SampleFitResult XYSampleData::fit(
         initChi2 = (s == central);
         
         // fit
-        sampleResult = data_.fit(modelVector, minimizer, init, initChi2,
-                                 verbosity);
+        sampleResult = data_.fit(minimizer, init, modelVector);
         
         // store result
         result[s]       = sampleResult;
@@ -241,18 +247,6 @@ SampleFitResult XYSampleData::fit(
     }
     
     return result;
-}
-
-SampleFitResult XYSampleData::fit(const DoubleModel &model,
-                                  Minimizer &minimizer,
-                                  const DVec &init,
-                                  const FitVerbosity verbosity)
-{
-    vector<const DoubleModel *> modelVector(1);
-    
-    modelVector[0] = &model;
-    
-    return fit(modelVector, minimizer, init, verbosity);
 }
 
 void XYSampleData::setDataToSample(const Index s)

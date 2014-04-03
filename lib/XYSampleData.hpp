@@ -94,12 +94,11 @@ public:
     SampleBlock      y(const Index i, const Index k);
     ConstSampleBlock y(const Index i, const Index k) const;
     // fit
-    SampleFitResult fit(const std::vector<const DoubleModel *> &modelVector,
-                        Minimizer &minimizer, const DVec &init,
-                        const FitVerbosity verbosity = FitVerbosity::Silent);
-    SampleFitResult fit(const DoubleModel &model, Minimizer &minimizer,
-                        const DVec &init, 
-                        const FitVerbosity verbosity = FitVerbosity::Silent);
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init,
+                        const std::vector<const DoubleModel *> &modelVector);
+    template <typename... Mods>
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init,
+                        const DoubleModel &model, const Mods... models);
 private:
     void setDataToSample(const Index s);
 private:
@@ -107,6 +106,21 @@ private:
     DMatSample x_, y_;
     XYStatData data_;
 };
+
+/******************************************************************************
+ *                    XYSampleData template implementation                    *
+ ******************************************************************************/
+template <typename... Ts>
+SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
+                                  const DoubleModel &model, const Ts... models)
+{
+    static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
+                  "model arguments are not compatible with DoubleModel &");
+    
+    std::vector<const DoubleModel *> modelVector{&model, &models...};
+    
+    return fit(minimizer, init, modelVector);
+}
 
 END_NAMESPACE
 
