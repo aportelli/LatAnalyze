@@ -96,6 +96,10 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     MnMigrad migrad2(minuitF, parameters, 2);
     
     min = migrad2();
+    if (!min.IsValid())
+    {
+        LATAN_WARNING("MINUIT library reported that minimization result is not valid");
+    }
     for (unsigned int i = 0; i < x.size(); ++i)
     {
         x(i) = min.UserParameters().Value(i);
