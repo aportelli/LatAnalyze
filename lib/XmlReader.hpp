@@ -64,19 +64,22 @@ T XmlReader::getFirstValue(const std::string &nodeName, Strs... nodeNames)
     {
         LATAN_ERROR(Io, "no XML file opened");
     }
-    //std::cout << "root: " << name[i] << " ";
     for (unsigned int i = 0; i < nName; ++i)
     {
-        //std::cout << i << ": " << name[i] << " ";
         node = node->FirstChildElement(name[i].c_str());
-       // std::cout <<
         if (!node)
         {
             LATAN_ERROR(Parsing, "XML node " + name[i] + " not found");
         }
     }
-    
-    return strTo<T>(node->GetText());
+    if (node->GetText())
+    {
+        return strTo<T>(node->GetText());
+    }
+    else
+    {
+        return T();
+    }
 }
 
 END_NAMESPACE
