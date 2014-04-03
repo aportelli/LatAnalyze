@@ -28,6 +28,7 @@
 #include <string>
 #include <sstream>
 #include <type_traits>
+#include <vector>
 #include <cstdlib>
 
 #define BEGIN_NAMESPACE namespace Latan {
@@ -188,6 +189,43 @@ inline std::string strFrom(const T x)
     stream << x;
     
     return stream.str();
+}
+
+// specialization for vectors
+template<>
+inline DVec strTo<DVec>(const std::string &str)
+{
+    DVec                res;
+    std::vector<double> vbuf;
+    double              buf;
+    std::istringstream  stream(str);
+    
+    while (!stream.eof())
+    {
+        stream >> buf;
+        vbuf.push_back(buf);
+    }
+    res = Map<DVec>(vbuf.data(), static_cast<Index>(vbuf.size()));
+    
+    return res;
+}
+
+template<>
+inline IVec strTo<IVec>(const std::string &str)
+{
+    IVec                res;
+    std::vector<int>    vbuf;
+    int                 buf;
+    std::istringstream  stream(str);
+    
+    while (!stream.eof())
+    {
+        stream >> buf;
+        vbuf.push_back(buf);
+    }
+    res = Map<IVec>(vbuf.data(), static_cast<Index>(vbuf.size()));
+    
+    return res;
 }
 
 END_NAMESPACE
