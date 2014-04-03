@@ -104,13 +104,13 @@ struct Range
 
 struct PlotOptions
 {
-    std::string  terminal     {""};
-    std::string  output       {""};
-    std::string  title        {""};
-    unsigned int scaleMode[2] {0,0};
-    Range        scale[2]     {{0.0,0.0},{0.0,0.0}};
-    std::string  label[2]     {"",""};
-    std::string  lineColor    {""};
+    std::string  terminal;
+    std::string  output;
+    std::string  title;
+    unsigned int scaleMode[2];
+    Range        scale[2];
+    std::string  label[2];
+    std::string  lineColor;
 };
 
 class PlotModifier
@@ -193,7 +193,7 @@ public:
     };
 public:
     // constructor/destructor
-    Plot(void) = default;
+    Plot(void);
     virtual ~Plot(void);
     // plot operations
     Plot & operator<<(PlotObject   &&command);
@@ -201,9 +201,15 @@ public:
     // plot parsing and output
     void display(void);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
+    // plot reset
+    void reset(void);
 private:
+    // clean temporary files
+    void cleanTmpFiles(void);
     // find gnuplot
     void getProgramPath(void);
+    // default options
+    void initOptions(void);
 private:
     // gnuplot execution parameters
     std::string              gnuplotBin_  {GNUPLOT_BIN};

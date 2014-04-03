@@ -185,8 +185,20 @@ void Title::operator()(PlotOptions &option) const
 /******************************************************************************
  *                          Plot implementation                               *
  ******************************************************************************/
+// constructor /////////////////////////////////////////////////////////////////
+Plot::Plot(void)
+{
+    initOptions();
+}
+
 // destructor //////////////////////////////////////////////////////////////////
 Plot::~Plot(void)
+{
+    cleanTmpFiles();
+}
+
+// clean temporary files ///////////////////////////////////////////////////////
+void Plot::cleanTmpFiles(void)
 {
     while (!tmpFileName_.empty())
     {
@@ -197,6 +209,30 @@ Plot::~Plot(void)
         }
         tmpFileName_.pop();
     }
+}
+
+// default options /////////////////////////////////////////////////////////////
+void Plot::initOptions(void)
+{
+    options_.terminal     = "";
+    options_.output       = "";
+    options_.title        = "";
+    options_.scaleMode[0] = Plot::Scale::reset;
+    options_.scaleMode[1] = Plot::Scale::reset;
+    options_.scale[0]     = {0.0, 0.0};
+    options_.scale[1]     = {0.0, 0.0};
+    options_.label[0]     = "";
+    options_.label[1]     = "";
+    options_.lineColor    = "";
+}
+
+// plot reset //////////////////////////////////////////////////////////////////
+void Plot::reset(void)
+{
+    headCommand_.clear();
+    plotCommand_.clear();
+    cleanTmpFiles();
+    initOptions();
 }
 
 // plot objects ////////////////////////////////////////////////////////////////
