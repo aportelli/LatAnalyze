@@ -23,6 +23,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/XML/tinyxml2.hpp>
 #include <iostream>
+#include <vector>
 
 BEGIN_NAMESPACE
 
@@ -40,7 +41,13 @@ public:
     // IO
     template <typename T, typename... Strs>
     T getFirstValue(const std::string &nodeName, Strs... nodeNames);
+    template <typename T, typename... Strs>
+    std::vector<T> getAllValues(const std::string &nodeName, Strs... nodeNames);
     void open(const std::string &fileName);
+private:
+    template <typename... Strs>
+    tinyxml2::XMLElement * getFirstNode(const std::string &nodeName,
+                                        Strs... nodeNames);
 private:
     std::string           name_;
     tinyxml2::XMLDocument doc_;
@@ -52,6 +59,45 @@ private:
  ******************************************************************************/
 template <typename T, typename... Strs>
 T XmlReader::getFirstValue(const std::string &nodeName, Strs... nodeNames)
+{
+    tinyxml2::XMLElement *node = getFirstNode(nodeName, nodeNames...);
+    
+    if (node->GetText())
+    {
+        return strTo<T>(node->GetText());
+    }
+    else
+    {
+        return T();
+    }
+}
+
+template <typename T, typename... Strs>
+std::vector<T> XmlReader::getAllValues(const std::string &nodeName,
+                                       Strs... nodeNames)
+{
+    tinyxml2::XMLElement *node = getFirstNode(nodeName, nodeNames...);
+    std::vector<T>       value;
+    
+    while (node)
+    {
+        if (node->GetText())
+        {
+            value.push_back(strTo<T>(node->GetText()));
+        }
+        else
+        {
+            value.push_back(T());
+        }
+        node = node->NextSiblingElement();
+    }
+    
+    return value;
+}
+
+template <typename... Strs>
+tinyxml2::XMLElement * XmlReader::getFirstNode(const std::string &nodeName,
+                                               Strs... nodeNames)
 {
     static_assert(static_or<std::is_assignable<std::string, Strs>::value...>::value,
                   "getFirstValue arguments are not compatible with std::string");
@@ -72,14 +118,8 @@ T XmlReader::getFirstValue(const std::string &nodeName, Strs... nodeNames)
             LATAN_ERROR(Parsing, "XML node " + name[i] + " not found");
         }
     }
-    if (node->GetText())
-    {
-        return strTo<T>(node->GetText());
-    }
-    else
-    {
-        return T();
-    }
+    
+    return node;
 }
 
 END_NAMESPACE
