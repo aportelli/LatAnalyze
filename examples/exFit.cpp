@@ -35,7 +35,7 @@ int main(void)
     MinuitMinimizer minimizer;
     
     data.fitAllPoints();
-    p = data.fit(f, minimizer, init, true, Minimizer::Verbosity::Normal);
+    p = data.fit(minimizer, init, f);
     
     cout << "a= " << p(0) << " b= " << p(1)
          << " chi^2/ndof= " << p.getChi2PerDof() << endl;
