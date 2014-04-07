@@ -23,13 +23,19 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/StatArray.hpp>
+#include <functional>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
  *                          matrix sample class                               *
  ******************************************************************************/
-class DMatSample: public Sample<DMat>, public IoObject
+#define SCAL_OP_RETURN(op, x) this->unaryExpr(\
+                                std::bind(MatSample<T>::scalar##op,\
+                                std::placeholders::_1, x))
+
+template <typename T>
+class MatSample: public Sample<Mat<T>>, public IoObject
 {
 public:
     // block type template
@@ -61,22 +67,36 @@ public:
         const Index i_, j_, nRow_, nCol_;
     };
     // block types
-    typedef BlockTemplate<DMatSample>             Block;
-    typedef const BlockTemplate<const DMatSample> ConstBlock;
+    typedef BlockTemplate<Sample<Mat<T>>>             Block;
+    typedef const BlockTemplate<const Sample<Mat<T>>> ConstBlock;
+private:
+    static inline Mat<T> scalarMul(const Mat<T> &m, const T &x)
+    {
+        return m*x;
+    }
+    static inline Mat<T> scalarDiv(const Mat<T> &m, const T &x)
+    {
+        return m/x;
+    }
 public:
     // constructors
-    using Sample<DMat>::Sample;
-    DMatSample(void) = default;
-    DMatSample(const Index nSample, const Index nRow, const Index nCol);
-    DMatSample(ConstBlock &sampleBlock);
-    DMatSample(ConstBlock &&sampleBlock);
+    using Sample<Mat<T>>::Sample;
+    MatSample(void) = default;
+    MatSample(const Index nSample, const Index nRow, const Index nCol);
+    MatSample(ConstBlock &sampleBlock);
+    MatSample(ConstBlock &&sampleBlock);
     // destructor
-    virtual ~DMatSample(void) = default;
+    virtual ~MatSample(void) = default;
     // assignement operator
-    DMatSample & operator=(Block &sampleBlock);
-    DMatSample & operator=(Block &&sampleBlock);
-    DMatSample & operator=(ConstBlock &sampleBlock);
-    DMatSample & operator=(ConstBlock &&sampleBlock);
+    MatSample & operator=(Block &sampleBlock);
+    MatSample & operator=(Block &&sampleBlock);
+    MatSample & operator=(ConstBlock &sampleBlock);
+    MatSample & operator=(ConstBlock &&sampleBlock);
+    // product/division by scalar operators (not provided by Eigen)
+    auto operator*=(const T &x)->decltype(SCAL_OP_RETURN(Mul, x));
+    auto operator*=(const T &&x)->decltype(SCAL_OP_RETURN(Mul, x));
+    auto operator/=(const T &x)->decltype(SCAL_OP_RETURN(Div, x));
+    auto operator/=(const T &&x)->decltype(SCAL_OP_RETURN(Div, x));
     // block access
     ConstBlock block(const Index i, const Index j, const Index nRow,
                      const Index nCol) const;
@@ -86,16 +106,59 @@ public:
     void resizeMat(const Index nRow, const Index nCol);
     // IO type
     virtual IoType getType(void) const;
+
 };
+
+// non-member operators
+template <typename T>
+inline auto operator*(MatSample<T> s, const T &x)->decltype(s *= x)
+{
+    return s *= x;
+}
+
+template <typename T>
+inline auto operator*(MatSample<T> s, const T &&x)->decltype(s *= x)
+{
+    return s *= x;
+}
+
+template <typename T>
+inline auto operator*(const T &x, MatSample<T> s)->decltype(s *= x)
+{
+    return s *= x;
+}
+
+template <typename T>
+inline auto operator*(const T &&x, MatSample<T> s)->decltype(s *= x)
+{
+    return s *= x;
+}
+
+template <typename T>
+inline auto operator/(MatSample<T> s, const T &x)->decltype(s /= x)
+{
+    return s /= x;
+}
+
+template <typename T>
+inline auto operator/(MatSample<T> s, const T &&x)->decltype(s /= x)
+{
+    return s /= x;
+}
+
+// type aliases
+typedef MatSample<double>               DMatSample;
+typedef MatSample<std::complex<double>> CMatSample;
 
 /******************************************************************************
  *                      Block template implementation                         *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
+template <typename T>
 template <class S>
-DMatSample::BlockTemplate<S>::BlockTemplate(S &sample, const Index i,
-                                            const Index j, const Index nRow,
-                                            const Index nCol)
+MatSample<T>::BlockTemplate<S>::BlockTemplate(S &sample, const Index i,
+                                              const Index j, const Index nRow,
+                                              const Index nCol)
 : sample_(sample)
 , i_(i)
 , j_(j)
@@ -103,8 +166,9 @@ DMatSample::BlockTemplate<S>::BlockTemplate(S &sample, const Index i,
 , nCol_(nCol)
 {}
 
+template <typename T>
 template <class S>
-DMatSample::BlockTemplate<S>::BlockTemplate(BlockTemplate<NonConstType> &b)
+MatSample<T>::BlockTemplate<S>::BlockTemplate(BlockTemplate<NonConstType> &b)
 : sample_(b.getSample())
 , i_(b.getStartRow())
 , j_(b.getStartCol())
@@ -112,52 +176,60 @@ DMatSample::BlockTemplate<S>::BlockTemplate(BlockTemplate<NonConstType> &b)
 , nCol_(b.getNCol())
 {}
 
+template <typename T>
 template <class S>
-DMatSample::BlockTemplate<S>::BlockTemplate(BlockTemplate<NonConstType> &&b)
+MatSample<T>::BlockTemplate<S>::BlockTemplate(BlockTemplate<NonConstType> &&b)
 : BlockTemplate(b)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
+template <typename T>
 template <class S>
-S & DMatSample::BlockTemplate<S>::getSample(void)
+S & MatSample<T>::BlockTemplate<S>::getSample(void)
 {
     return sample_;
 }
 
+template <typename T>
 template <class S>
-const S & DMatSample::BlockTemplate<S>::getSample(void) const
+const S & MatSample<T>::BlockTemplate<S>::getSample(void) const
 {
     return sample_;
 }
 
+template <typename T>
 template <class S>
-Index DMatSample::BlockTemplate<S>::getStartRow(void) const
+Index MatSample<T>::BlockTemplate<S>::getStartRow(void) const
 {
     return i_;
 }
 
+template <typename T>
 template <class S>
-Index DMatSample::BlockTemplate<S>::getStartCol(void) const
+Index MatSample<T>::BlockTemplate<S>::getStartCol(void) const
 {
     return j_;
 }
 
+template <typename T>
 template <class S>
-Index DMatSample::BlockTemplate<S>::getNRow(void) const
+Index MatSample<T>::BlockTemplate<S>::getNRow(void) const
 {
     return nRow_;
 }
 
+template <typename T>
 template <class S>
-Index DMatSample::BlockTemplate<S>::getNCol(void) const
+Index MatSample<T>::BlockTemplate<S>::getNCol(void) const
 {
     return nCol_;
 }
 
 // assignement operators ///////////////////////////////////////////////////////
+template <typename T>
 template <class S>
-DMatSample::BlockTemplate<S> &
-DMatSample::BlockTemplate<S>::operator=(const S &sample)
+MatSample<T>::BlockTemplate<S> &
+MatSample<T>::BlockTemplate<S>::operator=(const S &sample)
 {
     FOR_STAT_ARRAY(sample_, s)
     {
@@ -167,13 +239,146 @@ DMatSample::BlockTemplate<S>::operator=(const S &sample)
     return *this;
 }
 
+template <typename T>
 template <class S>
-DMatSample::BlockTemplate<S> &
-DMatSample::BlockTemplate<S>::operator=(const S &&sample)
+MatSample<T>::BlockTemplate<S> &
+MatSample<T>::BlockTemplate<S>::operator=(const S &&sample)
 {
     *this = sample;
     
     return *this;
+}
+
+/******************************************************************************
+ *                        DMatSample implementation                           *
+ ******************************************************************************/
+// constructors ////////////////////////////////////////////////////////////////
+template <typename T>
+MatSample<T>::MatSample(const Index nSample, const Index nRow,
+                       const Index nCol)
+: Sample<Mat<T>>(nSample)
+{
+    resizeMat(nRow, nCol);
+}
+
+template <typename T>
+MatSample<T>::MatSample(ConstBlock &sampleBlock)
+: MatSample(sampleBlock.getSample().size(), sampleBlock.getNRow(),
+            sampleBlock.getNCol())
+{
+    const MatSample<T> &sample = sampleBlock.getSample();
+    
+    this->resize(sample.size());
+    FOR_STAT_ARRAY(*this, s)
+    {
+        (*this)[s] = sample[s].block(sampleBlock.getStartRow(),
+                                     sampleBlock.getStartCol(),
+                                     sampleBlock.getNRow(),
+                                     sampleBlock.getNCol());
+    }
+}
+
+template <typename T>
+MatSample<T>::MatSample(ConstBlock &&sampleBlock)
+: MatSample(sampleBlock)
+{}
+
+// assignement operator ////////////////////////////////////////////////////////
+template <typename T>
+MatSample<T> & MatSample<T>::operator=(Block &sampleBlock)
+{
+    MatSample<T> tmp(sampleBlock);
+    
+    this->swap(tmp);
+    
+    return *this;
+}
+
+template <typename T>
+MatSample<T> & MatSample<T>::operator=(Block &&sampleBlock)
+{
+    *this = sampleBlock;
+    
+    return *this;
+}
+
+template <typename T>
+MatSample<T> & MatSample<T>::operator=(ConstBlock &sampleBlock)
+{
+    MatSample<T> tmp(sampleBlock);
+    
+    this->swap(tmp);
+    
+    return *this;
+}
+
+template <typename T>
+MatSample<T> & MatSample<T>::operator=(ConstBlock &&sampleBlock)
+{
+    *this = sampleBlock;
+    
+    return *this;
+}
+
+// product/division by scalar operators (not provided by Eigen) ////////////////
+template <typename T>
+auto MatSample<T>::operator*=(const T &x)->decltype(SCAL_OP_RETURN(Mul, x))
+{
+    return SCAL_OP_RETURN(Mul, x);
+}
+
+template <typename T>
+auto MatSample<T>::operator*=(const T &&x)->decltype(SCAL_OP_RETURN(Mul, x))
+{
+    return (*this) *= x;
+}
+
+template <typename T>
+auto MatSample<T>::operator/=(const T &x)->decltype(SCAL_OP_RETURN(Div, x))
+{
+    return SCAL_OP_RETURN(Div, x);
+}
+
+template <typename T>
+auto MatSample<T>::operator/=(const T &&x)->decltype(SCAL_OP_RETURN(Div, x))
+{
+    return (*this) *= x;
+}
+
+// block access ////////////////////////////////////////////////////////////////
+template <typename T>
+typename MatSample<T>::ConstBlock MatSample<T>::block(const Index i,
+                                                      const Index j,
+                                                      const Index nRow,
+                                                      const Index nCol) const
+{
+    return ConstBlock(*this, i, j, nRow, nCol);
+}
+
+template <typename T>
+typename MatSample<T>::Block MatSample<T>::block(const Index i,
+                                                 const Index j,
+                                                 const Index nRow,
+                                                 const Index nCol)
+{
+    return Block(*this, i, j, nRow, nCol);
+}
+
+// resize all matrices /////////////////////////////////////////////////////////
+template <typename T>
+void MatSample<T>::resizeMat(const Index nRow, const Index nCol)
+{
+    FOR_STAT_ARRAY(*this, s)
+    {
+        (*this)[s].resize(nRow, nCol);
+    }
+}
+
+// IO type /////////////////////////////////////////////////////////////////////
+template <typename T>
+IoObject::IoType MatSample<T>::getType(void) const
+{
+    return IoType::noType;
 }
 
 END_NAMESPACE

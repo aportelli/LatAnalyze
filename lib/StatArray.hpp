@@ -90,7 +90,6 @@ template <typename T>
 using Sample = StatArray<T, SAMPLE_OFFSET>;
 
 typedef Sample<double> DSample;
-typedef Sample<CMat>   CMatSample;
 
 /******************************************************************************
  *                 StatArray class template implementation                    *
@@ -245,17 +244,18 @@ inline T ReducOp::tensProd(const T &v1 __unused, const T &v2 __unused)
 }
 
 template <>
-inline DMat ReducOp::prod(const DMat  &a, const DMat  &b)
+inline Mat<double> ReducOp::prod(const Mat<double>  &a, const Mat<double>  &b)
 {
     return a.cwiseProduct(b);
 }
 
 template <>
-inline DMat ReducOp::tensProd(const DMat &v1, const DMat &v2)
+inline Mat<double> ReducOp::tensProd(const Mat<double>  &v1,
+                                     const Mat<double>  &v2)
 {
     if ((v1.cols() != 1)||(v2.cols() != 1))
     {
-        LATAN_ERROR(Size, 
+        LATAN_ERROR(Size,
                     "tensorial product is only valid with column vectors");
     }
     

@@ -23,16 +23,13 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/IoObject.hpp>
 #include <LatAnalyze/ParserState.hpp>
+#include <LatAnalyze/Mat.hpp>
+#include <LatAnalyze/MatSample.hpp>
+#include <LatAnalyze/RandGen.hpp>
 #include <queue>
 #include <unordered_map>
 
 BEGIN_NAMESPACE
-
-// forward declaration of IO types
-class DMat;
-class DMatSample;
-class RandGen;
-class RandGenState;
 
 /******************************************************************************
  *                          Abstract datafile class                           *
