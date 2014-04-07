@@ -26,12 +26,9 @@ using namespace Latan;
 /******************************************************************************
  *                          DMat implementation                               *
  ******************************************************************************/
-// constructors ////////////////////////////////////////////////////////////////
-DMat::DMat(const Index nRow, const Index nCol)
-: Base(nRow, nCol)
-{}
-
-IoObject::IoType DMat::getType(void) const
+// IO //////////////////////////////////////////////////////////////////////////
+template <>
+IoObject::IoType Mat<double>::getType(void) const
 {
     return IoType::dMat;
 }

@@ -35,7 +35,7 @@ BEGIN_NAMESPACE
 template <typename T, Index os = 0>
 class StatArray: public Array<T, dynamic, 1>
 {
-private:
+protected:
     typedef Array<T, dynamic, 1> Base;
 public:
     // constructors
@@ -75,10 +75,6 @@ namespace ReducOp
     template <typename T>
     inline T sum(const T &a, const T &b);
     // matrix specializations
-    template <>
-    inline DMat prod(const DMat &a, const DMat &b);
-    template <>
-    inline DMat tensProd(const DMat &v1, const DMat &v2);
 }
 
 // Sample types

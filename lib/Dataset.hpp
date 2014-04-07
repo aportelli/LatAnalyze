@@ -35,14 +35,13 @@ BEGIN_NAMESPACE
 template <typename T>
 class Dataset: public StatArray<T>
 {
-private:
-    typedef StatArray<T> Base;
 public:
     // constructors
     Dataset(void) = default;
+    Dataset(const Index size);
     template <typename FileType>
     Dataset(const std::string &listFileName, const std::string &dataName);
-    using Base::Base;
+    EIGEN_EXPR_CTOR(Dataset, Dataset<T>, StatArray<T>, ArrayExpr)
     // destructor
     virtual ~Dataset(void) = default;
     // IO
@@ -58,7 +57,12 @@ private:
 /******************************************************************************
  *                      Dataset template implementation                       *
  ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
+// constructors ////////////////////////////////////////////////////////////////
+template <typename T>
+Dataset<T>::Dataset(const Index size)
+: StatArray<T>(size)
+{}
+                    
 template <typename T>
 template <typename FileType>
 Dataset<T>::Dataset(const std::string &listFileName,

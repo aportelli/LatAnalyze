@@ -80,11 +80,12 @@ private:
     }
 public:
     // constructors
-    using Sample<Mat<T>>::Sample;
     MatSample(void) = default;
+    MatSample(const Index nSample);
     MatSample(const Index nSample, const Index nRow, const Index nCol);
     MatSample(ConstBlock &sampleBlock);
     MatSample(ConstBlock &&sampleBlock);
+    EIGEN_EXPR_CTOR(MatSample, MatSample<T>, Sample<Mat<T>>, ArrayExpr)
     // destructor
     virtual ~MatSample(void) = default;
     // assignement operator
@@ -254,9 +255,14 @@ MatSample<T>::BlockTemplate<S>::operator=(const S &&sample)
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 template <typename T>
+MatSample<T>::MatSample(const Index nSample)
+: Sample<Mat<T>>(nSample)
+{}
+
+template <typename T>
 MatSample<T>::MatSample(const Index nSample, const Index nRow,
                        const Index nCol)
-: Sample<Mat<T>>(nSample)
+: MatSample(nSample)
 {
     resizeMat(nRow, nCol);
 }

@@ -76,16 +76,13 @@ template <typename Derived>
 using MatExpr = Eigen::MatrixBase<Derived>;
 
 template <typename T, int nRow = dynamic, int nCol = dynamic>
-using Mat = Eigen::Matrix<T, nRow, nCol>;
+using MatBase = Eigen::Matrix<T, nRow, nCol>;
 
-typedef Mat<int>                  IMat;
-typedef Mat<long int>             LMat;
-typedef Mat<double>               DMatBase;
-typedef Mat<std::complex<double>> CMat;
+typedef MatBase<double> DMatBase;
 
 // vector types
 template <typename T>
-using Vec = Mat<T, dynamic, 1>;
+using Vec = MatBase<T, dynamic, 1>;
 
 typedef Vec<int>                  IVec;
 typedef Vec<long int>             LVec;
@@ -118,7 +115,7 @@ template <typename Derived>
 using ConstMap = Eigen::Map<const Derived>;
 
 // Index type //////////////////////////////////////////////////////////////////
-typedef DMatBase::Index Index;
+typedef MatBase<double>::Index Index;
 
 // Placeholder type ////////////////////////////////////////////////////////////
 struct PlaceHolder {};

@@ -30,23 +30,43 @@ for (Latan::Index i = 0; i < mat.rows(); ++i)
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                          double matrix type                                *
+ *                               matrix type                                  *
  ******************************************************************************/
-
-class DMat: public DMatBase, public IoObject
+template <typename T>
+class Mat: public MatBase<T>, public IoObject
 {
-private:
-    typedef DMatBase Base;
 public:
     // constructors
-    DMat(void) = default;
-    DMat(const Index nRow, const Index nCol);
-    EIGEN_EXPR_CTOR(DMat, DMat, Base, MatExpr)
+    Mat(void) = default;
+    Mat(const Index nRow, const Index nCol);
+    EIGEN_EXPR_CTOR(Mat, Mat<T>, MatBase<T>, MatExpr)
     // destructor
-    virtual ~DMat(void) = default;
+    virtual ~Mat(void) = default;
     // IO
     virtual IoType getType(void) const;
 };
+
+// type aliases
+typedef Mat<int>                  IMat;
+typedef Mat<long int>             LMat;
+typedef Mat<double>               DMat;
+typedef Mat<std::complex<double>> CMat;
+
+/******************************************************************************
+ *                        Mat template implementation                         *
+ ******************************************************************************/
+// constructors ////////////////////////////////////////////////////////////////
+template <typename T>
+Mat<T>::Mat(const Index nRow, const Index nCol)
+: MatBase<T>(nRow, nCol)
+{}
+
+// IO //////////////////////////////////////////////////////////////////////////
+template <typename T>
+IoObject::IoType Mat<T>::getType(void) const
+{
+    return IoType::noType;
+}
 
 END_NAMESPACE
 
