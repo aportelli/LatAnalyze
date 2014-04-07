@@ -39,7 +39,7 @@ private:
 public:
     // constructor
     explicit DoubleFunction(const Index nArg = 0,
-                            const vecFunc &f = nullFunction_);
+                            const vecFunc &f = nullptr);
     // destructor
     virtual ~DoubleFunction(void) = default;
     // access
@@ -59,7 +59,6 @@ private:
 private:
     std::shared_ptr<DVec> buffer_{nullptr};
     vecFunc               f_;
-    static const vecFunc  nullFunction_;
 };
 
 template <typename... Ts>

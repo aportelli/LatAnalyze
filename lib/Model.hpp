@@ -38,14 +38,14 @@ private:
 public:
     // constructor
     DoubleModel(const Index nArg = 0, const Index nPar = 0,
-                const vecFunc &f = nullFunction_);
+                const vecFunc &f = nullptr);
     // destructor
     virtual ~DoubleModel(void) = default;
     // access
     virtual Index getNArg(void) const;
     virtual Index getNPar(void) const;
     void  setFunction(const Index nArg = 0, const Index nPar = 0,
-                      const vecFunc &f = nullFunction_);
+                      const vecFunc &f = nullptr);
     // function call
     double operator()(const DVec &data, const DVec &par) const;
     double operator()(const std::vector<double> &data,
@@ -59,7 +59,6 @@ private:
 private:
     std::shared_ptr<ModelSize> size_;
     vecFunc                    f_;
-    static const vecFunc       nullFunction_;
 };
 
 END_NAMESPACE

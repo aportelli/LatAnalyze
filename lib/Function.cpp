@@ -26,8 +26,6 @@ using namespace Latan;
 /******************************************************************************
  *                        DoubleFunction implementation                       *
  ******************************************************************************/
-const DoubleFunction::vecFunc DoubleFunction::nullFunction_ = nullptr;
-
 // constructor /////////////////////////////////////////////////////////////////
 DoubleFunction::DoubleFunction(const Index nArg, const vecFunc &f)
 : buffer_(new DVec)
