@@ -24,6 +24,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-register"
 
 #include <LatAnalyze/Eigen/Dense>
+#include <complex>
 #include <memory>
 #include <string>
 #include <sstream>
@@ -77,15 +78,19 @@ using MatExpr = Eigen::MatrixBase<Derived>;
 template <typename T, int nRow = dynamic, int nCol = dynamic>
 using Mat = Eigen::Matrix<T, nRow, nCol>;
 
-typedef Mat<int>    IMat;
-typedef Mat<double> DMatBase;
+typedef Mat<int>                  IMat;
+typedef Mat<long int>             LMat;
+typedef Mat<double>               DMatBase;
+typedef Mat<std::complex<double>> CMat;
 
 // vector types
 template <typename T>
 using Vec = Mat<T, dynamic, 1>;
 
-typedef Vec<int>    IVec;
-typedef Vec<double> DVec;
+typedef Vec<int>                  IVec;
+typedef Vec<long int>             LVec;
+typedef Vec<double>               DVec;
+typedef Vec<std::complex<double>> CVec;
 
 #define FOR_VEC(vec, i)  for (Latan::Index i = 0; i < (vec).size(); ++i)
 #define FOR_ARRAY(ar, i) FOR_VEC(ar, i)

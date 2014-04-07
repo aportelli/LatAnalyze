@@ -27,7 +27,7 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                         DMat sample class                                  *
+ *                          matrix sample class                               *
  ******************************************************************************/
 class DMatSample: public Sample<DMat>, public IoObject
 {

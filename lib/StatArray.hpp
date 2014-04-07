@@ -90,6 +90,7 @@ template <typename T>
 using Sample = StatArray<T, SAMPLE_OFFSET>;
 
 typedef Sample<double> DSample;
+typedef Sample<CMat>   CMatSample;
 
 /******************************************************************************
  *                 StatArray class template implementation                    *
