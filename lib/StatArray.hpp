@@ -152,7 +152,7 @@ void StatArray<T, os>::bin(Index binSize)
 template <typename T, Index os>
 T StatArray<T, os>::mean(const Index pos, const Index n) const
 {
-    T           result;
+    T           result = T();
     const Index m = (n >= 0) ? n : size();
     
     if (m)
@@ -167,7 +167,7 @@ template <typename T, Index os>
 T StatArray<T, os>::covariance(const StatArray<T, os> &array, const Index pos,
                                const Index n) const
 {
-    T           s1, s2, prs, res;
+    T           s1, s2, prs, res = T();
     const Index m = (n >= 0) ? n : size();
     
     if (m)
@@ -189,7 +189,7 @@ template <typename T, Index os>
 T StatArray<T, os>::covarianceMatrix(const StatArray<T, os> &array,
                                      const Index pos, const Index n) const
 {
-    T           s1, s2, prs, res;
+    T           s1, s2, prs, res = T();
     const Index m = (n >= 0) ? n : size();
     
     if (m)
