@@ -54,3 +54,16 @@ void XmlReader::open(const std::string &fileName)
     }
     root_ = doc_.RootElement();
 }
+
+// XML structure access ////////////////////////////////////////////////////////
+const XmlNode * XmlReader::getNextNode(const XmlNode *node)
+{
+    if (node)
+    {
+        return node->NextSiblingElement();
+    }
+    else
+    {
+        return nullptr;
+    }
+}

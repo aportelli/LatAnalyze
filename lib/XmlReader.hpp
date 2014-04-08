@@ -30,6 +30,8 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                        XML parameter file reader                           *
  ******************************************************************************/
+typedef tinyxml2::XMLElement XmlNode;
+
 class XmlReader
 {
 public:
@@ -39,76 +41,57 @@ public:
     // destructor
     virtual ~XmlReader(void) = default;
     // IO
-    template <typename T, typename... Strs>
-    T getFirstValue(const std::string &nodeName, Strs... nodeNames);
-    template <typename T, typename... Strs>
-    std::vector<T> getAllValues(const std::string &nodeName, Strs... nodeNames);
     void open(const std::string &fileName);
-private:
+    // XML structure access
     template <typename... Strs>
-    tinyxml2::XMLElement * getFirstNode(const std::string &nodeName,
+    static const XmlNode * getFirstNode(const XmlNode *startNode,
+                                        const std::string &nodeName,
                                         Strs... nodeNames);
+    template <typename... Strs>
+    const XmlNode * getFirstNode(const std::string &nodeName,
+                                 Strs... nodeNames) const;
+    static const XmlNode * getNextNode(const XmlNode *node);
+    template <typename T>
+    static T getValue(const XmlNode *node);
+    template <typename T, typename... Strs>
+    static T getFirstValue(const XmlNode *startNode,
+                           const std::string &nodeName, Strs... nodeNames);
+    template <typename T, typename... Strs>
+    T getFirstValue(const std::string &nodeName, Strs... nodeNames) const;
+    template <typename T, typename... Strs>
+    static std::vector<T> getAllValues(const XmlNode *startNode,
+                                       const std::string &nodeName,
+                                       Strs... nodeNames);
+    template <typename T, typename... Strs>
+    std::vector<T> getAllValues(const std::string &nodeName,
+                                Strs... nodeNames) const;
+private:
+    
 private:
     std::string           name_;
     tinyxml2::XMLDocument doc_;
-    tinyxml2::XMLElement  *root_{nullptr};
+    XmlNode               *root_{nullptr};
 };
 
 /******************************************************************************
  *                     XmlReader template implementation                      *
  ******************************************************************************/
-template <typename T, typename... Strs>
-T XmlReader::getFirstValue(const std::string &nodeName, Strs... nodeNames)
-{
-    tinyxml2::XMLElement *node = getFirstNode(nodeName, nodeNames...);
-    
-    if (node->GetText())
-    {
-        return strTo<T>(node->GetText());
-    }
-    else
-    {
-        return T();
-    }
-}
-
-template <typename T, typename... Strs>
-std::vector<T> XmlReader::getAllValues(const std::string &nodeName,
-                                       Strs... nodeNames)
-{
-    tinyxml2::XMLElement *node = getFirstNode(nodeName, nodeNames...);
-    std::vector<T>       value;
-    
-    while (node)
-    {
-        if (node->GetText())
-        {
-            value.push_back(strTo<T>(node->GetText()));
-        }
-        else
-        {
-            value.push_back(T());
-        }
-        node = node->NextSiblingElement();
-    }
-    
-    return value;
-}
-
+// XML structure access ////////////////////////////////////////////////////////
 template <typename... Strs>
-tinyxml2::XMLElement * XmlReader::getFirstNode(const std::string &nodeName,
-                                               Strs... nodeNames)
+const XmlNode * XmlReader::getFirstNode(const XmlNode *startNode,
+                                        const std::string &nodeName,
+                                        Strs... nodeNames)
 {
     static_assert(static_or<std::is_assignable<std::string, Strs>::value...>::value,
                   "getFirstValue arguments are not compatible with std::string");
     
-    const unsigned int   nName  = sizeof...(nodeNames) + 1;
-    const std::string    name[] = {nodeName, nodeNames...};
-    tinyxml2::XMLElement *node  = root_;
+    const unsigned int nName  = sizeof...(nodeNames) + 1;
+    const std::string  name[] = {nodeName, nodeNames...};
+    const XmlNode      *node  = startNode;
     
-    if (!root_)
+    if (!node)
     {
-        LATAN_ERROR(Io, "no XML file opened");
+        LATAN_ERROR(Io, "root node is null, no XML file opened");
     }
     for (unsigned int i = 0; i < nName; ++i)
     {
@@ -120,6 +103,77 @@ tinyxml2::XMLElement * XmlReader::getFirstNode(const std::string &nodeName,
     }
     
     return node;
+}
+
+template <typename... Strs>
+const XmlNode * XmlReader::getFirstNode(const std::string &nodeName,
+                                        Strs... nodeNames) const
+{
+    if (!root_)
+    {
+        LATAN_ERROR(Io, "root node is null, no XML file opened");
+    }
+    
+    return getFirstNode(root_, nodeName, nodeNames...);
+}
+
+template <typename T>
+T XmlReader::getValue(const XmlNode *node)
+{
+    if (node)
+    {
+        if (node->GetText())
+        {
+            return strTo<T>(node->GetText());
+        }
+        else
+        {
+            return T();
+        }
+    }
+    else
+    {
+        return T();
+    }
+}
+
+template <typename T, typename... Strs>
+T XmlReader::getFirstValue(const XmlNode *startNode,
+                           const std::string &nodeName, Strs... nodeNames)
+{
+    const XmlNode *node = getFirstNode(startNode, nodeName, nodeNames...);
+    
+    return getValue<T>(node);
+}
+
+template <typename T, typename... Strs>
+T XmlReader::getFirstValue(const std::string &nodeName, Strs... nodeNames) const
+{
+    return getFirstValue<T>(root_, nodeName, nodeNames...);
+}
+
+template <typename T, typename... Strs>
+std::vector<T> XmlReader::getAllValues(const XmlNode *startNode,
+                                       const std::string &nodeName,
+                                       Strs... nodeNames)
+{
+    const XmlNode  *node = getFirstNode(startNode, nodeName, nodeNames...);
+    std::vector<T> value;
+    
+    while (node)
+    {
+        value.push_back(getValue<T>(node));
+        node = getNextNode(node);
+    }
+    
+    return value;
+}
+
+template <typename T, typename... Strs>
+std::vector<T> XmlReader::getAllValues(const std::string &nodeName,
+                                       Strs... nodeNames) const
+{
+    return getAllValues<T>(root_, nodeName, nodeNames...);
 }
 
 END_NAMESPACE
