@@ -182,6 +182,16 @@ inline int strTo<int>(const std::string &str)
 {
     return (int)(strtol(str.c_str(), (char **)NULL, 10));
 }
+template <>
+inline long strTo<long>(const std::string &str)
+{
+    return strtol(str.c_str(), (char **)NULL, 10);
+}
+template <>
+inline std::string strTo<std::string>(const std::string &str)
+{
+    return str;
+}
 
 template <typename T>
 inline std::string strFrom(const T x)
