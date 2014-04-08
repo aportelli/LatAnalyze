@@ -46,7 +46,29 @@ void CompiledDoubleModel::setCode(const std::string &code)
 {
     interpreter_.reset(new MathInterpreter(code));
     context_.reset(new RunContext);
-    StdMath::addStdMathFunc(context_->fTable);
+    varAddress_.reset(new std::vector<unsigned int>);
+    parAddress_.reset(new std::vector<unsigned int>);
+    isCompiled_.reset(new bool(false));
+}
+
+// compile /////////////////////////////////////////////////////////////////////
+void CompiledDoubleModel::compile(void) const
+{
+    if (!*isCompiled_)
+    {
+        interpreter_->compile(*(context_));
+        varAddress_->clear();
+        parAddress_->clear();
+        for (Index i = 0; i < getNArg(); ++i)
+        {
+            varAddress_->push_back(context_->vTable.at("x_" + strFrom(i)));
+        }
+        for (Index j = 0; j < getNPar(); ++j)
+        {
+            parAddress_->push_back(context_->vTable.at("p_" + strFrom(j)));
+        }
+        *isCompiled_ = true;
+    }
 }
 
 // function call ///////////////////////////////////////////////////////////////
@@ -55,13 +77,14 @@ double CompiledDoubleModel::operator()(const double *arg,
 {
     double result;
     
-    for (Index i = 0; i < getNArg(); ++i)
+    compile();
+    for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        context_->vTable["x_" + strFrom(i)] = arg[i];
+        context_->vMem[(*varAddress_)[i]] = arg[i];
     }
-    for (Index j = 0; j < getNPar(); ++j)
+    for (unsigned int j = 0; j < getNPar(); ++j)
     {
-        context_->vTable["p_" + strFrom(j)] = par[j];
+        context_->vMem[(*parAddress_)[j]] = par[j];
     }
     (*interpreter_)(*context_);
     if (!context_->dStack.empty())
@@ -81,7 +104,7 @@ double CompiledDoubleModel::operator()(const double *arg,
 // IO //////////////////////////////////////////////////////////////////////////
 ostream & Latan::operator<<(std::ostream &out, CompiledDoubleModel &m)
 {
-    m.interpreter_->compile();
+    m.compile();
     out << *(m.interpreter_);
     
     return out;

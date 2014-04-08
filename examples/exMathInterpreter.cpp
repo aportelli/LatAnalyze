@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     RunContext context;
     
     cout << "-- Source code:" << endl << source << endl << endl;
-    interpreter.compile();
+    interpreter.compile(context);
     cout << "-- Abstract Syntax Tree:" << endl;
     if (interpreter.getAST())
     {
@@ -32,7 +32,18 @@ int main(int argc, char* argv[])
         cout << "<null>" << endl << endl;
     }
     cout << "-- Program:" << endl << interpreter << endl;
-    StdMath::addStdMathFunc(context.fTable);
+    cout << "-- Variable table:" << endl;
+    for (auto &v: context.vTable)
+    {
+        cout << "'" << v.first << "': " << v.second << endl;
+    }
+    cout << endl;
+    cout << "-- Function table:" << endl;
+    for (auto &f: context.fTable)
+    {
+        cout << "'" << f.first << "': " << f.second << endl;
+    }
+    cout << endl;
     interpreter(context);
     if (!context.dStack.empty())
     {

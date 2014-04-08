@@ -44,7 +44,23 @@ void CompiledDoubleFunction::setCode(const string &code)
 {
     interpreter_.reset(new MathInterpreter(code));
     context_.reset(new RunContext);
-    StdMath::addStdMathFunc(context_->fTable);
+    varAddress_.reset(new std::vector<unsigned int>);
+    isCompiled_.reset(new bool(false));
+}
+
+// compile /////////////////////////////////////////////////////////////////////
+void CompiledDoubleFunction::compile(void) const
+{
+    if (!*isCompiled_)
+    {
+        interpreter_->compile(*(context_));
+        varAddress_->clear();
+        for (Index i = 0; i < getNArg(); ++i)
+        {
+            varAddress_->push_back(context_->vTable.at("x_" + strFrom(i)));
+        }
+        *isCompiled_ = true;
+    }
 }
 
 // function call ///////////////////////////////////////////////////////////////
@@ -52,9 +68,10 @@ double CompiledDoubleFunction::operator()(const double *arg) const
 {
     double result;
     
-    for (Index i = 0; i < getNArg(); ++i)
+    compile();
+    for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        context_->vTable["x_" + strFrom(i)] = arg[i];
+        context_->vMem[(*varAddress_)[i]] = arg[i];
     }
     (*interpreter_)(*context_);
     if (!context_->dStack.empty())
@@ -74,7 +91,7 @@ double CompiledDoubleFunction::operator()(const double *arg) const
 // IO //////////////////////////////////////////////////////////////////////////
 ostream & Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
 {
-    f.interpreter_->compile();
+    f.compile();
     out << *(f.interpreter_);
     
     return out;

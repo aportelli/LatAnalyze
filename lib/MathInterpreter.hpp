@@ -36,15 +36,15 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                         Instruction classes                                *
  ******************************************************************************/
-typedef std::map<std::string, double>           VarTable;
-typedef std::map<std::string, DoubleFunction *> FunctionTable;
+typedef std::map<std::string, unsigned int> AddressTable;
 
 struct RunContext
 {
-    unsigned int       insIndex;
-    std::stack<double> dStack;
-    VarTable           vTable;
-    FunctionTable      fTable;
+    unsigned int                  insIndex;
+    std::stack<double>            dStack;
+    std::vector<double>           vMem;
+    std::vector<DoubleFunction *> fMem;
+    AddressTable                  vTable, fTable;
 };
 
 // Abstract base
@@ -77,15 +77,16 @@ private:
 public:
     //constructors
     explicit Push(const double val);
-    explicit Push(const std::string &name);
+    explicit Push(const unsigned int address, const std::string &name);
     // instruction execution
     virtual void operator()(RunContext &context) const;
 private:
     virtual void print(std::ostream& out) const;
 private:
-    ArgType     type_;
-    double      val_;
-    std::string name_;
+    ArgType      type_;
+    double       val_;
+    unsigned int address_;
+    std::string  name_;
 };
 
 // Pop
@@ -93,12 +94,13 @@ class Pop: public Instruction
 {
 public:
     //constructor
-    explicit Pop(const std::string &name);
+    explicit Pop(const unsigned int address, const std::string &name);
     // instruction execution
     virtual void operator()(RunContext &context) const;
 private:
     virtual void print(std::ostream& out) const;
 private:
+    unsigned int address_;
     std::string name_;
 };
 
@@ -107,12 +109,13 @@ class Store: public Instruction
 {
 public:
     //constructor
-    explicit Store(const std::string &name);
+    explicit Store(const unsigned int address, const std::string &name);
     // instruction execution
     virtual void operator()(RunContext &context) const;
 private:
     virtual void print(std::ostream& out) const;
 private:
+    unsigned int address_;
     std::string name_;
 };
 
@@ -121,12 +124,13 @@ class Call: public Instruction
 {
 public:
     //constructor
-    explicit Call(const std::string &name);
+    explicit Call(const unsigned int address, const std::string &name);
     // instruction execution
     virtual void operator()(RunContext &context) const;
 private:
     virtual void print(std::ostream& out) const;
 private:
+    unsigned int address_;
     std::string name_;
 };
 
@@ -167,7 +171,8 @@ public:
     // operator
     const ExprNode &operator[](const Index i) const;
     // compile
-    virtual void compile(Program &program) const = 0;
+    virtual void compile(Program &program, AddressTable &vTable,
+                         AddressTable &fTable) const = 0;
 private:
     std::string                             name_;
     std::vector<std::unique_ptr<ExprNode>>  arg_;
@@ -181,7 +186,8 @@ class name: public base\
 {\
 public:\
     using base::base;\
-    virtual void compile(Program &program) const;\
+    virtual void compile(Program &program, AddressTable &vTable,\
+                         AddressTable &fTable) const;\
 }
 
 DECL_NODE(ExprNode, VarNode);
@@ -195,7 +201,8 @@ class KeywordNode: public ExprNode
 {
 public:
     using ExprNode::ExprNode;
-    virtual void compile(Program &program) const = 0;
+    virtual void compile(Program &program, AddressTable &vTable,
+                         AddressTable &fTable) const = 0;
 };
 
 DECL_NODE(KeywordNode, ReturnNode);
@@ -245,7 +252,7 @@ public:
     // initialization
     void setCode(const std::string &code);
     // interpreter
-    void compile(void);
+    void compile(RunContext &context);
     // execution
     void operator()(RunContext &context);
     // IO

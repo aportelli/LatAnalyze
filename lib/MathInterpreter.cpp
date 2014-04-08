@@ -19,6 +19,7 @@
 
 #include <LatAnalyze/MathInterpreter.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/Math.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -41,12 +42,14 @@ ostream &Latan::operator<<(ostream& out, const Instruction& ins)
 Push::Push(const double val)
 : type_(ArgType::Constant)
 , val_(val)
+, address_(0)
 , name_("")
 {}
 
-Push::Push(const string &name)
+Push::Push(const unsigned int address, const string &name)
 : type_(ArgType::Variable)
 , val_(0.0)
+, address_(address)
 , name_(name)
 {}
 
@@ -61,7 +64,7 @@ void Push::operator()(RunContext &context) const
     {
         try
         {
-            context.dStack.push(context.vTable.at(name_));
+            context.dStack.push(context.vMem[address_]);
         }
         catch (out_of_range)
         {
@@ -81,13 +84,14 @@ void Push::print(ostream &out) const
     }
     else
     {
-        out << CODE_MOD << name_;
+        out << CODE_MOD << name_ << " @v" << address_;
     }
 }
 
 // Pop constructor /////////////////////////////////////////////////////////////
-Pop::Pop(const string &name)
-: name_(name)
+Pop::Pop(const unsigned int address, const string &name)
+: address_(address)
+, name_(name)
 {}
 
 // Pop execution ///////////////////////////////////////////////////////////////
@@ -95,7 +99,7 @@ void Pop::operator()(RunContext &context) const
 {
     if (!name_.empty())
     {
-        context.vTable[name_] = context.dStack.top();
+        context.vMem[address_] = context.dStack.top();
     }
     context.dStack.pop();
     context.insIndex++;
@@ -104,12 +108,13 @@ void Pop::operator()(RunContext &context) const
 // Pop print ///////////////////////////////////////////////////////////////////
 void Pop::print(ostream &out) const
 {
-    out << CODE_MOD << "pop" << CODE_MOD << name_;
+    out << CODE_MOD << "pop" << CODE_MOD << name_ << " @v" << address_;
 }
 
 // Store constructor ///////////////////////////////////////////////////////////
-Store::Store(const string &name)
-: name_(name)
+Store::Store(const unsigned int address, const string &name)
+: address_(address)
+, name_(name)
 {}
 
 // Store execution /////////////////////////////////////////////////////////////
@@ -117,7 +122,7 @@ void Store::operator()(RunContext &context) const
 {
     if (!name_.empty())
     {
-        context.vTable[name_] = context.dStack.top();
+        context.vMem[address_] = context.dStack.top();
     }
     context.insIndex++;
 }
@@ -125,12 +130,13 @@ void Store::operator()(RunContext &context) const
 // Store print /////////////////////////////////////////////////////////////////
 void Store::print(ostream &out) const
 {
-    out << CODE_MOD << "store" << CODE_MOD << name_;
+    out << CODE_MOD << "store" << CODE_MOD << name_ << " @v" << address_;
 }
 
 // Call constructor ////////////////////////////////////////////////////////////
-Call::Call(const string &name)
-: name_(name)
+Call::Call(const unsigned int address, const string &name)
+: address_(address)
+, name_(name)
 {}
 
 // Call execution //////////////////////////////////////////////////////////////
@@ -138,7 +144,7 @@ void Call::operator()(RunContext &context) const
 {
     try
     {
-        context.dStack.push((*context.fTable.at(name_))(context.dStack));
+        context.dStack.push((*context.fMem[address_])(context.dStack));
     }
     catch (out_of_range)
     {
@@ -150,7 +156,7 @@ void Call::operator()(RunContext &context) const
 // Call print //////////////////////////////////////////////////////////////////
 void Call::print(ostream &out) const
 {
-    out << CODE_MOD << "call" << CODE_MOD << name_;
+    out << CODE_MOD << "call" << CODE_MOD << name_ << " @f" << address_;
 }
 
 // Math operations /////////////////////////////////////////////////////////////
@@ -263,23 +269,40 @@ ostream &Latan::operator<<(ostream &out, const ExprNode &n)
     return out;
 }
 
-#define PUSH_INS(program, type, ...) \
+#define PUSH_INS(program, type, ...)\
 program.push_back(unique_ptr<type>(new type(__VA_ARGS__)))
+#define GET_ADDRESS(address, table, name)\
+try\
+{\
+    address = (table).at(name);\
+}\
+catch (out_of_range)\
+{\
+    address         = static_cast<unsigned int>((table).size());\
+    (table)[(name)] = address;\
+}\
 
 // VarNode compile /////////////////////////////////////////////////////////////
-void VarNode::compile(Program &program) const
+void VarNode::compile(Program &program, AddressTable &vTable,
+                      AddressTable &fTable __unused) const
 {
-    PUSH_INS(program, Push, getName());
+    unsigned int address;
+    
+    GET_ADDRESS(address, vTable, getName());
+    PUSH_INS(program, Push, address, getName());
+    
 }
 
 // CstNode compile /////////////////////////////////////////////////////////////
-void CstNode::compile(Program &program) const
+void CstNode::compile(Program &program, AddressTable &nextVAddress __unused,
+                      AddressTable &nextFAddress __unused) const
 {
     PUSH_INS(program, Push, strTo<double>(getName()));
 }
 
 // SemicolonNode compile ///////////////////////////////////////////////////////
-void SemicolonNode::compile(Program &program) const
+void SemicolonNode::compile(Program &program, AddressTable &vTable,
+                            AddressTable &fTable) const
 {
     auto &n = *this;
     
@@ -291,28 +314,31 @@ void SemicolonNode::compile(Program &program) const
         
         if (isAssign||isSemiColumn||isKeyword)
         {
-            n[i].compile(program);
+            n[i].compile(program, vTable, fTable);
         }
     }
 }
 
 // AssignNode compile //////////////////////////////////////////////////////////
-void AssignNode::compile(Program &program) const
+void AssignNode::compile(Program &program, AddressTable &vTable,
+                         AddressTable &fTable) const
 {
     auto &n = *this;
     
     if (isDerivedFrom<VarNode>(&n[0]))
     {
         bool hasSemicolonParent = isDerivedFrom<SemicolonNode>(getParent());
+        unsigned int address;
         
-        n[1].compile(program);
+        n[1].compile(program, vTable, fTable);
+        GET_ADDRESS(address, vTable, n[0].getName());
         if (hasSemicolonParent)
         {
-            PUSH_INS(program, Pop, n[0].getName());
+            PUSH_INS(program, Pop, address, n[0].getName());
         }
         else
         {
-            PUSH_INS(program, Store, n[0].getName());
+            PUSH_INS(program, Store, address, n[0].getName());
         }
     }
     else
@@ -326,13 +352,14 @@ void AssignNode::compile(Program &program) const
 #define ELIFNODE(name, nArg) else IFNODE(name, nArg)
 #define ELSE else
 
-void MathOpNode::compile(Program &program) const
+void MathOpNode::compile(Program &program, AddressTable &vTable,
+                         AddressTable &fTable) const
 {
     auto &n = *this;
     
     for (Index i = 0; i < n.getNArg(); ++i)
     {
-        n[i].compile(program);
+        n[i].compile(program, vTable, fTable);
     }
     IFNODE("-", 1)   PUSH_INS(program, Neg,);
     ELIFNODE("+", 2) PUSH_INS(program, Add,);
@@ -344,23 +371,27 @@ void MathOpNode::compile(Program &program) const
 }
 
 // FuncNode compile ////////////////////////////////////////////////////////////
-void FuncNode::compile(Program &program) const
+void FuncNode::compile(Program &program, AddressTable &vTable,
+                       AddressTable &fTable) const
 {
     auto &n = *this;
+    unsigned int address;
     
     for (Index i = 0; i < n.getNArg(); ++i)
     {
-        n[i].compile(program);
+        n[i].compile(program, vTable, fTable);
     }
-    PUSH_INS(program, Call, getName());
+    GET_ADDRESS(address, fTable, getName());
+    PUSH_INS(program, Call, address, getName());
 }
 
 // ReturnNode compile ////////////////////////////////////////////////////////////
-void ReturnNode::compile(Program &program) const
+void ReturnNode::compile(Program &program, AddressTable &vTable,
+                         AddressTable &fTable) const
 {
     auto &n = *this;
     
-    n[0].compile(program);
+    n[0].compile(program, vTable, fTable);
     program.push_back(nullptr);
 }
 
@@ -439,7 +470,57 @@ void MathInterpreter::parse(void)
 }
 
 // interpreter /////////////////////////////////////////////////////////////////
-void MathInterpreter::compile(void)
+#define ADD_FUNC(context, func)\
+try\
+{\
+(context).fMem[(context).fTable.at(#func)] = &STDMATH_NAMESPACE::func;\
+}\
+catch (out_of_range)\
+{}
+
+#define ADD_STDMATH_FUNCS(context)\
+ADD_FUNC(context, cos);\
+ADD_FUNC(context, sin);\
+ADD_FUNC(context, tan);\
+ADD_FUNC(context, acos);\
+ADD_FUNC(context, asin);\
+ADD_FUNC(context, atan);\
+ADD_FUNC(context, atan2);\
+ADD_FUNC(context, cosh);\
+ADD_FUNC(context, sinh);\
+ADD_FUNC(context, tanh);\
+ADD_FUNC(context, acosh);\
+ADD_FUNC(context, asinh);\
+ADD_FUNC(context, atanh);\
+ADD_FUNC(context, exp);\
+ADD_FUNC(context, log);\
+ADD_FUNC(context, log10);\
+ADD_FUNC(context, exp2);\
+ADD_FUNC(context, expm1);\
+ADD_FUNC(context, log1p);\
+ADD_FUNC(context, log2);\
+ADD_FUNC(context, pow);\
+ADD_FUNC(context, sqrt);\
+ADD_FUNC(context, cbrt);\
+ADD_FUNC(context, hypot);\
+ADD_FUNC(context, erf);\
+ADD_FUNC(context, erfc);\
+ADD_FUNC(context, tgamma);\
+ADD_FUNC(context, lgamma);\
+ADD_FUNC(context, ceil);\
+ADD_FUNC(context, floor);\
+ADD_FUNC(context, fmod);\
+ADD_FUNC(context, trunc);\
+ADD_FUNC(context, round);\
+ADD_FUNC(context, rint);\
+ADD_FUNC(context, nearbyint);\
+ADD_FUNC(context, remainder);\
+ADD_FUNC(context, fdim);\
+ADD_FUNC(context, fmax);\
+ADD_FUNC(context, fmin);\
+ADD_FUNC(context, fabs);
+
+void MathInterpreter::compile(RunContext &context)
 {
     bool gotReturn = false;
     
@@ -449,34 +530,43 @@ void MathInterpreter::compile(void)
         status_ |= Status::parsed;
         status_ -= status_ & Status::compiled;
     }
-    if (root_)
+    if (!(status_ & Status::compiled))
     {
-        root_->compile(program_);
-        for (unsigned int i = 0; i < program_.size(); ++i)
+        if (root_)
         {
-            if (!program_[i])
+            context.vTable.clear();
+            context.fTable.clear();
+            root_->compile(program_, context.vTable, context.fTable);
+            for (unsigned int i = 0; i < program_.size(); ++i)
             {
-                gotReturn = true;
-                program_.resize(i);
-                program_.shrink_to_fit();
-                break;
+                if (!program_[i])
+                {
+                    gotReturn = true;
+                    program_.resize(i);
+                    program_.shrink_to_fit();
+                    break;
+                }
             }
+            context.vMem.resize(context.vTable.size());
+            context.fMem.resize(context.fTable.size());
+            ADD_STDMATH_FUNCS(context);
         }
-        
+        if (!root_||!gotReturn)
+        {
+            LATAN_ERROR(Syntax, "expected 'return' in program '" + codeName_
+                        + "'");
+        }
+        status_ |= Status::compiled;
     }
-    if (!root_||!gotReturn)
-    {
-        LATAN_ERROR(Syntax, "expected 'return' in program '" + codeName_ + "'");
-    }
-    status_ |= Status::compiled;
 }
+
 
 // execution ///////////////////////////////////////////////////////////////////
 void MathInterpreter::operator()(RunContext &context)
 {
     if (!(status_ & Status::compiled))
     {
-        compile();
+        compile(context);
     }
     execute(context);
 }

@@ -46,8 +46,13 @@ public:
     friend std::ostream & operator<<(std::ostream &out,
                                      CompiledDoubleFunction &f);
 private:
-    std::shared_ptr<MathInterpreter> interpreter_;
-    std::shared_ptr<RunContext>      context_;
+    // compile
+    void compile(void) const;
+private:
+    std::shared_ptr<MathInterpreter>           interpreter_;
+    std::shared_ptr<RunContext>                context_;
+    std::shared_ptr<std::vector<unsigned int>> varAddress_;
+    std::shared_ptr<bool>                      isCompiled_;
 };
 
 std::ostream & operator<<(std::ostream &out, CompiledDoubleFunction &f);

@@ -95,9 +95,6 @@ DECL_STD_FUNC(fabs)
 
 namespace STDMATH_NAMESPACE
 {
-    // Add standard math functions to a table for the math compiler
-    void addStdMathFunc(FunctionTable &fTable);
-    
     // Constants
     const double pi = 3.1415926535897932384626433832795028841970;
 }
