@@ -27,6 +27,38 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
+ *                             Custom math functions                          *
+ ******************************************************************************/
+#define MATH_NAMESPACE Math
+
+namespace MATH_NAMESPACE
+{
+    // integer power function
+    template <unsigned int n, typename T>
+    typename std::enable_if<(n == 0), T>::type pow(const T x __unused)
+    {
+        return 1;
+    }
+    
+    template <unsigned int n, typename T>
+    typename std::enable_if<(n == 1), T>::type pow(const T x)
+    {
+        return x;
+    }
+    
+    template <unsigned int n, typename T>
+    typename std::enable_if<(n > 1), T>::type pow(const T x)
+    {
+        return x*pow<n-1>(x);
+    }
+    
+    // Constants
+    const double pi = 3.1415926535897932384626433832795028841970;
+    const double e  = 2.7182818284590452353602874713526624977572;
+}
+
+
+/******************************************************************************
  *                             Standard C functions                           *
  ******************************************************************************/
 #define STDMATH_NAMESPACE StdMath
@@ -92,12 +124,6 @@ DECL_STD_FUNC(fmin)
 
 // Absolute value
 DECL_STD_FUNC(fabs)
-
-namespace STDMATH_NAMESPACE
-{
-    // Constants
-    const double pi = 3.1415926535897932384626433832795028841970;
-}
 
 END_NAMESPACE
 
