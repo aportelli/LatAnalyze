@@ -85,7 +85,8 @@ const int central = -SAMPLE_OFFSET;
 template <typename T>
 using Sample = StatArray<T, SAMPLE_OFFSET>;
 
-typedef Sample<double> DSample;
+typedef Sample<double>               DSample;
+typedef Sample<std::complex<double>> CSample;
 
 /******************************************************************************
  *                 StatArray class template implementation                    *
