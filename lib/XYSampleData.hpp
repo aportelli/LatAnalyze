@@ -37,8 +37,8 @@ class SampleFitResult: public DMatSample
     friend class XYSampleData;
 public:
     // constructors
-    using DMatSample::DMatSample;
     SampleFitResult(void) = default;
+    EIGEN_EXPR_CTOR(SampleFitResult, SampleFitResult, DMatSample, ArrayExpr)
     // destructor
     virtual ~SampleFitResult(void) = default;
     // access
