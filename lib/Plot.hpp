@@ -87,7 +87,7 @@ class PlotFunction: public PlotObject
 public:
     // constructor
     PlotFunction(const DoubleFunction &function, const double xMin,
-                 const double xMax, const unsigned int nSample = 1000);
+                 const double xMax, const unsigned int nPoint = 1000);
     // destructor
     virtual ~PlotFunction(void) = default;
 };

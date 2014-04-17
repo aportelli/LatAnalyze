@@ -113,13 +113,13 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 
 // PlotFunction constructor ////////////////////////////////////////////////////
 PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
-                           const double xMax, const unsigned int nSample)
+                           const double xMax, const unsigned int nPoint)
 {
-    DMat   d(nSample, 2);
+    DMat   d(nPoint, 2);
     string tmpFileName;
-    double dx = (xMax - xMin)/static_cast<double>(nSample - 1);
+    double dx = (xMax - xMin)/static_cast<double>(nPoint - 1);
     
-    for (Index i = 0; i < nSample; ++i)
+    for (Index i = 0; i < nPoint; ++i)
     {
         d(i, 0) = xMin + i*dx;
         d(i, 1) = function(d(i, 0));
@@ -278,14 +278,14 @@ void Plot::getProgramPath(void)
     char        *path;
     static char buf[MAX_PATH_LENGTH];
     
-    /* Trivial case: try in CWD */
+    // trivial case: try in CWD
     sprintf(buf,"./%s", gnuplotBin_.c_str()) ;
     if (access(buf, X_OK) == 0)
     {
         sprintf(buf,".");
         gnuplotPath_ = buf;
     }
-    /* Try out in all paths given in the PATH variable */
+    // try out in all paths given in the PATH variable
     else
     {
         buf[0] = 0;
@@ -305,7 +305,7 @@ void Plot::getProgramPath(void)
                 strcpy(buf + lg, gnuplotBin_.c_str());
                 if (access(buf, X_OK) == 0)
                 {
-                    /* Found it! */
+                    // found it!
                     break ;
                 }
                 buf[0] = 0;
@@ -317,12 +317,12 @@ void Plot::getProgramPath(void)
         {
             LATAN_ERROR(System, "PATH variable not set");
         }
-        /* If the buffer is still empty, the command was not found */
+        // if the buffer is still empty, the command was not found
         if (buf[0] == 0)
         {
             LATAN_ERROR(System, "cannot find gnuplot in $PATH");
         }
-        /* Otherwise truncate the command name to yield path only */
+        // otherwise truncate the command name to yield path only
         lg = (int)(strlen(buf) - 1);
         while (buf[lg]!='/')
         {
