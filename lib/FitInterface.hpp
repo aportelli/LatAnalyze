@@ -48,6 +48,7 @@ public:
                              const bool isCorrelated = true);
     void  assumeDataCorrelated(const Index k1, const Index k2,
                                const bool isCorrelated = true);
+    void  assumeDataCorrelated(const bool isCorrelated = true);
     void  fitPoint(const Index k, const bool isFitPoint = true);
     void  fitPointRange(const Index k1, const Index k2,
                         const bool isFitPoint = true);

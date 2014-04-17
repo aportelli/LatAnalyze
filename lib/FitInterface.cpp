@@ -74,6 +74,17 @@ void  FitInterface::assumeDataCorrelated(const Index k1, const Index k2,
     isDataCorr_(k2, k1) = val;
 }
 
+void  FitInterface::assumeDataCorrelated(const bool isCorrelated)
+{
+    FOR_MAT(isDataCorr_, k1, k2)
+    {
+        if (k1 != k2)
+        {
+            assumeDataCorrelated(k1, k2, isCorrelated);
+        }
+    }
+}
+
 void FitInterface::fitPoint(const Index i, const bool isFitPoint)
 {
     isFitPoint_(i) = (isFitPoint) ? 1 : 0;
