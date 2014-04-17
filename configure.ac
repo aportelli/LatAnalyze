@@ -35,6 +35,14 @@ AC_ARG_ENABLE([SSE],
 				[Define to 1 if your CPU support SSE instructions.])],
 	[]
 )
+AC_ARG_WITH([gsl],
+    [AS_HELP_STRING([--with-gsl=prefix],
+		[try this for a non-standard install prefix of the GSL library])],
+    [AM_CFLAGS="$AM_CFLAGS -I$with_gsl/include"]
+	[AM_CXXFLAGS="$AM_CXXFLAGS -I$with_gsl/include"]
+	[AM_LDFLAGS="$AM_LDFLAGS -L$with_gsl/lib"],
+	[]
+)
 AC_ARG_WITH([Minuit2],
     [AS_HELP_STRING([--with-Minuit2=prefix],
 		[try this for a non-standard install prefix of the Minuit2 library])],
@@ -70,6 +78,7 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([GSL library not found])])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
 AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);

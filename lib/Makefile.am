@@ -32,11 +32,12 @@ libLatAnalyze_la_SOURCES =\
     CompiledFunction.cpp  \
     CompiledModel.cpp     \
     Exceptions.cpp        \
-    Function.cpp          \
-    Global.cpp            \
-    includes.hpp          \
     File.cpp              \
     FitInterface.cpp      \
+    Function.cpp          \
+    Global.cpp            \
+    GslQagsIntegrator.cpp \
+    includes.hpp          \
     Mat.cpp               \
     Math.cpp              \
     MathInterpreter.cpp   \
@@ -62,8 +63,10 @@ libLatAnalyze_la_HEADERS =\
     Exceptions.hpp        \
     FitInterface.hpp      \
     Function.hpp          \
-    Global.hpp            \
     File.hpp              \
+    Global.hpp            \
+    GslQagsIntegrator.hpp \
+    Integrator.hpp        \
     IoObject.hpp          \
     Mat.hpp               \
     Math.hpp              \
