@@ -86,8 +86,21 @@ public:
     virtual ~DoubleFunctionSample(void) = default;
     // function call
     DSample operator()(const DMatSample &arg) const;
+    DSample operator()(const double *arg) const;
+    DSample operator()(const DVec &arg) const;
+    DSample operator()(const std::vector<double> &arg) const;
+    template <typename... Ts>
+    DSample operator()(const double arg0, const Ts... args) const;
 };
 
+template <typename... Ts>
+DSample DoubleFunctionSample::operator()(const double arg0,
+                                        const Ts... args) const
+{
+    const double arg[] = {arg0, args...};
+    
+    return (*this)(arg);
+}
 
 END_NAMESPACE
 

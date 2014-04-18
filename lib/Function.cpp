@@ -105,12 +105,35 @@ double DoubleFunction::operator()(void) const
  ******************************************************************************/
 DSample DoubleFunctionSample::operator()(const DMatSample &arg) const
 {
-    DSample result(arg.size());
+    DSample result(size());
     
-    FOR_STAT_ARRAY(arg, s)
+    FOR_STAT_ARRAY((*this), s)
     {
         result[s] = (*this)[s](arg[s]);
     }
     
     return result;
 }
+
+DSample DoubleFunctionSample::operator()(const double *arg) const
+{
+    DSample result(size());
+    
+    FOR_STAT_ARRAY((*this), s)
+    {
+        result[s] = (*this)[s](arg);
+    }
+    
+    return result;
+}
+
+DSample DoubleFunctionSample::operator()(const DVec &arg) const
+{
+    return (*this)(arg.data());
+}
+
+DSample DoubleFunctionSample::operator()(const vector<double> &arg) const
+{
+    return (*this)(arg.data());
+}
+
