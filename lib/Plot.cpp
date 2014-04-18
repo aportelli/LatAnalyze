@@ -129,6 +129,36 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
     setCommand("'" + tmpFileName + "' u 1:2 w lines");
 }
 
+// PlotPredBand constructor ////////////////////////////////////////////////////
+PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
+                           const double xMin, const double xMax,
+                           const unsigned int nPoint, const double opacity)
+{
+    DMat       dLow(nPoint, 2), dHigh(nPoint, 2);
+    DSample    pred(function.size());
+    double     dx = (xMax - xMin)/static_cast<double>(nPoint - 1);
+    string     lowFileName, highFileName;
+    
+    for (Index i = 0; i < nPoint; ++i)
+    {
+        double x = xMin + i*dx, err;
+        
+        pred        = function(x);
+        err         = sqrt(pred.variance());
+        dLow(i, 0)  = x;
+        dLow(i, 1)  = pred[central] - err;
+        dHigh(i, 0) = x;
+        dHigh(i, 1) = pred[central] + err;
+    }
+    lowFileName  = dumpToTmpFile(dLow);
+    highFileName = dumpToTmpFile(dHigh);
+    pushTmpFile(lowFileName);
+    pushTmpFile(highFileName);
+    setCommand("'< (cat " + lowFileName + "; tac " + highFileName +
+               "; head -n1 " + lowFileName + ")' u 1:2 w filledcurves closed" +
+               " fs solid " + strFrom(opacity) + " noborder");
+}
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/
@@ -169,6 +199,17 @@ void PlotRange::operator()(PlotOptions &option) const
     option.scaleMode[a] |= Plot::Scale::manual;
     option.scale[a].min  = min_;
     option.scale[a].max  = max_;
+}
+
+// Title constructor ///////////////////////////////////////////////////////////
+Terminal::Terminal(const string &terminal, const std::string &options)
+: terminalCmd_(terminal + " " + options)
+{}
+
+// Title modifier //////////////////////////////////////////////////////////////
+void Terminal::operator()(PlotOptions &option) const
+{
+    option.terminal = terminalCmd_;
 }
 
 // Title constructor ///////////////////////////////////////////////////////////

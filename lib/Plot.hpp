@@ -92,6 +92,17 @@ public:
     virtual ~PlotFunction(void) = default;
 };
 
+class PlotPredBand: public PlotObject
+{
+public:
+    // constructor
+    PlotPredBand(const DoubleFunctionSample &function, const double xMin,
+                 const double xMax, const unsigned int nPoint = 1000,
+                 const double opacity = 0.15);
+    // destructor
+    virtual ~PlotPredBand(void) = default;
+};
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/
@@ -161,6 +172,20 @@ private:
     const Axis   axis_;
     const double min_, max_;
 };
+
+class Terminal: public PlotModifier
+{
+public:
+    // constructor
+    Terminal(const std::string &terminal, const std::string &options = "");
+    // destructor
+    virtual ~Terminal(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string terminalCmd_;
+};
+
 
 class Title: public PlotModifier
 {
