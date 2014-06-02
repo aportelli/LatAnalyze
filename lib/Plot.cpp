@@ -162,6 +162,17 @@ PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/
+// Caption constructor /////////////////////////////////////////////////////////
+Caption::Caption(const string &caption)
+: caption_(caption)
+{}
+
+// Caption modifier ////////////////////////////////////////////////////////////
+void Caption::operator()(PlotOptions &option) const
+{
+    option.caption = caption_;
+}
+
 // Color constructor ///////////////////////////////////////////////////////////
 Color::Color(const string &color)
 : color_(color)
@@ -201,12 +212,12 @@ void PlotRange::operator()(PlotOptions &option) const
     option.scale[a].max  = max_;
 }
 
-// Title constructor ///////////////////////////////////////////////////////////
+// Terminal constructor ////////////////////////////////////////////////////////
 Terminal::Terminal(const string &terminal, const std::string &options)
 : terminalCmd_(terminal + " " + options)
 {}
 
-// Title modifier //////////////////////////////////////////////////////////////
+// Terminal modifier ///////////////////////////////////////////////////////////
 void Terminal::operator()(PlotOptions &option) const
 {
     option.terminal = terminalCmd_;
@@ -257,6 +268,7 @@ void Plot::initOptions(void)
 {
     options_.terminal     = "";
     options_.output       = "";
+    options_.caption      = "";
     options_.title        = "";
     options_.scaleMode[0] = Plot::Scale::reset;
     options_.scaleMode[1] = Plot::Scale::reset;
@@ -414,6 +426,10 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     if (!plot.options_.output.empty())
     {
         out << "set output '" << plot.options_.terminal << "'" << endl;
+    }
+    if (!plot.options_.caption.empty())
+    {
+        out << "set title '" << plot.options_.caption << "'" << endl;
     }
     if (plot.options_.scaleMode[x] & Plot::Scale::manual)
     {

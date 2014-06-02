@@ -117,6 +117,7 @@ struct PlotOptions
 {
     std::string  terminal;
     std::string  output;
+    std::string  caption;
     std::string  title;
     unsigned int scaleMode[2];
     Range        scale[2];
@@ -131,6 +132,19 @@ public:
     virtual ~PlotModifier(void) = default;
     // modifier
     virtual void operator()(PlotOptions &option) const = 0;
+};
+
+class Caption: public PlotModifier
+{
+public:
+    // constructor
+    explicit Caption(const std::string &title);
+    // destructor
+    virtual ~Caption(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string caption_;
 };
 
 class Color: public PlotModifier
@@ -185,7 +199,6 @@ public:
 private:
     const std::string terminalCmd_;
 };
-
 
 class Title: public PlotModifier
 {
