@@ -169,7 +169,7 @@ std::string AsciiFile::load(const string &name)
         }
         else
         {
-            LATAN_ERROR(Io, "file not opened");
+            LATAN_ERROR(Io, "file '" + name_ + "' is not opened");
         }
     }
 }

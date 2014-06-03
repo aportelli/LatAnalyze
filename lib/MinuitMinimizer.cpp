@@ -25,7 +25,6 @@
 #include <Minuit2/MnPrint.h>
 #include <Minuit2/MnPlot.h>
 #include <Minuit2/MnScan.h>
-#include <Minuit2/MnSimplex.h>
 #include <Minuit2/ScanMinimizer.h>
 #include <Minuit2/SimplexMinimizer.h>
 #include <Minuit2/VariableMetricMinimizer.h>

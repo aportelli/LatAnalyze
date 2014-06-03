@@ -69,8 +69,6 @@ public:
     // IO
     virtual void close(void)                                            = 0;
     virtual void open(const std::string &name, const unsigned int mode) = 0;
-    // static IO functions
-    
 protected:
     // access
     void setName(const std::string &name);
