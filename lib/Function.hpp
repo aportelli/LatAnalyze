@@ -35,6 +35,7 @@ BEGIN_NAMESPACE
 class DoubleFunction
 {
 private:
+    // function type
     typedef std::function<double(const double *)> vecFunc;
 public:
     // constructor
@@ -53,6 +54,20 @@ public:
     double operator()(void) const;
     template <typename... Ts>
     double operator()(const double arg0, const Ts... args) const;
+    // arithmetic operators
+    DoubleFunction   operator-(void) const;
+    DoubleFunction & operator+=(const DoubleFunction &f);
+    DoubleFunction & operator+=(const DoubleFunction &&f);
+    DoubleFunction & operator-=(const DoubleFunction &f);
+    DoubleFunction & operator-=(const DoubleFunction &&f);
+    DoubleFunction & operator*=(const DoubleFunction &f);
+    DoubleFunction & operator*=(const DoubleFunction &&f);
+    DoubleFunction & operator/=(const DoubleFunction &f);
+    DoubleFunction & operator/=(const DoubleFunction &&f);
+    DoubleFunction & operator+=(const double x);
+    DoubleFunction & operator-=(const double x);
+    DoubleFunction & operator*=(const double x);
+    DoubleFunction & operator/=(const double x);
 private:
     // error checking
     void checkSize(const Index nPar) const;
@@ -61,6 +76,9 @@ private:
     vecFunc               f_;
 };
 
+/******************************************************************************
+ *                  DoubleFunction template implementation                    *
+ ******************************************************************************/
 template <typename... Ts>
 double DoubleFunction::operator()(const double arg0, const Ts... args) const
 {
@@ -72,6 +90,63 @@ double DoubleFunction::operator()(const double arg0, const Ts... args) const
     checkSize(sizeof...(args) + 1);
     
     return (*this)(arg);
+}
+
+/******************************************************************************
+ *                DoubleFunction inline arithmetic operators                  *
+ ******************************************************************************/
+#define MAKE_INLINE_FUNC_OP(op)\
+inline DoubleFunction operator op(DoubleFunction lhs,\
+                                  const DoubleFunction &rhs)\
+{\
+    lhs op##= rhs;\
+    return lhs;\
+}\
+inline DoubleFunction operator op(DoubleFunction lhs,\
+                                  const DoubleFunction &&rhs)\
+{\
+    return lhs op rhs;\
+}
+
+#define MAKE_INLINE_RSCALAR_OP(op)\
+inline DoubleFunction operator op(DoubleFunction lhs, const double rhs)\
+{\
+    lhs op##= rhs;\
+    return lhs;\
+}\
+
+#define MAKE_INLINE_LSCALAR_OP(op)\
+inline DoubleFunction operator op(const double lhs, DoubleFunction rhs)\
+{\
+    rhs op##= lhs;\
+    return rhs;\
+}
+
+MAKE_INLINE_FUNC_OP(+)
+MAKE_INLINE_FUNC_OP(-)
+MAKE_INLINE_FUNC_OP(*)
+MAKE_INLINE_FUNC_OP(/)
+MAKE_INLINE_RSCALAR_OP(+)
+MAKE_INLINE_RSCALAR_OP(-)
+MAKE_INLINE_RSCALAR_OP(*)
+MAKE_INLINE_RSCALAR_OP(/)
+MAKE_INLINE_LSCALAR_OP(+)
+MAKE_INLINE_LSCALAR_OP(*)
+
+// special case for scalar - function
+inline DoubleFunction operator-(const double lhs, DoubleFunction rhs)
+{
+    return (-rhs) + lhs;
+}
+
+// special case for scalar/function
+inline DoubleFunction operator/(const double lhs, DoubleFunction rhs)
+{
+    auto res = [lhs, &rhs](const double *arg){return lhs/rhs(arg);};
+    
+    rhs.setFunction(res, rhs.getNArg());
+    
+    return rhs;
 }
 
 /******************************************************************************
@@ -95,7 +170,7 @@ public:
 
 template <typename... Ts>
 DSample DoubleFunctionSample::operator()(const double arg0,
-                                        const Ts... args) const
+                                         const Ts... args) const
 {
     const double arg[] = {arg0, args...};
     

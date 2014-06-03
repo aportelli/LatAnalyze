@@ -100,6 +100,50 @@ double DoubleFunction::operator()(void) const
     return (*this)(nullptr);
 }
 
+// arithmetic operators ////////////////////////////////////////////////////////
+DoubleFunction DoubleFunction::operator-(void) const
+{
+    DoubleFunction resFunc;
+    
+    auto res = [this](const double *arg){return -(*this)(arg);};
+    resFunc.setFunction(res, getNArg());
+    
+    return resFunc;
+}
+
+#define MAKE_SELF_FUNC_OP(op)\
+DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction &f)\
+{\
+    DoubleFunction copy(*this);\
+    checkSize(f.getNArg());\
+    auto res = [&f, copy](const double *arg){return copy(arg) op f(arg);};\
+    setFunction(res, getNArg());\
+    return *this;\
+}\
+DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction &&f)\
+{\
+    *this op##= f;\
+    return *this;\
+}
+
+#define MAKE_SELF_SCALAR_OP(op)\
+DoubleFunction & DoubleFunction::operator op##=(const double x)\
+{\
+    DoubleFunction copy(*this);\
+    auto res = [x, copy](const double *arg){return copy(arg) op x;};\
+    setFunction(res, getNArg());\
+    return *this;\
+}\
+
+MAKE_SELF_FUNC_OP(+)
+MAKE_SELF_FUNC_OP(-)
+MAKE_SELF_FUNC_OP(*)
+MAKE_SELF_FUNC_OP(/)
+MAKE_SELF_SCALAR_OP(+)
+MAKE_SELF_SCALAR_OP(-)
+MAKE_SELF_SCALAR_OP(*)
+MAKE_SELF_SCALAR_OP(/)
+
 /******************************************************************************
  *                    DoubleFunctionSample implementation                     *
  ******************************************************************************/
