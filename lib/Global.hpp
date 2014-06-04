@@ -25,6 +25,8 @@
 
 #include <LatAnalyze/Eigen/Dense>
 #include <complex>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <sstream>
@@ -239,6 +241,48 @@ inline IVec strTo<IVec>(const std::string &str)
     
     return res;
 }
+
+// Manifest file reader ////////////////////////////////////////////////////////
+inline std::vector<std::string> readManifest(const std::string manFileName)
+{
+    std::vector<std::string> list;
+    std::ifstream            manFile;
+    char                     buf[MAX_PATH_LENGTH];
+    
+    manFile.open(manFileName);
+    while (!manFile.eof())
+    {
+        manFile.getline(buf, MAX_PATH_LENGTH);
+        if (!std::string(buf).empty())
+        {
+            list.push_back(buf);
+        }
+    }
+    manFile.close();
+    
+    return list;
+}
+
+// Progress bar class //////////////////////////////////////////////////////////
+class ProgressBar
+{
+public:
+    // constructor
+    template <typename A, typename B>
+    ProgressBar(const A current, const B total, const Index nCol = 60);
+    // IO
+    friend std::ostream & operator<<(std::ostream &out,
+                                     const ProgressBar &&bar);
+private:
+    Index current_, total_, nCol_;
+};
+
+template <typename A, typename B>
+ProgressBar::ProgressBar(const A current, const B total, const Index nCol)
+: current_(static_cast<Index>(current))
+, total_(static_cast<Index>(total))
+, nCol_(nCol)
+{}
 
 END_NAMESPACE
 

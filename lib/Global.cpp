@@ -31,3 +31,22 @@ const string Env::msgPrefix = "[" + strFrom(PACKAGE_NAME) + " v"
 
 void Env::function(void)
 {}
+
+ostream & Latan::operator<<(ostream &out, const ProgressBar &&bar)
+{
+    const Index nTick = bar.nCol_*bar.current_/bar.total_;
+    
+    out << "[";
+    for (Index i = 0; i < nTick; ++i)
+    {
+        out << "=";
+    }
+    for (Index i = nTick; i < bar.nCol_; ++i)
+    {
+        out << " ";
+    }
+    out << "] " << bar.current_ << "/" << bar.total_;
+    out.flush();
+    
+    return out;
+}

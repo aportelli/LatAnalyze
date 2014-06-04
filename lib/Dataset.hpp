@@ -78,20 +78,9 @@ void Dataset<T>::load(const std::string &listFileName,
                       const std::string &dataName)
 {
     FileType file;
-    std::ifstream listFile;
-    char dataFileNameBuf[MAX_PATH_LENGTH];
     std::vector<std::string> dataFileName;
-    
-    listFile.open(listFileName, std::ios::in);
-    while (!listFile.eof())
-    {
-        listFile.getline(dataFileNameBuf, MAX_PATH_LENGTH);
-        if (!std::string(dataFileNameBuf).empty())
-        {
-            dataFileName.push_back(dataFileNameBuf);
-        }
-    }
-    listFile.close();
+
+    dataFileName = readManifest(listFileName);
     this->resize(dataFileName.size());
     for (Index i = 0; i < static_cast<Index>(dataFileName.size()); ++i)
     {
