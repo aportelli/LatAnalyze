@@ -1,4 +1,24 @@
+/*
+ * resample.cpp, part of LatAnalyze 3
+ *
+ * Copyright (C) 2013 - 2014 Antonin Portelli
+ *
+ * LatAnalyze 3 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LatAnalyze 3 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <iostream>
+#include <map>
 #include <libgen.h>
 #include <unistd.h>
 #include <LatAnalyze/AsciiFile.hpp>
@@ -13,33 +33,34 @@ using namespace Latan;
 
 static void usage(const string &cmdName)
 {
-    cerr << "usage: " << cmdName
-         << " [-n <nsample> -r <state> -o <output>] <manifest> <name> "
-         << endl;
+    cerr << "usage: " << cmdName;
+    cerr << " [-n <nsample> -b <bin size> -r <state>]";
+    cerr << " <data list> <name list>";
+    cerr << endl;
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
 {
-    int c;
-    Index nSample = DEF_NSAMPLE;
-    string manFileName, name, outFileName, stateFileName;
-    char *cmdName;
+    // argument parsing ////////////////////////////////////////////////////////
+    int    c;
+    string manFileName, nameFileName, stateFileName, cmdName;
+    Index  binSize = 1, nSample = DEF_NSAMPLE;
     
     opterr = 0;
     cmdName = basename(argv[0]);
-    while ((c = getopt(argc, argv, "n:r:o:")) != -1)
+    while ((c = getopt(argc, argv, "b:n:r:")) != -1)
     {
         switch (c)
         {
+            case 'b':
+                binSize = strTo<Index>(optarg);
+                break;
             case 'n':
                 nSample = strTo<Index>(optarg);
                 break;
             case 'r':
                 stateFileName = optarg;
-                break;
-            case 'o':
-                outFileName = optarg;
                 break;
             case '?':
                 cerr << "error parsing option -" << char(optopt) << endl;
@@ -52,34 +73,74 @@ int main(int argc, char *argv[])
     }
     if (argc - optind == 2)
     {
-        manFileName = argv[optind];
-        name        = argv[optind+1];
+        manFileName  = argv[optind];
+        nameFileName = argv[optind+1];
     }
     else
     {
         usage(cmdName);
     }
     
-    Dataset<DMat> dataset;
-    DMatSample s;
-    RandGen g;
+    // parameter parsing ///////////////////////////////////////////////////////
+    vector<string> dataFileName, name;
     
+    dataFileName = readManifest(manFileName);
+    name         = readManifest(nameFileName);
+    cout << "================================================" << endl;
+    cout << "Data resampler" << endl;
+    cout << "------------------------------------------------" << endl;
+    cout << "    #file= " << dataFileName.size() << endl;
+    cout << "    #name= " << name.size() << endl;
+    cout << " bin size= " << binSize << endl;
+    cout << "  #sample= " << nSample << endl;
+    cout << "------------------------------------------------" << endl;
+    
+    // data loading ////////////////////////////////////////////////////////////
+    map<string, Dataset<DMat>> data;
+    
+    cout << "-- loading data..." << endl;
+    for (const string &n: name)
+    {
+        data[n].resize(static_cast<Index>(dataFileName.size()));
+    }
+    for (unsigned int i = 0; i < dataFileName.size(); ++i)
+    {
+        AsciiFile dataFile;
+        
+        cout << '\r' << ProgressBar(i + 1, dataFileName.size());
+        dataFile.open(dataFileName[i], AsciiFile::Mode::read);
+        for (const string &n: name)
+        {
+            data[n][i] = dataFile.read<DMat>(n);
+        }
+        dataFile.close();
+    }
+    cout << endl;
+    
+    // data resampling /////////////////////////////////////////////////////////
+    DMatSample   s(nSample);
+    RandGen      g;
+    RandGenState state;
+    
+    cout << "-- resampling data..." << endl;
     if (!stateFileName.empty())
     {
-        AsciiFile f(stateFileName, File::Mode::read);
-        g.setState(f.read<RandGenState>());
+        state = Io::load<RandGenState, AsciiFile>(stateFileName);
     }
-    cout << "-- loading data from manifest '" << manFileName << "'..." << endl;
-    dataset.load<AsciiFile>(manFileName, name);
-    s = dataset.bootstrapMean(nSample, g);
-    cout << scientific;
-    cout << "central value:\n"      << s[central]               << endl;
-    cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
-    if (!outFileName.empty())
+    for (unsigned int i = 0; i < name.size(); ++i)
     {
-        Io::save<DMatSample, AsciiFile>(s, outFileName, File::Mode::write,
-                                        manFileName + "_" + name);
+        const string outFileName = name[i] + "_" + manFileName + ".boot";
+        
+        cout << '\r' << ProgressBar(i + 1, name.size());
+        data[name[i]].bin(binSize);
+        if (!stateFileName.empty())
+        {
+            g.setState(state);
+        }
+        s = data[name[i]].bootstrapMean(nSample, g);
+        Io::save<DMatSample, AsciiFile>(s, outFileName);
     }
+    cout << endl;
     
     return EXIT_SUCCESS;
 }
