@@ -14,7 +14,7 @@ if CXX_INTEL
 endif
 endif
 
-noinst_PROGRAMS =    \
+bin_PROGRAMS =    \
     latan_sample_read\
     latan_resample
 
