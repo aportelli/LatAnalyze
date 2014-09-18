@@ -48,8 +48,8 @@ private:
         const DoubleFunction *f_;
     };
 public:
-    // constructors
-    using Minimizer::Minimizer;
+    // constructor
+    MinuitMinimizer(void) = default;
     // destructor
     virtual ~MinuitMinimizer(void) = default;
     // minimization

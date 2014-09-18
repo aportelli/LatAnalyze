@@ -25,6 +25,7 @@
 #include <Minuit2/MnPrint.h>
 #include <Minuit2/MnPlot.h>
 #include <Minuit2/MnScan.h>
+#include <Minuit2/MnSimplex.h>
 #include <Minuit2/ScanMinimizer.h>
 #include <Minuit2/SimplexMinimizer.h>
 #include <Minuit2/VariableMetricMinimizer.h>
@@ -33,6 +34,9 @@ using namespace std;
 using namespace ROOT;
 using namespace Minuit2;
 using namespace Latan;
+
+static constexpr double       initErr = 0.5;
+static constexpr unsigned int maxTry  = 10u;
 
 /******************************************************************************
  *                    MinuitMinimizer implementation                          *
@@ -71,12 +75,12 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     for (Index i = 0; i < x.size(); ++i)
     {
-        parameters.Add("x_" + strFrom(i), x(i), 0.1*fabs(x(i)));
+        parameters.Add("x_" + strFrom(i), x(i), initErr*fabs(x(i)));
     }
     
     // pre-minimization
-    MnMigrad        migrad1(minuitF, parameters, 1);
-    FunctionMinimum min = migrad1();
+    MnSimplex       preMinimizer(minuitF, parameters, 0);
+    FunctionMinimum min = preMinimizer();
     
     if (verbosity >= Verbosity::Debug)
     {
@@ -85,16 +89,17 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
         cout << "--------------------------------------------------------";
         cout << endl;
     }
-    for (unsigned int i = 0; i < x.size(); ++i)
-    {
-        parameters.SetValue(i, min.UserParameters().Value(i));
-        parameters.SetError(i, min.UserParameters().Error(i));
-    }
+    parameters = preMinimizer.Parameters();
     
     // minimization and output
-    MnMigrad migrad2(minuitF, parameters, 2);
+    MnMigrad     minimizer(minuitF, parameters, 2);
+    unsigned int iTry = 0;
     
-    min = migrad2();
+    while ((!min.IsValid())&&(iTry < maxTry))
+    {
+        min = minimizer();
+        iTry++;
+    }
     if (!min.IsValid())
     {
         LATAN_WARNING("MINUIT library reported that minimization result is not valid");
