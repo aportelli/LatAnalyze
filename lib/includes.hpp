@@ -20,10 +20,12 @@
 #ifndef Latan_includes_hpp_
 #define	Latan_includes_hpp_
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <utility>
 #include <cfloat>
