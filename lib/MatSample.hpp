@@ -30,9 +30,9 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                          matrix sample class                               *
  ******************************************************************************/
-#define SCAL_OP_RETURN(op, x) this->unaryExpr(\
-                                std::bind(MatSample<T>::scalar##op,\
-                                std::placeholders::_1, x))
+#define SCAL_OP_RETURN(op, s, x) s.unaryExpr(\
+                                    std::bind(MatSample<T>::scalar##op,\
+                                    std::placeholders::_1, x))
 
 template <typename T>
 class MatSample: public Sample<Mat<T>>, public IoObject
@@ -69,15 +69,6 @@ public:
     // block types
     typedef BlockTemplate<Sample<Mat<T>>>             Block;
     typedef const BlockTemplate<const Sample<Mat<T>>> ConstBlock;
-private:
-    static inline Mat<T> scalarMul(const Mat<T> &m, const T &x)
-    {
-        return m*x;
-    }
-    static inline Mat<T> scalarDiv(const Mat<T> &m, const T &x)
-    {
-        return m/x;
-    }
 public:
     // constructors
     MatSample(void) = default;
@@ -89,15 +80,23 @@ public:
     // destructor
     virtual ~MatSample(void) = default;
     // assignement operator
-    MatSample & operator=(Block &sampleBlock);
-    MatSample & operator=(Block &&sampleBlock);
-    MatSample & operator=(ConstBlock &sampleBlock);
-    MatSample & operator=(ConstBlock &&sampleBlock);
+    MatSample<T> & operator=(Block &sampleBlock);
+    MatSample<T> & operator=(Block &&sampleBlock);
+    MatSample<T> & operator=(ConstBlock &sampleBlock);
+    MatSample<T> & operator=(ConstBlock &&sampleBlock);
     // product/division by scalar operators (not provided by Eigen)
-    auto operator*=(const T &x)->decltype(SCAL_OP_RETURN(Mul, x));
-    auto operator*=(const T &&x)->decltype(SCAL_OP_RETURN(Mul, x));
-    auto operator/=(const T &x)->decltype(SCAL_OP_RETURN(Div, x));
-    auto operator/=(const T &&x)->decltype(SCAL_OP_RETURN(Div, x));
+    static inline Mat<T> scalarMul(const Mat<T> &m, const T &x)
+    {
+        return m*x;
+    }
+    static inline Mat<T> scalarDiv(const Mat<T> &m, const T &x)
+    {
+        return m/x;
+    }
+    MatSample<T> & operator*=(const T &x);
+    MatSample<T> & operator*=(const T &&x);
+    MatSample<T> & operator/=(const T &x);
+    MatSample<T> & operator/=(const T &&x);
     // block access
     ConstBlock block(const Index i, const Index j, const Index nRow,
                      const Index nCol) const;
@@ -112,39 +111,43 @@ public:
 
 // non-member operators
 template <typename T>
-inline auto operator*(MatSample<T> s, const T &x)->decltype(s *= x)
+inline auto operator*(MatSample<T> s, const T &x)
+                      ->decltype(SCAL_OP_RETURN(Mul, s, x))
 {
-    return s *= x;
+    return SCAL_OP_RETURN(Mul, s, x);
 }
 
 template <typename T>
-inline auto operator*(MatSample<T> s, const T &&x)->decltype(s *= x)
+inline auto operator*(MatSample<T> s, const T &&x)
+                      ->decltype(SCAL_OP_RETURN(Mul, s, x))
 {
-    return s *= x;
+    return SCAL_OP_RETURN(Mul, s, x);
 }
 
 template <typename T>
-inline auto operator*(const T &x, MatSample<T> s)->decltype(s *= x)
+inline auto operator*(const T &x, MatSample<T> s)->decltype(s*x)
 {
-    return s *= x;
+    return s*x;
 }
 
 template <typename T>
-inline auto operator*(const T &&x, MatSample<T> s)->decltype(s *= x)
+inline auto operator*(const T &&x, MatSample<T> s)->decltype(s*x)
 {
-    return s *= x;
+    return s*x;
 }
 
 template <typename T>
-inline auto operator/(MatSample<T> s, const T &x)->decltype(s /= x)
+inline auto operator/(MatSample<T> s, const T &x)
+                      ->decltype(SCAL_OP_RETURN(Div, s, x))
 {
-    return s /= x;
+    return SCAL_OP_RETURN(Div, s, x);
 }
 
 template <typename T>
-inline auto operator/(MatSample<T> s, const T &&x)->decltype(s /= x)
+inline auto operator/(MatSample<T> s, const T &&x)
+                      ->decltype(SCAL_OP_RETURN(Div, s, x))
 {
-    return s /= x;
+    return SCAL_OP_RETURN(Div, s, x);
 }
 
 // type aliases
@@ -328,27 +331,27 @@ MatSample<T> & MatSample<T>::operator=(ConstBlock &&sampleBlock)
 
 // product/division by scalar operators (not provided by Eigen) ////////////////
 template <typename T>
-auto MatSample<T>::operator*=(const T &x)->decltype(SCAL_OP_RETURN(Mul, x))
+MatSample<T> & MatSample<T>::operator*=(const T &x)
 {
-    return SCAL_OP_RETURN(Mul, x);
+    return *this = (*this)*x;
 }
 
 template <typename T>
-auto MatSample<T>::operator*=(const T &&x)->decltype(SCAL_OP_RETURN(Mul, x))
+MatSample<T> & MatSample<T>::operator*=(const T &&x)
 {
-    return (*this) *= x;
+    return *this = (*this)*x;
 }
 
 template <typename T>
-auto MatSample<T>::operator/=(const T &x)->decltype(SCAL_OP_RETURN(Div, x))
+MatSample<T> & MatSample<T>::operator/=(const T &x)
 {
-    return SCAL_OP_RETURN(Div, x);
+    return *this = (*this)/x;
 }
 
 template <typename T>
-auto MatSample<T>::operator/=(const T &&x)->decltype(SCAL_OP_RETURN(Div, x))
+MatSample<T> & MatSample<T>::operator/=(const T &&x)
 {
-    return (*this) *= x;
+    return *this = (*this)/x;
 }
 
 // block access ////////////////////////////////////////////////////////////////
