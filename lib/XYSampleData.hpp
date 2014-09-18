@@ -46,6 +46,7 @@ public:
     const DSample &              getChi2(const PlaceHolder ph) const;
     double                       getChi2PerDof(const Index s = central) const;
     DSample                      getChi2PerDof(const PlaceHolder ph) const;
+    double                       getNDof(void) const;
     const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
     const DoubleFunctionSample & getModel(const PlaceHolder ph,

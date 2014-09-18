@@ -38,13 +38,19 @@ const DSample & SampleFitResult::getChi2(const PlaceHolder ph __unused) const
 
 double SampleFitResult::getChi2PerDof(const Index s) const
 {
-    return chi2_[s]/static_cast<double>(nDof_);
+    return chi2_[s]/getNDof();
 }
 
 DSample SampleFitResult::getChi2PerDof(const PlaceHolder ph __unused) const
 {
-    return chi2_/static_cast<double>(nDof_);
+    return chi2_/getNDof();
 }
+
+double SampleFitResult::getNDof(void) const
+{
+    return static_cast<double>(nDof_);
+}
+
 const DoubleFunction & SampleFitResult::getModel(const Index s, 
                                                  const Index j) const
 {
@@ -210,6 +216,7 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     FitResult       sampleResult;
     SampleFitResult result;
     bool            initChi2;
+    DVec            initBuf = init;
     
     result.resize(nSample);
     result.chi2_.resize(nSample);
@@ -232,7 +239,11 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
         initChi2 = (s == central);
         
         // fit
-        sampleResult = data_.fit(minimizer, init, modelVector);
+        sampleResult = data_.fit(minimizer, initBuf, modelVector);
+        if (s == central)
+        {
+            initBuf = sampleResult;
+        }
         
         // store result
         result[s]       = sampleResult;

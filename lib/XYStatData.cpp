@@ -32,14 +32,14 @@ double FitResult::getChi2(void) const
     return chi2_;
 }
 
-Index FitResult::getNDof(void) const
-{
-    return nDof_;
-}
-
 double FitResult::getChi2PerDof(void) const
 {
-    return chi2_/static_cast<double>(nDof_);
+    return chi2_/getNDof();
+}
+
+double FitResult::getNDof(void) const
+{
+    return static_cast<double>(nDof_);
 }
 
 const DoubleFunction & FitResult::getModel(const Index j) const
@@ -219,7 +219,6 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     {
         chi2_.requestInit();
     }
-    
     // initial parameters
     const Index nPoint = getNFitPoint();
     DVec        fullInit = init;

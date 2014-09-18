@@ -45,8 +45,8 @@ public:
     virtual ~FitResult(void) = default;
     // access
     double                 getChi2(void) const;
-    Index                  getNDof(void) const;
     double                 getChi2PerDof(void) const;
+    double                 getNDof(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
 private:
     double                      chi2_{0.0};
