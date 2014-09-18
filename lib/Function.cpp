@@ -147,6 +147,16 @@ MAKE_SELF_SCALAR_OP(/)
 /******************************************************************************
  *                    DoubleFunctionSample implementation                     *
  ******************************************************************************/
+// constructors ////////////////////////////////////////////////////////////////
+DoubleFunctionSample::DoubleFunctionSample(void)
+: Sample<DoubleFunction>()
+{}
+
+DoubleFunctionSample::DoubleFunctionSample(const Index nSample)
+: Sample<DoubleFunction>(nSample)
+{}
+
+// function call ///////////////////////////////////////////////////////////////
 DSample DoubleFunctionSample::operator()(const DMatSample &arg) const
 {
     DSample result(size());

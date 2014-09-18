@@ -156,7 +156,10 @@ class DoubleFunctionSample: public Sample<DoubleFunction>
 {
 public:
     // constructors
-    using Sample<DoubleFunction>::Sample;
+    DoubleFunctionSample(void);
+    DoubleFunctionSample(const Index nSample);
+    EIGEN_EXPR_CTOR(DoubleFunctionSample, DoubleFunctionSample,
+                    Sample<DoubleFunction>, ArrayExpr)
     // destructor
     virtual ~DoubleFunctionSample(void) = default;
     // function call
