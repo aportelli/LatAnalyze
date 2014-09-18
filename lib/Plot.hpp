@@ -24,7 +24,6 @@
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 #include <sstream>
-#include <stack>
 #include <vector>
 
 // gnuplot default parameters
@@ -176,7 +175,8 @@ private:
 class PlotRange: public PlotModifier
 {
 public:
-    // constructor
+    // constructors
+    PlotRange(const Axis axis);
     PlotRange(const Axis axis, const double min, const double max);
     // destructor
     virtual ~PlotRange(void) = default;
@@ -184,6 +184,7 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const Axis   axis_;
+    const bool   reset_;
     const double min_, max_;
 };
 
@@ -238,6 +239,7 @@ public:
     Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
+    void save(std::string dirName);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);
@@ -256,7 +258,7 @@ private:
     // string buffer for commands
     std::ostringstream       commandBuffer_;
     // stack of created temporary files
-    std::stack<std::string>  tmpFileName_;
+    std::vector<std::string> tmpFileName_;
     // plot content
     PlotOptions              options_;
     std::vector<std::string> headCommand_;
