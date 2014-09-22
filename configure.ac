@@ -78,7 +78,7 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
-AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([GSL library not found])])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[LIBS="$LIBS -lgsl -lgslcblas"],[AC_MSG_ERROR([GSL library not found])])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
 AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);
