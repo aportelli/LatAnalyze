@@ -22,7 +22,8 @@ noinst_PROGRAMS =           \
     exMathInterpreter       \
     exMin                   \
     exPlot                  \
-    exRand
+    exRand                  \
+    exRootFinder
 
 exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
 exCompiledDoubleFunction_CFLAGS  = -g -O2
@@ -55,5 +56,9 @@ exPlot_LDFLAGS                   = -L../lib/.libs -lLatAnalyze
 exRand_SOURCES                   = exRand.cpp
 exRand_CFLAGS                    = -g -O2
 exRand_LDFLAGS                   = -L../lib/.libs -lLatAnalyze
+
+exRootFinder_SOURCES             = exRootFinder.cpp
+exRootFinder_CFLAGS              = -g -O2
+exRootFinder_LDFLAGS             = -L../lib/.libs -lLatAnalyze
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

@@ -1,5 +1,5 @@
 /*
- * Minimizer.hpp, part of LatAnalyze 3
+ * GslHybridRootFinder.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2014 Antonin Portelli
  *
@@ -17,31 +17,35 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_Minimizer_hpp_
-#define Latan_Minimizer_hpp_
+#ifndef Latan_GslHybridRootFinder_hpp_
+#define Latan_GslHybridRootFinder_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <LatAnalyze/Function.hpp>
-#include <LatAnalyze/Mat.hpp>
-#include <LatAnalyze/Solver.hpp>
+#include <LatAnalyze/RootFinder.hpp>
+#include <gsl/gsl_multiroots.h>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                        Abstract minimizer class                            *
+ *                         GslHybridRootFinder                                 *
  ******************************************************************************/
 
-class Minimizer: public Solver
+class GslHybridRootFinder: public RootFinder
 {
 public:
     // constructor
-    Minimizer(void) = default;
+    GslHybridRootFinder(void) = default;
     // destructor
-    virtual ~Minimizer(void) = default;
-    // minimization
-    virtual const DVec & operator()(const DoubleFunction &f) = 0;
+    virtual ~GslHybridRootFinder(void) = default;
+    // solver
+    virtual const DVec & operator()(const std::vector<DoubleFunction *> &func);
+private:
+    // output
+    void printState(void);
+private:
+    gsl_multiroot_fsolver *solver_{nullptr};
 };
 
 END_NAMESPACE
 
-#endif // Latan_Minimizer_hpp_
+#endif // Latan_GslHybridRootFinder_hpp_

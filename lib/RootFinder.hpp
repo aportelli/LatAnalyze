@@ -1,5 +1,5 @@
 /*
- * Minimizer.hpp, part of LatAnalyze 3
+ * RootFinder.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2014 Antonin Portelli
  *
@@ -17,31 +17,31 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_Minimizer_hpp_
-#define Latan_Minimizer_hpp_
+#ifndef Latan_RootFinder_hpp_
+#define Latan_RootFinder_hpp_
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
-#include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/Solver.hpp>
 
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                        Abstract minimizer class                            *
+ *                              RootFinder                                    *
  ******************************************************************************/
 
-class Minimizer: public Solver
+class RootFinder: public Solver
 {
 public:
     // constructor
-    Minimizer(void) = default;
+    RootFinder(void) = default;
     // destructor
-    virtual ~Minimizer(void) = default;
-    // minimization
-    virtual const DVec & operator()(const DoubleFunction &f) = 0;
+    virtual ~RootFinder(void) = default;
+    // solver
+    virtual const DVec & operator()(const std::vector<DoubleFunction *> &func)
+        = 0;
 };
 
 END_NAMESPACE
 
-#endif // Latan_Minimizer_hpp_
+#endif // Latan_RootFinder_hpp_

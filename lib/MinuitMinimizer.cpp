@@ -58,6 +58,21 @@ double MinuitMinimizer::MinuitFunction::Up(void) const
     return 1.;
 }
 
+// access //////////////////////////////////////////////////////////////////////
+double MinuitMinimizer::getPrecision(void) const
+{
+    LATAN_ERROR(Implementation,
+                "Minuit minimizer precision cannot be accessed");
+    
+    return 0.;
+}
+
+void MinuitMinimizer::setPrecision(const double precision __unused)
+{
+    LATAN_ERROR(Implementation,
+                "Minuit minimizer precision cannot be accessed");
+}
+
 // minimization ////////////////////////////////////////////////////////////////
 const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
 {

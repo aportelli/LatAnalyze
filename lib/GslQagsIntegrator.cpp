@@ -45,7 +45,7 @@ GslQagsIntegrator::~GslQagsIntegrator(void)
 double GslQagsIntegrator::operator()(const DoubleFunction &f, const double xMin,
                                      const double xMax)
 {
-    double (*fWrap)(double, void *) = [](double x, void *fPt)
+    double (*fWrap)(double, void *) = [](double x, void *fPt)->double
     {
         return (*static_cast<DoubleFunction *>(fPt))(&x);
     };

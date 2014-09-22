@@ -52,6 +52,9 @@ public:
     MinuitMinimizer(void) = default;
     // destructor
     virtual ~MinuitMinimizer(void) = default;
+    // access
+    virtual double getPrecision(void) const;
+    virtual void   setPrecision(const double precision);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
 };
