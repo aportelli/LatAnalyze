@@ -2,18 +2,29 @@
 #include <LatAnalyze/CompiledFunction.hpp>
 #include <LatAnalyze/Math.hpp>
 #include <LatAnalyze/Plot.hpp>
+#include <LatAnalyze/TabFunction.hpp>
 
 using namespace std;
 using namespace Latan;
 
 int main(void)
 {
+    const Index nPoint = 8;
     Plot p;
+    DVec x(nPoint), y(nPoint);
     
-    p << PlotRange(Axis::x, -5.0, 5.0) << PlotRange(Axis::y, -5.0, 5.0);
+    for (Index i = 0; i < nPoint; ++i)
+    {
+        x(i) = static_cast<double>(i)/2.;
+        y(i) = x(i)*x(i);
+    }
+    p << PlotRange(Axis::x, -5.0, 5.0) << PlotRange(Axis::y, -5.0, 20.0);
     p << Color("rgb 'blue'") << PlotFunction(StdMath::tgamma, -5, 5);
     p << PlotFunction(CompiledDoubleFunction(1, "return cos(x_0)^2;"), -5, 5);
     p << Color("rgb 'brown'") << PlotCommand("x**3");
+    p << PlotCommand("x**2");
+    p << PlotFunction(TabFunction(x, y), 0.,
+                      static_cast<double>(nPoint)/2.0 - 1.1);
     cout << p << endl;
     p.display();
     
