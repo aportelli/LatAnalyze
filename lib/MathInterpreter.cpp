@@ -25,6 +25,193 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
+ *                       RunContext implementation                            *
+ ******************************************************************************/
+// access //////////////////////////////////////////////////////////////////////
+unsigned int RunContext::addFunction(const string &name, DoubleFunction *init)
+{
+    try
+    {
+        setFunction(name, init);
+        
+        return getFunctionAddress(name);
+    }
+    catch (Exceptions::Definition)
+    {
+        unsigned int address = fTable_.size();
+        
+        fMem_.push_back(init);
+        fTable_[name] = address;
+        
+        return address;
+    }
+}
+
+unsigned int RunContext::addVariable(const string &name, double init)
+{
+    try
+    {
+        setVariable(name, init);
+        
+        return getVariableAddress(name);
+    }
+    catch (Exceptions::Definition)
+    {
+        unsigned int address = vTable_.size();
+        
+        vMem_.push_back(init);
+        vTable_[name] = address;
+        
+        return address;
+    }
+}
+
+DoubleFunction * RunContext::getFunction(const string &name) const
+{
+    return getFunction(getFunctionAddress(name));
+}
+
+DoubleFunction * RunContext::getFunction(const unsigned int address) const
+{
+    if (address >= fTable_.size())
+    {
+        LATAN_ERROR(Range, "function address " + strFrom(address)
+                    + " out of range");
+        
+        return nullptr;
+    }
+    else
+    {
+        return fMem_[address];
+    }
+}
+
+unsigned int RunContext::getFunctionAddress(const string &name) const
+{
+    try
+    {
+        return fTable_.at(name);
+    }
+    catch (out_of_range)
+    {
+        LATAN_ERROR(Definition, "undefined function '" + name + "'");
+    }
+}
+
+const RunContext::AddressTable & RunContext::getFunctionTable(void) const
+{
+    return fTable_;
+}
+
+unsigned int RunContext::getInsIndex(void) const
+{
+    return insIndex_;
+}
+
+double RunContext::getVariable(const string &name) const
+{
+    return getVariable(getVariableAddress(name));
+}
+
+double RunContext::getVariable(const unsigned int address) const
+{
+    if (address >= vTable_.size())
+    {
+        LATAN_ERROR(Range, "variable address " + strFrom(address)
+                    + " out of range");
+        
+        return 0.;
+    }
+    else
+    {
+        return vMem_[address];
+    }
+}
+
+const RunContext::AddressTable & RunContext::getVariableTable(void) const
+{
+    return vTable_;
+}
+
+unsigned int RunContext::getVariableAddress(const string &name) const
+{
+    try
+    {
+        return vTable_.at(name);
+    }
+    catch (out_of_range)
+    {
+        LATAN_ERROR(Definition, "undefined variable '" + name + "'");
+    }
+}
+
+void RunContext::incrementInsIndex(const unsigned int inc)
+{
+    setInsIndex(getInsIndex() + inc);
+}
+
+void RunContext::setFunction(const string &name, DoubleFunction *f)
+{
+
+    setFunction(getFunctionAddress(name), f);
+}
+
+void RunContext::setFunction(const unsigned int address, DoubleFunction *f)
+{
+    if (address >= fTable_.size())
+    {
+        LATAN_ERROR(Range, "function address " + strFrom(address)
+                    + " out of range");
+    }
+    else
+    {
+        fMem_[address] = f;
+    }
+}
+
+void RunContext::setInsIndex(const unsigned index)
+{
+    insIndex_ = index;
+}
+
+void RunContext::setVariable(const string &name, const double value)
+{
+    setVariable(getVariableAddress(name), value);
+}
+
+void RunContext::setVariable(const unsigned int address, const double value)
+{
+    if (address >= vTable_.size())
+    {
+        LATAN_ERROR(Range, "variable address " + strFrom(address)
+                    + " out of range");
+    }
+    else
+    {
+        vMem_[address] = value;
+    }
+}
+
+stack<double> & RunContext::stack(void)
+{
+    return dStack_;
+}
+
+// reset ///////////////////////////////////////////////////////////////////////
+void RunContext::reset(void)
+{
+    insIndex_ = 0;
+    while (!dStack_.empty())
+    {
+        dStack_.pop();
+    }
+    vMem_.clear();
+    fMem_.clear();
+    vTable_.clear();
+    fTable_.clear();
+}
+
+/******************************************************************************
  *                            Instruction set                                 *
  ******************************************************************************/
 #define CODE_WIDTH 6
@@ -58,20 +245,13 @@ void Push::operator()(RunContext &context) const
 {
     if (type_ == ArgType::Constant)
     {
-        context.dStack.push(val_);
+        context.stack().push(val_);
     }
     else
     {
-        try
-        {
-            context.dStack.push(context.vMem[address_]);
-        }
-        catch (out_of_range)
-        {
-            LATAN_ERROR(Range, "unknown variable '" + name_ + "'");
-        }
+        context.stack().push(context.getVariable(address_));
     }
-    context.insIndex++;
+    context.incrementInsIndex();
 }
 
 // Push print //////////////////////////////////////////////////////////////////
@@ -99,10 +279,10 @@ void Pop::operator()(RunContext &context) const
 {
     if (!name_.empty())
     {
-        context.vMem[address_] = context.dStack.top();
+        context.setVariable(address_, context.stack().top());
     }
-    context.dStack.pop();
-    context.insIndex++;
+    context.stack().pop();
+    context.incrementInsIndex();
 }
 
 // Pop print ///////////////////////////////////////////////////////////////////
@@ -122,9 +302,9 @@ void Store::operator()(RunContext &context) const
 {
     if (!name_.empty())
     {
-        context.vMem[address_] = context.dStack.top();
+        context.setVariable(address_, context.stack().top());
     }
-    context.insIndex++;
+    context.incrementInsIndex();
 }
 
 // Store print /////////////////////////////////////////////////////////////////
@@ -142,15 +322,8 @@ Call::Call(const unsigned int address, const string &name)
 // Call execution //////////////////////////////////////////////////////////////
 void Call::operator()(RunContext &context) const
 {
-    try
-    {
-        context.dStack.push((*context.fMem[address_])(context.dStack));
-    }
-    catch (out_of_range)
-    {
-        LATAN_ERROR(Range, "unknown function '" + name_ + "'");
-    }
-    context.insIndex++;
+    context.stack().push((*context.getFunction(address_))(context.stack()));
+    context.incrementInsIndex();
 }
 
 // Call print //////////////////////////////////////////////////////////////////
@@ -166,11 +339,11 @@ void name::operator()(RunContext &context) const\
     double x[nArg];\
     for (int i = 0; i < nArg; ++i)\
     {\
-        x[nArg-1-i] = context.dStack.top();\
-        context.dStack.pop();\
+        x[nArg-1-i] = context.stack().top();\
+        context.stack().pop();\
     }\
-    context.dStack.push(exp);\
-    context.insIndex++;\
+    context.stack().push(exp);\
+    context.incrementInsIndex();\
 }\
 void name::print(ostream &out) const\
 {\
@@ -283,26 +456,19 @@ catch (out_of_range)\
 }\
 
 // VarNode compile /////////////////////////////////////////////////////////////
-void VarNode::compile(Program &program, AddressTable &vTable,
-                      AddressTable &fTable __unused) const
+void VarNode::compile(Program &program, RunContext &context) const
 {
-    unsigned int address;
-    
-    GET_ADDRESS(address, vTable, getName());
-    PUSH_INS(program, Push, address, getName());
-    
+    PUSH_INS(program, Push, context.getVariableAddress(getName()), getName());
 }
 
 // CstNode compile /////////////////////////////////////////////////////////////
-void CstNode::compile(Program &program, AddressTable &nextVAddress __unused,
-                      AddressTable &nextFAddress __unused) const
+void CstNode::compile(Program &program, RunContext &context __unused) const
 {
     PUSH_INS(program, Push, strTo<double>(getName()));
 }
 
 // SemicolonNode compile ///////////////////////////////////////////////////////
-void SemicolonNode::compile(Program &program, AddressTable &vTable,
-                            AddressTable &fTable) const
+void SemicolonNode::compile(Program &program, RunContext &context) const
 {
     auto &n = *this;
     
@@ -314,14 +480,13 @@ void SemicolonNode::compile(Program &program, AddressTable &vTable,
         
         if (isAssign||isSemiColumn||isKeyword)
         {
-            n[i].compile(program, vTable, fTable);
+            n[i].compile(program, context);
         }
     }
 }
 
 // AssignNode compile //////////////////////////////////////////////////////////
-void AssignNode::compile(Program &program, AddressTable &vTable,
-                         AddressTable &fTable) const
+void AssignNode::compile(Program &program, RunContext &context) const
 {
     auto &n = *this;
     
@@ -330,8 +495,8 @@ void AssignNode::compile(Program &program, AddressTable &vTable,
         bool hasSemicolonParent = isDerivedFrom<SemicolonNode>(getParent());
         unsigned int address;
         
-        n[1].compile(program, vTable, fTable);
-        GET_ADDRESS(address, vTable, n[0].getName());
+        n[1].compile(program, context);
+        address = context.addVariable(n[0].getName());
         if (hasSemicolonParent)
         {
             PUSH_INS(program, Pop, address, n[0].getName());
@@ -352,14 +517,13 @@ void AssignNode::compile(Program &program, AddressTable &vTable,
 #define ELIFNODE(name, nArg) else IFNODE(name, nArg)
 #define ELSE else
 
-void MathOpNode::compile(Program &program, AddressTable &vTable,
-                         AddressTable &fTable) const
+void MathOpNode::compile(Program &program, RunContext &context) const
 {
     auto &n = *this;
     
     for (Index i = 0; i < n.getNArg(); ++i)
     {
-        n[i].compile(program, vTable, fTable);
+        n[i].compile(program, context);
     }
     IFNODE("-", 1)   PUSH_INS(program, Neg,);
     ELIFNODE("+", 2) PUSH_INS(program, Add,);
@@ -371,27 +535,23 @@ void MathOpNode::compile(Program &program, AddressTable &vTable,
 }
 
 // FuncNode compile ////////////////////////////////////////////////////////////
-void FuncNode::compile(Program &program, AddressTable &vTable,
-                       AddressTable &fTable) const
+void FuncNode::compile(Program &program, RunContext &context) const
 {
     auto &n = *this;
-    unsigned int address;
     
     for (Index i = 0; i < n.getNArg(); ++i)
     {
-        n[i].compile(program, vTable, fTable);
+        n[i].compile(program, context);
     }
-    GET_ADDRESS(address, fTable, getName());
-    PUSH_INS(program, Call, address, getName());
+    PUSH_INS(program, Call, context.addFunction(getName()), getName());
 }
 
 // ReturnNode compile ////////////////////////////////////////////////////////////
-void ReturnNode::compile(Program &program, AddressTable &vTable,
-                         AddressTable &fTable) const
+void ReturnNode::compile(Program &program, RunContext &context) const
 {
     auto &n = *this;
     
-    n[0].compile(program, vTable, fTable);
+    n[0].compile(program, context);
     program.push_back(nullptr);
 }
 
@@ -473,9 +633,9 @@ void MathInterpreter::parse(void)
 #define ADD_FUNC(context, func)\
 try\
 {\
-(context).fMem[(context).fTable.at(#func)] = &STDMATH_NAMESPACE::func;\
+    (context).setFunction(#func, &STDMATH_NAMESPACE::func);\
 }\
-catch (out_of_range)\
+catch (Exceptions::Definition)\
 {}
 
 #define ADD_STDMATH_FUNCS(context)\
@@ -534,9 +694,7 @@ void MathInterpreter::compile(RunContext &context)
     {
         if (root_)
         {
-            context.vTable.clear();
-            context.fTable.clear();
-            root_->compile(program_, context.vTable, context.fTable);
+            root_->compile(program_, context);
             for (unsigned int i = 0; i < program_.size(); ++i)
             {
                 if (!program_[i])
@@ -547,8 +705,6 @@ void MathInterpreter::compile(RunContext &context)
                     break;
                 }
             }
-            context.vMem.resize(context.vTable.size());
-            context.fMem.resize(context.fTable.size());
             ADD_STDMATH_FUNCS(context);
         }
         if (!root_||!gotReturn)
@@ -573,10 +729,10 @@ void MathInterpreter::operator()(RunContext &context)
 
 void MathInterpreter::execute(RunContext &context) const
 {
-    context.insIndex = 0;
-    while (context.insIndex != program_.size())
+    context.setInsIndex(0);
+    while (context.getInsIndex() != program_.size())
     {
-        (*(program_[context.insIndex]))(context);
+        (*(program_[context.getInsIndex()]))(context);
     }
 }
 

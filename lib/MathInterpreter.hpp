@@ -34,19 +34,55 @@
 BEGIN_NAMESPACE
 
 /******************************************************************************
- *                         Instruction classes                                *
+ *                       Class for runtime context                            *
  ******************************************************************************/
-typedef std::map<std::string, unsigned int> AddressTable;
-
-struct RunContext
+class RunContext
 {
-    unsigned int                  insIndex;
-    std::stack<double>            dStack;
-    std::vector<double>           vMem;
-    std::vector<DoubleFunction *> fMem;
-    AddressTable                  vTable, fTable;
+public:
+    typedef std::map<std::string, unsigned int> AddressTable;
+public:
+    // constructor
+    RunContext(void) = default;
+    // destructor
+    ~RunContext(void) = default;
+    // access
+    unsigned int         addFunction(const std::string &name,
+                                     DoubleFunction *init = nullptr);
+    unsigned int         addVariable(const std::string &name,
+                                     const double init = 0.);
+    DoubleFunction *     getFunction(const std::string &name) const;
+    DoubleFunction *     getFunction(const unsigned int address) const;
+    unsigned int         getFunctionAddress(const std::string &name) const;
+    const AddressTable & getFunctionTable(void) const;
+    unsigned int         getInsIndex(void) const;
+    double               getVariable(const std::string &name) const;
+    double               getVariable(const unsigned int address) const;
+    unsigned int         getVariableAddress(const std::string &name) const;
+    const AddressTable & getVariableTable(void) const;
+    void                 incrementInsIndex(const unsigned int inc = 1);
+    void                 setFunction(const std::string &name,
+                                     DoubleFunction *f);
+    void                 setFunction(const unsigned int address,
+                                     DoubleFunction *f);
+    void                 setInsIndex(const unsigned index);
+    void                 setVariable(const std::string &name,
+                                     const double value);
+    void                 setVariable(const unsigned int address,
+                                     const double value);
+    std::stack<double> & stack(void);
+    // reset
+    void                 reset(void);
+private:
+    unsigned int                  insIndex_;
+    std::stack<double>            dStack_;
+    std::vector<double>           vMem_;
+    std::vector<DoubleFunction *> fMem_;
+    AddressTable                  vTable_, fTable_;
 };
 
+/******************************************************************************
+ *                         Instruction classes                                *
+ ******************************************************************************/
 // Abstract base
 class Instruction
 {
@@ -171,8 +207,7 @@ public:
     // operator
     const ExprNode &operator[](const Index i) const;
     // compile
-    virtual void compile(Program &program, AddressTable &vTable,
-                         AddressTable &fTable) const = 0;
+    virtual void compile(Program &program, RunContext &context) const = 0;
 private:
     std::string                             name_;
     std::vector<std::unique_ptr<ExprNode>>  arg_;
@@ -186,8 +221,7 @@ class name: public base\
 {\
 public:\
     using base::base;\
-    virtual void compile(Program &program, AddressTable &vTable,\
-                         AddressTable &fTable) const;\
+    virtual void compile(Program &program, RunContext &context) const;\
 }
 
 DECL_NODE(ExprNode, VarNode);
@@ -201,8 +235,7 @@ class KeywordNode: public ExprNode
 {
 public:
     using ExprNode::ExprNode;
-    virtual void compile(Program &program, AddressTable &vTable,
-                         AddressTable &fTable) const = 0;
+    virtual void compile(Program &program, RunContext &context) const = 0;
 };
 
 DECL_NODE(KeywordNode, ReturnNode);

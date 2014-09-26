@@ -33,21 +33,21 @@ int main(int argc, char* argv[])
     }
     cout << "-- Program:" << endl << interpreter << endl;
     cout << "-- Variable table:" << endl;
-    for (auto &v: context.vTable)
+    for (auto &v: context.getVariableTable())
     {
         cout << "'" << v.first << "': " << v.second << endl;
     }
     cout << endl;
     cout << "-- Function table:" << endl;
-    for (auto &f: context.fTable)
+    for (auto &f: context.getFunctionTable())
     {
         cout << "'" << f.first << "': " << f.second << endl;
     }
     cout << endl;
     interpreter(context);
-    if (!context.dStack.empty())
+    if (!context.stack().empty())
     {
-        cout << "-- Result: " << context.dStack.top() << endl;
+        cout << "-- Result: " << context.stack().top() << endl;
     }
     
     return EXIT_SUCCESS;

@@ -29,7 +29,6 @@ BEGIN_NAMESPACE
 /******************************************************************************
  *                     compiled double model class                            *
  ******************************************************************************/
-
 class CompiledDoubleModel: public DoubleModel
 {
 public:

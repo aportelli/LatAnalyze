@@ -53,12 +53,12 @@ void CompiledDoubleFunction::compile(void) const
 {
     if (!*isCompiled_)
     {
-        interpreter_->compile(*(context_));
         varAddress_->clear();
         for (Index i = 0; i < getNArg(); ++i)
         {
-            varAddress_->push_back(context_->vTable.at("x_" + strFrom(i)));
+            varAddress_->push_back(context_->addVariable("x_" + strFrom(i)));
         }
+        interpreter_->compile(*(context_));
         *isCompiled_ = true;
     }
 }
@@ -71,13 +71,13 @@ double CompiledDoubleFunction::operator()(const double *arg) const
     compile();
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        context_->vMem[(*varAddress_)[i]] = arg[i];
+        context_->setVariable((*varAddress_)[i], arg[i]);
     }
     (*interpreter_)(*context_);
-    if (!context_->dStack.empty())
+    if (!context_->stack().empty())
     {
-        result = context_->dStack.top();
-        context_->dStack.pop();
+        result = context_->stack().top();
+        context_->stack().pop();
     }
     else
     {

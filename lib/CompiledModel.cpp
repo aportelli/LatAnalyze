@@ -56,17 +56,17 @@ void CompiledDoubleModel::compile(void) const
 {
     if (!*isCompiled_)
     {
-        interpreter_->compile(*(context_));
         varAddress_->clear();
         parAddress_->clear();
         for (Index i = 0; i < getNArg(); ++i)
         {
-            varAddress_->push_back(context_->vTable.at("x_" + strFrom(i)));
+            varAddress_->push_back(context_->addVariable("x_" + strFrom(i)));
         }
         for (Index j = 0; j < getNPar(); ++j)
         {
-            parAddress_->push_back(context_->vTable.at("p_" + strFrom(j)));
+            parAddress_->push_back(context_->addVariable("p_" + strFrom(j)));
         }
+        interpreter_->compile(*(context_));
         *isCompiled_ = true;
     }
 }
@@ -80,17 +80,17 @@ double CompiledDoubleModel::operator()(const double *arg,
     compile();
     for (unsigned int i = 0; i < getNArg(); ++i)
     {
-        context_->vMem[(*varAddress_)[i]] = arg[i];
+        context_->setVariable((*varAddress_)[i], arg[i]);
     }
     for (unsigned int j = 0; j < getNPar(); ++j)
     {
-        context_->vMem[(*parAddress_)[j]] = par[j];
+        context_->setVariable((*parAddress_)[j], par[j]);
     }
     (*interpreter_)(*context_);
-    if (!context_->dStack.empty())
+    if (!context_->stack().empty())
     {
-        result = context_->dStack.top();
-        context_->dStack.pop();
+        result = context_->stack().top();
+        context_->stack().pop();
     }
     else
     {
