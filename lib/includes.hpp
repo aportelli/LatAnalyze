@@ -26,6 +26,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <sstream>
 #include <utility>
 #include <cfloat>

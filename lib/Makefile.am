@@ -31,6 +31,7 @@ libLatAnalyze_la_SOURCES = \
     Chi2Function.cpp       \
     CompiledFunction.cpp   \
     CompiledModel.cpp      \
+    Derivative.cpp         \
     Exceptions.cpp         \
     File.cpp               \
     FitInterface.cpp       \
@@ -62,6 +63,7 @@ libLatAnalyze_la_HEADERS = \
     CompiledFunction.hpp   \
     CompiledModel.hpp      \
     Dataset.hpp            \
+    Derivative.hpp         \
     Exceptions.hpp         \
     FitInterface.hpp       \
     Function.hpp           \
