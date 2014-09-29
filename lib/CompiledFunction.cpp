@@ -40,8 +40,14 @@ CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
 }
 
 // access //////////////////////////////////////////////////////////////////////
+string CompiledDoubleFunction::getCode(void)
+{
+    return code_;
+}
+
 void CompiledDoubleFunction::setCode(const string &code)
 {
+    code_ = code;
     interpreter_.reset(new MathInterpreter(code));
     context_.reset(new RunContext);
     varAddress_.reset(new std::vector<unsigned int>);

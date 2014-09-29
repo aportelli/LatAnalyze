@@ -42,9 +42,15 @@ CompiledDoubleModel::CompiledDoubleModel(const unsigned nArg,
 }
 
 // access //////////////////////////////////////////////////////////////////////
+string CompiledDoubleModel::getCode(void)
+{
+    return code_;
+}
+
 void CompiledDoubleModel::setCode(const std::string &code)
 {
-    interpreter_.reset(new MathInterpreter(code));
+    code_ = code;
+    interpreter_.reset(new MathInterpreter(code_));
     context_.reset(new RunContext);
     varAddress_.reset(new std::vector<unsigned int>);
     parAddress_.reset(new std::vector<unsigned int>);

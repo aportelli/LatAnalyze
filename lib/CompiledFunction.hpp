@@ -38,7 +38,8 @@ public:
     // destructor
     virtual ~CompiledDoubleFunction(void) = default;
     // access
-    void setCode(const std::string &code);
+    std::string getCode(void);
+    void        setCode(const std::string &code);
     // function call
     using DoubleFunction::operator();
     virtual double operator()(const double *arg) const;
@@ -49,6 +50,7 @@ private:
     // compile
     void compile(void) const;
 private:
+    std::string                                code_;
     std::shared_ptr<MathInterpreter>           interpreter_;
     std::shared_ptr<RunContext>                context_;
     std::shared_ptr<std::vector<unsigned int>> varAddress_;

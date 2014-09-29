@@ -39,7 +39,8 @@ public:
     // destructor
     virtual ~CompiledDoubleModel(void) = default;
     // access
-    void setCode(const std::string &code);
+    std::string getCode(void);
+    void        setCode(const std::string &code);
     // function call
     using DoubleModel::operator();
     virtual double operator()(const double *arg, const double *par) const;
@@ -50,6 +51,7 @@ private:
     // compile
     void compile(void) const;
 private:
+    std::string                                code_;
     std::shared_ptr<MathInterpreter>           interpreter_;
     std::shared_ptr<RunContext>                context_;
     std::shared_ptr<std::vector<unsigned int>> varAddress_, parAddress_;
