@@ -34,7 +34,7 @@ class GslHybridRootFinder: public RootFinder
 {
 public:
     // constructor
-    GslHybridRootFinder(void) = default;
+    explicit GslHybridRootFinder(const Index dim);
     // destructor
     virtual ~GslHybridRootFinder(void) = default;
     // solver

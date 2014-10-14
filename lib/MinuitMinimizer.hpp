@@ -49,7 +49,7 @@ private:
     };
 public:
     // constructor
-    MinuitMinimizer(void) = default;
+    explicit MinuitMinimizer(const Index dim);
     // destructor
     virtual ~MinuitMinimizer(void) = default;
     // access

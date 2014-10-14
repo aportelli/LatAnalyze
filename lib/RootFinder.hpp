@@ -34,7 +34,7 @@ class RootFinder: public Solver
 {
 public:
     // constructor
-    RootFinder(void) = default;
+    explicit RootFinder(const Index dim);
     // destructor
     virtual ~RootFinder(void) = default;
     // solver

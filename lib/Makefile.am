@@ -46,9 +46,11 @@ libLatAnalyze_la_SOURCES = \
     MathParser.ypp         \
     MathLexer.lpp          \
     MatSample.cpp          \
+    Minimizer.cpp          \
     Model.cpp              \
     Plot.cpp               \
     RandGen.cpp            \
+    RootFinder.cpp         \
     Solver.cpp             \
     TabFunction.cpp        \
     XmlReader.cpp          \

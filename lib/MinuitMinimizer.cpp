@@ -35,7 +35,7 @@ using namespace ROOT;
 using namespace Minuit2;
 using namespace Latan;
 
-static constexpr double       initErr = 0.5;
+static constexpr double       initErr = 5.0;
 static constexpr unsigned int maxTry  = 10u;
 
 /******************************************************************************
@@ -57,6 +57,11 @@ double MinuitMinimizer::MinuitFunction::Up(void) const
 {
     return 1.;
 }
+
+// constructor /////////////////////////////////////////////////////////////////
+MinuitMinimizer::MinuitMinimizer(const Index dim)
+: Minimizer(dim)
+{}
 
 // access //////////////////////////////////////////////////////////////////////
 double MinuitMinimizer::getPrecision(void) const
@@ -81,7 +86,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     if (f.getNArg() != x.size())
     {
-        x.conservativeResize(f.getNArg());
+        LATAN_ERROR(Size, "function to minimize number of arguments mismatch");
     }
     
     // set parameters
@@ -91,10 +96,20 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     for (Index i = 0; i < x.size(); ++i)
     {
         parameters.Add("x_" + strFrom(i), x(i), initErr*fabs(x(i)));
+        if (hasLowLimit(i))
+        {
+            parameters.SetLowerLimit(static_cast<unsigned int>(i),
+                                     getLowLimit(i));
+        }
+        if (hasHighLimit(i))
+        {
+            parameters.SetUpperLimit(static_cast<unsigned int>(i),
+                                     getHighLimit(i));
+        }
     }
     
     // pre-minimization
-    MnSimplex       preMinimizer(minuitF, parameters, 0);
+    MnSimplex       preMinimizer(minuitF, parameters, 2);
     FunctionMinimum min = preMinimizer();
     
     if (verbosity >= Verbosity::Debug)
@@ -109,6 +124,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     // minimization and output
     MnMigrad     minimizer(minuitF, parameters, 2);
     unsigned int iTry = 0;
+    
     
     while ((!min.IsValid())&&(iTry < maxTry))
     {

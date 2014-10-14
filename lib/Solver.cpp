@@ -27,7 +27,9 @@ using namespace Latan;
  *                        Solver implementation                               *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-Solver::Solver(const double precision, const unsigned int maxIteration)
+Solver::Solver(const Index dim, const double precision,
+               const unsigned int maxIteration)
+: x_(dim)
 {
     setMaxIteration(maxIteration);
     setPrecision(precision);
@@ -61,7 +63,14 @@ Solver::Verbosity Solver::getVerbosity(void) const
 
 void Solver::setInit(const DVec &x0)
 {
-    x_ = x0;
+    if (x0.size() != x_.size())
+    {
+        LATAN_ERROR(Size, "initial vector state with invalid size");
+    }
+    else
+    {
+        x_ = x0;
+    }
 }
 
 void Solver::setMaxIteration(const unsigned int maxIteration)

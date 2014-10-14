@@ -23,36 +23,133 @@
 using namespace std;
 using namespace Latan;
 
-/******************************************************************************
- *                       Minimizer implementation                             *
- ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-Minimizer::Minimizer(Verbosity verbosity)
-: verbosity_(verbosity)
-{}
-
-// access //////////////////////////////////////////////////////////////////////
-Index Minimizer::getDim(void) const
+Minimizer::Minimizer(const Index dim)
+: Solver(dim)
+, highLimit_(dim)
+, lowLimit_(dim)
+, hasHighLimit_(dim)
+, hasLowLimit_(dim)
 {
-    return x_.size();
+    highLimit_.fill(0.);
+    lowLimit_.fill(0.);
+    hasHighLimit_.fill(false);
+    hasLowLimit_.fill(false);
 }
 
-DVec & Minimizer::getState(void)
+// limits //////////////////////////////////////////////////////////////////////
+double Minimizer::getHighLimit(const Index i) const
 {
-    return x_;
+    return highLimit_(i);
 }
 
-Minimizer::Verbosity Minimizer::getVerbosity(void) const
+const DVec & Minimizer::getHighLimit(const PlaceHolder ph __unused) const
 {
-    return verbosity_;
+    return highLimit_;
 }
 
-void Minimizer::setInit(const DVec &x0)
+double Minimizer::getLowLimit(const Index i) const
 {
-    x_ = x0;
+    return lowLimit_(i);
 }
 
-void Minimizer::setVerbosity(const Verbosity verbosity)
+const DVec & Minimizer::getLowLimit(const PlaceHolder ph __unused) const
 {
-    verbosity_ = verbosity;
+    return lowLimit_;
+}
+
+bool Minimizer::hasHighLimit(const Index i) const
+{
+    return hasHighLimit_(i);
+}
+
+bool Minimizer::hasLowLimit(const Index i) const
+{
+    return hasLowLimit_(i);
+}
+
+void Minimizer::setHighLimit(const Index i, const double l)
+{
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit index");
+    }
+    else
+    {
+        highLimit_(i) = l;
+        useHighLimit(i);
+    }
+}
+
+void Minimizer::setHighLimit(const PlaceHolder ph __unused, const DVec &l)
+{
+    if (l.size() != getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit vector size");
+    }
+    else
+    {
+        highLimit_ = l;
+        useHighLimit(_);
+    }
+}
+
+void Minimizer::setLowLimit(const Index i, const double l)
+{
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit index");
+    }
+    else
+    {
+        lowLimit_(i) = l;
+        useLowLimit(i);
+    }
+}
+
+void Minimizer::setLowLimit(const PlaceHolder ph __unused, const DVec &l)
+{
+    if (l.size() != getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit vector size");
+    }
+    else
+    {
+        lowLimit_ = l;
+        useLowLimit(_);
+    }
+}
+
+void Minimizer::useHighLimit(const Index i, const bool use)
+{
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit index");
+    }
+    else
+    {
+        hasHighLimit_(i) = use;
+    }
+}
+
+void Minimizer::useHighLimit(const PlaceHolder ph __unused, const bool use)
+{
+    hasHighLimit_.fill(use);
+}
+
+void Minimizer::useLowLimit(const Index i, const bool use)
+{
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid limit index");
+    }
+    else
+    {
+        hasLowLimit_(i) = use;
+    }
+}
+
+void Minimizer::useLowLimit(const PlaceHolder ph __unused, const bool use)
+{
+    hasLowLimit_.fill(use);
 }

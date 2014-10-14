@@ -35,11 +35,31 @@ class Minimizer: public Solver
 {
 public:
     // constructor
-    Minimizer(void) = default;
+    explicit Minimizer(const Index dim);
     // destructor
     virtual ~Minimizer(void) = default;
+    // limits
+    virtual double       getHighLimit(const Index i) const ;
+    virtual const DVec & getHighLimit(const PlaceHolder ph = _) const;
+    virtual double       getLowLimit(const Index i) const;
+    virtual const DVec & getLowLimit(const PlaceHolder ph = _) const;
+    virtual bool         hasHighLimit(const Index i) const;
+    virtual bool         hasLowLimit(const Index i) const;
+    virtual void         setHighLimit(const Index i, const double l);
+    virtual void         setHighLimit(const PlaceHolder ph, const DVec &l);
+    virtual void         setLowLimit(const Index i, const double l);
+    virtual void         setLowLimit(const PlaceHolder ph, const DVec &l);
+    virtual void         useHighLimit(const Index i, const bool use = true);
+    virtual void         useHighLimit(const PlaceHolder ph = _,
+                                      const bool use = true);
+    virtual void         useLowLimit(const Index i, const bool use = true);
+    virtual void         useLowLimit(const PlaceHolder ph = _,
+                                     const bool use = true);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f) = 0;
+private:
+    DVec      highLimit_, lowLimit_;
+    Vec<bool> hasHighLimit_, hasLowLimit_;
 };
 
 END_NAMESPACE

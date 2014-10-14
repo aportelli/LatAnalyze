@@ -42,8 +42,8 @@ public:
     };
 public:
     // constructor
-    Solver(const double precision = defaultPrec,
-           const unsigned int maxIteration = defaultMaxIteration);
+    explicit Solver(const Index dim, const double precision = defaultPrec,
+                    const unsigned int maxIteration = defaultMaxIteration);
     // destructor
     virtual ~Solver(void) = default;
     // access

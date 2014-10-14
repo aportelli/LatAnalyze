@@ -28,6 +28,11 @@ using namespace Latan;
 /******************************************************************************
  *                 GslHybridRootFinder implementation                          *
  ******************************************************************************/
+// constructor /////////////////////////////////////////////////////////////////
+GslHybridRootFinder::GslHybridRootFinder(const Index dim)
+: RootFinder(dim)
+{}
+
 // output //////////////////////////////////////////////////////////////////////
 void GslHybridRootFinder::printState(void)
 {
