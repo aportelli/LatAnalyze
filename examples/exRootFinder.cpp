@@ -11,7 +11,7 @@ int main(void)
     DoubleFunction f1(2, [a](const double *x){return a*(1.-x[0]);});
     DoubleFunction f2(2, [b](const double *x){return b*(x[1]-x[0]*x[0]);});
     vector<DoubleFunction *> system = {&f1, &f2};
-    GslHybridRootFinder solve;
+    GslHybridRootFinder solve(2);
     DVec init(2), x;
     
     solve.setVerbosity(Solver::Verbosity::Debug);

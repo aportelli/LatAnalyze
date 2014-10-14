@@ -17,22 +17,24 @@ int main(void)
     // generate fake data
     XYStatData          data(nPoint, 1, 1);
     RandGen             rg;
-    double              x_k;
+    double              x_k, y_k;
     CompiledDoubleModel f(1, 2, "return p_1*exp(-x_0*p_0);");
 
     for (Index k = 0; k < nPoint; ++k)
     {
         x_k          = k*dx;
+        y_k          = f(&x_k, exactPar) + rg.gaussian(0.0, 0.1);
+        cout << x_k << " " << y_k << " " << 0.1 << endl;
         data.x(0, k) = x_k;
-        data.y(0, k) = f(&x_k, exactPar) + rg.gaussian(0.0, 0.1);
+        data.y(0, k) = y_k;
     }
     data.yyVar(0, 0).diagonal() = DMat::Constant(nPoint, 1, 0.1*0.1);
     data.assumeXExact(0);
-    
+
     // fit
     DVec init = DVec::Constant(2, 0.5);
     FitResult p;
-    MinuitMinimizer minimizer;
+    MinuitMinimizer minimizer(2);
     
     data.fitAllPoints();
     p = data.fit(minimizer, init, f);

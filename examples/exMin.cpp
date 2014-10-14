@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     source = argv[1];
     
     CompiledDoubleFunction f(1, source);
-    MinuitMinimizer minimizer;
+    MinuitMinimizer minimizer(1);
     double min;
     
     minimizer.setVerbosity(Minimizer::Verbosity::Debug);

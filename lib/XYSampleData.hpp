@@ -53,7 +53,7 @@ public:
                                           const Index j = 0) const;
 private:
     DSample                           chi2_;
-    Index                             nDof_{0};
+    double                            nDof_{0.};
     std::vector<DoubleFunctionSample> model_;
 };
 

@@ -68,7 +68,10 @@ double TabFunction::operator()(const double *arg) const
     
     if ((x < value_.begin()->first)||(x >= value_.rbegin()->first))
     {
-        LATAN_ERROR(Range, "tabulated function variable out of range");
+        LATAN_ERROR(Range, "tabulated function variable out of range (x= "
+                    + strFrom(x) + " not in ["
+                    + strFrom(value_.begin()->first) + ", "
+                    + strFrom(value_.rbegin()->first) + "])");
     }
     
     auto i    = value_.equal_range(x);
