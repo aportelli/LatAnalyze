@@ -34,7 +34,7 @@ using namespace Latan;
 static void usage(const string &cmdName)
 {
     cerr << "usage: " << cmdName;
-    cerr << " [-n <nsample> -b <bin size> -r <state>]";
+    cerr << " [-n <nsample> -b <bin size> -r <state> -o <output dir>]";
     cerr << " <data list> <name list>";
     cerr << endl;
     exit(EXIT_FAILURE);
@@ -44,12 +44,12 @@ int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
     int    c;
-    string manFileName, nameFileName, stateFileName, cmdName;
+    string manFileName, nameFileName, stateFileName, cmdName, outDirName = ".";
     Index  binSize = 1, nSample = DEF_NSAMPLE;
     
     opterr = 0;
     cmdName = basename(argv[0]);
-    while ((c = getopt(argc, argv, "b:n:r:")) != -1)
+    while ((c = getopt(argc, argv, "b:n:r:o:")) != -1)
     {
         switch (c)
         {
@@ -58,6 +58,9 @@ int main(int argc, char *argv[])
                 break;
             case 'n':
                 nSample = strTo<Index>(optarg);
+                break;
+            case 'o':
+                outDirName = optarg;
                 break;
             case 'r':
                 stateFileName = optarg;
@@ -89,10 +92,11 @@ int main(int argc, char *argv[])
     cout << "================================================" << endl;
     cout << "Data resampler" << endl;
     cout << "------------------------------------------------" << endl;
-    cout << "    #file= " << dataFileName.size() << endl;
-    cout << "    #name= " << name.size() << endl;
-    cout << " bin size= " << binSize << endl;
-    cout << "  #sample= " << nSample << endl;
+    cout << "     #file= " << dataFileName.size() << endl;
+    cout << "     #name= " << name.size() << endl;
+    cout << "  bin size= " << binSize << endl;
+    cout << "   #sample= " << nSample << endl;
+    cout << "output dir: " << outDirName << endl;
     cout << "------------------------------------------------" << endl;
     
     // data loading ////////////////////////////////////////////////////////////
@@ -129,7 +133,7 @@ int main(int argc, char *argv[])
     }
     for (unsigned int i = 0; i < name.size(); ++i)
     {
-        const string outFileName = name[i] + "_" + manFileName + ".boot";
+        const string outFileName = name[i] + "_" + manFileName + ".sample";
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);
@@ -138,7 +142,8 @@ int main(int argc, char *argv[])
             g.setState(state);
         }
         s = data[name[i]].bootstrapMean(nSample, g);
-        Io::save<DMatSample, AsciiFile>(s, outFileName);
+        Io::save<DMatSample, AsciiFile>(s, outDirName + "/" + outFileName,
+                                        File::Mode::write, outFileName);
     }
     cout << endl;
     
