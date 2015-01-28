@@ -84,6 +84,7 @@ libLatAnalyze_la_HEADERS = \
     ParserState.hpp        \
     Plot.hpp               \
     RandGen.hpp            \
+    RootFinder.hpp         \
     TabFunction.hpp        \
     Solver.hpp             \
     StatArray.hpp          \
