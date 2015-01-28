@@ -33,7 +33,7 @@ using namespace Math;
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const double step)
 : DoubleFunction(f.getNArg())
-, f_(f)
+, f_(&f)
 , dir_(dir)
 , step_(step)
 , buffer_(new DVec(f.getNArg()))
@@ -60,6 +60,11 @@ Index Derivative::getNPoint(void) const
 double Derivative::getStep(void) const
 {
     return step_;
+}
+
+void Derivative::setFunction(const DoubleFunction &f)
+{
+    f_ = &f;
 }
 
 void Derivative::setOrderAndPoint(const Index order, const DVec point)
@@ -127,14 +132,14 @@ void Derivative::makeCoefficients(void)
 // function call ///////////////////////////////////////////////////////////////
 double Derivative::operator()(const double *x) const
 {
-    ConstMap<DVec> xMap(x, f_.getNArg());
+    ConstMap<DVec> xMap(x, (*f_).getNArg());
     double         res = 0.;
     
     *buffer_ = xMap;
     FOR_VEC(point_, i)
     {
         (*buffer_)(dir_) = x[dir_] + point_(i)*step_;
-        res += coefficient_[i]*f_(*buffer_);
+        res += coefficient_[i]*(*f_)(*buffer_);
     }
     res /= pow(step_, order_);
     
