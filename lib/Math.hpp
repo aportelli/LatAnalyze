@@ -52,6 +52,22 @@ namespace MATH_NAMESPACE
         return x*pow<n-1>(x);
     }
     
+    // integral factorial function
+    template <typename T>
+    T factorial(const T n)
+    {
+        static_assert(std::is_integral<T>::value,
+                      "factorial must me used with an integral argument");
+        
+        T res = n;
+        for (T i = n - 1; i != 0; --i)
+        {
+            res *= i;
+        }
+        
+        return res;
+    }
+    
     // Constants
     const double pi = 3.1415926535897932384626433832795028841970;
     const double e  = 2.7182818284590452353602874713526624977572;
