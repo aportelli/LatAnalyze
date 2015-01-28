@@ -668,7 +668,7 @@ double RandGen::uniform(const double a, const double b)
     return (b-a)*rx + a;
 }
 
-double RandGen::discreteUniform(const unsigned int n)
+unsigned int RandGen::discreteUniform(const unsigned int n)
 {
     return ((unsigned int)(uniform()*(double)(n)));
 }
