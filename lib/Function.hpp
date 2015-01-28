@@ -82,10 +82,10 @@ private:
 template <typename... Ts>
 double DoubleFunction::operator()(const double arg0, const Ts... args) const
 {
-    static_assert(static_or<std::is_trivially_assignable<double, Ts>::value...>::value,
+    static_assert(static_or<std::is_convertible<double, Ts>::value...>::value,
                   "DoubleFunction arguments are not compatible with double");
-    
-    const double arg[] = {arg0, args...};
+
+    const double arg[] = {arg0, static_cast<double>(args)...};
     
     checkSize(sizeof...(args) + 1);
     
