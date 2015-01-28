@@ -247,7 +247,7 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     result.model_.resize(modelVector.size());
     for (unsigned int j = 0; j < modelVector.size(); ++j)
     {
-        result.model_[j] = modelVector[j]->getBind(result);
+        result.model_[j] = modelVector[j]->fixPar(result);
     }
     
     return result;

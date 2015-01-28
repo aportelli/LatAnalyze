@@ -52,8 +52,10 @@ public:
     double operator()(const std::vector<double> &data,
                       const std::vector<double> &par) const;
     virtual double operator()(const double *data, const double *par) const;
-    // model bind
-    DoubleFunction getBind(const DVec &par) const;
+    // bind
+    DoubleFunction fixArg(const DVec &arg) const;
+    DoubleFunction fixPar(const DVec &par) const;
+    DoubleFunction toFunction(void) const;
 private:
     // error checking
     void checkSize(const Index nArg, const Index nPar) const;

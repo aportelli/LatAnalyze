@@ -93,11 +93,27 @@ double DoubleModel::operator()(const double *data, const double *par) const
 }
 
 // model bind //////////////////////////////////////////////////////////////////
-DoubleFunction DoubleModel::getBind(const DVec &par) const
+DoubleFunction DoubleModel::fixArg(const DVec &arg) const
 {
-    auto modelWithVec = [this](const double *_arg, const DVec &_par)
-                              {return (*this)(_arg, _par.data());};
+    auto modelWithVec = [this](const DVec &x, const double *p)
+                        {return (*this)(x.data(), p);};
+    auto modelBind    = bind(modelWithVec, arg, _1);
+
+    return DoubleFunction(getNPar(), modelBind);
+}
+
+DoubleFunction DoubleModel::fixPar(const DVec &par) const
+{
+    auto modelWithVec = [this](const double *x, const DVec &p)
+                              {return (*this)(x, p.data());};
     auto modelBind    = bind(modelWithVec, _1, par);
 
     return DoubleFunction(getNArg(), modelBind);
+}
+
+DoubleFunction DoubleModel::toFunction(void) const
+{
+    auto func = [this](const double *x){return (*this)(x, x + getNArg());};
+
+    return DoubleFunction(getNArg() + getNPar(), func);
 }
