@@ -132,8 +132,6 @@ void FitInterface::setFitInterface(const FitInterface &fitInterface)
 {
     if (&fitInterface != this)
     {
-        resize(fitInterface.getNData(), fitInterface.getXDim(),
-               fitInterface.getYDim());
         isXExact_   = fitInterface.isXExact_;
         isFitPoint_ = fitInterface.isFitPoint_;
         isXXCorr_   = fitInterface.isXXCorr_;
