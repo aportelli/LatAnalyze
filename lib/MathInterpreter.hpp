@@ -31,7 +31,7 @@
 
 #define MAXIDLENGTH 256
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                       Class for runtime context                            *
@@ -313,6 +313,6 @@ private:
 
 std::ostream & operator<<(std::ostream &out, const MathInterpreter &program);
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_MathInterpreter_hpp_

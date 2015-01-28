@@ -23,7 +23,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                              Derivative                                    *
@@ -42,6 +42,7 @@ public:
     Index  getNPoint(void) const;
     Index  getOrder(void) const;
     double getStep(void) const;
+    void   setFunction(const DoubleFunction &f);
     void   setOrderAndPoint(const Index order, const DVec point);
     void   setStep(const double step);
     // function call
@@ -54,7 +55,7 @@ protected:
 private:
     void makeCoefficients(void);
 private:
-    const DoubleFunction  &f_;
+    const DoubleFunction  *f_;
     Index                 dir_, order_;
     double                step_;
     DVec                  point_, coefficient_;
@@ -76,6 +77,7 @@ public:
     using Derivative::getNPoint;
     using Derivative::getStep;
     using Derivative::getOrder;
+    using Derivative::setStep;
     Index getPrecOrder(void) const;
     void  setOrder(const Index order, const Index precOrder = defaultPrecOrder);
     // function call
@@ -87,6 +89,6 @@ private:
     Index precOrder_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Derivative_hpp_

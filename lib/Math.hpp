@@ -24,7 +24,7 @@
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/MathInterpreter.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                             Custom math functions                          *
@@ -125,6 +125,6 @@ DECL_STD_FUNC(fmin)
 // Absolute value
 DECL_STD_FUNC(fabs)
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Math_hpp_

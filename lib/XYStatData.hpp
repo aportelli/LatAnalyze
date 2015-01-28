@@ -29,7 +29,7 @@
 #include <LatAnalyze/Model.hpp>
 #include <vector>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                           object for fit result                            *
@@ -133,6 +133,6 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
 }
 
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_XYData_hpp_

@@ -24,7 +24,7 @@
 #include <LatAnalyze/RootFinder.hpp>
 #include <gsl/gsl_multiroots.h>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                         GslHybridRootFinder                                 *
@@ -46,6 +46,6 @@ private:
     gsl_multiroot_fsolver *solver_{nullptr};
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_GslHybridRootFinder_hpp_

@@ -24,7 +24,7 @@
 #include <LatAnalyze/Model.hpp>
 #include <LatAnalyze/MathInterpreter.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                     compiled double model class                            *
@@ -60,6 +60,6 @@ private:
 
 std::ostream & operator<<(std::ostream &out, CompiledDoubleModel &f);
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_CompiledModel_hpp_

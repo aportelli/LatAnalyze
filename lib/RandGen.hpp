@@ -25,7 +25,7 @@
 
 #define RLXG_STATE_SIZE 105u
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 class RandGenState: public Array<int, RLXG_STATE_SIZE, 1>,
                     public IoObject
@@ -92,12 +92,12 @@ public:
     void         setState(const RandGenState &state);
     // generators
     double uniform(const double a = 0.0, const double b = 1.0);
-    double discreteUniform(const unsigned int n);
+    unsigned int discreteUniform(const unsigned int n);
     double gaussian(const double mean = 0.0, const double sigma = 1.0);
 private:
     RanLxd generator_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_RandGen_hpp_

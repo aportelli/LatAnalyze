@@ -27,7 +27,7 @@
 #include <LatAnalyze/Minimizer.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                            object for fit result                           *
@@ -123,6 +123,6 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     return fit(minimizer, init, modelVector);
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_XYSampleData_hpp_

@@ -25,7 +25,7 @@
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                      tabulated function: 1D only                           *
@@ -50,6 +50,6 @@ private:
     std::map<double, double> value_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_TabFunction_hpp_

@@ -39,7 +39,7 @@ public:\
     name(std::string msg, std::string loc);\
 }
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 namespace Exceptions
 {
@@ -60,6 +60,6 @@ namespace Exceptions
     DECL_EXC(System, Runtime);
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Exceptions_hpp_

@@ -22,7 +22,7 @@
 
 #include <LatAnalyze/Global.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                                Solver                                      *
@@ -65,6 +65,6 @@ private:
     Verbosity    verbosity_{Verbosity::Silent};
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Solver_hpp_

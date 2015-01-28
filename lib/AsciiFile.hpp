@@ -27,7 +27,7 @@
 #include <LatAnalyze/RandGen.hpp>
 #include <fstream>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                          ASCII datafile class                              *
@@ -72,6 +72,9 @@ public:
     // IO
     virtual void close(void);
     virtual void open(const std::string &name, const unsigned int mode);
+public:
+    // default ASCII precision
+    static const unsigned int defaultDoublePrec = 15;
 private:
     // IO
     virtual std::string load(const std::string &name = "");
@@ -83,6 +86,6 @@ private:
     std::unique_ptr<AsciiParserState> state_{nullptr};
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_AsciiFile_hpp_

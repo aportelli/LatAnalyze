@@ -27,7 +27,7 @@
 #include <fstream>
 #include <vector>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                              Dataset class                                 *
@@ -129,6 +129,6 @@ void Dataset<T>::ptVectorMean(T &m, const std::vector<const T *> &v)
     }
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Dataset_hpp_

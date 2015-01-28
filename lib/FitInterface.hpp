@@ -23,7 +23,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Minimizer.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                         base class for data fit                            *
@@ -75,6 +75,6 @@ private:
     IMat isXXCorr_, isYYCorr_, isYXCorr_, isDataCorr_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_FitInterface_hpp_

@@ -27,7 +27,7 @@
 #include <stack>
 #include <vector>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                            Double function class                           *
@@ -180,6 +180,6 @@ DSample DoubleFunctionSample::operator()(const double arg0,
     return (*this)(arg);
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Function_hpp_

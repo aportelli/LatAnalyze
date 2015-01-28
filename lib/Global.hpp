@@ -34,8 +34,8 @@
 #include <vector>
 #include <cstdlib>
 
-#define BEGIN_NAMESPACE namespace Latan {
-#define END_NAMESPACE }
+#define BEGIN_LATAN_NAMESPACE namespace Latan {
+#define END_LATAN_NAMESPACE }
 
 // macro utilities
 #define unique_arg(...) __VA_ARGS__
@@ -61,7 +61,7 @@ Class & operator=(const ExprType<Derived> &m)\
     return *this;\
 }
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 // Eigen type aliases //////////////////////////////////////////////////////////
 const int dynamic = -1;
@@ -284,7 +284,7 @@ ProgressBar::ProgressBar(const A current, const B total, const Index nCol)
 , nCol_(nCol)
 {}
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #include <LatAnalyze/Exceptions.hpp>
 

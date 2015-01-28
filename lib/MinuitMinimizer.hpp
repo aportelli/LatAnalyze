@@ -25,7 +25,7 @@
 #include <LatAnalyze/Minimizer.hpp>
 #include <Minuit2/FCNBase.h>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                             Minuit minimizer                               *
@@ -59,6 +59,6 @@ public:
     virtual const DVec & operator()(const DoubleFunction &f);
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_MinuitMinimizer_hpp_

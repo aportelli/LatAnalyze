@@ -25,7 +25,7 @@
 #include <LatAnalyze/StatArray.hpp>
 #include <functional>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                          matrix sample class                               *
@@ -390,6 +390,6 @@ IoObject::IoType MatSample<T>::getType(void) const
     return IoType::noType;
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_MatSample_hpp_

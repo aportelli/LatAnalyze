@@ -24,7 +24,7 @@
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/MathInterpreter.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                      compiled double function class                        *
@@ -59,6 +59,6 @@ private:
 
 std::ostream & operator<<(std::ostream &out, CompiledDoubleFunction &f);
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_CompiledFunction_hpp_

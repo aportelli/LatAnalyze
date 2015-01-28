@@ -22,7 +22,7 @@
 
 #include <LatAnalyze/Global.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                        Abstract class for IO objects                       *
@@ -44,6 +44,6 @@ public:
     virtual IoType getType(void) const = 0;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_IoObject_hpp_

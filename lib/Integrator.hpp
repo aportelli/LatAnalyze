@@ -23,7 +23,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                        abstract integrator class                           *
@@ -41,6 +41,6 @@ public:
                               const double xMax) = 0;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Integrator_hpp_

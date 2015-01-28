@@ -25,15 +25,16 @@
 #include <LatAnalyze/Mat.hpp>
 #include <vector>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                           Double model class                               *
  ******************************************************************************/
 class DoubleModel
 {
-private:
+public:
     typedef std::function<double(const double *, const double *)> vecFunc;
+private:
     struct ModelSize{Index nArg, nPar;};
 public:
     // constructor
@@ -61,6 +62,6 @@ private:
     vecFunc                    f_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Model_hpp_

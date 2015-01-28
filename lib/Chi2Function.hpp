@@ -24,7 +24,7 @@
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Model.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                                 <Class>                                    *
@@ -76,6 +76,6 @@ private:
     Index                               nPar_{-1};
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Chi2Function_hpp_

@@ -23,7 +23,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <iostream>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 template <typename DataObj>
 class ParserState
@@ -54,6 +54,6 @@ ParserState<DataObj>::ParserState(std::istream *streamPt, std::string *namePt,
 , streamName(namePt)
 {}
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_ParserState_hpp_

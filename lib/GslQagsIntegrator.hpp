@@ -25,7 +25,7 @@
 #include <LatAnalyze/Integrator.hpp>
 #include <gsl/gsl_integration.h>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *       GSL general quadrature adaptive integration with singularities       *
@@ -53,6 +53,6 @@ private:
     gsl_integration_workspace *workspace_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_GslQagsIntegrator_hpp_

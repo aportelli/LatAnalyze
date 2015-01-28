@@ -24,7 +24,7 @@
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Solver.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                              RootFinder                                    *
@@ -42,6 +42,6 @@ public:
         = 0;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_RootFinder_hpp_

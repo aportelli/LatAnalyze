@@ -27,7 +27,7 @@
 for (Latan::Index j = 0; j < mat.cols(); ++j)\
 for (Latan::Index i = 0; i < mat.rows(); ++i)
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                               matrix type                                  *
@@ -68,6 +68,6 @@ IoObject::IoType Mat<T>::getType(void) const
     return IoType::noType;
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Mat_hpp_

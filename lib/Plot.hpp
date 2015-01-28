@@ -35,7 +35,7 @@
 #define GNUPLOT_ARGS "-p"
 #endif
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                              Plot objects                                  *
@@ -267,6 +267,6 @@ private:
 
 std::ostream & operator<<(std::ostream &out, const Plot &plot);
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Plot_hpp_

@@ -29,7 +29,7 @@
 #include <queue>
 #include <unordered_map>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                          Abstract datafile class                           *
@@ -147,6 +147,6 @@ void Io::save(const IoT &data, const std::string &fileName,
     file.template save(data, realName);
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif

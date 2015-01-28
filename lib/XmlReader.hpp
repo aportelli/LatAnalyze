@@ -25,7 +25,7 @@
 #include <iostream>
 #include <vector>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                        XML parameter file reader                           *
@@ -176,6 +176,6 @@ std::vector<T> XmlReader::getAllValues(const std::string &nodeName,
     return getAllValues<T>(root_, nodeName, nodeNames...);
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_XmlReader_hpp_

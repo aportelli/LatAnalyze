@@ -25,7 +25,7 @@
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/Solver.hpp>
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                        Abstract minimizer class                            *
@@ -62,6 +62,6 @@ private:
     Vec<bool> hasHighLimit_, hasLowLimit_;
 };
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_Minimizer_hpp_

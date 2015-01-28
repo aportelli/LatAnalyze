@@ -27,7 +27,7 @@
 #define FOR_STAT_ARRAY(ar, i) \
 for (Latan::Index i = -(ar).offset; i < (ar).size(); ++i)
 
-BEGIN_NAMESPACE
+BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
  *                     Array class with statistics                            *
@@ -259,6 +259,6 @@ inline Mat<double> ReducOp::tensProd(const Mat<double>  &v1,
     return v1*v2.transpose();
 }
 
-END_NAMESPACE
+END_LATAN_NAMESPACE
 
 #endif // Latan_StatArray_hpp_
