@@ -55,12 +55,15 @@ AsciiFile::~AsciiFile(void)
 // access //////////////////////////////////////////////////////////////////////
 void AsciiFile::save(const DMat &m, const std::string &name)
 {
+    const auto defaultPrec = fileStream_.precision(defaultDoublePrec);
+
     checkWritability();
     isParsed_ = false;
     fileStream_ << "#L latan_begin mat " << name << endl;
     fileStream_ << m.cols() << endl;
     fileStream_ << scientific << m << endl;
     fileStream_ << "#L latan_end mat " << endl;
+    fileStream_.precision(defaultPrec);
 }
 
 void AsciiFile::save(const DMatSample &s, const std::string &name)
