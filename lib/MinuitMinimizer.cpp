@@ -35,7 +35,7 @@ using namespace ROOT;
 using namespace Minuit2;
 using namespace Latan;
 
-static constexpr double       initErr = 5.0;
+static constexpr double       initErr = 0.5;
 static constexpr unsigned int maxTry  = 10u;
 
 /******************************************************************************
@@ -96,12 +96,17 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     for (Index i = 0; i < x.size(); ++i)
     {
         parameters.Add("x_" + strFrom(i), x(i), initErr*fabs(x(i)));
-        if (hasLowLimit(i))
+        if (hasLowLimit(i)&&hasHighLimit(i))
+        {
+            parameters.SetLimits(static_cast<unsigned int>(i),
+                                 getLowLimit(i), getHighLimit(i));
+        }
+        else if (hasLowLimit(i))
         {
             parameters.SetLowerLimit(static_cast<unsigned int>(i),
                                      getLowLimit(i));
         }
-        if (hasHighLimit(i))
+        else if (hasHighLimit(i))
         {
             parameters.SetUpperLimit(static_cast<unsigned int>(i),
                                      getHighLimit(i));
@@ -109,23 +114,27 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // pre-minimization
-    MnSimplex       preMinimizer(minuitF, parameters, 2);
-    FunctionMinimum min = preMinimizer();
+    MnSimplex       preMinimizer(minuitF, parameters, 1);
+    FunctionMinimum preMin = preMinimizer();
     
     if (verbosity >= Verbosity::Debug)
     {
         cout << "-- MINUIT pre-minimization -----------------------------";
-        cout << min;
+        cout << preMin;
         cout << "--------------------------------------------------------";
         cout << endl;
     }
-    parameters = preMinimizer.Parameters();
+    for (unsigned int i = 0; i < x.size(); ++i)
+    {
+        parameters.SetValue(i, preMin.UserParameters().Value(i));
+        parameters.SetError(i, 2.*preMin.UserParameters().Error(i));
+    }
     
     // minimization and output
-    MnMigrad     minimizer(minuitF, parameters, 2);
-    unsigned int iTry = 0;
-    
-    
+    MnMigrad        minimizer(minuitF, parameters, 2);
+    unsigned int    iTry = 0;
+    FunctionMinimum min = minimizer();
+
     while ((!min.IsValid())&&(iTry < maxTry))
     {
         min = minimizer();
@@ -150,7 +159,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     {
         vector<pair<double, double>> scanRes;
         MnPlot plot;
-        MnScan scanner(minuitF, min.UserParameters(), 2);
+        MnScan scanner(minuitF, preMin.UserParameters(), 2);
         
         cout << "-- MINUIT scan -----------------------------------------";
         cout << endl;
