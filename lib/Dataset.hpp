@@ -94,20 +94,24 @@ void Dataset<T>::load(const std::string &listFileName,
 template <typename T>
 Sample<T> Dataset<T>::bootstrapMean(const Index nSample, RandGen& generator)
 {
-    Index nData = this->size();
+    typedef typename std::vector<const T *>::size_type size_type;
+
+    size_type              nData = static_cast<size_type>(this->size());
     std::vector<const T *> data(nData);
     Sample<T> s(nSample);
     
-    for (Index j = 0; j < nData; ++j)
+    for (size_type j = 0; j < nData; ++j)
     {
-        data[j] = &((*this)[j]);
+        data[j] = &((*this)[static_cast<Index>(j)]);
     }
     ptVectorMean(s[central], data);
     for (Index i = 0; i < nSample; ++i)
     {
-        for (Index j = 0; j < nData; ++j)
+        for (size_type j = 0; j < nData; ++j)
         {
-            data[j] = &((*this)[generator.discreteUniform(nData)]);
+            Index k= static_cast<Index>(generator.discreteUniform(static_cast<unsigned int>(nData)));
+
+            data[j] = &((*this)[k]);
         }
         ptVectorMean(s[i], data);
     }
