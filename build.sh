@@ -6,7 +6,7 @@ PREFIX=`cat Makefile | grep '^prefix =' | awk '{print $3}'`
 case $1 in
     '')
         echo '-- building...'
-        make -j5
+        make -j8
         echo '-- installing...'
         make uninstall 1>/dev/null
         make install 1>/dev/null
@@ -17,7 +17,7 @@ case $1 in
         fi;;
     'clean')
         echo '-- cleaning...'
-        make -j5 clean;;
+        make -j8 clean;;
     *)
         echo 'error: unknown action' 1>&2
         exit 1;;
