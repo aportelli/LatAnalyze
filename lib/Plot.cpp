@@ -111,6 +111,12 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
+// PlotHLine constructor ///////////////////////////////////////////////////////
+PlotHLine::PlotHLine(const double y)
+{
+    setCommand(strFrom(y));
+}
+
 // PlotFunction constructor ////////////////////////////////////////////////////
 PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
                            const double xMax, const unsigned int nPoint)
@@ -171,6 +177,18 @@ Caption::Caption(const string &caption)
 void Caption::operator()(PlotOptions &option) const
 {
     option.caption = caption_;
+}
+
+// Label constructor ///////////////////////////////////////////////////////////
+Label::Label(const string &label, const Axis axis)
+: label_(label)
+, axis_(axis)
+{}
+
+// Label modifier //////////////////////////////////////////////////////////////
+void Label::operator()(PlotOptions &option) const
+{
+    option.label[static_cast<int>(axis_)] = label_;
 }
 
 // Color constructor ///////////////////////////////////////////////////////////

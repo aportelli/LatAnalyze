@@ -81,6 +81,15 @@ public:
     virtual ~PlotData(void) = default;
 };
 
+class PlotHLine: public PlotObject
+{
+public:
+    // constructor
+    PlotHLine(const double y);
+    // destructor
+    virtual ~PlotHLine(void) = default;
+};
+
 class PlotFunction: public PlotObject
 {
 public:
@@ -144,6 +153,20 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const std::string caption_;
+};
+
+class Label: public PlotModifier
+{
+public:
+    // constructor
+    explicit Label(const std::string &label, const Axis axis);
+    // destructor
+    virtual ~Label(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string label_;
+    const Axis        axis_;
 };
 
 class Color: public PlotModifier
