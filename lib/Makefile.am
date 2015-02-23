@@ -1,29 +1,19 @@
-if CC_GNU
-    COM_CFLAGS = -Wall -W -pedantic
-else
-if CC_INTEL
-    COM_CFLAGS = -Wall
-endif
-endif
-
+COM_CXXFLAGS = -Wall -Wconversion
 if CXX_GNU
-    COM_CXXFLAGS = -Wall -W -pedantic
+    COM_CXXFLAGS += -W -pedantic
 else
 if CXX_INTEL
-    COM_CXXFLAGS = -Wall
+    COM_CXXFLAGS +=
 endif
 endif
 
 AM_LFLAGS = -olex.yy.c
 AM_YFLAGS = -d
 
-include eigen_files.mk
-nobase_dist_pkginclude_HEADERS = $(eigen_files) XML/tinyxml2.hpp
-
 BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
-lib_LTLIBRARIES = libLatAnalyze.la
-	
+lib_LTLIBRARIES    = libLatAnalyze.la
+
 libLatAnalyze_la_SOURCES = \
     AsciiFile.cpp          \
     AsciiParser.ypp        \
@@ -53,10 +43,8 @@ libLatAnalyze_la_SOURCES = \
     RootFinder.cpp         \
     Solver.cpp             \
     TabFunction.cpp        \
-    XmlReader.cpp          \
     XYSampleData.cpp       \
     XYStatData.cpp         \
-    XML/tinyxml2.cpp       \
 	../config.h
 libLatAnalyze_ladir = $(pkgincludedir)
 libLatAnalyze_la_HEADERS = \
@@ -88,15 +76,12 @@ libLatAnalyze_la_HEADERS = \
     TabFunction.hpp        \
     Solver.hpp             \
     StatArray.hpp          \
-    XmlReader.hpp          \
     XYSampleData.hpp       \
     XYStatData.hpp
 if HAVE_MINUIT
-libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
-libLatAnalyze_la_HEADERS += MinuitMinimizer.hpp
+    libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
+    libLatAnalyze_la_HEADERS += MinuitMinimizer.hpp
 endif
-
-libLatAnalyze_la_CFLAGS   = $(COM_CFLAGS)
 libLatAnalyze_la_CXXFLAGS = $(COM_CXXFLAGS)
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
 AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
-AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
 
@@ -51,6 +51,13 @@ AC_ARG_WITH([Minuit2],
 	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"],
 	[]
 )
+AC_ARG_WITH([LatCore],
+    [AS_HELP_STRING([--with-LatCore=prefix],
+    [use this option for a non-standard install prefix of the LatCore library])],
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_LatCore/include"]
+    [AM_LDFLAGS="$AM_LDFLAGS -L$with_LatCore/lib"],
+    []
+)
 
 CFLAGS="$AM_CFLAGS $CFLAGS"
 CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
@@ -79,6 +86,8 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 # Checks for libraries.
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[LIBS="$LIBS -lgsl -lgslcblas"],[AC_MSG_ERROR([GSL library not found])])
+AC_CHECK_LIB([LatCore],[_ZN7LatCore12testFunctionEv],[],
+    [AC_MSG_ERROR([LatCore library not found])])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
 AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);

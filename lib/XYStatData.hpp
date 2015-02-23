@@ -76,32 +76,36 @@ public:
     void                 resize(const Index nData, const Index xDim,
                                 const Index yDim);
     void                 reinitChi2(const bool doReinit = true);
-    Block<DMatBase>      x(const PlaceHolder ph1 = _,
-                           const PlaceHolder ph2 = _);
-    ConstBlock<DMatBase> x(const PlaceHolder ph1 = _,
-                           const PlaceHolder ph2 = _) const;
-    Block<DMatBase>      x(const Index i, const PlaceHolder ph2 = _);
-    ConstBlock<DMatBase> x(const Index i, const PlaceHolder ph2 = _) const;
-    Block<DMatBase>      x(const PlaceHolder ph1, const Index k);
-    ConstBlock<DMatBase> x(const PlaceHolder ph1, const Index k) const;
-    double &             x(const Index i, const Index k);
-    const double &       x(const Index i, const Index k) const;
-    Block<DMatBase>      y(const PlaceHolder ph1 = _,
-                           const PlaceHolder ph2 = _);
-    ConstBlock<DMatBase> y(const PlaceHolder ph1 = _,
-                           const PlaceHolder ph2 = _) const;
-    Block<DMatBase>      y(const Index i, const PlaceHolder ph2 = _);
-    ConstBlock<DMatBase> y(const Index i, const PlaceHolder ph2 = _) const;
-    Block<DMatBase>      y(const PlaceHolder ph1, const Index k);
-    ConstBlock<DMatBase> y(const PlaceHolder ph1, const Index k) const;
-    double &             y(const Index i, const Index k);
-    const double &       y(const Index i, const Index k) const;
-    Block<DMatBase>      xxVar(const Index i1, const Index i2);
-    ConstBlock<DMatBase> xxVar(const Index i1, const Index i2) const;
-    Block<DMatBase>      yyVar(const Index j1, const Index j2);
-    ConstBlock<DMatBase> yyVar(const Index j1, const Index j2) const;
-    Block<DMatBase>      yxVar(const Index j,  const Index i);
-    ConstBlock<DMatBase> yxVar(const Index j,  const Index i) const;
+    Block<MatBase<double>>      x(const PlaceHolder ph1 = _,
+                                  const PlaceHolder ph2 = _);
+    ConstBlock<MatBase<double>> x(const PlaceHolder ph1 = _,
+                                  const PlaceHolder ph2 = _) const;
+    Block<MatBase<double>>      x(const Index i, const PlaceHolder ph2 = _);
+    ConstBlock<MatBase<double>> x(const Index i,
+                                  const PlaceHolder ph2 = _) const;
+    Block<MatBase<double>>      x(const PlaceHolder ph1, const Index k);
+    ConstBlock<MatBase<double>> x(const PlaceHolder ph1,
+                                  const Index k) const;
+    double &                    x(const Index i, const Index k);
+    const double &              x(const Index i, const Index k) const;
+    Block<MatBase<double>>      y(const PlaceHolder ph1 = _,
+                                  const PlaceHolder ph2 = _);
+    ConstBlock<MatBase<double>> y(const PlaceHolder ph1 = _,
+                                  const PlaceHolder ph2 = _) const;
+    Block<MatBase<double>>      y(const Index i, const PlaceHolder ph2 = _);
+    ConstBlock<MatBase<double>> y(const Index i,
+                                  const PlaceHolder ph2 = _) const;
+    Block<MatBase<double>>      y(const PlaceHolder ph1, const Index k);
+    ConstBlock<MatBase<double>> y(const PlaceHolder ph1,
+                                  const Index k) const;
+    double &                    y(const Index i, const Index k);
+    const double &              y(const Index i, const Index k) const;
+    Block<MatBase<double>>      xxVar(const Index i1, const Index i2);
+    ConstBlock<MatBase<double>> xxVar(const Index i1, const Index i2) const;
+    Block<MatBase<double>>      yyVar(const Index j1, const Index j2);
+    ConstBlock<MatBase<double>> yyVar(const Index j1, const Index j2) const;
+    Block<MatBase<double>>      yxVar(const Index j,  const Index i);
+    ConstBlock<MatBase<double>> yxVar(const Index j,  const Index i) const;
     // fit
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const std::vector<const DoubleModel *> &modelVector);

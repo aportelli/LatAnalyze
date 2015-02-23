@@ -146,7 +146,7 @@ void Chi2Function::resizeBuffer(void) const
 
 // compute variance matrix inverse /////////////////////////////////////////////
 void Chi2Function::setVarianceBlock(const Index l1, const Index l2,
-                                    ConstBlock<DMatBase> m) const
+                                    ConstBlock<MatBase<double>> m) const
 {
     const Index nPoint = data_.getNFitPoint();
     

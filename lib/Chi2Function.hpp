@@ -67,7 +67,7 @@ private:
     
     // compute variance matrix inverse
     void setVarianceBlock(const Index l1, const Index l2,
-                          ConstBlock<DMatBase> m) const;
+                          ConstBlock<MatBase<double>> m) const;
     void initBuffer(void) const;
 private:
     const XYStatData                    &data_;
