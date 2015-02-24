@@ -1,5 +1,6 @@
 # builds
 build/*
+build_debug/*
 sandbox/*
 
 # Apple stuffs
