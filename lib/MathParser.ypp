@@ -24,12 +24,16 @@
     #include <LatAnalyze/Global.hpp>
 	#include <LatAnalyze/MathInterpreter.hpp>
 
+    #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+    #pragma GCC diagnostic ignored "-Wconversion"
+    #pragma GCC diagnostic ignored "-Wsign-conversion"
+
     using namespace std;
     using namespace Latan;
 %}
 
 %pure-parser
-%name-prefix="_math_"
+%name-prefix "_math_"
 %locations
 %defines
 %error-verbose

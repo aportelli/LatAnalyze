@@ -19,6 +19,10 @@
 
 #include <LatAnalyze/MinuitMinimizer.hpp>
 #include <LatAnalyze/includes.hpp>
+
+#pragma GCC diagnostic ignored "-Wdeprecated-register"
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #include <Minuit2/FCNBase.h>
 #include <Minuit2/FunctionMinimum.h>
 #include <Minuit2/MnMigrad.h>
@@ -29,6 +33,9 @@
 #include <Minuit2/ScanMinimizer.h>
 #include <Minuit2/SimplexMinimizer.h>
 #include <Minuit2/VariableMetricMinimizer.h>
+
+#pragma GCC diagnostic warning "-Wdeprecated-register"
+#pragma GCC diagnostic warning "-Wconversion"
 
 using namespace std;
 using namespace ROOT;
