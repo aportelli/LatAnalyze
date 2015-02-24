@@ -29,8 +29,7 @@ using namespace Latan;
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 Chi2Function::Chi2Function(const XYStatData &data)
-: DoubleFunction(0)
-, data_(data)
+: data_(data)
 , buffer_(new Chi2FunctionBuffer)
 {
     resizeBuffer();
@@ -297,5 +296,24 @@ double Chi2Function::operator()(const double *arg) const
     // compute result
     res = buffer_->v.dot(buffer_->invVar*buffer_->v);
     
+    return res;
+}
+
+// DoubleFunction factory //////////////////////////////////////////////////////
+DoubleFunction Chi2Function::makeFunction(const bool makeHardCopy) const
+{
+    DoubleFunction res;
+
+    if (makeHardCopy)
+    {
+        Chi2Function copy(*this);
+
+        res.setFunction([copy](const double *p){return copy(p);}, getNPar());
+    }
+    else
+    {
+        res.setFunction([this](const double *p){return (*this)(p);}, getNPar());
+    }
+
     return res;
 }

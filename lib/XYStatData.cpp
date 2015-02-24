@@ -249,10 +249,11 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     minimizer.setInit(fullInit);
     
     // fit
-    FitResult result;
+    DoubleFunction chi2 = chi2_.makeFunction(false);
+    FitResult      result;
     
-    result        = minimizer(chi2_);
-    result.chi2_  = chi2_(result);
+    result        = minimizer(chi2);
+    result.chi2_  = chi2(result);
     result.nDof_  = chi2_.getNDof();
     result.model_.resize(modelVector.size());
     for (unsigned int j = 0; j < modelVector.size(); ++j)

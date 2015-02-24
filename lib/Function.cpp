@@ -27,7 +27,7 @@ using namespace Latan;
  *                        DoubleFunction implementation                       *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-DoubleFunction::DoubleFunction(const Index nArg, const vecFunc &f)
+DoubleFunction::DoubleFunction(const vecFunc &f, const Index nArg)
 : buffer_(new DVec)
 {
     setFunction(f, nArg);
@@ -98,6 +98,28 @@ double DoubleFunction::operator()(void) const
     checkSize(0);
     
     return (*this)(nullptr);
+}
+
+// bind ////////////////////////////////////////////////////////////////////////
+DoubleFunction DoubleFunction::bind(const Index argIndex, const double val)
+{
+    Index            nArg = getNArg();
+    shared_ptr<DVec> buf(new DVec(nArg));
+    DoubleFunction   copy(*this), bindFunc;
+
+    auto func = [copy, buf, argIndex, val](const double *arg)
+    {
+         ConstMap<DVec> argMap(arg, buf->size());
+
+        *buf = argMap;
+        (*buf)(argIndex) = val;
+
+        return copy(*buf);
+    };
+
+    bindFunc.setFunction(func, nArg - 1);
+
+    return bindFunc;
 }
 
 // arithmetic operators ////////////////////////////////////////////////////////

@@ -15,10 +15,10 @@ const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
 int main(void)
 {
     // generate fake data
-    XYStatData          data(nPoint, 1, 1);
-    RandGen             rg;
-    double              x_k, y_k;
-    CompiledDoubleModel f(1, 2, "return p_1*exp(-x_0*p_0);");
+    XYStatData  data(nPoint, 1, 1);
+    RandGen     rg;
+    double      x_k, y_k;
+    DoubleModel f = compile("return p_1*exp(-x_0*p_0);", 1, 2);
 
     for (Index k = 0; k < nPoint; ++k)
     {

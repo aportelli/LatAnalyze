@@ -17,14 +17,14 @@ int main(int argc, char* argv[])
     }
     source = argv[1];
     
-    CompiledDoubleFunction f(1, source);
+    CompiledDoubleFunction f(source, 1);
     
     cout << "-- Program:" << endl << f << endl;
     cout << "-- Values:" << endl;
     for (double x = 0.0; x < 10.0; x += 0.5)
     {
         cout << "f(" << right << setw(6) << strFrom<double>(x) << ")= "
-             << f(x) << endl;
+             << f(&x) << endl;
     }
     
     return EXIT_SUCCESS;

@@ -32,15 +32,14 @@ using namespace Math;
 // constructor /////////////////////////////////////////////////////////////////
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const double step)
-: DoubleFunction(f.getNArg())
-, f_(&f)
+: f_(f)
 , dir_(dir)
 , step_(step)
 , buffer_(new DVec(f.getNArg()))
 {}
 
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
-                       const Index order, const DVec point, const double step)
+                       const Index order, const DVec &point, const double step)
 : Derivative(f, dir, step)
 {
     setOrderAndPoint(order, point);
@@ -64,10 +63,10 @@ double Derivative::getStep(void) const
 
 void Derivative::setFunction(const DoubleFunction &f)
 {
-    f_ = &f;
+    f_ = f;
 }
 
-void Derivative::setOrderAndPoint(const Index order, const DVec point)
+void Derivative::setOrderAndPoint(const Index order, const DVec &point)
 {
     if (order >= point.size())
     {
@@ -132,18 +131,45 @@ void Derivative::makeCoefficients(void)
 // function call ///////////////////////////////////////////////////////////////
 double Derivative::operator()(const double *x) const
 {
-    ConstMap<DVec> xMap(x, (*f_).getNArg());
+    ConstMap<DVec> xMap(x, f_.getNArg());
     double         res = 0.;
     
     *buffer_ = xMap;
     FOR_VEC(point_, i)
     {
         (*buffer_)(dir_) = x[dir_] + point_(i)*step_;
-        res += coefficient_[i]*(*f_)(*buffer_);
+        res += coefficient_[i]*f_(*buffer_);
     }
     res /= pow(step_, order_);
     
     return res;
+}
+
+// function factory ////////////////////////////////////////////////////////////
+DoubleFunction Derivative::makeFunction(const bool makeHardCopy) const
+{
+    DoubleFunction res;
+
+    if (makeHardCopy)
+    {
+        Derivative copy(*this);
+
+        res.setFunction([copy](const double *x){return copy(x);}, f_.getNArg());
+    }
+    else
+    {
+        res.setFunction([this](const double *x){return (*this)(x);},
+                        f_.getNArg());
+    }
+
+    return res;
+}
+
+DoubleFunction Latan::derivative(const DoubleFunction &f, const Index dir,
+                                 const Index order, const DVec point,
+                                 const double step)
+{
+    return Derivative(f, dir, order, point, step).makeFunction();
 }
 
 /******************************************************************************
@@ -187,4 +213,12 @@ void CentralDerivative::tuneStep(void)
     const double step    = pow(epsilon*nPoint, 1./(2.*precOrder_+getOrder()));
     
     setStep(step);
+}
+
+// function factory ////////////////////////////////////////////////////////////
+DoubleFunction Latan::centralDerivative(const DoubleFunction &f,
+                                        const Index dir, const Index order,
+                                        const Index precOrder)
+{
+    return CentralDerivative(f, dir, order, precOrder).makeFunction();
 }

@@ -29,28 +29,30 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                     compiled double model class                            *
  ******************************************************************************/
-class CompiledDoubleModel: public DoubleModel
+class CompiledDoubleModel: public DoubleModelFactory
 {
 public:
     // constructor
-    explicit CompiledDoubleModel(const unsigned nArg, const unsigned nPar);
-    CompiledDoubleModel(const unsigned nArg, const unsigned nPar,
-                        const std::string &code);
+    CompiledDoubleModel(const Index nArg, const Index nPar);
+    CompiledDoubleModel(const std::string &code, const Index nArg,
+                        const Index nPar);
     // destructor
     virtual ~CompiledDoubleModel(void) = default;
     // access
     std::string getCode(void);
     void        setCode(const std::string &code);
     // function call
-    using DoubleModel::operator();
-    virtual double operator()(const double *arg, const double *par) const;
+    double operator()(const double *arg, const double *par) const;
     // IO
     friend std::ostream & operator<<(std::ostream &out,
                                      CompiledDoubleModel &f);
+    // factory
+    DoubleModel makeModel(const bool makeHardCopy = true) const;
 private:
     // compile
     void compile(void) const;
 private:
+    Index                                      nArg_, nPar_;
     std::string                                code_;
     std::shared_ptr<MathInterpreter>           interpreter_;
     std::shared_ptr<RunContext>                context_;
@@ -59,6 +61,10 @@ private:
 };
 
 std::ostream & operator<<(std::ostream &out, CompiledDoubleModel &f);
+
+// DoubleModel factory
+DoubleModel compile(const std::string &code, const Index nArg,
+                    const Index nPar);
 
 END_LATAN_NAMESPACE
 

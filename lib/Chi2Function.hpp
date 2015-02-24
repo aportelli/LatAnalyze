@@ -32,7 +32,7 @@ BEGIN_LATAN_NAMESPACE
 // forward declaration of XYStatData
 class XYStatData;
 
-class Chi2Function: public DoubleFunction
+class Chi2Function: public DoubleFunctionFactory
 {
 private:
     struct Chi2FunctionBuffer
@@ -57,10 +57,9 @@ public:
             void  setModel(const std::vector<const DoubleModel *> &modelVector);
             void  requestInit(void) const;
     // function call
-    using DoubleFunction::operator();
-protected:
-    // function call
-    virtual double operator()(const double *arg) const;
+    double operator()(const double *arg) const;
+    // factory
+    virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 private:
     // access
     void resizeBuffer(void) const;

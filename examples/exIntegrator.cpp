@@ -20,9 +20,9 @@ int main(int argc, char* argv[])
     xMin   = strTo<double>(argv[2]);
     xMax   = strTo<double>(argv[3]);
     
-    CompiledDoubleFunction f(1, source);
-    GslQagsIntegrator      integrator;
-    double                 result;
+    DoubleFunction    f = compile(source, 1);
+    GslQagsIntegrator integrator;
+    double            result;
     
     result = integrator(f, xMin, xMax);
     cout << "function integral on [" << xMin << ", " << xMax << "] = ";

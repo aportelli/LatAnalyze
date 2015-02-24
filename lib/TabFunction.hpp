@@ -31,11 +31,11 @@ BEGIN_LATAN_NAMESPACE
  *                      tabulated function: 1D only                           *
  ******************************************************************************/
 
-class TabFunction: public DoubleFunction
+class TabFunction: public DoubleFunctionFactory
 {
 public:
     // constructors
-    TabFunction(void);
+    TabFunction(void) = default;
     TabFunction(const DVec &x, const DVec &y);
     TabFunction(const XYStatData &data, const Index i = 0, const Index j = 0);
     // destructor
@@ -44,11 +44,16 @@ public:
     void setData(const DVec &x, const DVec &y);
     void setData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // function call
-    using DoubleFunction::operator();
-    virtual double operator()(const double *arg) const;
+    double operator()(const double *arg) const;
+    // factory
+    virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 private:
     std::map<double, double> value_;
 };
+
+DoubleFunction interpolate(const DVec &x, const DVec &y);
+DoubleFunction interpolate(const XYStatData &data, const Index i = 0,
+                           const Index j = 0);
 
 END_LATAN_NAMESPACE
 

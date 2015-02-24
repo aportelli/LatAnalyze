@@ -29,27 +29,30 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                      compiled double function class                        *
  ******************************************************************************/
-class CompiledDoubleFunction: public DoubleFunction
+class CompiledDoubleFunction: public DoubleFunctionFactory
 {
 public:
     // constructors
-    explicit CompiledDoubleFunction(const unsigned nArg);
-    CompiledDoubleFunction(const unsigned nArg, const std::string &code);
+    explicit CompiledDoubleFunction(const Index nArg);
+    CompiledDoubleFunction(const std::string &code, const Index nArg);
     // destructor
     virtual ~CompiledDoubleFunction(void) = default;
     // access
     std::string getCode(void);
     void        setCode(const std::string &code);
     // function call
-    using DoubleFunction::operator();
-    virtual double operator()(const double *arg) const;
+    double operator()(const double *arg) const;
     // IO
     friend std::ostream & operator<<(std::ostream &out,
                                      CompiledDoubleFunction &f);
+    // factory
+    virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 private:
+
     // compile
     void compile(void) const;
 private:
+    Index                                      nArg_;
     std::string                                code_;
     std::shared_ptr<MathInterpreter>           interpreter_;
     std::shared_ptr<RunContext>                context_;
@@ -58,6 +61,9 @@ private:
 };
 
 std::ostream & operator<<(std::ostream &out, CompiledDoubleFunction &f);
+
+// DoubleFunction factory
+DoubleFunction compile(const std::string code, const Index nArg);
 
 END_LATAN_NAMESPACE
 

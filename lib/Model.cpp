@@ -29,10 +29,10 @@ using namespace Latan;
  *                           Model implementation                             *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-DoubleModel::DoubleModel(const Index nArg, const Index nPar, const vecFunc &f)
+DoubleModel::DoubleModel(const vecFunc &f, const Index nArg, const Index nPar)
 : size_(new ModelSize)
 {
-    setFunction(nArg, nPar, f);
+    setFunction(f, nArg, nPar);
 }
 
 // access //////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ Index DoubleModel::getNPar(void) const
     return size_->nPar;
 }
 
-void DoubleModel::setFunction(const Index nArg, const Index nPar,
-                              const vecFunc &f)
+void DoubleModel::setFunction(const vecFunc &f, const Index nArg,
+                              const Index nPar)
 {
     size_->nArg = nArg;
     size_->nPar = nPar;
@@ -95,25 +95,35 @@ double DoubleModel::operator()(const double *data, const double *par) const
 // model bind //////////////////////////////////////////////////////////////////
 DoubleFunction DoubleModel::fixArg(const DVec &arg) const
 {
-    auto modelWithVec = [this](const DVec &x, const double *p)
-                        {return (*this)(x.data(), p);};
+    DoubleModel copy(*this);
+
+    auto modelWithVec = [copy](const DVec &x, const double *p)
+    {
+        return copy(x.data(), p);
+    };
     auto modelBind    = bind(modelWithVec, arg, _1);
 
-    return DoubleFunction(getNPar(), modelBind);
+    return DoubleFunction(modelBind, getNPar());
 }
 
 DoubleFunction DoubleModel::fixPar(const DVec &par) const
 {
-    auto modelWithVec = [this](const double *x, const DVec &p)
-                              {return (*this)(x, p.data());};
+    DoubleModel copy(*this);
+
+    auto modelWithVec = [copy](const double *x, const DVec &p)
+    {
+        return copy(x, p.data());
+    };
     auto modelBind    = bind(modelWithVec, _1, par);
 
-    return DoubleFunction(getNArg(), modelBind);
+    return DoubleFunction(modelBind, getNArg());
 }
 
 DoubleFunction DoubleModel::toFunction(void) const
 {
-    auto func = [this](const double *x){return (*this)(x, x + getNArg());};
+    DoubleModel copy(*this);
 
-    return DoubleFunction(getNArg() + getNPar(), func);
+    auto func = [copy](const double *x){return copy(x, x + copy.getNArg());};
+
+    return DoubleFunction(func, getNArg() + getNPar());
 }

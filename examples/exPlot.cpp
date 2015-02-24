@@ -20,11 +20,10 @@ int main(void)
     }
     p << PlotRange(Axis::x, -5.0, 5.0) << PlotRange(Axis::y, -5.0, 20.0);
     p << Color("rgb 'blue'") << PlotFunction(StdMath::tgamma, -5, 5);
-    p << PlotFunction(CompiledDoubleFunction(1, "return cos(x_0)^2;"), -5, 5);
+    p << PlotFunction(compile("return cos(x_0)^2;", 1), -5, 5);
     p << Color("rgb 'brown'") << PlotCommand("x**3");
     p << PlotCommand("x**2");
-    p << PlotFunction(TabFunction(x, y), 0.,
-                      static_cast<double>(nPoint)/2.0 - 1.1);
+    p << PlotFunction(interpolate(x, y), 0., nPoint/2.0 - 1.1);
     cout << p << endl;
     p.display();
     

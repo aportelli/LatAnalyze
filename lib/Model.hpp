@@ -38,20 +38,20 @@ private:
     struct ModelSize{Index nArg, nPar;};
 public:
     // constructor
-    DoubleModel(const Index nArg = 0, const Index nPar = 0,
-                const vecFunc &f = nullptr);
+    DoubleModel(const vecFunc &f = nullptr, const Index nArg = 0,
+                const Index nPar = 0);
     // destructor
     virtual ~DoubleModel(void) = default;
     // access
     virtual Index getNArg(void) const;
     virtual Index getNPar(void) const;
-    void  setFunction(const Index nArg = 0, const Index nPar = 0,
-                      const vecFunc &f = nullptr);
+    void  setFunction(const vecFunc &f, const Index nArg,
+                      const Index nPar);
     // function call
     double operator()(const DVec &data, const DVec &par) const;
     double operator()(const std::vector<double> &data,
                       const std::vector<double> &par) const;
-    virtual double operator()(const double *data, const double *par) const;
+    double operator()(const double *data, const double *par) const;
     // bind
     DoubleFunction fixArg(const DVec &arg) const;
     DoubleFunction fixPar(const DVec &par) const;
@@ -62,6 +62,20 @@ private:
 private:
     std::shared_ptr<ModelSize> size_;
     vecFunc                    f_;
+};
+
+/******************************************************************************
+ *                       base class for model factories                       *
+ ******************************************************************************/
+class DoubleModelFactory
+{
+public:
+    // constructor
+    DoubleModelFactory(void) = default;
+    // destructor
+    virtual ~DoubleModelFactory(void) = default;
+    // factory
+    virtual DoubleModel makeModel(const bool makeHardCopy) const = 0;
 };
 
 END_LATAN_NAMESPACE

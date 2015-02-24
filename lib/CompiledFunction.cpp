@@ -28,12 +28,12 @@ using namespace Latan;
  *                   Compiled double function implementation                  *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg)
-: DoubleFunction(nArg, nullptr)
+CompiledDoubleFunction::CompiledDoubleFunction(const Index nArg)
+: nArg_(nArg)
 {}
 
-CompiledDoubleFunction::CompiledDoubleFunction(const unsigned nArg,
-                                               const string &code)
+CompiledDoubleFunction::CompiledDoubleFunction(const string &code,
+                                               const Index nArg)
 : CompiledDoubleFunction(nArg)
 {
     setCode(code);
@@ -60,7 +60,7 @@ void CompiledDoubleFunction::compile(void) const
     if (!*isCompiled_)
     {
         varAddress_->clear();
-        for (Index i = 0; i < getNArg(); ++i)
+        for (Index i = 0; i < nArg_; ++i)
         {
             varAddress_->push_back(context_->addVariable("x_" + strFrom(i)));
         }
@@ -75,7 +75,7 @@ double CompiledDoubleFunction::operator()(const double *arg) const
     double result;
     
     compile();
-    for (unsigned int i = 0; i < getNArg(); ++i)
+    for (unsigned int i = 0; i < nArg_; ++i)
     {
         context_->setVariable((*varAddress_)[i], arg[i]);
     }
@@ -101,4 +101,31 @@ ostream & Latan::operator<<(ostream &out, CompiledDoubleFunction &f)
     out << *(f.interpreter_);
     
     return out;
+}
+
+// DoubleFunction factory //////////////////////////////////////////////////////
+DoubleFunction CompiledDoubleFunction::makeFunction(const bool makeHardCopy)
+                                                    const
+{
+    DoubleFunction res;
+
+    if (makeHardCopy)
+    {
+        CompiledDoubleFunction copy(*this);
+
+        res.setFunction([copy](const double *p){return copy(p);}, nArg_);
+    }
+    else
+    {
+        res.setFunction([this](const double *p){return (*this)(p);}, nArg_);
+    }
+    
+    return res;
+}
+
+DoubleFunction Latan::compile(const string code, const Index nArg)
+{
+    CompiledDoubleFunction compiledFunc(code, nArg);
+
+    return compiledFunc.makeFunction();
 }

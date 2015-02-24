@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     maxOrder = strTo<Index>(argv[2]);
     x        = strTo<double>(argv[3]);
     
-    CompiledDoubleFunction f(1, source);
+    DoubleFunction    f = compile(source, 1);
     CentralDerivative df(f);
     
     for (Index i = 1; i <= 4; ++i)
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         for (Index j = 0; j <= maxOrder; ++j)
         {
             df.setOrder(j, i);
-            cout << "d^" << j << "f(" << x << ")= " << df(x) << endl;
+            cout << "d^" << j << "f(" << x << ")= " << df(&x) << endl;
         }
     }
     

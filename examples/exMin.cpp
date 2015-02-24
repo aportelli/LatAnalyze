@@ -17,12 +17,15 @@ int main(int argc, char* argv[])
     }
     source = argv[1];
     
-    CompiledDoubleFunction f(1, source);
-    MinuitMinimizer minimizer(1);
+    DoubleFunction  f = compile(source, 1);
+    MinuitMinimizer minimize(1);
+    DVec init(1);
     double min;
-    
-    minimizer.setVerbosity(Minimizer::Verbosity::Debug);
-    min = minimizer(f)(0);
+
+    init(0) = 0.1;
+    minimize.setInit(init);
+    minimize.setVerbosity(Minimizer::Verbosity::Debug);
+    min = minimize(f)(0);
     cout << "function minimum = " << min << endl;
     
     return EXIT_SUCCESS;

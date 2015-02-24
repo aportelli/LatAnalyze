@@ -39,21 +39,22 @@ private:
     typedef std::function<double(const double *)> vecFunc;
 public:
     // constructor
-    explicit DoubleFunction(const Index nArg = 0,
-                            const vecFunc &f = nullptr);
+    explicit DoubleFunction(const vecFunc &f = nullptr, const Index nArg = 0);
     // destructor
     virtual ~DoubleFunction(void) = default;
     // access
     virtual Index getNArg(void) const;
     void    setFunction(const vecFunc &f, const Index nArg);
     // function call
-    virtual double operator()(const double *arg) const;
+    double operator()(const double *arg) const;
     double operator()(const DVec &arg) const;
     double operator()(const std::vector<double> &arg) const;
     double operator()(std::stack<double> &arg) const;
     double operator()(void) const;
     template <typename... Ts>
     double operator()(const double arg0, const Ts... args) const;
+    // bind
+    DoubleFunction bind(const Index argIndex, const double val);
     // arithmetic operators
     DoubleFunction   operator-(void) const;
     DoubleFunction & operator+=(const DoubleFunction &f);
@@ -179,6 +180,20 @@ DSample DoubleFunctionSample::operator()(const double arg0,
     
     return (*this)(arg);
 }
+
+/******************************************************************************
+ *                       DoubleFunctionFactory class                          *
+ ******************************************************************************/
+class DoubleFunctionFactory
+{
+public:
+    // constructor
+    DoubleFunctionFactory(void) = default;
+    // destructor
+    virtual ~DoubleFunctionFactory(void) = default;
+    // factory
+    virtual DoubleFunction makeFunction(const bool makeHardCopy) const = 0;
+};
 
 END_LATAN_NAMESPACE
 

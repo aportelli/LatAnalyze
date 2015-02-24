@@ -28,14 +28,13 @@ using namespace Latan;
  *                 CompiledDoubleModel implementation                         *
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
-CompiledDoubleModel::CompiledDoubleModel(const unsigned nArg,
-                                         const unsigned nPar)
-: DoubleModel(nArg, nPar, nullptr)
+CompiledDoubleModel::CompiledDoubleModel(const Index nArg, const Index nPar)
+: nArg_(nArg)
+, nPar_(nPar)
 {}
 
-CompiledDoubleModel::CompiledDoubleModel(const unsigned nArg,
-                                         const unsigned nPar,
-                                         const string &code)
+CompiledDoubleModel::CompiledDoubleModel(const string &code, const Index nArg,
+                                         const Index nPar)
 : CompiledDoubleModel(nArg, nPar)
 {
     setCode(code);
@@ -64,11 +63,11 @@ void CompiledDoubleModel::compile(void) const
     {
         varAddress_->clear();
         parAddress_->clear();
-        for (Index i = 0; i < getNArg(); ++i)
+        for (Index i = 0; i < nArg_; ++i)
         {
             varAddress_->push_back(context_->addVariable("x_" + strFrom(i)));
         }
-        for (Index j = 0; j < getNPar(); ++j)
+        for (Index j = 0; j < nPar_; ++j)
         {
             parAddress_->push_back(context_->addVariable("p_" + strFrom(j)));
         }
@@ -84,11 +83,11 @@ double CompiledDoubleModel::operator()(const double *arg,
     double result;
     
     compile();
-    for (unsigned int i = 0; i < getNArg(); ++i)
+    for (unsigned int i = 0; i < nArg_; ++i)
     {
         context_->setVariable((*varAddress_)[i], arg[i]);
     }
-    for (unsigned int j = 0; j < getNPar(); ++j)
+    for (unsigned int j = 0; j < nPar_; ++j)
     {
         context_->setVariable((*parAddress_)[j], par[j]);
     }
@@ -114,4 +113,33 @@ ostream & Latan::operator<<(std::ostream &out, CompiledDoubleModel &m)
     out << *(m.interpreter_);
     
     return out;
+}
+
+// DoubleModel factory /////////////////////////////////////////////////////////
+DoubleModel CompiledDoubleModel::makeModel(const bool makeHardCopy) const
+{
+    DoubleModel res;
+
+    if (makeHardCopy)
+    {
+        CompiledDoubleModel copy(*this);
+
+        res.setFunction([copy](const double *x, const double *p)
+                        {return copy(x, p);}, nArg_, nPar_);
+    }
+    else
+    {
+        res.setFunction([this](const double *x, const double *p)
+                        {return (*this)(x, p);}, nArg_, nPar_);
+    }
+
+    return res;
+}
+
+DoubleModel Latan::compile(const std::string &code, const Index nArg,
+                           const Index nPar)
+{
+    CompiledDoubleModel compiledModel(code, nArg, nPar);
+
+    return compiledModel.makeModel();
 }

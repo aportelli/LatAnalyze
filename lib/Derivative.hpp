@@ -28,14 +28,14 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                              Derivative                                    *
  ******************************************************************************/
-class Derivative: public DoubleFunction
+class Derivative: public DoubleFunctionFactory
 {
 public:
     static constexpr double defaultStep = 1.0e-2;
 public:
     // constructor
     Derivative(const DoubleFunction &f, const Index dir, const Index order,
-               const DVec point, const double step = defaultStep);
+               const DVec &point, const double step = defaultStep);
     // destructor
     virtual ~Derivative(void) = default;
     // access
@@ -43,11 +43,12 @@ public:
     Index  getOrder(void) const;
     double getStep(void) const;
     void   setFunction(const DoubleFunction &f);
-    void   setOrderAndPoint(const Index order, const DVec point);
+    void   setOrderAndPoint(const Index order, const DVec &point);
     void   setStep(const double step);
     // function call
-    using DoubleFunction::operator();
-    virtual double operator()(const double *x) const;
+    double operator()(const double *x) const;
+    // function factory
+    virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 protected:
     // constructor
     Derivative(const DoubleFunction &f, const Index dir,
@@ -55,14 +56,18 @@ protected:
 private:
     void makeCoefficients(void);
 private:
-    const DoubleFunction  *f_;
+    DoubleFunction        f_;
     Index                 dir_, order_;
     double                step_;
     DVec                  point_, coefficient_;
     std::shared_ptr<DVec> buffer_;
 };
 
-class CentralDerivative: private Derivative
+DoubleFunction derivative(const DoubleFunction &f, const Index dir,
+                          const Index order, const DVec point,
+                          const double step = Derivative::defaultStep);
+
+class CentralDerivative: public Derivative
 {
 public:
     static const Index defaultPrecOrder = 2;
@@ -88,6 +93,11 @@ private:
 private:
     Index precOrder_;
 };
+
+DoubleFunction centralDerivative(const DoubleFunction &f, const Index dir = 0,
+                                 const Index order = 1,
+                                 const Index precOrder =
+                                    CentralDerivative::defaultPrecOrder);
 
 END_LATAN_NAMESPACE
 

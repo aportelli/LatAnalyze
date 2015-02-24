@@ -27,10 +27,6 @@ using namespace Latan;
  *                       TabFunction implementation                           *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-TabFunction::TabFunction(void)
-: DoubleFunction(1)
-{}
-
 TabFunction::TabFunction(const DVec &x, const DVec &y)
 : TabFunction()
 {
@@ -84,4 +80,34 @@ double TabFunction::operator()(const double *arg) const
     y_b = high->second;
     
     return y_a + (x - x_a)*(y_b - y_a)/(x_b - x_a);
+}
+
+// DoubleFunction factory //////////////////////////////////////////////////////
+DoubleFunction TabFunction::makeFunction(const bool makeHardCopy) const
+{
+    DoubleFunction res;
+
+    if (makeHardCopy)
+    {
+        TabFunction copy(*this);
+
+        res.setFunction([copy](const double *x){return copy(x);}, 1);
+    }
+    else
+    {
+        res.setFunction([this](const double *x){return (*this)(x);}, 1);
+    }
+
+    return res;
+}
+
+DoubleFunction Latan::interpolate(const DVec &x, const DVec &y)
+{
+    return TabFunction(x,y).makeFunction();
+}
+
+DoubleFunction Latan::interpolate(const XYStatData &data, const Index i,
+                                  const Index j)
+{
+    return TabFunction(data, i, j).makeFunction();
 }
