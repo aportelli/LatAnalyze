@@ -109,10 +109,21 @@ DoubleFunction DoubleFunction::bind(const Index argIndex, const double val)
 
     auto func = [copy, buf, argIndex, val](const double *arg)
     {
-         ConstMap<DVec> argMap(arg, buf->size());
-
-        *buf = argMap;
-        (*buf)(argIndex) = val;
+        FOR_VEC(*buf, i)
+        {
+            if (i < argIndex)
+            {
+                (*buf)(i) = arg[i];
+            }
+            else if (i == argIndex)
+            {
+                (*buf)(i) = val;
+            }
+            else
+            {
+                (*buf)(i) = arg[i - 1];
+            }
+        }
 
         return copy(*buf);
     };
@@ -125,12 +136,10 @@ DoubleFunction DoubleFunction::bind(const Index argIndex, const double val)
 // arithmetic operators ////////////////////////////////////////////////////////
 DoubleFunction DoubleFunction::operator-(void) const
 {
-    DoubleFunction resFunc;
+    DoubleFunction copy(*this), resFunc;
     
-    auto res = [this](const double *arg){return -(*this)(arg);};
-    resFunc.setFunction(res, getNArg());
-    
-    return resFunc;
+    return DoubleFunction([copy](const double *arg){return -copy(arg);},
+                          getNArg());
 }
 
 #define MAKE_SELF_FUNC_OP(op)\
@@ -138,7 +147,7 @@ DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction &f)\
 {\
     DoubleFunction copy(*this);\
     checkSize(f.getNArg());\
-    auto res = [&f, copy](const double *arg){return copy(arg) op f(arg);};\
+    auto res = [f, copy](const double *arg){return copy(arg) op f(arg);};\
     setFunction(res, getNArg());\
     return *this;\
 }\

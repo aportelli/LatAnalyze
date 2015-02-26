@@ -143,7 +143,7 @@ inline DoubleFunction operator-(const double lhs, DoubleFunction rhs)
 // special case for scalar/function
 inline DoubleFunction operator/(const double lhs, DoubleFunction rhs)
 {
-    auto res = [lhs, &rhs](const double *arg){return lhs/rhs(arg);};
+    auto res = [lhs, rhs](const double *arg){return lhs/rhs(arg);};
     
     rhs.setFunction(res, rhs.getNArg());
     
