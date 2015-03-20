@@ -20,13 +20,12 @@ noinst_PROGRAMS =           \
     exIntegrator            \
     exMat                   \
     exMathInterpreter       \
-    exMin                   \
     exPlot                  \
     exRand                  \
     exRootFinder
 
 if HAVE_MINUIT
-noinst_PROGRAMS += exFit
+noinst_PROGRAMS += exFit exMin
 endif
 
 exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
@@ -51,9 +50,11 @@ exMat_SOURCES                    = exMat.cpp
 exMat_CFLAGS                     = -g -O2
 exMat_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
 
+if HAVE_MINUIT
 exMin_SOURCES                    = exMin.cpp
 exMin_CFLAGS                     = -g -O2
 exMin_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
+endif
 
 exMathInterpreter_SOURCES        = exMathInterpreter.cpp
 exMathInterpreter_CFLAGS         = -g -O2
