@@ -124,7 +124,7 @@ public:
     static IoT  load(const std::string &fileName, const std::string &name = "");
     template <typename IoT, typename FileType>
     static void save(const IoT &data, const std::string &fileName,
-                     const unsigned int mode = File::Mode::append,
+                     const unsigned int mode = File::Mode::write,
                      const std::string &name = "");
 };
 
