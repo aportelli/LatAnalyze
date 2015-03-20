@@ -17,7 +17,6 @@ endif
 noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exDerivative            \
-    exFit                   \
     exIntegrator            \
     exMat                   \
     exMathInterpreter       \
@@ -25,6 +24,10 @@ noinst_PROGRAMS =           \
     exPlot                  \
     exRand                  \
     exRootFinder
+
+if HAVE_MINUIT
+noinst_PROGRAMS += exFit
+endif
 
 exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
 exCompiledDoubleFunction_CFLAGS  = -g -O2
@@ -34,9 +37,11 @@ exDerivative_SOURCES             = exDerivative.cpp
 exDerivative_CFLAGS              = -g -O2
 exDerivative_LDFLAGS             = -L../lib/.libs -lLatAnalyze
 
+if HAVE_MINUIT
 exFit_SOURCES                    = exFit.cpp
 exFit_CFLAGS                     = -g -O2
 exFit_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
+endif
 
 exIntegrator_SOURCES             = exIntegrator.cpp
 exIntegrator_CFLAGS              = -g -O2
