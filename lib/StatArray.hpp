@@ -53,7 +53,6 @@ public:
     // statistics
     void bin(Index binSize);
     T    mean(const Index pos = 0, const Index n = -1) const;
-    T    mean(void) const;
     T    covariance(const StatArray<T, os> &array, const Index pos = 0,
                     const Index n = -1) const;
     T    covarianceMatrix(const StatArray<T, os> &array, const Index pos = 0,
@@ -155,13 +154,12 @@ T StatArray<T, os>::mean(const Index pos, const Index n) const
 {
     T           result = T();
     const Index m = (n >= 0) ? n : size();
-    
+
     if (m)
     {
         result = this->segment(pos+os, m).redux(&ReducOp::sum<T>);
     }
-    
-    return result/static_cast<double>(n);
+    return result/static_cast<double>(m);
 }
 
 template <typename T, Index os>
