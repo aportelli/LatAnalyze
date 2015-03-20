@@ -85,9 +85,9 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
-AC_CHECK_LIB([gslcblas],[cblas_dgemm],
+AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
-AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[AC_MSG_ERROR([GSL library not found])])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([GSL library not found])])
 AC_CHECK_LIB([LatCore],[_ZN7LatCore12testFunctionEv],[],
     [AC_MSG_ERROR([LatCore library not found])])
 SAVED_LDFLAGS=$LDFLAGS
