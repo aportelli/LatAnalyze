@@ -21,7 +21,7 @@
 #define Latan_Mat_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <LatAnalyze/IOObject.hpp>
+#include <LatAnalyze/IoObject.hpp>
 
 #define FOR_MAT(mat, i, j) \
 for (Latan::Index j = 0; j < mat.cols(); ++j)\
