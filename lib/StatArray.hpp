@@ -59,6 +59,7 @@ public:
                           const Index n = -1) const;
     T    variance(const Index pos = 0, const Index n = -1) const;
     T    varianceMatrix(const Index pos = 0, const Index n = -1) const;
+    T    correlationMatrix(const Index pos = 0, const Index n = -1) const;
 public:
     static const Index offset = os;
 };
@@ -216,6 +217,19 @@ template <typename T, Index os>
 T StatArray<T, os>::varianceMatrix(const Index pos, const Index n) const
 {
     return covarianceMatrix(*this, pos, n);
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::correlationMatrix(const Index pos, const Index n) const
+{
+    T res = varianceMatrix(pos, n);
+    T invDiag(res.rows(), 1);
+
+    invDiag = res.diagonal();
+    invDiag = invDiag.cwiseInverse().cwiseSqrt();
+    res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
+
+    return res;
 }
 
 // reduction operations ////////////////////////////////////////////////////////
