@@ -62,7 +62,7 @@ string PlotObject::dumpToTmpFile(const DMat &m)
     for (Index j = 0; j < m.cols(); ++j)
     {
     }
-    strcpy(tmpFileName, "./latan_plot_tmp.XXXXXX.dat");
+    strcpy(tmpFileName, "/tmp/latan_plot_tmp.XXXXXX.dat");
     fd = mkstemps(tmpFileName, 4);
     if (fd == -1)
     {
@@ -276,30 +276,10 @@ Plot::Plot(void)
     initOptions();
 }
 
-// destructor //////////////////////////////////////////////////////////////////
-Plot::~Plot(void)
-{
-    cleanTmpFiles();
-}
-
-// clean temporary files ///////////////////////////////////////////////////////
-void Plot::cleanTmpFiles(void)
-{
-    for (string &fileName: tmpFileName_)
-    {
-        if (remove(fileName.c_str()))
-        {
-            LATAN_ERROR(System, "impossible to remove temporary file '" +
-                        fileName + "'");
-        }
-    }
-    tmpFileName_.clear();
-}
-
 // default options /////////////////////////////////////////////////////////////
 void Plot::initOptions(void)
 {
-    options_.terminal     = "";
+    options_.terminal     = "qt";
     options_.output       = "";
     options_.caption      = "";
     options_.title        = "";
@@ -317,7 +297,6 @@ void Plot::reset(void)
 {
     headCommand_.clear();
     plotCommand_.clear();
-    cleanTmpFiles();
     initOptions();
 }
 
@@ -424,27 +403,41 @@ void Plot::getProgramPath(void)
 // plot parsing and output /////////////////////////////////////////////////////
 void Plot::display(void)
 {
-    string command;
-    FILE *gnuplotPipe;
-    
-    if (!getenv("DISPLAY"))
+    int pid = fork();
+
+    if (pid == 0)
     {
-        LATAN_ERROR(System, "cannot find DISPLAY variable: is it set ?");
+        FILE          *gnuplotPipe;
+        string        command;
+        ostringstream scriptBuf;
+
+        if (!getenv("DISPLAY"))
+        {
+            LATAN_ERROR(System, "cannot find DISPLAY variable: is it set ?");
+        }
+        getProgramPath();
+        command     = gnuplotPath_ + "/" + gnuplotBin_;
+        gnuplotPipe = popen(command.c_str(), "w");
+        if (!gnuplotPipe)
+        {
+            LATAN_ERROR(System, "error starting gnuplot (command was '"
+                        + command + "')");
+        }
+        commandBuffer_.str("");
+        commandBuffer_ << *this << endl;
+        commandBuffer_ << "pause mouse close" << endl;
+        fprintf(gnuplotPipe, "%s", commandBuffer_.str().c_str());
+        if (pclose(gnuplotPipe) == -1)
+        {
+            LATAN_ERROR(System, "problem closing communication to gnuplot");
+        }
+
+        exit(EXIT_SUCCESS);
     }
-    getProgramPath();
-    command     = gnuplotPath_ + "/" + gnuplotBin_ + " " + gnuplotArgs_;
-    gnuplotPipe = popen(command.c_str(), "w");
-    if (!gnuplotPipe)
+    else if (pid == -1)
     {
-        LATAN_ERROR(System, "error starting gnuplot (command was '" + command
-                    + "')");
-    }
-    commandBuffer_.str("");
-    commandBuffer_ << *this;
-    fprintf(gnuplotPipe, "%s", commandBuffer_.str().c_str());
-    if (pclose(gnuplotPipe) == -1)
-    {
-        LATAN_ERROR(System, "problem closing communication to gnuplot");
+        perror("fork error");
+        LATAN_ERROR(System, "problem forking to the process handling gnuplot");
     }
 }
 

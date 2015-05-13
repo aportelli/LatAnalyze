@@ -256,7 +256,7 @@ public:
 public:
     // constructor/destructor
     Plot(void);
-    virtual ~Plot(void);
+    virtual ~Plot(void) = default;
     // plot operations
     Plot & operator<<(PlotObject   &&command);
     Plot & operator<<(PlotModifier &&modifier);
@@ -267,8 +267,6 @@ public:
     // plot reset
     void reset(void);
 private:
-    // clean temporary files
-    void cleanTmpFiles(void);
     // find gnuplot
     void getProgramPath(void);
     // default options
