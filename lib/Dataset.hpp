@@ -39,8 +39,6 @@ public:
     // constructors
     Dataset(void) = default;
     Dataset(const Index size);
-    template <typename FileType>
-    Dataset(const std::string &listFileName, const std::string &dataName);
     EIGEN_EXPR_CTOR(Dataset, Dataset<T>, StatArray<T>, ArrayExpr)
     // destructor
     virtual ~Dataset(void) = default;
@@ -62,14 +60,6 @@ template <typename T>
 Dataset<T>::Dataset(const Index size)
 : StatArray<T>(size)
 {}
-                    
-template <typename T>
-template <typename FileType>
-Dataset<T>::Dataset(const std::string &listFileName,
-                    const std::string &dataName)
-{
-    load<FileType>(listFileName, dataName);
-}
 
 // IO //////////////////////////////////////////////////////////////////////////
 template <typename T>

@@ -144,7 +144,7 @@ void Io::save(const IoT &data, const std::string &fileName,
     FileType file(fileName, mode);
     std::string realName = (name.empty()) ? fileName : name;
     
-    file.template save(data, realName);
+    file.save(data, realName);
 }
 
 END_LATAN_NAMESPACE

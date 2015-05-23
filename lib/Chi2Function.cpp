@@ -75,9 +75,11 @@ Index Chi2Function::getNPar(void) const
 
 void Chi2Function::setModel(const DoubleModel &model, const Index j)
 {
+    typedef decltype(model_.size()) size_type;
+
     if (static_cast<Index>(model_.size()) != data_.getYDim())
     {
-         model_.resize(static_cast<unsigned int>(data_.getYDim()));
+        model_.resize(static_cast<size_type>(data_.getYDim()));
     }
     if (model.getNArg() != data_.getXDim())
     {
@@ -93,17 +95,19 @@ void Chi2Function::setModel(const DoubleModel &model, const Index j)
             }
         }
     }
-    model_[static_cast<unsigned int>(j)] = &model;
-    nPar_                                = model.getNPar();
+    model_[static_cast<size_type>(j)] = &model;
+    nPar_                             = model.getNPar();
 }
 
 void Chi2Function::setModel(const vector<const DoubleModel *> &modelVector)
 {
+    typedef decltype(model_.size()) size_type;
+
     if (static_cast<Index>(model_.size()) != data_.getYDim())
     {
-        model_.resize(static_cast<unsigned int>(data_.getYDim()));
+        model_.resize(static_cast<size_type>(data_.getYDim()));
     }
-    if (modelVector.size() != static_cast<unsigned int>(data_.getYDim()))
+    if (modelVector.size() != static_cast<size_type>(data_.getYDim()))
     {
         LATAN_ERROR(Size, "number of models and y-dimension mismatch");
     }
@@ -117,7 +121,7 @@ void Chi2Function::setModel(const vector<const DoubleModel *> &modelVector)
         {
             LATAN_ERROR(Size, "model number of arguments and x-dimension mismatch");
         }
-        model_[static_cast<unsigned int>(j)] = modelVector[j];
+        model_[static_cast<size_type>(j)] = modelVector[j];
         if (modelVector[j]->getNPar() != modelVector[0]->getNPar())
         {
             LATAN_ERROR(Size, "model number of parameter mismatch");
@@ -236,6 +240,8 @@ void Chi2Function::initBuffer(void) const
 // function call ///////////////////////////////////////////////////////////////
 double Chi2Function::operator()(const double *arg) const
 {
+    typedef decltype(model_.size()) size_type;
+
     if (!model_[0])
     {
         LATAN_ERROR(Memory, "null model");
@@ -259,7 +265,7 @@ double Chi2Function::operator()(const double *arg) const
     for (Index j = 0; j < yDim; ++j)
     FOR_VEC(buffer_->dInd, k)
     {
-        const DoubleModel *f = model_[static_cast<unsigned int>(j)];
+        const DoubleModel *f = model_[static_cast<size_type>(j)];
         double            f_jk, y_jk = data_.y(j, buffer_->dInd(k));
         
         if (!f)
