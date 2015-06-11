@@ -9,12 +9,12 @@ case $1 in
         make -j8
         echo '-- installing...'
         make uninstall 1>/dev/null
-        make install 1>/dev/null
-        if [[ `basename \`pwd\`` == "lib" ]]
-        then
-            echo '-- creating debug symbols...'
-            dsymutil .libs/libLatAnalyze.0.dylib -o ${PREFIX}/lib/libLatAnalyze.0.dylib.dSYM
-        fi;;
+        make install 1>/dev/null;;
+#        if [[ `basename \`pwd\`` == "lib" ]]
+#        then
+#            echo '-- creating debug symbols...'
+#            dsymutil .libs/libLatAnalyze.0.dylib -o ${PREFIX}/lib/libLatAnalyze.0.dylib.dSYM
+#        fi;;
     'clean')
         echo '-- cleaning...'
         make -j8 clean;;

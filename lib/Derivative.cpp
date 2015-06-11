@@ -20,7 +20,6 @@
 #include <LatAnalyze/Derivative.hpp>
 #include <LatAnalyze/includes.hpp>
 #include <LatAnalyze/Math.hpp>
-#include <gsl/gsl_deriv.h>
 
 using namespace std;
 using namespace Latan;
