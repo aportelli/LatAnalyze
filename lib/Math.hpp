@@ -35,7 +35,7 @@ namespace MATH_NAMESPACE
 {
     // integer power function
     template <unsigned int n, typename T>
-    typename std::enable_if<(n == 0), T>::type pow(const T x __unused)
+    typename std::enable_if<(n == 0), T>::type pow(const T x __dumb)
     {
         return 1;
     }

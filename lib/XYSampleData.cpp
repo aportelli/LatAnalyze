@@ -31,7 +31,7 @@ double SampleFitResult::getChi2(const Index s) const
     return chi2_[s];
 }
 
-const DSample & SampleFitResult::getChi2(const PlaceHolder ph __unused) const
+const DSample & SampleFitResult::getChi2(const PlaceHolder ph __dumb) const
 {
     return chi2_;
 }
@@ -41,7 +41,7 @@ double SampleFitResult::getChi2PerDof(const Index s) const
     return chi2_[s]/getNDof();
 }
 
-DSample SampleFitResult::getChi2PerDof(const PlaceHolder ph __unused) const
+DSample SampleFitResult::getChi2PerDof(const PlaceHolder ph __dumb) const
 {
     return chi2_/getNDof();
 }
@@ -58,7 +58,7 @@ const DoubleFunction & SampleFitResult::getModel(const Index s,
 }
                                     
 const DoubleFunctionSample & SampleFitResult::getModel(
-                                                const PlaceHolder ph __unused,
+                                                const PlaceHolder ph __dumb,
                                                 const Index j) const
 {
     return model_[static_cast<unsigned int>(j)];
@@ -94,23 +94,23 @@ void XYSampleData::resize(const Index nData, const Index xDim,
     isCovarianceInit_ = false;
 }
 
-XYSampleData::SampleBlock XYSampleData::x(const PlaceHolder ph1 __unused,
-                                          const PlaceHolder ph2 __unused)
+XYSampleData::SampleBlock XYSampleData::x(const PlaceHolder ph1 __dumb,
+                                          const PlaceHolder ph2 __dumb)
 {
     isCovarianceInit_ = false;
     
     return x_.block(0, 0, getNData(), getXDim());
 }
 
-XYSampleData::ConstSampleBlock XYSampleData::x(const PlaceHolder ph1 __unused,
-                                               const PlaceHolder ph2 __unused)
+XYSampleData::ConstSampleBlock XYSampleData::x(const PlaceHolder ph1 __dumb,
+                                               const PlaceHolder ph2 __dumb)
                                                const
 {
     return x_.block(0, 0, getNData(), getXDim());
 }
 
 XYSampleData::SampleBlock XYSampleData::x(const Index i, 
-                                          const PlaceHolder ph2 __unused)
+                                          const PlaceHolder ph2 __dumb)
 {
     isCovarianceInit_ = false;
     
@@ -118,13 +118,13 @@ XYSampleData::SampleBlock XYSampleData::x(const Index i,
 }
                                           
 XYSampleData::ConstSampleBlock XYSampleData::x(const Index i,
-                                               const PlaceHolder ph2 __unused)
+                                               const PlaceHolder ph2 __dumb)
                                                const
 {
     return x_.block(0, i, getNData(), 1);
 }
 
-XYSampleData::SampleBlock XYSampleData::x(const PlaceHolder ph1 __unused,
+XYSampleData::SampleBlock XYSampleData::x(const PlaceHolder ph1 __dumb,
                                           const Index k)
 {
     isCovarianceInit_ = false;
@@ -132,7 +132,7 @@ XYSampleData::SampleBlock XYSampleData::x(const PlaceHolder ph1 __unused,
     return x_.block(k, 0, 1, getXDim());
 }
 
-XYSampleData::ConstSampleBlock XYSampleData::x(const PlaceHolder ph1 __unused,
+XYSampleData::ConstSampleBlock XYSampleData::x(const PlaceHolder ph1 __dumb,
                                                const Index k) const
 {
     return x_.block(k, 0, 1, getXDim());
@@ -151,23 +151,23 @@ XYSampleData::ConstSampleBlock XYSampleData::x(const Index i, const Index k)
     return x_.block(k, i, 1, 1);
 }
 
-XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
-                                          const PlaceHolder ph2 __unused)
+XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __dumb,
+                                          const PlaceHolder ph2 __dumb)
 {
     isCovarianceInit_ = false;
     
     return y_.block(0, 0, getNData(), getYDim());
 }
 
-XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
-                                               const PlaceHolder ph2 __unused)
+XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __dumb,
+                                               const PlaceHolder ph2 __dumb)
                                                const
 {
     return y_.block(0, 0, getNData(), getYDim());
 }
 
 XYSampleData::SampleBlock XYSampleData::y(const Index j, 
-                                          const PlaceHolder ph2 __unused)
+                                          const PlaceHolder ph2 __dumb)
 {
     isCovarianceInit_ = false;
     
@@ -175,13 +175,13 @@ XYSampleData::SampleBlock XYSampleData::y(const Index j,
 }
                                           
 XYSampleData::ConstSampleBlock XYSampleData::y(const Index j,
-                                               const PlaceHolder ph2 __unused)
+                                               const PlaceHolder ph2 __dumb)
                                                const
 {
     return y_.block(0, j, getNData(), 1);
 }
 
-XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
+XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __dumb,
                                           const Index k)
 {
     isCovarianceInit_ = false;
@@ -189,7 +189,7 @@ XYSampleData::SampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
     return y_.block(k, 0, 1, getYDim());
 }
 
-XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __unused,
+XYSampleData::ConstSampleBlock XYSampleData::y(const PlaceHolder ph1 __dumb,
                                                const Index k) const
 {
     return y_.block(k, 0, 1, getYDim());

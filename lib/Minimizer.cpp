@@ -43,7 +43,7 @@ double Minimizer::getHighLimit(const Index i) const
     return highLimit_(i);
 }
 
-const DVec & Minimizer::getHighLimit(const PlaceHolder ph __unused) const
+const DVec & Minimizer::getHighLimit(const PlaceHolder ph __dumb) const
 {
     return highLimit_;
 }
@@ -53,7 +53,7 @@ double Minimizer::getLowLimit(const Index i) const
     return lowLimit_(i);
 }
 
-const DVec & Minimizer::getLowLimit(const PlaceHolder ph __unused) const
+const DVec & Minimizer::getLowLimit(const PlaceHolder ph __dumb) const
 {
     return lowLimit_;
 }
@@ -81,7 +81,7 @@ void Minimizer::setHighLimit(const Index i, const double l)
     }
 }
 
-void Minimizer::setHighLimit(const PlaceHolder ph __unused, const DVec &l)
+void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
     if (l.size() != getDim())
     {
@@ -107,7 +107,7 @@ void Minimizer::setLowLimit(const Index i, const double l)
     }
 }
 
-void Minimizer::setLowLimit(const PlaceHolder ph __unused, const DVec &l)
+void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
     if (l.size() != getDim())
     {
@@ -132,7 +132,7 @@ void Minimizer::useHighLimit(const Index i, const bool use)
     }
 }
 
-void Minimizer::useHighLimit(const PlaceHolder ph __unused, const bool use)
+void Minimizer::useHighLimit(const PlaceHolder ph __dumb, const bool use)
 {
     hasHighLimit_.fill(use);
 }
@@ -149,7 +149,7 @@ void Minimizer::useLowLimit(const Index i, const bool use)
     }
 }
 
-void Minimizer::useLowLimit(const PlaceHolder ph __unused, const bool use)
+void Minimizer::useLowLimit(const PlaceHolder ph __dumb, const bool use)
 {
     hasLowLimit_.fill(use);
 }

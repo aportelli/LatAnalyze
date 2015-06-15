@@ -89,39 +89,39 @@ void XYStatData::reinitChi2(const bool doReinit)
     reinitChi2_ = doReinit;
 }
 
-Block<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __unused,
-                                     const PlaceHolder ph2 __unused)
+Block<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __dumb,
+                                     const PlaceHolder ph2 __dumb)
 {
     return x_.block(0, 0, getNData(), getXDim());
 }
 
-ConstBlock<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __unused,
-                                          const PlaceHolder ph2 __unused)
+ConstBlock<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __dumb,
+                                          const PlaceHolder ph2 __dumb)
                                           const
 {
     return x_.block(0, 0, getNData(), getXDim());
 }
 
 Block<MatBase<double>> XYStatData::x(const Index i,
-                                     const PlaceHolder ph2 __unused)
+                                     const PlaceHolder ph2 __dumb)
 {
     return x_.block(0, i, getNData(), 1);
 }
 
 ConstBlock<MatBase<double>> XYStatData::x(const Index i,
-                                          const PlaceHolder ph2 __unused)
+                                          const PlaceHolder ph2 __dumb)
                                           const
 {
     return x_.block(0, i, getNData(), 1);
 }
 
-Block<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __unused,
+Block<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __dumb,
                                      const Index k)
 {
     return x_.block(k, 0, 1, getXDim());
 }
 
-ConstBlock<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __unused,
+ConstBlock<MatBase<double>> XYStatData::x(const PlaceHolder ph1 __dumb,
                                           const Index k) const
 {
     return x_.block(k, 0, 1, getXDim());
@@ -137,38 +137,38 @@ const double & XYStatData::x(const Index i, const Index k) const
     return x_(k, i);
 }
 
-Block<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __unused,
-                                     const PlaceHolder ph2 __unused)
+Block<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __dumb,
+                                     const PlaceHolder ph2 __dumb)
 {
     return y_.block(0, 0, getNData(), getYDim());
 }
 
-ConstBlock<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __unused,
-                                          const PlaceHolder ph2 __unused)
+ConstBlock<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __dumb,
+                                          const PlaceHolder ph2 __dumb)
                                           const
 {
     return y_.block(0, 0, getNData(), getYDim());
 }
 
 Block<MatBase<double>> XYStatData::y(const Index j,
-                                     const PlaceHolder ph2 __unused)
+                                     const PlaceHolder ph2 __dumb)
 {
     return y_.block(0, j, getNData(), 1);
 }
 
 ConstBlock<MatBase<double>> XYStatData::y(const Index j,
-                                          const PlaceHolder ph2 __unused)
+                                          const PlaceHolder ph2 __dumb)
                                           const
 {
     return y_.block(0, j, getNData(), 1);
 }
 
-Block<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __unused, const Index k)
+Block<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __dumb, const Index k)
 {
     return y_.block(k, 0, 1, getYDim());
 }
 
-ConstBlock<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __unused,
+ConstBlock<MatBase<double>> XYStatData::y(const PlaceHolder ph1 __dumb,
                                           const Index k) const
 {
     return y_.block(k, 0, 1, getYDim());

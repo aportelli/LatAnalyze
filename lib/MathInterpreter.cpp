@@ -462,7 +462,7 @@ void VarNode::compile(Program &program, RunContext &context) const
 }
 
 // CstNode compile /////////////////////////////////////////////////////////////
-void CstNode::compile(Program &program, RunContext &context __unused) const
+void CstNode::compile(Program &program, RunContext &context __dumb) const
 {
     PUSH_INS(program, Push, strTo<double>(getName()));
 }

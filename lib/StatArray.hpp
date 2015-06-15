@@ -247,7 +247,7 @@ namespace ReducOp
     }
 
     template <typename T>
-    inline T tensProd(const T &v1 __unused, const T &v2 __unused)
+    inline T tensProd(const T &v1 __dumb, const T &v2 __dumb)
     {
         LATAN_ERROR(Implementation,
                     "tensorial product not implemented for this type");

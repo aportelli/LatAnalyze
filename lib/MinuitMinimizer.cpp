@@ -75,7 +75,7 @@ double MinuitMinimizer::getPrecision(void) const
     return 0.;
 }
 
-void MinuitMinimizer::setPrecision(const double precision __unused)
+void MinuitMinimizer::setPrecision(const double precision __dumb)
 {
     LATAN_ERROR(Implementation,
                 "Minuit minimizer precision cannot be accessed");
