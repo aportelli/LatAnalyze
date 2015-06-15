@@ -31,7 +31,6 @@
     #if (defined __INTEL_COMPILER)
     #pragma warning disable 1682 2259
     #elif (defined __GNUC__)||(defined __clang__)
-    #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     #pragma GCC diagnostic ignored "-Wconversion"
     #pragma GCC diagnostic ignored "-Wsign-conversion"
     #endif
@@ -48,7 +47,7 @@
 %}
 
 %pure-parser
-%name-prefix "_Ascii_"
+%name-prefix = "_Ascii_"
 %locations
 %defines
 %error-verbose
@@ -117,12 +116,12 @@ data:
 mat:
       OPEN MAT ID INT floats CLOSE MAT
     {
-        const unsigned int nRow = state->doubleQueue.size()/$INT, nCol = $INT;
+        const unsigned int nRow = state->doubleQueue.size()/$4, nCol = $4;
         Index i, j, r = 0;
         
         if (state->doubleQueue.size() != nRow*nCol)
         {
-            LATAN_ERROR(Size, "matrix '" + *state->streamName + ":" + $ID +
+            LATAN_ERROR(Size, "matrix '" + *state->streamName + ":" + $3 +
                         "' has a wrong size");
         }
         
@@ -135,29 +134,29 @@ mat:
             state->doubleQueue.pop();
             r++;
         }
-        strcpy($$, $ID);
+        strcpy($$, $3);
     }
     ;
 
 sample:
       OPEN SAMPLE ID INT mats CLOSE SAMPLE
     {
-        const unsigned int nSample = $INT;
+        const unsigned int nSample = $4, os = DMatSample::offset;
         
-        if (state->dMatQueue.size() != nSample + DMatSample::offset)
+        if (state->dMatQueue.size() != nSample + os)
         {
-            LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $ID +
+            LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $3 +
                         "' has a wrong size");
         }
         state->dMatSampleBuf.resize(nSample);
         state->dMatSampleBuf[central] = state->dMatQueue.front();
         state->dMatQueue.pop();
-        for (int i = 0; i < $INT; ++i)
+        for (unsigned int i = 0; i < nSample; ++i)
         {
             state->dMatSampleBuf[i] = state->dMatQueue.front();
             state->dMatQueue.pop();
         }
-        strcpy($$, $ID);
+        strcpy($$, $3);
     }
 
 rg_state:
@@ -166,14 +165,14 @@ rg_state:
         if (state->intQueue.size() != RLXG_STATE_SIZE)
         {
             LATAN_ERROR(Size, "random generator state '" + *state->streamName
-                        + ":" + $ID + "' has a wrong size");
+                        + ":" + $3 + "' has a wrong size");
         }
         for (Index i = 0; i < RLXG_STATE_SIZE; ++i)
         {
             state->stateBuf[i] = state->intQueue.front();
             state->intQueue.pop();
         }
-        strcpy($$, $ID);
+        strcpy($$, $3);
     }
     ;
 
@@ -183,13 +182,13 @@ mats:
     ;
 
 floats:
-      floats FLOAT {state->doubleQueue.push($FLOAT);}
-    | floats INT   {state->doubleQueue.push(static_cast<double>($INT));}
-    | FLOAT        {state->doubleQueue.push($FLOAT);}
-    | INT          {state->doubleQueue.push(static_cast<double>($INT));}
+      floats FLOAT {state->doubleQueue.push($2);}
+    | floats INT   {state->doubleQueue.push(static_cast<double>($2));}
+    | FLOAT        {state->doubleQueue.push($1);}
+    | INT          {state->doubleQueue.push(static_cast<double>($1));}
     ;
 
 ints:
-      ints INT {state->intQueue.push($INT);}
-    | INT      {state->intQueue.push($INT);}
+      ints INT {state->intQueue.push($2);}
+    | INT      {state->intQueue.push($1);}
     ;

@@ -27,7 +27,6 @@
     #if (defined __INTEL_COMPILER)
     #pragma warning disable 1682 2259
     #elif (defined __GNUC__)||(defined __clang__)
-    #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     #pragma GCC diagnostic ignored "-Wconversion"
     #pragma GCC diagnostic ignored "-Wsign-conversion"
     #endif
@@ -37,7 +36,7 @@
 %}
 
 %pure-parser
-%name-prefix "_math_"
+%name-prefix = "_math_"
 %locations
 %defines
 %error-verbose
@@ -105,7 +104,7 @@ stmt:
     | expr ';'
     {$$ = nullptr; _math_warning(&yylloc, state, "useless statement removed");}
     | ID '=' expr ';'
-    {$$ = new AssignNode("="); $$->pushArg(new VarNode($ID)); $$->pushArg($3);}
+    {$$ = new AssignNode("="); $$->pushArg(new VarNode($1)); $$->pushArg($3);}
     | RETURN expr ';'
     {$$ = new ReturnNode("return"); $$->pushArg($2);}
     | '{' stmt_list '}'
@@ -121,9 +120,9 @@ stmt_list:
 
 expr:
       FLOAT
-    {$$ = new CstNode($FLOAT);}
+    {$$ = new CstNode($1);}
     | ID
-    {$$ = new VarNode($ID);}
+    {$$ = new VarNode($1);}
     | '-' expr %prec UMINUS
     {$$ = new MathOpNode("-"); $$->pushArg($2);}
     | expr '+' expr
@@ -139,7 +138,7 @@ expr:
     | '(' expr ')'
     {$$ = $2;}
     | ID '(' func_args ')'
-    {$$ = $3; $$->setName($ID);}
+    {$$ = $3; $$->setName($1);}
     ;
 
 func_args:

@@ -21,14 +21,16 @@
 #include <LatAnalyze/includes.hpp>
 
 using namespace std;
-using namespace Latan;
 
 /******************************************************************************
  *                          DMat implementation                               *
  ******************************************************************************/
 // IO //////////////////////////////////////////////////////////////////////////
-template <>
-IoObject::IoType Mat<double>::getType(void) const
+namespace Latan
 {
-    return IoType::dMat;
+    template <>
+    IoObject::IoType Mat<double>::getType(void) const
+    {
+        return IoType::dMat;
+    }
 }

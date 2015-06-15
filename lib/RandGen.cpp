@@ -20,6 +20,8 @@
 #include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/includes.hpp>
 
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+
 #ifndef RLXD_LEVEL
 #define RLXD_LEVEL 1
 #endif

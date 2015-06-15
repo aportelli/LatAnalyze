@@ -215,7 +215,6 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     const Index     nSample = x_.size();
     FitResult       sampleResult;
     SampleFitResult result;
-    bool            initChi2;
     DVec            initBuf = init;
     
     result.resize(nSample);
@@ -234,9 +233,6 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
         
         // set data
         setDataToSample(s);
-        
-        // initialize chi^2 only once
-        initChi2 = (s == central);
         
         // fit
         sampleResult = data_.fit(minimizer, initBuf, modelVector);

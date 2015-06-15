@@ -21,10 +21,12 @@
 #include <LatAnalyze/includes.hpp>
 
 using namespace std;
-using namespace Latan;
 
-template <>
-IoObject::IoType MatSample<double>::getType(void) const
+namespace Latan
 {
-    return IoType::dMatSample;
+    template <>
+    IoObject::IoType MatSample<double>::getType(void) const
+    {
+        return IoType::dMatSample;
+    }
 }

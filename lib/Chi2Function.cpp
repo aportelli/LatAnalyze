@@ -61,7 +61,7 @@ Index Chi2Function::getNDof(void) const
     }
     
     return data_.getYDim()*data_.getNFitPoint() - nPar_;
-};
+}
 
 Index Chi2Function::getNPar(void) const
 {
@@ -71,7 +71,7 @@ Index Chi2Function::getNPar(void) const
     }
     
     return nPar_;
-};
+}
 
 void Chi2Function::setModel(const DoubleModel &model, const Index j)
 {

@@ -74,7 +74,6 @@ namespace ReducOp
     inline T tensProd(const T &v1, const T &v2);
     template <typename T>
     inline T sum(const T &a, const T &b);
-    // matrix specializations
 }
 
 // Sample types
@@ -233,42 +232,45 @@ T StatArray<T, os>::correlationMatrix(const Index pos, const Index n) const
 }
 
 // reduction operations ////////////////////////////////////////////////////////
-template <typename T>
-inline T ReducOp::sum(const T &a, const T &b)
+namespace ReducOp
 {
-    return a + b;
-}
-
-template <typename T>
-inline T ReducOp::prod(const T &a, const T &b)
-{
-    return a*b;
-}
-
-template <typename T>
-inline T ReducOp::tensProd(const T &v1 __unused, const T &v2 __unused)
-{
-    LATAN_ERROR(Implementation, 
-                "tensorial product not implemented for this type");
-}
-
-template <>
-inline Mat<double> ReducOp::prod(const Mat<double>  &a, const Mat<double>  &b)
-{
-    return a.cwiseProduct(b);
-}
-
-template <>
-inline Mat<double> ReducOp::tensProd(const Mat<double>  &v1,
-                                     const Mat<double>  &v2)
-{
-    if ((v1.cols() != 1)||(v2.cols() != 1))
+    template <typename T>
+    inline T sum(const T &a, const T &b)
     {
-        LATAN_ERROR(Size,
-                    "tensorial product is only valid with column vectors");
+        return a + b;
     }
-    
-    return v1*v2.transpose();
+
+    template <typename T>
+    inline T prod(const T &a, const T &b)
+    {
+        return a*b;
+    }
+
+    template <typename T>
+    inline T tensProd(const T &v1 __unused, const T &v2 __unused)
+    {
+        LATAN_ERROR(Implementation,
+                    "tensorial product not implemented for this type");
+    }
+
+    template <>
+    inline Mat<double> prod(const Mat<double>  &a, const Mat<double>  &b)
+    {
+        return a.cwiseProduct(b);
+    }
+
+    template <>
+    inline Mat<double> tensProd(const Mat<double>  &v1,
+                                const Mat<double>  &v2)
+    {
+        if ((v1.cols() != 1)||(v2.cols() != 1))
+        {
+            LATAN_ERROR(Size,
+                        "tensorial product is only valid with column vectors");
+        }
+        
+        return v1*v2.transpose();
+    }
 }
 
 END_LATAN_NAMESPACE

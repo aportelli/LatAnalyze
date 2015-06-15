@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
     // data loading ////////////////////////////////////////////////////////////
     vector<DMatSample> sample(n);
-    Index              nSample;
+    Index              nSample = 0;
 
     cout << "-- loading data..." << endl;
     for (unsigned int i = 0; i < n; ++i)
