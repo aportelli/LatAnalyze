@@ -33,9 +33,19 @@ const string & PlotObject::getCommand(void) const
     return command_;
 }
 
+const string & PlotObject::getHeadCommand(void) const
+{
+    return headCommand_;
+}
+
 void PlotObject::setCommand(const string &command)
 {
     command_ = command;
+}
+
+void PlotObject::setHeadCommand(const string &command)
+{
+    headCommand_ = command;
 }
 
 string PlotObject::popTmpFile(void)
@@ -93,6 +103,12 @@ bool PlotObject::gotTmpFile(void) const
 PlotCommand::PlotCommand(const string &command)
 {
     setCommand(command);
+}
+
+// PlotHeadCommand constructor /////////////////////////////////////////////////
+PlotHeadCommand::PlotHeadCommand(const string &command)
+{
+    setHeadCommand(command);
 }
 
 // PlotData constructor ////////////////////////////////////////////////////////
@@ -311,21 +327,28 @@ Plot & Plot::operator<<(PlotObject &&command)
         commandStr += "'" + tmpFileName_.back() + "' ";
     }
     commandStr = command.getCommand();
-    if (!options_.lineColor.empty())
+    if (!commandStr.empty())
     {
-        commandStr         += " lc " + options_.lineColor;
-        options_.lineColor  = "";
+        if (!options_.lineColor.empty())
+        {
+            commandStr         += " lc " + options_.lineColor;
+            options_.lineColor  = "";
+        }
+        if (options_.title.empty())
+        {
+            commandStr += " notitle";
+        }
+        else
+        {
+            commandStr     += " t '" + options_.title + "'";
+            options_.title  = "";
+        }
+        plotCommand_.push_back(commandStr);
     }
-    if (options_.title.empty())
+    if (!command.getHeadCommand().empty())
     {
-        commandStr += " notitle";
+        headCommand_.push_back(command.getHeadCommand());
     }
-    else
-    {
-        commandStr     += " t '" + options_.title + "'";
-        options_.title  = "";
-    }
-    plotCommand_.push_back(commandStr);
     
     return *this;
 }

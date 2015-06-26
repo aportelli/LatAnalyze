@@ -48,17 +48,20 @@ public:
     // access
     std::string                 popTmpFile(void);
     const std::string &         getCommand(void) const;
+    const std::string &         getHeadCommand(void) const;
     // test
     bool                        gotTmpFile(void) const;
 protected:
     // access
     void pushTmpFile(const std::string &fileName);
     void setCommand(const std::string &command);
+    void setHeadCommand(const std::string &command);
     // dump a matrix to a temporary file
     std::string dumpToTmpFile(const DMat &m);
 private:
     // plot command
     std::string command_;
+    std::string headCommand_;
     // stack of created temporary files
     std::stack<std::string>  tmpFileName_;
 };
@@ -70,6 +73,15 @@ public:
     explicit PlotCommand(const std::string &command);
     // destructor
     virtual ~PlotCommand(void) = default;
+};
+
+class PlotHeadCommand: public PlotObject
+{
+public:
+    // constructor
+    explicit PlotHeadCommand(const std::string &command);
+    // destructor
+    virtual ~PlotHeadCommand(void) = default;
 };
 
 class PlotData: public PlotObject
