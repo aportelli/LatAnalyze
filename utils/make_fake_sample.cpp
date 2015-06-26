@@ -47,7 +47,14 @@ int main(int argc, char *argv[])
 
     FOR_STAT_ARRAY(res, s)
     {
-        res[s](0, 0) = gen.gaussian(val, err);
+        if (s == central)
+        {
+            res[s](0, 0) = val;
+        }
+        else
+        {
+            res[s](0, 0) = gen.gaussian(val, err);
+        }
     }
     Io::save<DMatSample, AsciiFile>(res, outFileName);
 
