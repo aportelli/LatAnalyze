@@ -233,25 +233,30 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     const Index nPoint = getNFitPoint();
     DVec        fullInit = init;
     Index       is = 0, kf = 0;
-    
+
     fullInit.conservativeResize(chi2_.getNArg());
     for (Index i = 0; i < getXDim(); ++i)
-    if (!isXExact(i))
     {
-        for (Index k = 0; k < getNData(); ++k)
-        if (isFitPoint(k))
+        if (!isXExact(i))
         {
-            fullInit(chi2_.getNPar() + nPoint*is + kf) = x(i, k);
-            kf++;
+            kf = 0;
+            for (Index k = 0; k < getNData(); ++k)
+            {
+                if (isFitPoint(k))
+                {
+                    fullInit(chi2_.getNPar() + nPoint*is + kf) = x(i, k);
+                    kf++;
+                }
+            }
+            is++;
         }
-        is++;
     }
     minimizer.setInit(fullInit);
-    
+
     // fit
     DoubleFunction chi2 = chi2_.makeFunction(false);
     FitResult      result;
-    
+
     result        = minimizer(chi2);
     result.chi2_  = chi2(result);
     result.nDof_  = chi2_.getNDof();

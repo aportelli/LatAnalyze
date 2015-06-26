@@ -253,25 +253,25 @@ double Chi2Function::operator()(const double *arg) const
     Index          is;
     ConstMap<DVec> xi(arg + nPar_, getNArg() - nPar_, 1);
     double         res;
-    
+
     // initialize buffers if necessary
     if (!buffer_->isInit)
     {
         initBuffer();
     }
-    
+
     // set the upper part of v: f_j(xi, p) - y_j
-    is = 0;
     for (Index j = 0; j < yDim; ++j)
     FOR_VEC(buffer_->dInd, k)
     {
         const DoubleModel *f = model_[static_cast<size_type>(j)];
         double            f_jk, y_jk = data_.y(j, buffer_->dInd(k));
-        
+
         if (!f)
         {
             LATAN_ERROR(Memory, "null model");
         }
+        is = 0;
         for (Index i = 0; i < xDim; ++i)
         {
             if (data_.isXExact(i))
@@ -288,7 +288,7 @@ double Chi2Function::operator()(const double *arg) const
         f_jk = (*f)(buffer_->x.data(), arg);
         buffer_->v(j*nPoint + k) = f_jk - y_jk;
     }
-    
+
     // set the down part of v: xi_ik - x_ik
     FOR_VEC(buffer_->xInd, i)
     FOR_VEC(buffer_->dInd, k)
@@ -296,9 +296,9 @@ double Chi2Function::operator()(const double *arg) const
         double x_ik  = data_.x(buffer_->xInd(i), buffer_->dInd(k));
         double xi_ik = xi(i*nPoint + k);
         
-        buffer_->v(i*nPoint + k) = xi_ik - x_ik;
+        buffer_->v(yDim*nPoint + i*nPoint + k) = xi_ik - x_ik;
     }
-    
+
     // compute result
     res = buffer_->v.dot(buffer_->invVar*buffer_->v);
     
@@ -314,11 +314,11 @@ DoubleFunction Chi2Function::makeFunction(const bool makeHardCopy) const
     {
         Chi2Function copy(*this);
 
-        res.setFunction([copy](const double *p){return copy(p);}, getNPar());
+        res.setFunction([copy](const double *p){return copy(p);}, getNArg());
     }
     else
     {
-        res.setFunction([this](const double *p){return (*this)(p);}, getNPar());
+        res.setFunction([this](const double *p){return (*this)(p);}, getNArg());
     }
 
     return res;
