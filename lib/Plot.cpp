@@ -112,6 +112,61 @@ PlotHeadCommand::PlotHeadCommand(const string &command)
 }
 
 // PlotData constructor ////////////////////////////////////////////////////////
+PlotData::PlotData(const DMatSample &x, const DMatSample &y)
+{
+    if (x[central].rows() != y[central].rows())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat d(x[central].rows(), 4);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x[central];
+    d.col(2)    = y[central];
+    d.col(1)    = x.variance().cwiseSqrt();
+    d.col(3)    = y.variance().cwiseSqrt();
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+}
+
+PlotData::PlotData(const DVec &x, const DMatSample &y)
+{
+    if (x.rows() != y[central].rows())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat d(x.rows(), 3);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y[central];
+    d.col(2)    = y.variance().cwiseSqrt();
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+}
+
+PlotData::PlotData(const DMatSample &x, const DVec &y)
+{
+    if (x[central].rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat d(x[central].rows(), 3), xerr, yerr;
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x[central];
+    d.col(2)    = y;
+    d.col(1)    = x.variance().cwiseSqrt();
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+}
+
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 {
     DMat d(data.getNData(), 4);

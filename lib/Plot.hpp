@@ -88,6 +88,9 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
+    PlotData(const DMatSample &x, const DMatSample &y);
+    PlotData(const DVec       &x, const DMatSample &y);
+    PlotData(const DMatSample &x, const DVec       &y);
     PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // destructor
     virtual ~PlotData(void) = default;
