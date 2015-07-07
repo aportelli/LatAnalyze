@@ -268,3 +268,41 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     
     return result;
 }
+
+// residuals ///////////////////////////////////////////////////////////////////
+XYStatData XYStatData::getResiduals(const FitResult &fit) const
+{
+    XYStatData     res(*this);
+
+    for (Index j = 0; j < res.getYDim(); ++j)
+    {
+        const DoubleFunction &f = fit.getModel(j);
+
+        for (Index k = 0; k < res.getNData(); ++k)
+        {
+            res.y(j, k) -= f(res.x(_, k).transpose());
+        }
+    }
+
+    return res;
+}
+
+XYStatData XYStatData::getPartialResiduals(const FitResult &fit, const DVec &x,
+                                           const Index i) const
+{
+    XYStatData res(*this);
+    DVec       buf(x), xk;
+
+    for (Index j = 0; j < res.getYDim(); ++j)
+    {
+        const DoubleFunction &f = fit.getModel(j);
+
+        for (Index k = 0; k < res.getNData(); ++k)
+        {
+            buf(i)       = res.x(i, k);
+            res.y(j, k) -= f(res.x(_, k).transpose()) - f(buf);
+        }
+    }
+
+    return res;
+}

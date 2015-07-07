@@ -64,6 +64,22 @@ const DoubleFunctionSample & SampleFitResult::getModel(
     return model_[static_cast<unsigned int>(j)];
 }
 
+FitResult SampleFitResult::getFitResult(const Index s) const
+{
+    FitResult fit;
+
+    fit = (*this)[s];
+    fit.chi2_ = getChi2();
+    fit.nDof_ = static_cast<Index>(getNDof());
+    fit.model_.resize(model_.size());
+    for (unsigned int k = 0; k < model_.size(); ++k)
+    {
+        fit.model_[k] = model_[k][s];
+    }
+
+    return fit;
+}
+
 /******************************************************************************
  *                       XYSampleData implementation                          *
  ******************************************************************************/
@@ -293,4 +309,59 @@ void XYSampleData::setDataToSample(const Index s)
     // set data
     data_.x() = x_[s];
     data_.y() = y_[s];
+}
+
+// residuals ///////////////////////////////////////////////////////////////////
+XYSampleData XYSampleData::getResiduals(const SampleFitResult &fit) const
+{
+    const Index  nSample = x_.size();
+    XYSampleData res(*this);
+    DMatSample   xBuf(nSample, getXDim(), 1), tmp(nSample, 1, 1);
+
+    for (Index j = 0; j < res.getYDim(); ++j)
+    {
+        const DoubleFunctionSample &f = fit.getModel(_, j);
+
+        for (Index k = 0; k < res.getNData(); ++k)
+        {
+            xBuf = this->x(_, k);
+            tmp  = this->y(j, k);
+            FOR_STAT_ARRAY(xBuf, s)
+            {
+                tmp[s](0) -= f[s](xBuf[s].transpose());
+            }
+            res.y(j, k) = tmp;
+        }
+    }
+
+    return res;
+}
+
+XYSampleData XYSampleData::getPartialResiduals(const SampleFitResult &fit,
+                                               const DVec &x,
+                                               const Index i) const
+{
+    const Index  nSample = x_.size();
+    XYSampleData res(*this);
+    DMatSample   xBuf(nSample, getXDim(), 1), tmp(nSample, 1, 1);
+    DVec         buf(x);
+
+    for (Index j = 0; j < res.getYDim(); ++j)
+    {
+        const DoubleFunctionSample &f = fit.getModel(_, j);
+
+        for (Index k = 0; k < res.getNData(); ++k)
+        {
+            xBuf   = this->x(_, k);
+            tmp    = this->y(j, k);
+            FOR_STAT_ARRAY(xBuf, s)
+            {
+                buf(i)     = xBuf[s](i);
+                tmp[s](0) -= f[s](xBuf[s].transpose()) - f[s](buf);
+            }
+            res.y(j, k) = tmp;
+        }
+    }
+    
+    return res;
 }

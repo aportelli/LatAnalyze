@@ -51,6 +51,7 @@ public:
                                           const Index j = 0) const;
     const DoubleFunctionSample & getModel(const PlaceHolder ph,
                                           const Index j = 0) const;
+    FitResult                    getFitResult(const Index s = central) const;
 private:
     DSample                           chi2_;
     double                            nDof_{0.};
@@ -59,7 +60,9 @@ private:
 
 /******************************************************************************
  *                            XYSampleData                                    *
- ******************************************************************************/
+ ******************************************************************************
+ * index convention: i: X, j: Y, k: data
+ */
 class XYSampleData: public FitInterface
 {
 public:
@@ -88,18 +91,22 @@ public:
     SampleBlock      y(const PlaceHolder ph1 = _, const PlaceHolder ph2 = _);
     ConstSampleBlock y(const PlaceHolder ph1 = _,
                        const PlaceHolder ph2 = _) const;
-    SampleBlock      y(const Index i, const PlaceHolder ph2 = _);
-    ConstSampleBlock y(const Index i, const PlaceHolder ph2 = _) const;
+    SampleBlock      y(const Index j, const PlaceHolder ph2 = _);
+    ConstSampleBlock y(const Index j, const PlaceHolder ph2 = _) const;
     SampleBlock      y(const PlaceHolder ph1, const Index k);
     ConstSampleBlock y(const PlaceHolder ph1, const Index k) const;
-    SampleBlock      y(const Index i, const Index k);
-    ConstSampleBlock y(const Index i, const Index k) const;
+    SampleBlock      y(const Index j, const Index k);
+    ConstSampleBlock y(const Index j, const Index k) const;
     // fit
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
                         const std::vector<const DoubleModel *> &modelVector);
     template <typename... Mods>
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
                         const DoubleModel &model, const Mods... models);
+    // residuals
+    XYSampleData getResiduals(const SampleFitResult &fit) const;
+    XYSampleData getPartialResiduals(const SampleFitResult &fit, const DVec &x,
+                                     const Index j) const;
 private:
     void setDataToSample(const Index s);
 private:

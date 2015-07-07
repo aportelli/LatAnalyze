@@ -69,7 +69,7 @@ private:
                           ConstBlock<MatBase<double>> m) const;
     void initBuffer(void) const;
 private:
-    const XYStatData                    &data_;
+    const XYStatData                    *data_;
     std::shared_ptr<Chi2FunctionBuffer> buffer_;
     std::vector<const DoubleModel *>    model_;
     Index                               nPar_{-1};

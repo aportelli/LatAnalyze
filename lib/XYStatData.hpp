@@ -37,6 +37,7 @@ BEGIN_LATAN_NAMESPACE
 class FitResult: public DVec
 {
     friend class XYStatData;
+    friend class SampleFitResult;
 public:
     // constructors
     FitResult(void) = default;
@@ -56,7 +57,9 @@ private:
 
 /******************************************************************************
  *                    object for X vs. Y statistical data                     *
- ******************************************************************************/
+ ******************************************************************************
+ * index convention: i: X, j: Y, k: data
+ */
 class XYStatData: public FitInterface
 {
 public:
@@ -112,6 +115,10 @@ public:
     template <typename... Ts>
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const DoubleModel &model, const Ts... models);
+    // residuals
+    XYStatData getResiduals(const FitResult &fit) const;
+    XYStatData getPartialResiduals(const FitResult &fit, const DVec &x,
+                                   const Index j) const;
                   
 private:
     DMat         x_, y_;

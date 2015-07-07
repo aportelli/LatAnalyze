@@ -29,7 +29,7 @@ using namespace Latan;
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 Chi2Function::Chi2Function(const XYStatData &data)
-: data_(data)
+: data_(&data)
 , buffer_(new Chi2FunctionBuffer)
 {
     resizeBuffer();
@@ -50,7 +50,7 @@ Index Chi2Function::getNArg(void) const
         LATAN_ERROR(Memory, "no model set");
     }
     
-    return nPar_ + data_.getStatXDim()*data_.getNFitPoint();
+    return nPar_ + data_->getStatXDim()*data_->getNFitPoint();
 }
 
 Index Chi2Function::getNDof(void) const
@@ -60,7 +60,7 @@ Index Chi2Function::getNDof(void) const
         LATAN_ERROR(Memory, "no model set");
     }
     
-    return data_.getYDim()*data_.getNFitPoint() - nPar_;
+    return data_->getYDim()*data_->getNFitPoint() - nPar_;
 }
 
 Index Chi2Function::getNPar(void) const
@@ -77,15 +77,15 @@ void Chi2Function::setModel(const DoubleModel &model, const Index j)
 {
     typedef decltype(model_.size()) size_type;
 
-    if (static_cast<Index>(model_.size()) != data_.getYDim())
+    if (static_cast<Index>(model_.size()) != data_->getYDim())
     {
-        model_.resize(static_cast<size_type>(data_.getYDim()));
+        model_.resize(static_cast<size_type>(data_->getYDim()));
     }
-    if (model.getNArg() != data_.getXDim())
+    if (model.getNArg() != data_->getXDim())
     {
         LATAN_ERROR(Size, "model number of arguments and x-dimension mismatch");
     }
-    for (unsigned int l = 0; l < data_.getYDim(); ++l)
+    for (unsigned int l = 0; l < data_->getYDim(); ++l)
     {
         if (model_[l]&&(l != j))
         {
@@ -103,11 +103,11 @@ void Chi2Function::setModel(const vector<const DoubleModel *> &modelVector)
 {
     typedef decltype(model_.size()) size_type;
 
-    if (static_cast<Index>(model_.size()) != data_.getYDim())
+    if (static_cast<Index>(model_.size()) != data_->getYDim())
     {
-        model_.resize(static_cast<size_type>(data_.getYDim()));
+        model_.resize(static_cast<size_type>(data_->getYDim()));
     }
-    if (modelVector.size() != static_cast<size_type>(data_.getYDim()))
+    if (modelVector.size() != static_cast<size_type>(data_->getYDim()))
     {
         LATAN_ERROR(Size, "number of models and y-dimension mismatch");
     }
@@ -117,7 +117,7 @@ void Chi2Function::setModel(const vector<const DoubleModel *> &modelVector)
         {
             LATAN_ERROR(Memory, "trying to set a null model");
         }
-        if (modelVector[j]->getNArg() != data_.getXDim())
+        if (modelVector[j]->getNArg() != data_->getXDim())
         {
             LATAN_ERROR(Size, "model number of arguments and x-dimension mismatch");
         }
@@ -139,24 +139,24 @@ void Chi2Function::resizeBuffer(void) const
 {
     Index size;
     
-    size = (data_.getYDim() + data_.getStatXDim())*data_.getNFitPoint();
+    size = (data_->getYDim() + data_->getStatXDim())*data_->getNFitPoint();
     buffer_->v.setConstant(size, 0.0);
-    buffer_->x.setConstant(data_.getXDim(), 0.0);
+    buffer_->x.setConstant(data_->getXDim(), 0.0);
     buffer_->invVar.setConstant(size, size, 0.0);
-    buffer_->xInd.setConstant(data_.getStatXDim(), 0);
-    buffer_->dInd.setConstant(data_.getNFitPoint(), 0);
+    buffer_->xInd.setConstant(data_->getStatXDim(), 0);
+    buffer_->dInd.setConstant(data_->getNFitPoint(), 0);
 }
 
 // compute variance matrix inverse /////////////////////////////////////////////
 void Chi2Function::setVarianceBlock(const Index l1, const Index l2,
                                     ConstBlock<MatBase<double>> m) const
 {
-    const Index nPoint = data_.getNFitPoint();
+    const Index nPoint = data_->getNFitPoint();
     
     FOR_VEC(buffer_->dInd, k2)
     FOR_VEC(buffer_->dInd, k1)
     {
-        if (data_.isDataCorrelated(buffer_->dInd(k1), buffer_->dInd(k2)))
+        if (data_->isDataCorrelated(buffer_->dInd(k1), buffer_->dInd(k2)))
         {
             buffer_->invVar(l1*nPoint + k1, l2*nPoint + k2) =
                 m(buffer_->dInd(k1), buffer_->dInd(k2));
@@ -166,11 +166,11 @@ void Chi2Function::setVarianceBlock(const Index l1, const Index l2,
 
 void Chi2Function::initBuffer(void) const
 {
-    const Index xDim     = data_.getXDim();
-    const Index statXDim = data_.getStatXDim();
-    const Index yDim     = data_.getYDim();
-    const Index nData    = data_.getNData();
-    const Index nPoint   = data_.getNFitPoint();
+    const Index xDim     = data_->getXDim();
+    const Index statXDim = data_->getStatXDim();
+    const Index yDim     = data_->getYDim();
+    const Index nData    = data_->getNData();
+    const Index nPoint   = data_->getNFitPoint();
     Index       is, kf;
     
     // resize buffer
@@ -180,7 +180,7 @@ void Chi2Function::initBuffer(void) const
     is = 0;
     for (Index i = 0; i < xDim; ++i)
     {
-        if (!data_.isXExact(i))
+        if (!data_->isXExact(i))
         {
             buffer_->xInd(is) = i;
             is++;
@@ -189,7 +189,7 @@ void Chi2Function::initBuffer(void) const
     kf = 0;
     for (Index k = 0; k < nData; ++k)
     {
-        if (data_.isFitPoint(k))
+        if (data_->isFitPoint(k))
         {
             buffer_->dInd(kf) = k;
             kf++;
@@ -200,9 +200,9 @@ void Chi2Function::initBuffer(void) const
     for (Index j2 = 0; j2 < yDim; ++j2)
     for (Index j1 = 0; j1 < yDim; ++j1)
     {
-        if (data_.isYYCorrelated(j1, j2))
+        if (data_->isYYCorrelated(j1, j2))
         {
-            setVarianceBlock(j1, j2, data_.yyVar(j1, j2));
+            setVarianceBlock(j1, j2, data_->yyVar(j1, j2));
         }
     }
 
@@ -210,10 +210,10 @@ void Chi2Function::initBuffer(void) const
     FOR_VEC(buffer_->xInd, i2)
     FOR_VEC(buffer_->xInd, i1)
     {
-        if (data_.isXXCorrelated(buffer_->xInd(i1), buffer_->xInd(i2)))
+        if (data_->isXXCorrelated(buffer_->xInd(i1), buffer_->xInd(i2)))
         {
             setVarianceBlock(i1 + yDim, i2 + yDim,
-                             data_.xxVar(buffer_->xInd(i1), buffer_->xInd(i2)));
+                             data_->xxVar(buffer_->xInd(i1), buffer_->xInd(i2)));
         }
     }
 
@@ -221,9 +221,9 @@ void Chi2Function::initBuffer(void) const
     FOR_VEC(buffer_->xInd, i)
     for (Index j = 0; j < yDim; ++j)
     {
-        if (data_.isYXCorrelated(j, buffer_->xInd(i)))
+        if (data_->isYXCorrelated(j, buffer_->xInd(i)))
         {
-            setVarianceBlock(j, i + yDim, data_.yxVar(j, buffer_->xInd(i)));
+            setVarianceBlock(j, i + yDim, data_->yxVar(j, buffer_->xInd(i)));
         }
     }
     auto lowerYX = buffer_->invVar.block(yDim*nPoint, 0, yDim*statXDim,
@@ -247,9 +247,9 @@ double Chi2Function::operator()(const double *arg) const
         LATAN_ERROR(Memory, "null model");
     }
     
-    const Index    xDim   = data_.getXDim();
-    const Index    yDim   = data_.getYDim();
-    const Index    nPoint = data_.getNFitPoint();
+    const Index    xDim   = data_->getXDim();
+    const Index    yDim   = data_->getYDim();
+    const Index    nPoint = data_->getNFitPoint();
     Index          is;
     ConstMap<DVec> xi(arg + nPar_, getNArg() - nPar_, 1);
     double         res;
@@ -265,7 +265,7 @@ double Chi2Function::operator()(const double *arg) const
     FOR_VEC(buffer_->dInd, k)
     {
         const DoubleModel *f = model_[static_cast<size_type>(j)];
-        double            f_jk, y_jk = data_.y(j, buffer_->dInd(k));
+        double            f_jk, y_jk = data_->y(j, buffer_->dInd(k));
 
         if (!f)
         {
@@ -274,9 +274,9 @@ double Chi2Function::operator()(const double *arg) const
         is = 0;
         for (Index i = 0; i < xDim; ++i)
         {
-            if (data_.isXExact(i))
+            if (data_->isXExact(i))
             {
-                buffer_->x(i) = data_.x(i, buffer_->dInd(k));
+                buffer_->x(i) = data_->x(i, buffer_->dInd(k));
             }
             else
             {
@@ -293,7 +293,7 @@ double Chi2Function::operator()(const double *arg) const
     FOR_VEC(buffer_->xInd, i)
     FOR_VEC(buffer_->dInd, k)
     {
-        double x_ik  = data_.x(buffer_->xInd(i), buffer_->dInd(k));
+        double x_ik  = data_->x(buffer_->xInd(i), buffer_->dInd(k));
         double xi_ik = xi(i*nPoint + k);
         
         buffer_->v(yDim*nPoint + i*nPoint + k) = xi_ik - x_ik;
