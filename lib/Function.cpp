@@ -101,7 +101,8 @@ double DoubleFunction::operator()(void) const
 }
 
 // bind ////////////////////////////////////////////////////////////////////////
-DoubleFunction DoubleFunction::bind(const Index argIndex, const double val)
+DoubleFunction DoubleFunction::bind(const Index argIndex,
+                                    const double val) const
 {
     Index            nArg = getNArg();
     shared_ptr<DVec> buf(new DVec(nArg));
@@ -129,6 +130,26 @@ DoubleFunction DoubleFunction::bind(const Index argIndex, const double val)
     };
 
     bindFunc.setFunction(func, nArg - 1);
+
+    return bindFunc;
+}
+
+DoubleFunction DoubleFunction::bind(const Index argIndex,
+                                    const DVec &x) const
+{
+    Index            nArg = getNArg();
+    shared_ptr<DVec> buf(new DVec(nArg));
+    DoubleFunction   copy(*this), bindFunc;
+
+    auto func = [copy, buf, argIndex, x](const double *arg)
+    {
+        *buf = x;
+        (*buf)(argIndex) = arg[0];
+
+        return copy(*buf);
+    };
+
+    bindFunc.setFunction(func, 1);
 
     return bindFunc;
 }
@@ -222,3 +243,29 @@ DSample DoubleFunctionSample::operator()(const vector<double> &arg) const
     return (*this)(arg.data());
 }
 
+// bind ////////////////////////////////////////////////////////////////////////
+DoubleFunctionSample DoubleFunctionSample::bind(const Index argIndex,
+                                                const double val) const
+{
+    DoubleFunctionSample bindFunc(size());
+
+    FOR_STAT_ARRAY(bindFunc, s)
+    {
+        bindFunc[s] = (*this)[s].bind(argIndex, val);
+    }
+
+    return bindFunc;
+}
+
+DoubleFunctionSample DoubleFunctionSample::bind(const Index argIndex,
+                                                const DVec &x) const
+{
+    DoubleFunctionSample bindFunc(size());
+
+    FOR_STAT_ARRAY(bindFunc, s)
+    {
+        bindFunc[s] = (*this)[s].bind(argIndex, x);
+    }
+
+    return bindFunc;
+}

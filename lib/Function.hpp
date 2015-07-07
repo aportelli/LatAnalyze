@@ -54,7 +54,8 @@ public:
     template <typename... Ts>
     double operator()(const double arg0, const Ts... args) const;
     // bind
-    DoubleFunction bind(const Index argIndex, const double val);
+    DoubleFunction bind(const Index argIndex, const double val) const;
+    DoubleFunction bind(const Index argIndex, const DVec &x) const;
     // arithmetic operators
     DoubleFunction   operator-(void) const;
     DoubleFunction & operator+=(const DoubleFunction &f);
@@ -170,13 +171,16 @@ public:
     DSample operator()(const std::vector<double> &arg) const;
     template <typename... Ts>
     DSample operator()(const double arg0, const Ts... args) const;
+    // bind
+    DoubleFunctionSample bind(const Index argIndex, const double val) const;
+    DoubleFunctionSample bind(const Index argIndex, const DVec &x) const ;
 };
 
 template <typename... Ts>
 DSample DoubleFunctionSample::operator()(const double arg0,
                                          const Ts... args) const
 {
-    const double arg[] = {arg0, args...};
+    const double arg[] = {arg0, static_cast<double>(args)...};
     
     return (*this)(arg);
 }
