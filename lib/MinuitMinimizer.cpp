@@ -62,17 +62,28 @@ double MinuitMinimizer::MinuitFunction::Up(void) const
 }
 
 // constructor /////////////////////////////////////////////////////////////////
-MinuitMinimizer::MinuitMinimizer(const Index dim)
+MinuitMinimizer::MinuitMinimizer(const Index dim, const Algorithm algorithm)
 : Minimizer(dim)
+, algorithm_(algorithm)
 {}
 
 // access //////////////////////////////////////////////////////////////////////
+MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
+{
+    return algorithm_;
+}
+
 double MinuitMinimizer::getPrecision(void) const
 {
     LATAN_ERROR(Implementation,
                 "Minuit minimizer precision cannot be accessed");
     
     return 0.;
+}
+
+void MinuitMinimizer::setAlgorithm(const Algorithm algorithm)
+{
+    algorithm_ = algorithm;
 }
 
 void MinuitMinimizer::setPrecision(const double precision __dumb)
@@ -134,13 +145,21 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // minimization and output
-    MnMigrad        minimizer(minuitF, parameters, 2);
+    unique_ptr<MnApplication> minimizer(nullptr);
+    if (algorithm_ == Algorithm::Migrad)
+    {
+       minimizer.reset(new MnMigrad(minuitF, parameters, 2));
+    }
+    else if (algorithm_ == Algorithm::Simplex)
+    {
+        minimizer.reset(new MnSimplex(minuitF, parameters, 2));
+    }
     unsigned int    iTry = 0;
-    FunctionMinimum min = minimizer();
+    FunctionMinimum min = (*minimizer)();
 
     while ((!min.IsValid())&&(iTry < maxTry))
     {
-        min = minimizer();
+        min = (*minimizer)();
         iTry++;
     }
     if (!min.IsValid())

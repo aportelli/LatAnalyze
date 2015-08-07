@@ -33,6 +33,12 @@ BEGIN_LATAN_NAMESPACE
 
 class MinuitMinimizer: public Minimizer
 {
+public:
+    enum class Algorithm
+    {
+        Migrad  = 1,
+        Simplex = 2
+    };
 private:
     class MinuitFunction: public ROOT::Minuit2::FCNBase
     {
@@ -49,14 +55,19 @@ private:
     };
 public:
     // constructor
-    explicit MinuitMinimizer(const Index dim);
+    explicit MinuitMinimizer(const Index dim,
+                             const Algorithm algorithm = Algorithm::Migrad);
     // destructor
     virtual ~MinuitMinimizer(void) = default;
     // access
     virtual double getPrecision(void) const;
+    Algorithm      getAlgorithm(void) const;
     virtual void   setPrecision(const double precision);
+    void           setAlgorithm(const Algorithm algorithm);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
+private:
+    Algorithm algorithm_;
 };
 
 END_LATAN_NAMESPACE
