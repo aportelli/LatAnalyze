@@ -84,7 +84,7 @@ BLANK   [ \t]
 <TYPE>mat          {BEGIN(INITIAL); RETTOK(MAT);}
 <TYPE>rs_sample    {BEGIN(INITIAL); RETTOK(SAMPLE);}
 <TYPE>rg_state     {BEGIN(INITIAL); RETTOK(RG_STATE);}
-<*>\n              {yylloc->last_column = 0;}
+<*>\r*\n           {yylloc->last_column = 0;}
 <*>[ \t]
 <*>.               {yylval->val_char = yytext[0]; RETTOK(ERR);}
 
