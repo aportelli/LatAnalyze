@@ -534,12 +534,9 @@ void Plot::save(string dirName)
     commandBack  = plotCommand_;
 
     // generate directory
-    if (access(dirName.c_str(), R_OK|W_OK|X_OK))
+    if (mkdir(dirName))
     {
-        if (mkdir(dirName.c_str(), mode755))
-        {
-            LATAN_ERROR(Io, "impossible to create directory '" + dirName + "'");
-        }
+        LATAN_ERROR(Io, "impossible to create directory '" + dirName + "'");
     }
     
     // save PDF
