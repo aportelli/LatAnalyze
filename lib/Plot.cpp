@@ -236,6 +236,22 @@ PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
                " fs solid " + strFrom(opacity) + " noborder");
 }
 
+// PlotHistogram constructor ///////////////////////////////////////////////////
+PlotHistogram::PlotHistogram(const Histogram &h)
+{
+    DMat   d(h.size(), 2);
+    string tmpFileName;
+
+    for (Index i = 0; i < h.size(); ++i)
+    {
+        d(i, 0) = h.getX(i);
+        d(i, 1) = h[i];
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w steps");
+}
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/

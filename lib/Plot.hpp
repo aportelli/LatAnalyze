@@ -22,6 +22,7 @@
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Mat.hpp>
+#include <LatAnalyze/Histogram.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 #include <sstream>
 #include <vector>
@@ -124,6 +125,15 @@ public:
                  const double opacity = 0.15);
     // destructor
     virtual ~PlotPredBand(void) = default;
+};
+
+class PlotHistogram: public PlotObject
+{
+public:
+    // constructor
+    PlotHistogram(const Histogram &h);
+    // destructor
+    virtual ~PlotHistogram(void) = default;
 };
 
 /******************************************************************************
