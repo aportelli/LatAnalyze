@@ -543,7 +543,7 @@ void FuncNode::compile(Program &program, RunContext &context) const
     {
         n[i].compile(program, context);
     }
-    PUSH_INS(program, Call, context.addFunction(getName()), getName());
+    PUSH_INS(program, Call, context.getFunctionAddress(getName()), getName());
 }
 
 // ReturnNode compile ////////////////////////////////////////////////////////////
@@ -631,12 +631,7 @@ void MathInterpreter::parse(void)
 
 // interpreter /////////////////////////////////////////////////////////////////
 #define ADD_FUNC(context, func)\
-try\
-{\
-    (context).setFunction(#func, &STDMATH_NAMESPACE::func);\
-}\
-catch (Exceptions::Definition)\
-{}
+(context).addFunction(#func, &STDMATH_NAMESPACE::func);\
 
 #define ADD_STDMATH_FUNCS(context)\
 ADD_FUNC(context, cos);\
@@ -694,6 +689,8 @@ void MathInterpreter::compile(RunContext &context)
     {
         if (root_)
         {
+            context.addVariable("pi", Math::pi);
+            ADD_STDMATH_FUNCS(context);
             root_->compile(program_, context);
             for (unsigned int i = 0; i < program_.size(); ++i)
             {
@@ -705,7 +702,6 @@ void MathInterpreter::compile(RunContext &context)
                     break;
                 }
             }
-            ADD_STDMATH_FUNCS(context);
         }
         if (!root_||!gotReturn)
         {
