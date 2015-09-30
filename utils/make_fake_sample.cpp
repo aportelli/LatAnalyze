@@ -18,7 +18,7 @@
  */
 
 #include <iostream>
-#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/RandGen.hpp>
 
 using namespace std;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
             res[s](0, 0) = gen.gaussian(val, err);
         }
     }
-    Io::save<DMatSample, AsciiFile>(res, outFileName);
+    Io::save<DMatSample>(res, outFileName);
 
     return EXIT_SUCCESS;
 }

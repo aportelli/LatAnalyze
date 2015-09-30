@@ -17,12 +17,11 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_Io_hpp_
-#define	Latan_Io_hpp_
+#ifndef Latan_File_hpp_
+#define	Latan_File_hpp_
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/IoObject.hpp>
-#include <LatAnalyze/ParserState.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
 #include <LatAnalyze/RandGen.hpp>
@@ -64,6 +63,8 @@ public:
     virtual void save(const DMat &m, const std::string &name)             = 0;
     virtual void save(const DMatSample &state, const std::string &name)   = 0;
     virtual void save(const RandGenState &state, const std::string &name) = 0;
+    // read first name
+    virtual std::string getFirstName(void) = 0;
     // tests
     virtual bool isOpen(void) const = 0;
     // IO
@@ -112,39 +113,6 @@ const IoT& File::getData(const std::string &name) const
         LATAN_ERROR(Definition, "no data with name '" + name + "' in file "
                     + name_);
     }
-}
-
-/******************************************************************************
- *                          Static IO functions                               *
- ******************************************************************************/
-class Io
-{
-public:
-    template <typename IoT, typename FileType>
-    static IoT  load(const std::string &fileName, const std::string &name = "");
-    template <typename IoT, typename FileType>
-    static void save(const IoT &data, const std::string &fileName,
-                     const unsigned int mode = File::Mode::write,
-                     const std::string &name = "");
-};
-
-// template implementation /////////////////////////////////////////////////////
-template <typename IoT, typename FileType>
-IoT Io::load(const std::string &fileName, const std::string &name)
-{
-    FileType file(fileName, File::Mode::read);
-    
-    return file.template read<IoT>(name);
-}
-
-template <typename IoT, typename FileType>
-void Io::save(const IoT &data, const std::string &fileName,
-              const unsigned int mode, const std::string &name)
-{
-    FileType file(fileName, mode);
-    std::string realName = (name.empty()) ? fileName : name;
-    
-    file.save(data, realName);
 }
 
 END_LATAN_NAMESPACE

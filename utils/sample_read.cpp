@@ -18,27 +18,32 @@
  */
 
 #include <iostream>
-#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Io.hpp>
 
 using namespace std;
 using namespace Latan;
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
+    if ((argc < 2) || (argc > 3))
     {
-        cerr << "usage: " << argv[0] << " <file>" << endl;
+        cerr << "usage: " << argv[0] << " <file> [<copy>]" << endl;
 
         return EXIT_FAILURE;
     }
-    
-    string fileName = argv[1];
+
+    string fileName = argv[1], copy = (argc >= 3) ? argv[2] : "";
     
     cout << "-- loading sample from '" << fileName << "'..." << endl;
-    DMatSample s = Io::load<DMatSample, AsciiFile>(fileName);
+    DMatSample s    = Io::load<DMatSample>(fileName);
+    string     name = Io::getFirstName(fileName);
     cout << scientific;
     cout << "central value:\n"      << s[central]               << endl;
     cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
+    if (!copy.empty())
+    {
+        Io::save(s, copy, File::Mode::write, name);
+    }
     
     return EXIT_SUCCESS;
 }

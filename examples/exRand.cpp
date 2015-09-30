@@ -1,5 +1,5 @@
 #include <iostream>
-#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 #include <LatAnalyze/Plot.hpp>
 #include <LatAnalyze/RandGen.hpp>

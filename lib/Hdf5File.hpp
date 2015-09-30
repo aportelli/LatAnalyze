@@ -1,5 +1,5 @@
 /*
- * AsciiFile.hpp, part of LatAnalyze 3
+ * Hdf5File.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2015 Antonin Portelli
  *
@@ -17,53 +17,33 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_AsciiFile_hpp_
-#define Latan_AsciiFile_hpp_
+#ifndef Latan_Hdf5File_hpp_
+#define Latan_Hdf5File_hpp_
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/File.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/ParserState.hpp>
 #include <LatAnalyze/RandGen.hpp>
-#include <fstream>
+#include <H5Cpp.h>
 
 BEGIN_LATAN_NAMESPACE
 
+#ifndef H5_NO_NAMESPACE
+#define H5NS H5
+#endif
+
 /******************************************************************************
- *                          ASCII datafile class                              *
+ *                          HDF5 datafile class                               *
  ******************************************************************************/
-class AsciiFile: public File
+class Hdf5File: public File
 {
 public:
-    class AsciiParserState: public ParserState<IoDataTable>
-    {
-    public:
-        // constructor
-        AsciiParserState(std::istream *stream, std::string *name,
-                         IoDataTable *data);
-        // destructor
-        virtual ~AsciiParserState(void);
-        // first element reference
-        bool        isFirst;
-        std::string first;
-        // parsing buffers
-        RandGenState       stateBuf;
-        DMatSample         dMatSampleBuf;
-        std::queue<DMat>   dMatQueue;
-        std::queue<double> doubleQueue;
-        std::queue<int>    intQueue;
-    private:
-        // allocation/deallocation functions defined in IoAsciiLexer.lpp
-        virtual void initScanner(void);
-        virtual void destroyScanner(void);
-    };
-public:
     // constructors
-    AsciiFile(void) = default;
-    AsciiFile(const std::string &name, const unsigned int mode);
+    Hdf5File(void);
+    Hdf5File(const std::string &name, const unsigned int mode);
     // destructor
-    virtual ~AsciiFile(void);
+    virtual ~Hdf5File(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
     virtual void save(const DMatSample &s, const std::string &name);
@@ -75,20 +55,18 @@ public:
     // IO
     virtual void close(void);
     virtual void open(const std::string &name, const unsigned int mode);
-public:
-    // default ASCII precision
-    static const unsigned int defaultDoublePrec = 15;
 private:
     // IO
+            std::string getFirstGroupName(void);
     virtual std::string load(const std::string &name = "");
-    // parser
-    void parse(void);
+                   void load(DMat &m, const H5NS::DataSet &d);
+                   void load(DMatSample &s, const H5NS::DataSet &d);
+                   void load(RandGenState &state, const H5NS::DataSet &d);
 private:
-    std::fstream                      fileStream_;
-    bool                              isParsed_{false};
-    std::unique_ptr<AsciiParserState> state_{nullptr};
+    // file name
+    std::unique_ptr<H5NS::H5File> h5File_{nullptr};
 };
 
 END_LATAN_NAMESPACE
 
-#endif // Latan_AsciiFile_hpp_
+#endif // Latan_Hdf5File_hpp_

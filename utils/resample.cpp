@@ -21,8 +21,8 @@
 #include <map>
 #include <libgen.h>
 #include <unistd.h>
-#include <LatAnalyze/AsciiFile.hpp>
 #include <LatAnalyze/Dataset.hpp>
+#include <LatAnalyze/Io.hpp>
 
 #ifndef DEF_NSAMPLE
 #define DEF_NSAMPLE 100
@@ -109,15 +109,30 @@ int main(int argc, char *argv[])
     }
     for (unsigned int i = 0; i < dataFileName.size(); ++i)
     {
-        AsciiFile dataFile;
-        
+        std::unique_ptr<File> dataFile;
+
+        if (extension(dataFileName[i]) == "dat")
+        {
+            dataFile.reset(new AsciiFile);
+        }
+        else if (extension(dataFileName[i]) == "h5")
+        {
+            dataFile.reset(new Hdf5File);
+        }
+        else
+        {
+            cerr << "error: '" << dataFileName[i];
+            cerr << "' has an unknown extension" << endl;
+
+            return EXIT_FAILURE;
+        }
         cout << '\r' << ProgressBar(i + 1, dataFileName.size());
-        dataFile.open(dataFileName[i], AsciiFile::Mode::read);
+        dataFile->open(dataFileName[i], AsciiFile::Mode::read);
         for (const string &n: name)
         {
-            data[n][i] = dataFile.read<DMat>(n);
+            data[n][i] = dataFile->read<DMat>(n);
         }
-        dataFile.close();
+        dataFile->close();
     }
     cout << endl;
     
@@ -129,7 +144,7 @@ int main(int argc, char *argv[])
     cout << "-- resampling data..." << endl;
     if (!stateFileName.empty())
     {
-        state = Io::load<RandGenState, AsciiFile>(stateFileName);
+        state = Io::load<RandGenState>(stateFileName);
     }
     for (unsigned int i = 0; i < name.size(); ++i)
     {
@@ -142,8 +157,8 @@ int main(int argc, char *argv[])
             g.setState(state);
         }
         s = data[name[i]].bootstrapMean(nSample, g);
-        Io::save<DMatSample, AsciiFile>(s, outDirName + "/" + outFileName,
-                                        File::Mode::write, outFileName);
+        Io::save<DMatSample>(s, outDirName + "/" + outFileName,
+                             File::Mode::write, outFileName);
     }
     cout << endl;
     

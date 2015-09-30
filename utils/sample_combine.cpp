@@ -20,7 +20,7 @@
 #include <iostream>
 #include <libgen.h>
 #include <unistd.h>
-#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 
 using namespace std;

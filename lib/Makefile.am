@@ -29,8 +29,10 @@ libLatAnalyze_la_SOURCES = \
     Global.cpp             \
     GslHybridRootFinder.cpp\
     GslQagsIntegrator.cpp  \
+    Hdf5File.cpp           \
     Histogram.cpp          \
     includes.hpp           \
+    Io.cpp                 \
     Mat.cpp                \
     Math.cpp               \
     MathInterpreter.cpp    \
@@ -62,8 +64,10 @@ libLatAnalyze_la_HEADERS = \
     Global.hpp             \
     GslHybridRootFinder.hpp\
     GslQagsIntegrator.hpp  \
+    Hdf5File.hpp           \
     Histogram.hpp          \
     Integrator.hpp         \
+    Io.hpp                 \
     IoObject.hpp           \
     Mat.hpp                \
     Math.hpp               \

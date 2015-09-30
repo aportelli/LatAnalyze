@@ -89,6 +89,12 @@ void AsciiFile::save(const RandGenState &state, const std::string &name)
     fileStream_ << "#L latan_end rg_state " << endl;
 }
 
+// read first name ////////////////////////////////////////////////////////////
+string AsciiFile::getFirstName(void)
+{
+    return load();
+}
+
 // tests ///////////////////////////////////////////////////////////////////////
 bool AsciiFile::isOpen() const
 {
@@ -118,7 +124,9 @@ void AsciiFile::open(const string &name, const unsigned int mode)
     else
     {
         ios_base::openmode stdMode = static_cast<ios_base::openmode>(0);
-        
+
+        name_ = name;
+        mode_ = mode;
         if (mode & Mode::write)
         {
             stdMode |= ios::out|ios::trunc;
@@ -131,8 +139,6 @@ void AsciiFile::open(const string &name, const unsigned int mode)
         {
             stdMode |= ios::out|ios::app;
         }
-        name_     = name;
-        mode_     = mode;
         isParsed_ = false;
         fileStream_.open(name_.c_str(), stdMode);
         if (mode_ & Mode::read)

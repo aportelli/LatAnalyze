@@ -1,5 +1,5 @@
 #include <iostream>
-#include <LatAnalyze/AsciiFile.hpp>
+#include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/Math.hpp>
 
@@ -8,9 +8,8 @@ using namespace Latan;
 
 int main(void)
 {
-    AsciiFile F;
     DMat A(2, 3), B(3, 2);
-    const string fileName = "exMat.dat";
+    const string fileName = "exMat.h5";
     
     A << 1, 2, 3,
          4, 5, 6;
@@ -26,9 +25,11 @@ int main(void)
     cout << "cos(A)=\n" << A.unaryExpr(StdMath::cos) << '\n' << endl;
     
     // write
-    cout << "-- saving A*B..." << endl;
-    F.open(fileName, File::Mode::append);
-    F.save(A*B, "AB");
-    
+    cout << "-- saving and loading A*B using '" + fileName + "'..." << endl;
+    Io::save(A*B, fileName, File::Mode::write, "AB");
+
+    DMat C = Io::load<DMat>(fileName);
+    cout << C << endl;
+
     return EXIT_SUCCESS;
 }

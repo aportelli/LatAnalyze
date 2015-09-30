@@ -30,7 +30,7 @@ BEGIN_LATAN_NAMESPACE
 class IoObject
 {
 public:
-    enum class IoType
+    enum class IoType: short int
     {
         noType     = 0,
         dMat       = 1,
