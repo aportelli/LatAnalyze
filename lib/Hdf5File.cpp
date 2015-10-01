@@ -185,6 +185,7 @@ string Hdf5File::getFirstGroupName(void)
         };
 
         char groupName[maxGroupNameSize];
+        groupName[0] = 0; // Need to make sure it's null-terminated
 
         h5File_->iterateElems("/", nullptr, firstGroupName, groupName);
         res = groupName;
