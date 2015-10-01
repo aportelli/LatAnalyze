@@ -62,6 +62,8 @@ private:
                    void load(DMat &m, const H5NS::DataSet &d);
                    void load(DMatSample &s, const H5NS::DataSet &d);
                    void load(RandGenState &state, const H5NS::DataSet &d);
+
+    static size_t nameOffset(const std::string& name);
 private:
     // file name
     std::unique_ptr<H5NS::H5File> h5File_{nullptr};
