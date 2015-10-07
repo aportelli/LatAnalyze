@@ -54,6 +54,11 @@ Hdf5File::~Hdf5File(void)
 // access //////////////////////////////////////////////////////////////////////
 void Hdf5File::save(const DMat &m, const string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
     Group     group;
     Attribute attr;
     DataSet   dataset;
@@ -72,6 +77,11 @@ void Hdf5File::save(const DMat &m, const string &name)
 
 void Hdf5File::save(const DMatSample &sample, const string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
     Group          group;
     Attribute      attr;
     DataSet        dataset;
@@ -98,6 +108,11 @@ void Hdf5File::save(const DMatSample &sample, const string &name)
 
 void Hdf5File::save(const RandGenState &state, const string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
     Group     group;
     Attribute attr;
     DataSet   dataset;
@@ -122,6 +137,25 @@ string Hdf5File::getFirstName(void)
 bool Hdf5File::isOpen(void) const
 {
     return (h5File_ != nullptr);
+}
+
+// check names for forbidden characters ////////////////////////////////////////
+size_t Hdf5File::nameOffset(const string &name)
+{
+    size_t ret      = 0;
+    string badChars = "/";
+
+    for (auto c : badChars)
+    {
+        size_t pos = name.rfind(c);
+
+        if (pos != string::npos and pos > ret)
+        {
+            ret = pos;
+        }
+    }
+
+    return ret;
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
@@ -149,6 +183,7 @@ void Hdf5File::open(const string &name, const unsigned int mode)
 
         name_ = name;
         mode_ = mode;
+
         if (mode & Mode::write)
         {
             h5Mode |= H5F_ACC_TRUNC;
@@ -184,8 +219,7 @@ string Hdf5File::getFirstGroupName(void)
             return 0;
         };
 
-        char groupName[maxGroupNameSize];
-        groupName[0] = 0; // Need to make sure it's null-terminated
+        char groupName[maxGroupNameSize] = "";
 
         h5File_->iterateElems("/", nullptr, firstGroupName, groupName);
         res = groupName;
@@ -243,6 +277,10 @@ string Hdf5File::load(const string &name)
         IoObject::IoType type;
 
         groupName = (name.empty()) ? getFirstGroupName() : name;
+        if (groupName.empty())
+        {
+            LATAN_ERROR(Io, "file '" + name_ + "' is empty");
+        }
         group     = h5File_->openGroup(groupName.c_str());
         attribute = group.openAttribute("type");
         attribute.read(PredType::NATIVE_SHORT, &type);
@@ -313,19 +351,4 @@ string Hdf5File::load(const string &name)
 
         return "";
     }
-}
-
-size_t Hdf5File::nameOffset(const string& name)
-{
-    size_t ret = 0;
-    string badChars = "/";
-
-    for (auto c : badChars) {
-        size_t pos = name.rfind(c);
-        if (pos != string::npos and pos > ret) {
-            ret = pos;
-        }
-    }
-
-    return ret;
 }

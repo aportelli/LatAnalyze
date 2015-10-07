@@ -26,7 +26,7 @@ int main(void)
     
     // write
     cout << "-- saving and loading A*B using '" + fileName + "'..." << endl;
-    Io::save(A*B, fileName, File::Mode::write, "AB");
+    Io::save(A*B, fileName, File::Mode::write);
 
     DMat C = Io::load<DMat>(fileName);
     cout << C << endl;

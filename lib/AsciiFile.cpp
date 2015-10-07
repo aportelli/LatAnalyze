@@ -55,6 +55,11 @@ AsciiFile::~AsciiFile(void)
 // access //////////////////////////////////////////////////////////////////////
 void AsciiFile::save(const DMat &m, const std::string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
     const auto defaultPrec = fileStream_.precision(defaultDoublePrec);
 
     checkWritability();
@@ -68,6 +73,11 @@ void AsciiFile::save(const DMat &m, const std::string &name)
 
 void AsciiFile::save(const DMatSample &s, const std::string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
     checkWritability();
     isParsed_ = false;
     fileStream_ << "#L latan_begin rs_sample " << name << endl;
@@ -82,6 +92,11 @@ void AsciiFile::save(const DMatSample &s, const std::string &name)
 
 void AsciiFile::save(const RandGenState &state, const std::string &name)
 {
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+    
     checkWritability();
     isParsed_ = false;
     fileStream_ << "#L latan_begin rg_state " << name << endl;
