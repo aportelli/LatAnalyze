@@ -63,7 +63,7 @@ void Hdf5File::save(const DMat &m, const string &name)
 
     DataSpace dataSpace(2, dim), attrSpace(1, &attrDim);
 
-    group = h5File_->createGroup(name.c_str());
+    group = h5File_->createGroup(name.c_str() + nameOffset(name));
     attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
     attr.write(PredType::NATIVE_SHORT, &dMatType);
     dataset = group.createDataSet("data", PredType::NATIVE_DOUBLE, dataSpace);
@@ -82,7 +82,7 @@ void Hdf5File::save(const DMatSample &sample, const string &name)
     const long int nSample = sample.size();
     string         datasetName;
 
-    group = h5File_->createGroup(name.c_str());
+    group = h5File_->createGroup(name.c_str() + nameOffset(name));
     attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
     attr.write(PredType::NATIVE_SHORT, &dMatSampleType);
     attr  = group.createAttribute("nSample", PredType::NATIVE_LONG, attrSpace);
@@ -105,7 +105,7 @@ void Hdf5File::save(const RandGenState &state, const string &name)
     hsize_t   attrDim = 1;
     DataSpace dataSpace(1, &dim), attrSpace(1, &attrDim);
 
-    group = h5File_->createGroup(name.c_str());
+    group = h5File_->createGroup(name.c_str() + nameOffset(name));
     attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
     attr.write(PredType::NATIVE_SHORT, &rgStateType);
     dataset = group.createDataSet("data", PredType::NATIVE_DOUBLE, dataSpace);
@@ -185,6 +185,7 @@ string Hdf5File::getFirstGroupName(void)
         };
 
         char groupName[maxGroupNameSize];
+        groupName[0] = 0; // Need to make sure it's null-terminated
 
         h5File_->iterateElems("/", nullptr, firstGroupName, groupName);
         res = groupName;
@@ -312,4 +313,19 @@ string Hdf5File::load(const string &name)
 
         return "";
     }
+}
+
+size_t Hdf5File::nameOffset(const string& name)
+{
+    size_t ret = 0;
+    string badChars = "/";
+
+    for (auto c : badChars) {
+        size_t pos = name.rfind(c);
+        if (pos != string::npos and pos > ret) {
+            ret = pos;
+        }
+    }
+
+    return ret;
 }
