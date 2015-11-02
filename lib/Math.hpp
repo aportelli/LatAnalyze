@@ -141,6 +141,15 @@ DECL_STD_FUNC(fmin)
 // Absolute value
 DECL_STD_FUNC(fabs)
 
+/******************************************************************************
+ *                                Other functions                             *
+ ******************************************************************************/
+// p-value
+namespace MATH_NAMESPACE
+{
+    extern DoubleFunction chi2PValue;
+}
+
 END_LATAN_NAMESPACE
 
 #endif // Latan_Math_hpp_

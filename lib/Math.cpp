@@ -19,6 +19,7 @@
 
 #include <LatAnalyze/Math.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <gsl/gsl_cdf.h>
 
 using namespace std;
 using namespace Latan;
@@ -90,3 +91,11 @@ DEF_STD_FUNC_2ARG(fmin)
 
 // Absolute value
 DEF_STD_FUNC_1ARG(fabs)
+
+// p-value
+auto chi2PValueVecFunc = [](const double arg[2])
+{
+    return gsl_cdf_chisq_Q(arg[0], arg[1]);
+};
+
+DoubleFunction MATH_NAMESPACE::chi2PValue(chi2PValueVecFunc, 2);
