@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # Initialization
-AC_PREREQ([2.64])
+AC_PREREQ([2.63])
 AC_INIT([LatAnalyze],[3.0alpha1],[antonin.portelli@me.com],[LatAnalyze])
 AC_CONFIG_AUX_DIR([.buildutils])
 AC_CONFIG_SRCDIR([lib/Global.cpp])
@@ -32,32 +32,24 @@ AC_ARG_ENABLE([SSE],
 		[compiles SSE version of ranlux random generator])],
 	[AC_DEFINE([HAVE_SSE],
 				[1],
-				[Define to 1 if your CPU support SSE instructions.])],
-	[]
-)
+				[Define to 1 if your CPU support SSE instructions.])])
 AC_ARG_WITH([gsl],
     [AS_HELP_STRING([--with-gsl=prefix],
 		[try this for a non-standard install prefix of the GSL library])],
     [AM_CFLAGS="$AM_CFLAGS -I$with_gsl/include"]
 	[AM_CXXFLAGS="$AM_CXXFLAGS -I$with_gsl/include"]
-	[AM_LDFLAGS="$AM_LDFLAGS -L$with_gsl/lib"],
-	[]
-)
+	[AM_LDFLAGS="$AM_LDFLAGS -L$with_gsl/lib"])
 AC_ARG_WITH([Minuit2],
     [AS_HELP_STRING([--with-Minuit2=prefix],
 		[try this for a non-standard install prefix of the Minuit2 library])],
     [AM_CFLAGS="$AM_CFLAGS -I$with_Minuit2/include"]
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_Minuit2/include"]
-	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"],
-	[]
-)
+	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"])
 AC_ARG_WITH([LatCore],
     [AS_HELP_STRING([--with-LatCore=prefix],
     [use this option for a non-standard install prefix of the LatCore library])],
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_LatCore/include"]
-    [AM_LDFLAGS="$AM_LDFLAGS -L$with_LatCore/lib"],
-    []
-)
+    [AM_LDFLAGS="$AM_LDFLAGS -L$with_LatCore/lib"])
 AX_LIB_HDF5()
 if test x$with_hdf5 = xno; then
     AC_MSG_ERROR([HDF5 library not found])
