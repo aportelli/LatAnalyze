@@ -100,7 +100,8 @@ void Hdf5File::save(const DMatSample &sample, const string &name)
     FOR_STAT_ARRAY(sample, s)
     {
         datasetName = (s == central) ? "data_C" : ("data_S_" + strFrom(s));
-        dataset     = group.createDataSet(datasetName, PredType::NATIVE_DOUBLE,
+        dataset     = group.createDataSet(datasetName.c_str(),
+                                          PredType::NATIVE_DOUBLE,
                                           dataSpace);
         dataset.write(sample[s].data(), PredType::NATIVE_DOUBLE);
     }
@@ -312,7 +313,8 @@ string Hdf5File::load(const string &name)
                     }
                     else
                     {
-                        dataset = group.openDataSet("data_S_" + strFrom(s));
+                        dataset =
+                            group.openDataSet(("data_S_" + strFrom(s)).c_str());
                     }
                     load((*pt)[s], dataset);
                 }
