@@ -47,6 +47,8 @@ public:
     template <typename FileType>
     static std::string getFirstName(const std::string &fileName);
     static std::string getFirstName(const std::string &fileName);
+    static std::unique_ptr<File> open(const std::string &fileName,
+                                      const unsigned int mode = File::Mode::write);
 };
 
 // template implementation /////////////////////////////////////////////////////

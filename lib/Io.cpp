@@ -40,3 +40,21 @@ string Io::getFirstName(const string &fileName)
         LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
     }
 }
+
+unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
+{
+    string ext = extension(fileName);
+    
+    if (ext == "h5")
+    {
+        return unique_ptr<File>(new Hdf5File(fileName, mode));
+    }
+    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
+    {
+        return unique_ptr<File>(new AsciiFile(fileName, mode));
+    }
+    else
+    {
+        LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
+    }
+}
