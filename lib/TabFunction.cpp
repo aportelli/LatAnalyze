@@ -88,14 +88,14 @@ double TabFunction::operator()(const double *arg) const
             break;
         }
         case InterpType::NEAREST: {
-            auto it = value_.upper_bound(x);
-            auto upper_pair = *it;
-            auto lower_pair = *(--it);
-            if (fabs(upper_pair.first - x) < fabs(lower_pair.first - x)) {
-                result = upper_pair.second;
+            auto it = value_.equal_range(x);
+            auto lower = (x == it.first->first) ? it.first : prev(it.first);
+            auto upper = it.second;
+            if (fabs(upper->first - x) < fabs(lower->first - x)) {
+                result = upper->second;
             }
             else {
-                result = lower_pair.second;
+                result = lower->second;
             }
             break;
         }
