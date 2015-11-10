@@ -174,4 +174,4 @@ map<double, double>::const_iterator TabFunction::nearest(const double x) const
     }
 
     return ret;
-};
+}
