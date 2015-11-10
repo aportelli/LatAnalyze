@@ -107,6 +107,7 @@ double TabFunction::operator()(const double *arg) const
             xs[2] = next(it)->first;
             ys[2] = next(it)->second;
 
+            // Lagrange polynomial coefficient computation
             as[0]
                 = (x - xs[1]) / (xs[0] - xs[1])
                   * (x - xs[2]) / (xs[0] - xs[2]);
