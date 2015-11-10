@@ -59,6 +59,8 @@ public:
     // factory
     virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 private:
+    std::map<double, double>::const_iterator nearest(const double x) const;
+
     std::map<double, double> value_;
     InterpType interpType_;
 };

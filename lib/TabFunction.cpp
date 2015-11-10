@@ -72,13 +72,13 @@ double TabFunction::operator()(const double *arg) const
                            + strFrom(value_.rbegin()->first) + "])");
     }
 
+    auto i = value_.equal_range(x);
+    auto low = (x == i.first->first) ? i.first : prev(i.first);
+    auto high = i.second;
+
     switch (interpType_) {
         case InterpType::LINEAR: {
             double x_a, x_b, y_a, y_b;
-
-            auto i = value_.equal_range(x);
-            auto low = (x == i.first->first) ? i.first : prev(i.first);
-            auto high = i.second;
 
             x_a = low->first;
             x_b = high->first;
@@ -88,18 +88,37 @@ double TabFunction::operator()(const double *arg) const
             break;
         }
         case InterpType::NEAREST: {
-            auto it = value_.equal_range(x);
-            auto lower = (x == it.first->first) ? it.first : prev(it.first);
-            auto upper = it.second;
-            if (fabs(upper->first - x) < fabs(lower->first - x)) {
-                result = upper->second;
-            }
-            else {
-                result = lower->second;
-            }
+            result = nearest(x)->second;
             break;
         }
-        case InterpType::QUADRATIC:
+        case InterpType::QUADRATIC: {
+            double xs[3], ys[3], as[3];
+            auto it = nearest(x);
+            if (it == value_.begin()) {
+                it = next(it);
+            }
+            else if (it == value_.end()) {
+                it = prev(it);
+            }
+            xs[0] = prev(it)->first;
+            ys[0] = prev(it)->second;
+            xs[1] = it->first;
+            ys[1] = it->second;
+            xs[2] = next(it)->first;
+            ys[2] = next(it)->second;
+
+            as[0]
+                = (x - xs[1]) / (xs[0] - xs[1])
+                  * (x - xs[2]) / (xs[0] - xs[2]);
+            as[1]
+                = (x - xs[0]) / (xs[1] - xs[0])
+                  * (x - xs[2]) / (xs[1] - xs[2]);
+            as[2]
+                = (x - xs[0]) / (xs[2] - xs[0])
+                * (x - xs[1]) / (xs[2] - xs[1]);
+            result = as[0] * ys[0] + as[1] * ys[1] + as[2] * ys[2];
+            break;
+        }
         default:
             int intType = static_cast<int>(interpType_);
             LATAN_ERROR(Implementation, "unsupported interpolation type in "
@@ -140,3 +159,19 @@ DoubleFunction Latan::interpolate(const XYStatData &data, const Index i,
 {
     return TabFunction(data, i, j, interpType).makeFunction();
 }
+
+map<double, double>::const_iterator TabFunction::nearest(const double x) const
+{
+    map<double, double>::const_iterator ret;
+    auto i = value_.equal_range(x);
+    auto low = (x == i.first->first) ? i.first : prev(i.first);
+    auto high = i.second;
+    if (fabs(high->first - x) < fabs(low->first - x)) {
+        ret = high;
+    }
+    else {
+        ret = low;
+    }
+
+    return ret;
+};
