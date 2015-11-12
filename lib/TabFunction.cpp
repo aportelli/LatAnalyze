@@ -97,7 +97,7 @@ double TabFunction::operator()(const double *arg) const
             if (it == value_.begin()) {
                 it = next(it);
             }
-            else if (it == value_.end()) {
+            else if (it == prev(value_.end())) {
                 it = prev(it);
             }
             xs[0] = prev(it)->first;
