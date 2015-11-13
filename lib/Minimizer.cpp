@@ -25,7 +25,6 @@ using namespace Latan;
 
 // constructor /////////////////////////////////////////////////////////////////
 Minimizer::Minimizer(const Index dim)
-: Solver(dim)
 {
     resize(dim);
 }
@@ -33,11 +32,21 @@ Minimizer::Minimizer(const Index dim)
 // access //////////////////////////////////////////////////////////////////////
 void Minimizer::resize(const Index dim)
 {
+    const Index oldDim = getDim();
+    
     Solver::resize(dim);
     highLimit_.conservativeResize(dim);
     lowLimit_.conservativeResize(dim);
     hasHighLimit_.conservativeResize(dim);
     hasLowLimit_.conservativeResize(dim);
+    if (dim > oldDim)
+    {
+        highLimit_.segment(oldDim, dim - oldDim).fill(0.);
+        highLimit_.segment(oldDim, dim - oldDim).fill(0.);
+        lowLimit_.segment(oldDim, dim - oldDim).fill(0.);
+        hasHighLimit_.segment(oldDim, dim - oldDim).fill(false);
+        hasLowLimit_.segment(oldDim, dim - oldDim).fill(false);
+    }
 }
 
 // limits //////////////////////////////////////////////////////////////////////
