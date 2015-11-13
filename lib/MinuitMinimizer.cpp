@@ -61,11 +61,17 @@ double MinuitMinimizer::MinuitFunction::Up(void) const
     return 1.;
 }
 
-// constructor /////////////////////////////////////////////////////////////////
+// constructors ////////////////////////////////////////////////////////////////
+MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
+{
+    setAlgorithm(algorithm);
+}
+
 MinuitMinimizer::MinuitMinimizer(const Index dim, const Algorithm algorithm)
 : Minimizer(dim)
-, algorithm_(algorithm)
-{}
+{
+    setAlgorithm(algorithm);
+}
 
 // access //////////////////////////////////////////////////////////////////////
 MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
@@ -100,7 +106,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     if (f.getNArg() != x.size())
     {
-        LATAN_ERROR(Size, "function to minimize number of arguments mismatch");
+        resize(f.getNArg());
     }
     
     // set parameters

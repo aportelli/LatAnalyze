@@ -54,7 +54,8 @@ private:
         const DoubleFunction *f_;
     };
 public:
-    // constructor
+    // constructors
+    MinuitMinimizer(const Algorithm algorithm = Algorithm::Migrad);
     explicit MinuitMinimizer(const Index dim,
                              const Algorithm algorithm = Algorithm::Migrad);
     // destructor

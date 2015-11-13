@@ -35,9 +35,12 @@ class Minimizer: public Solver
 {
 public:
     // constructor
+    Minimizer(void) = default;
     explicit Minimizer(const Index dim);
     // destructor
     virtual ~Minimizer(void) = default;
+    // access
+    virtual void resize(const Index dim);
     // limits
     virtual double       getHighLimit(const Index i) const ;
     virtual const DVec & getHighLimit(const PlaceHolder ph = _) const;
