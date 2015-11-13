@@ -26,15 +26,18 @@ using namespace Latan;
 // constructor /////////////////////////////////////////////////////////////////
 Minimizer::Minimizer(const Index dim)
 : Solver(dim)
-, highLimit_(dim)
-, lowLimit_(dim)
-, hasHighLimit_(dim)
-, hasLowLimit_(dim)
 {
-    highLimit_.fill(0.);
-    lowLimit_.fill(0.);
-    hasHighLimit_.fill(false);
-    hasLowLimit_.fill(false);
+    resize(dim);
+}
+
+// access //////////////////////////////////////////////////////////////////////
+void Minimizer::resize(const Index dim)
+{
+    Solver::resize(dim);
+    highLimit_.conservativeResize(dim);
+    lowLimit_.conservativeResize(dim);
+    hasHighLimit_.conservativeResize(dim);
+    hasLowLimit_.conservativeResize(dim);
 }
 
 // limits //////////////////////////////////////////////////////////////////////

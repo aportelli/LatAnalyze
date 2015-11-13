@@ -95,7 +95,7 @@ GslHybridRootFinder::operator()(const vector<DoubleFunction *> &func)
     }
     if (res.size() != nArg)
     {
-        res.conservativeResize(nArg);
+        resize(nArg);
     }
     solver_ = gsl_multiroot_fsolver_alloc(gsl_multiroot_fsolver_hybrids, nFunc);
     x       = gsl_vector_alloc(nFunc);

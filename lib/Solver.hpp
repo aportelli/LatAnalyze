@@ -41,7 +41,9 @@ public:
         Debug  = 2
     };
 public:
-    // constructor
+    // constructors
+    Solver(const double precision = defaultPrec,
+           const unsigned int maxIteration = defaultMaxIteration);
     explicit Solver(const Index dim, const double precision = defaultPrec,
                     const unsigned int maxIteration = defaultMaxIteration);
     // destructor
@@ -55,6 +57,7 @@ public:
     virtual void         setPrecision(const double precision);
     virtual void         setMaxIteration(const unsigned int maxIteration);
             void         setVerbosity(const Verbosity verbosity);
+    virtual void         resize(const Index dim);
 protected:
     // access
     DVec & getState(void);

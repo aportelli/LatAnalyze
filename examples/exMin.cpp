@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     source = argv[1];
     
     DoubleFunction  f = compile(source, 1);
-    MinuitMinimizer minimize(1);
+    MinuitMinimizer minimize;
     DVec init(1);
     double min;
 

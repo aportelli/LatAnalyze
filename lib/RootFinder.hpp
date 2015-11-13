@@ -33,7 +33,8 @@ BEGIN_LATAN_NAMESPACE
 class RootFinder: public Solver
 {
 public:
-    // constructor
+    // constructors
+    RootFinder(void) = default;
     explicit RootFinder(const Index dim);
     // destructor
     virtual ~RootFinder(void) = default;

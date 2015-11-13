@@ -34,7 +34,7 @@ int main(void)
     // fit
     DVec init = DVec::Constant(2, 0.5);
     FitResult p;
-    MinuitMinimizer minimizer(2);
+    MinuitMinimizer minimizer;
     
     data.fitAllPoints();
     p = data.fit(minimizer, init, f);
