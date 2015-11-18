@@ -25,20 +25,9 @@ using namespace Latan;
 
 string Io::getFirstName(const string &fileName)
 {
-    string ext = extension(fileName);
-
-    if (ext == "h5")
-    {
-        return getFirstName<Hdf5File>(fileName);
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
-    {
-        return getFirstName<AsciiFile>(fileName);
-    }
-    else
-    {
-        LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
-    }
+    std::unique_ptr<File> file = open(fileName);
+    
+    return file->getFirstName();
 }
 
 unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
