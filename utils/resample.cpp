@@ -34,7 +34,7 @@ using namespace Latan;
 static void usage(const string &cmdName)
 {
     cerr << "usage: " << cmdName;
-    cerr << " [-n <nsample> -b <bin size> -r <state> -o <output dir>]";
+    cerr << " [-n <nsample> -b <bin size> -r <state> -o <output dir> -f {h5|sample}]";
     cerr << " <data list> <name list>";
     cerr << endl;
     exit(EXIT_FAILURE);
@@ -45,11 +45,12 @@ int main(int argc, char *argv[])
     // argument parsing ////////////////////////////////////////////////////////
     int    c;
     string manFileName, nameFileName, stateFileName, cmdName, outDirName = ".";
+    string ext = "h5";
     Index  binSize = 1, nSample = DEF_NSAMPLE;
     
     opterr = 0;
     cmdName = basename(argv[0]);
-    while ((c = getopt(argc, argv, "b:n:r:o:")) != -1)
+    while ((c = getopt(argc, argv, "b:n:r:o:f:")) != -1)
     {
         switch (c)
         {
@@ -64,6 +65,9 @@ int main(int argc, char *argv[])
                 break;
             case 'r':
                 stateFileName = optarg;
+                break;
+            case 'f':
+                ext = optarg;
                 break;
             case '?':
                 cerr << "error parsing option -" << char(optopt) << endl;
@@ -92,11 +96,12 @@ int main(int argc, char *argv[])
     cout << "================================================" << endl;
     cout << "Data resampler" << endl;
     cout << "------------------------------------------------" << endl;
-    cout << "     #file= " << dataFileName.size() << endl;
-    cout << "     #name= " << name.size() << endl;
-    cout << "  bin size= " << binSize << endl;
-    cout << "   #sample= " << nSample << endl;
-    cout << "output dir: " << outDirName << endl;
+    cout << "        #file= " << dataFileName.size() << endl;
+    cout << "        #name= " << name.size() << endl;
+    cout << "     bin size= " << binSize << endl;
+    cout << "      #sample= " << nSample << endl;
+    cout << "   output dir: " << outDirName << endl;
+    cout << "output format: " << ext << endl;
     cout << "------------------------------------------------" << endl;
     
     // data loading ////////////////////////////////////////////////////////////
@@ -109,30 +114,13 @@ int main(int argc, char *argv[])
     }
     for (unsigned int i = 0; i < dataFileName.size(); ++i)
     {
-        std::unique_ptr<File> dataFile;
+        std::unique_ptr<File> dataFile = Io::open(dataFileName[i]);
 
-        if (extension(dataFileName[i]) == "dat")
-        {
-            dataFile.reset(new AsciiFile);
-        }
-        else if (extension(dataFileName[i]) == "h5")
-        {
-            dataFile.reset(new Hdf5File);
-        }
-        else
-        {
-            cerr << "error: '" << dataFileName[i];
-            cerr << "' has an unknown extension" << endl;
-
-            return EXIT_FAILURE;
-        }
         cout << '\r' << ProgressBar(i + 1, dataFileName.size());
-        dataFile->open(dataFileName[i], AsciiFile::Mode::read);
         for (const string &n: name)
         {
             data[n][i] = dataFile->read<DMat>(n);
         }
-        dataFile->close();
     }
     cout << endl;
     
@@ -148,7 +136,7 @@ int main(int argc, char *argv[])
     }
     for (unsigned int i = 0; i < name.size(); ++i)
     {
-        const string outFileName = name[i] + "_" + manFileName + ".sample";
+        const string outFileName = name[i] + "_" + manFileName + "." + ext;
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);

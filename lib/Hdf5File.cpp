@@ -124,8 +124,8 @@ void Hdf5File::save(const RandGenState &state, const string &name)
     group = h5File_->createGroup(name.c_str() + nameOffset(name));
     attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
     attr.write(PredType::NATIVE_SHORT, &rgStateType);
-    dataset = group.createDataSet("data", PredType::NATIVE_DOUBLE, dataSpace);
-    dataset.write(state.data(), PredType::NATIVE_DOUBLE);
+    dataset = group.createDataSet("data", PredType::NATIVE_INT, dataSpace);
+    dataset.write(state.data(), PredType::NATIVE_INT);
 }
 
 // read first name ////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ void Hdf5File::load(RandGenState &state, const DataSet &d)
     dataspace.getSimpleExtentDims(dim);
     if (dim[0] != RLXG_STATE_SIZE)
     {
-        // error here
+        LATAN_ERROR(Io, "random generator state has a wrong length");
     }
     d.read(state.data(), PredType::NATIVE_INT);
 }

@@ -1,5 +1,5 @@
 /*
- * Io.cpp, part of LatAnalyze 3
+ * create_rg_state.cpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2015 Antonin Portelli
  *
@@ -17,33 +17,28 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/RandGen.hpp>
 
-using namespace std;
 using namespace Latan;
+using namespace std;
 
-string Io::getFirstName(const string &fileName)
+int main(int argc, char *argv[])
 {
-    std::unique_ptr<File> file = open(fileName);
+    string outFilename;
     
-    return file->getFirstName();
-}
-
-unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
-{
-    string ext = extension(fileName);
+    if (argc != 2)
+    {
+        cerr << "usage: " << argv[0] << " <output file>" << endl;
+        
+        return EXIT_FAILURE;
+    }
+    outFilename = argv[1];
     
-    if (ext == "h5")
-    {
-        return unique_ptr<File>(new Hdf5File(fileName, mode));
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
-    {
-        return unique_ptr<File>(new AsciiFile(fileName, mode));
-    }
-    else
-    {
-        LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
-    }
+    RandGen gen;
+    
+    Io::save(gen.getState(), outFilename);
+    
+    return EXIT_SUCCESS;
 }

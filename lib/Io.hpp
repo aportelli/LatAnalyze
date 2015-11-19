@@ -48,7 +48,7 @@ public:
     static std::string getFirstName(const std::string &fileName);
     static std::string getFirstName(const std::string &fileName);
     static std::unique_ptr<File> open(const std::string &fileName,
-                                      const unsigned int mode = File::Mode::write);
+                                      const unsigned int mode = File::Mode::read);
 };
 
 // template implementation /////////////////////////////////////////////////////
@@ -63,27 +63,16 @@ IoT Io::load(const std::string &fileName, const std::string &name)
 template <typename IoT>
 IoT Io::load(const std::string &fileName, const std::string &name)
 {
-    std::string ext = extension(fileName);
-
-    if (ext == "h5")
-    {
-        return load<IoT, Hdf5File>(fileName, name);
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
-    {
-        return load<IoT, AsciiFile>(fileName, name);
-    }
-    else
-    {
-        LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
-    }
+    std::unique_ptr<File> file = open(fileName);
+    
+    return file->read<IoT>(name);
 }
 
 template <typename IoT, typename FileType>
 void Io::save(const IoT &data, const std::string &fileName,
               const unsigned int mode, const std::string &name)
 {
-    FileType file(fileName, mode);
+    FileType    file(fileName, mode);
     std::string realName = (name.empty()) ? fileName : name;
 
     file.save(data, realName);
@@ -93,20 +82,10 @@ template <typename IoT>
 void Io::save(const IoT &data, const std::string &fileName,
               const unsigned int mode, const std::string &name)
 {
-    std::string ext = extension(fileName);
-
-    if (ext == "h5")
-    {
-        save<IoT, Hdf5File>(data, fileName, mode, name);
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
-    {
-        save<IoT, AsciiFile>(data, fileName, mode, name);
-    }
-    else
-    {
-        LATAN_ERROR(Io, "unknown file extension '" + ext + "'");
-    }
+    std::unique_ptr<File> file     = open(fileName, mode);
+    std::string           realName = (name.empty()) ? fileName : name;
+    
+    file->save(data, realName);
 }
 
 template <typename FileType>
