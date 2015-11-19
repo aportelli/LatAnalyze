@@ -27,14 +27,16 @@ using namespace Latan;
  *                       TabFunction implementation                           *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
-TabFunction::TabFunction(const DVec &x, const DVec &y)
-: TabFunction()
+TabFunction::TabFunction(const DVec &x, const DVec &y,
+                         const InterpType interpType)
+: interpType_(interpType)
 {
     setData(x, y);
 }
 
-TabFunction::TabFunction(const XYStatData &data, const Index i, const Index j)
-: TabFunction()
+TabFunction::TabFunction(const XYStatData &data, const Index i, const Index j,
+                         const InterpType interpType)
+: interpType_(interpType)
 {
     setData(data, i, j);
 }
@@ -60,26 +62,72 @@ void TabFunction::setData(const XYStatData &data, const Index i, const Index j)
 // function call ///////////////////////////////////////////////////////////////
 double TabFunction::operator()(const double *arg) const
 {
-    double x = arg[0], x_a, x_b, y_a, y_b;
-    
-    if ((x < value_.begin()->first)||(x >= value_.rbegin()->first))
-    {
-        LATAN_ERROR(Range, "tabulated function variable out of range (x= "
-                    + strFrom(x) + " not in ["
-                    + strFrom(value_.begin()->first) + ", "
-                    + strFrom(value_.rbegin()->first) + "])");
+    double result = 0.0, x = arg[0];
+
+
+    if ((x < value_.begin()->first) || (x >= value_.rbegin()->first)) {
+        LATAN_ERROR(Range, "tabulated function variable out of range "
+                               "(x= " + strFrom(x) + " not in ["
+                           + strFrom(value_.begin()->first) + ", "
+                           + strFrom(value_.rbegin()->first) + "])");
+    }
+
+    auto i = value_.equal_range(x);
+    auto low = (x == i.first->first) ? i.first : prev(i.first);
+    auto high = i.second;
+
+    switch (interpType_) {
+        case InterpType::LINEAR: {
+            double x_a, x_b, y_a, y_b;
+
+            x_a = low->first;
+            x_b = high->first;
+            y_a = low->second;
+            y_b = high->second;
+            result = y_a + (x - x_a) * (y_b - y_a) / (x_b - x_a);
+            break;
+        }
+        case InterpType::NEAREST: {
+            result = nearest(x)->second;
+            break;
+        }
+        case InterpType::QUADRATIC: {
+            double xs[3], ys[3], as[3];
+            auto it = nearest(x);
+            if (it == value_.begin()) {
+                it = next(it);
+            }
+            else if (it == prev(value_.end())) {
+                it = prev(it);
+            }
+            xs[0] = prev(it)->first;
+            ys[0] = prev(it)->second;
+            xs[1] = it->first;
+            ys[1] = it->second;
+            xs[2] = next(it)->first;
+            ys[2] = next(it)->second;
+
+            // Lagrange polynomial coefficient computation
+            as[0]
+                = (x - xs[1]) / (xs[0] - xs[1])
+                  * (x - xs[2]) / (xs[0] - xs[2]);
+            as[1]
+                = (x - xs[0]) / (xs[1] - xs[0])
+                  * (x - xs[2]) / (xs[1] - xs[2]);
+            as[2]
+                = (x - xs[0]) / (xs[2] - xs[0])
+                * (x - xs[1]) / (xs[2] - xs[1]);
+            result = as[0] * ys[0] + as[1] * ys[1] + as[2] * ys[2];
+            break;
+        }
+        default:
+            int intType = static_cast<int>(interpType_);
+            LATAN_ERROR(Implementation, "unsupported interpolation type in "
+                                        "tabulated function: "
+                                        + strFrom(intType));
     }
     
-    auto i    = value_.equal_range(x);
-    auto low  = (x == i.first->first) ? i.first : prev(i.first);
-    auto high = i.second;
-    
-    x_a = low->first;
-    x_b = high->first;
-    y_a = low->second;
-    y_b = high->second;
-    
-    return y_a + (x - x_a)*(y_b - y_a)/(x_b - x_a);
+    return result;
 }
 
 // DoubleFunction factory //////////////////////////////////////////////////////
@@ -101,13 +149,30 @@ DoubleFunction TabFunction::makeFunction(const bool makeHardCopy) const
     return res;
 }
 
-DoubleFunction Latan::interpolate(const DVec &x, const DVec &y)
+DoubleFunction Latan::interpolate(const DVec &x, const DVec &y,
+                                  const InterpType interpType)
 {
-    return TabFunction(x,y).makeFunction();
+    return TabFunction(x, y, interpType).makeFunction();
 }
 
 DoubleFunction Latan::interpolate(const XYStatData &data, const Index i,
-                                  const Index j)
+                                  const Index j, const InterpType interpType)
 {
-    return TabFunction(data, i, j).makeFunction();
+    return TabFunction(data, i, j, interpType).makeFunction();
+}
+
+map<double, double>::const_iterator TabFunction::nearest(const double x) const
+{
+    map<double, double>::const_iterator ret;
+    auto i = value_.equal_range(x);
+    auto low = (x == i.first->first) ? i.first : prev(i.first);
+    auto high = i.second;
+    if (fabs(high->first - x) < fabs(low->first - x)) {
+        ret = high;
+    }
+    else {
+        ret = low;
+    }
+
+    return ret;
 }

@@ -18,6 +18,7 @@ noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exDerivative            \
     exIntegrator            \
+    exInterp                \
     exMat                   \
     exMathInterpreter       \
     exPlot                  \
@@ -41,6 +42,10 @@ exFit_SOURCES                    = exFit.cpp
 exFit_CFLAGS                     = -g -O2
 exFit_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
 endif
+
+exInterp_SOURCES                 = exInterp.cpp
+exInterp_CFLAGS                  = -g -O2
+exInterp_LDFLAGS                 = -L../lib/.libs -lLatAnalyze
 
 exIntegrator_SOURCES             = exIntegrator.cpp
 exIntegrator_CFLAGS              = -g -O2

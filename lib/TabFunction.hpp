@@ -20,9 +20,11 @@
 #ifndef Latan_TabFunction_hpp_
 #define Latan_TabFunction_hpp_
 
+#include <algorithm>
 #include <map>
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
+#include <LatAnalyze/Math.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
 BEGIN_LATAN_NAMESPACE
@@ -31,13 +33,22 @@ BEGIN_LATAN_NAMESPACE
  *                      tabulated function: 1D only                           *
  ******************************************************************************/
 
+enum class InterpType
+{
+  NEAREST,
+  LINEAR,
+  QUADRATIC
+};
+
 class TabFunction: public DoubleFunctionFactory
 {
 public:
     // constructors
     TabFunction(void) = default;
-    TabFunction(const DVec &x, const DVec &y);
-    TabFunction(const XYStatData &data, const Index i = 0, const Index j = 0);
+    TabFunction(const DVec &x, const DVec &y,
+                const InterpType interpType = InterpType::LINEAR);
+    TabFunction(const XYStatData &data, const Index i = 0, const Index j = 0,
+                const InterpType interpType = InterpType::LINEAR);
     // destructor
     virtual ~TabFunction(void) = default;
     // access
@@ -48,12 +59,17 @@ public:
     // factory
     virtual DoubleFunction makeFunction(const bool makeHardCopy = true) const;
 private:
+    std::map<double, double>::const_iterator nearest(const double x) const;
+
     std::map<double, double> value_;
+    InterpType interpType_;
 };
 
-DoubleFunction interpolate(const DVec &x, const DVec &y);
+DoubleFunction interpolate(const DVec &x, const DVec &y,
+                           const InterpType interpType = InterpType::LINEAR);
 DoubleFunction interpolate(const XYStatData &data, const Index i = 0,
-                           const Index j = 0);
+                           const Index j = 0,
+                           const InterpType interpType = InterpType::LINEAR);
 
 END_LATAN_NAMESPACE
 
