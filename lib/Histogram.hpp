@@ -21,8 +21,7 @@
 #define Latan_Histogram_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <gsl/gsl_histogram.h>
-#include <gsl/gsl_cdf.h>
+#include <LatAnalyze/StatArray.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -49,19 +48,31 @@ public:
     void normalize(const bool n = true);
     bool isNormalized(void) const;
     // access
-    Index  size(void) const;
-    double getX(const Index i) const;
-    double operator[](const Index i) const;
-    double operator()(const double x) const;
+    Index                     size(void) const;
+    const StatArray<double> & getData(void) const;
+    const StatArray<double> & getWeight(void) const;
+    double                    getX(const Index i) const;
+    double                    operator[](const Index i) const;
+    double                    operator()(const double x) const;
+    // percentiles & confidence interval
+    double                    percentile(const double p) const;
+    double                    median(void) const;
+    std::pair<double, double> confidenceInterval(const double nSigma) const;
 private:
     // resize
     void resize(const Index nBin);
+    // histogram calculation
+    void makeHistogram(void);
+    // generate sorted indices
+    void sortIndices(void);
     // compute normalization factor
     void computeNorm(void);
 private:
-    DVec          x_, bin_;
-    double        total_, norm_, xMax_, xMin_;
-    bool          normalize_{false};
+    StatArray<double> data_, w_;
+    DVec              x_, bin_;
+    Vec<size_t>       sInd_;
+    double            total_, norm_, xMax_, xMin_;
+    bool              normalize_{false};
 };
 
 END_LATAN_NAMESPACE

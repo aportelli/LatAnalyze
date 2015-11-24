@@ -19,6 +19,9 @@
 
 #include <LatAnalyze/Histogram.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <gsl/gsl_histogram.h>
+#include <gsl/gsl_sf.h>
+#include <gsl/gsl_sort.h>
 
 using namespace std;
 using namespace Latan;
@@ -64,36 +67,45 @@ void Histogram::setFromData(const DVec &data, const DVec &w, const double xMin,
         LATAN_ERROR(Size, "data vector and weight vector size mismatch");
     }
     resize(nBin);
-
-    DECL_GSL_HIST(h);
-
+    data_ = data.array();
+    w_    = w.array();
     xMax_ = xMax;
     xMin_ = xMin;
-    gsl_histogram_set_ranges_uniform(&h, xMin, xMax);
-    FOR_VEC(data, i)
-    {
-        gsl_histogram_accumulate(&h, data(i), w(i));
-    }
-    total_ = w.sum();
-    computeNorm();
+    makeHistogram();
 }
 
 void Histogram::setFromData(const DVec &data, const double xMin,
                             const double xMax, const Index nBin)
 {
     resize(nBin);
-
-    DECL_GSL_HIST(h);
-
+    data_ = data.array();
     xMax_ = xMax;
     xMin_ = xMin;
-    gsl_histogram_set_ranges_uniform(&h, xMin, xMax);
-    FOR_VEC(data, i)
+    w_.resize(data.size());
+    w_.fill(1.);
+    makeHistogram();
+}
+
+// histogram calculation ///////////////////////////////////////////////////////
+void Histogram::makeHistogram(void)
+{
+    DECL_GSL_HIST(h);
+    
+    gsl_histogram_set_ranges_uniform(&h, xMin_, xMax_);
+    FOR_STAT_ARRAY(data_, i)
     {
-        gsl_histogram_increment(&h, data(i));
+        gsl_histogram_accumulate(&h, data_[i], w_[i]);
     }
-    total_ = static_cast<double>(data.size());
+    total_ = w_.sum();
+    sortIndices();
     computeNorm();
+}
+
+// generate sorted indices /////////////////////////////////////////////////////
+void Histogram::sortIndices(void)
+{
+    sInd_.resize(data_.size());
+    gsl_sort_index(sInd_.data(), data_.data(), 1, data_.size());
 }
 
 // compute normalization factor ////////////////////////////////////////////////
@@ -119,6 +131,16 @@ Index Histogram::size(void) const
     return bin_.size();
 }
 
+const StatArray<double> & Histogram::getData(void) const
+{
+    return data_;
+}
+
+const StatArray<double> & Histogram::getWeight(void) const
+{
+    return w_;
+}
+
 double Histogram::getX(const Index i) const
 {
     return x_(i);
@@ -138,4 +160,69 @@ double Histogram::operator()(const double x) const
     gsl_histogram_find(&h, x, &i);
 
     return (*this)[static_cast<Index>(i)];
+}
+
+// percentiles & confidence interval ///////////////////////////////////////////
+double Histogram::percentile(const double p) const
+{
+    if ((p < 0.0)||(p > 100.0))
+    {
+        LATAN_ERROR(Range, "percentile (" + strFrom(p) + ")"
+                    " is outside the [0, 100] range");
+    }
+    
+    // cf. http://en.wikipedia.org/wiki/Percentile
+    double wPSum, p_i, p_im1, w_i, res = 0.;
+    bool   haveResult;
+    
+    wPSum = w_[sInd_[0]];
+    p_i   = (100./total_)*wPSum*0.5;
+    if (p < p_i)
+    {
+        res = data_[sInd_[0]];
+    }
+    else
+    {
+        haveResult = false;
+        p_im1      = p_i;
+        for (Index i = 1; i < data_.size(); ++i)
+        {
+            w_i    = w_[sInd_[i]];
+            wPSum += w_i;
+            p_i    = (100./total_)*(wPSum-0.5*w_i);
+            if ((p >= p_im1) and (p < p_i))
+            {
+                double d_i = data_[sInd_[i]], d_im1 = data_[sInd_[i-1]];
+
+                res        = d_im1 + (p-p_im1)/(p_i-p_im1)*(d_i-d_im1);
+                haveResult = true;
+                break;
+            }
+        }
+        if (!haveResult)
+        {
+            res = data_[sInd_[data_.size()-1]];
+        }
+    }
+    
+    return res;
+}
+
+double Histogram::median(void) const
+{
+    return percentile(50.);
+}
+
+pair<double, double> Histogram::confidenceInterval(const double nSigma) const
+{
+    pair<double, double> interval, p;
+    double               cl;
+    
+    cl              = gsl_sf_erf(nSigma/sqrt(2.));
+    p.first         = 50.*(1. - cl);
+    p.second        = 50.*(1. + cl);
+    interval.first  = percentile(p.first);
+    interval.second = percentile(p.second);
+    
+    return interval;
 }

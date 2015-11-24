@@ -51,6 +51,14 @@ int main(void)
     }
     h.setFromData(gauss, -5., 5., 40);
     h.normalize();
+    cout << "             median= " << h.median() << endl;
+    for (double s = 1.; s < 5.; ++s)
+    {
+        auto ci = h.confidenceInterval(s);
+        
+        cout << static_cast<int>(s) << " sigma(s) interval= [";
+        cout << ci.first << ", " << ci.second << "]" << endl;
+    }
     p << PlotHistogram(h);
     p << PlotFunction(compile("return exp(-x_0^2/2)/sqrt(2*pi);", 1), -5., 5.);
     p.display();
