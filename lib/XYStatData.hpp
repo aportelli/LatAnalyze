@@ -48,6 +48,7 @@ public:
     double                 getChi2(void) const;
     double                 getChi2PerDof(void) const;
     double                 getNDof(void) const;
+    double                 getPValue(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
 private:
     double                      chi2_{0.0};

@@ -19,9 +19,11 @@
 
 #include <LatAnalyze/XYStatData.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/Math.hpp>
 
 using namespace std;
 using namespace Latan;
+using namespace Math;
 
 /******************************************************************************
  *                          FitResult implementation                          *
@@ -40,6 +42,11 @@ double FitResult::getChi2PerDof(void) const
 double FitResult::getNDof(void) const
 {
     return static_cast<double>(nDof_);
+}
+
+double FitResult::getPValue(void) const
+{
+    return chi2PValue(getChi2(), getNDof());;
 }
 
 const DoubleFunction & FitResult::getModel(const Index j) const

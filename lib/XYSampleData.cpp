@@ -18,10 +18,12 @@
  */
 
 #include <LatAnalyze/XYSampleData.hpp>
+#include <LatAnalyze/Math.hpp>
 #include <LatAnalyze/includes.hpp>
 
 using namespace std;
 using namespace Latan;
+using namespace Math;
 
 /******************************************************************************
  *                      SampleFitResult implementation                        *
@@ -49,6 +51,11 @@ DSample SampleFitResult::getChi2PerDof(const PlaceHolder ph __dumb) const
 double SampleFitResult::getNDof(void) const
 {
     return static_cast<double>(nDof_);
+}
+
+double SampleFitResult::getPValue(const Index s) const
+{
+    return chi2PValue(getChi2(s), getNDof());
 }
 
 const DoubleFunction & SampleFitResult::getModel(const Index s, 

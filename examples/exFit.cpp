@@ -39,8 +39,9 @@ int main(void)
     data.fitAllPoints();
     p = data.fit(minimizer, init, f);
     
-    cout << "a= " << p(0) << " b= " << p(1)
-         << " chi^2/ndof= " << p.getChi2PerDof() << endl;
+    cout << "a= " << p(0) << " b= " << p(1);
+    cout << " chi^2/ndof= " << p.getChi2PerDof();
+    cout << " p-value= " << p.getPValue() <<endl;
 
     // plot result
     Plot plot;
