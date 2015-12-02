@@ -92,7 +92,7 @@ double TabFunction::operator()(const double *arg) const
             break;
         }
         case InterpType::QUADRATIC: {
-            double xs[3], ys[3], as[3];
+            double xs[3], ys[3], ds[3], d01, d02, d12;
             auto it = nearest(x);
             if (it == value_.begin()) {
                 it = next(it);
@@ -106,18 +106,17 @@ double TabFunction::operator()(const double *arg) const
             ys[1] = it->second;
             xs[2] = next(it)->first;
             ys[2] = next(it)->second;
+            ds[0] = x - xs[0];
+            ds[1] = x - xs[1];
+            ds[2] = x - xs[2];
+            d01   = xs[0] - xs[1];
+            d02   = xs[0] - xs[2];
+            d12   = xs[1] - xs[2];
 
             // Lagrange polynomial coefficient computation
-            as[0]
-                = (x - xs[1]) / (xs[0] - xs[1])
-                  * (x - xs[2]) / (xs[0] - xs[2]);
-            as[1]
-                = (x - xs[0]) / (xs[1] - xs[0])
-                  * (x - xs[2]) / (xs[1] - xs[2]);
-            as[2]
-                = (x - xs[0]) / (xs[2] - xs[0])
-                * (x - xs[1]) / (xs[2] - xs[1]);
-            result = as[0] * ys[0] + as[1] * ys[1] + as[2] * ys[2];
+            result = ds[1]/d01*ds[2]/d02*ys[0]
+                     -ds[0]/d01*ds[2]/d12*ys[1]
+                     +ds[0]/d02*ds[1]/d12*ys[2];
             break;
         }
         default:
