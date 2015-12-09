@@ -65,14 +65,14 @@ void PlotObject::pushTmpFile(const std::string &fileName)
 // PlotObject dump a matrix to a temporary file ////////////////////////////////
 string PlotObject::dumpToTmpFile(const DMat &m)
 {
-    char tmpFileName[MAX_PATH_LENGTH];
-    int  fd;
-    FILE *tmpFile;
+    char   tmpFileName[MAX_PATH_LENGTH];
+    int    fd;
+    FILE   *tmpFile;
     
     for (Index j = 0; j < m.cols(); ++j)
     {
     }
-    strcpy(tmpFileName, "/tmp/latan_plot_tmp.XXXXXX.dat");
+    sprintf(tmpFileName, "%s/latan_plot_tmp.XXXXXX.dat", P_tmpdir);
     fd = mkstemps(tmpFileName, 4);
     if (fd == -1)
     {
@@ -384,6 +384,7 @@ void Plot::reset(void)
 {
     headCommand_.clear();
     plotCommand_.clear();
+    tmpFileName_.clear();
     initOptions();
 }
 
