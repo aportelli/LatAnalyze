@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     cout << "-- loading data..." << endl;
     for (unsigned int i = 0; i < n; ++i)
     {
-        sample[i] = Io::load<DMatSample, AsciiFile>(fileName[i]);
+        sample[i] = Io::load<DMatSample>(fileName[i]);
         if (i == 0)
         {
             nSample = sample[i].size();
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     cout << "standard deviation:\n" << result.variance().cwiseSqrt() << endl;
     if (!outFileName.empty())
     {
-        Io::save<DMatSample, AsciiFile>(result, outFileName);
+        Io::save<DMatSample>(result, outFileName);
     }
 
     return EXIT_SUCCESS;
