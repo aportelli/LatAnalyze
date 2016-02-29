@@ -8,7 +8,7 @@ using namespace Latan;
 
 int main(void)
 {
-    DMat A(2, 3), B(3, 2);
+    DMat A(2, 3), B(3, 2), C = DMat::Random(6, 6);
     const string fileName = "exMat.h5";
     
     A << 1, 2, 3,
@@ -19,17 +19,20 @@ int main(void)
          1.2, 3.5;
     
     // read
-    cout << "A=\n"      << A                         << '\n' << endl;
-    cout << "B=\n"      << B                         << '\n' << endl;
-    cout << "A*B=\n"    << A*B                       << '\n' << endl;
-    cout << "cos(A)=\n" << A.unaryExpr(StdMath::cos) << '\n' << endl;
+    cout << "A=\n"       << A                         << '\n' << endl;
+    cout << "B=\n"       << B                         << '\n' << endl;
+    cout << "A*B=\n"     << A*B                       << '\n' << endl;
+    cout << "cos(A)=\n"  << A.unaryExpr(StdMath::cos) << '\n' << endl;
+    cout << "C=\n"       << C                         << '\n' << endl;
+    cout << "inv(C)=\n"  << C.inverse()               << '\n' << endl;
+    cout << "pinv(C)=\n" << C.pInverse()              << '\n' << endl;
     
     // write
     cout << "-- saving and loading A*B using '" + fileName + "'..." << endl;
     Io::save(A*B, fileName, File::Mode::write);
 
-    DMat C = Io::load<DMat>(fileName);
-    cout << C << endl;
+    DMat D = Io::load<DMat>(fileName);
+    cout << D << endl;
 
     return EXIT_SUCCESS;
 }
