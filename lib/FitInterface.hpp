@@ -39,30 +39,32 @@ public:
     // destructor
     virtual ~FitInterface(void) = default;
     // access
-    void  assumeXExact(const Index i, const bool isExact = true);
-    void  assumeXXCorrelated(const Index i1, const Index i2,
-                             const bool isCorrelated = true);
-    void  assumeYYCorrelated(const Index j1, const Index j2,
-                             const bool isCorrelated = true);
-    void  assumeYXCorrelated(const Index j, const Index i,
-                             const bool isCorrelated = true);
-    void  assumeDataCorrelated(const Index k1, const Index k2,
-                               const bool isCorrelated = true);
-    void  assumeDataCorrelated(const bool isCorrelated = true);
-    void  fitPoint(const Index k, const bool isFitPoint = true);
-    void  fitPointRange(const Index k1, const Index k2,
+    void   assumeXExact(const Index i, const bool isExact = true);
+    void   assumeXXCorrelated(const Index i1, const Index i2,
+                              const bool isCorrelated = true);
+    void   assumeYYCorrelated(const Index j1, const Index j2,
+                              const bool isCorrelated = true);
+    void   assumeYXCorrelated(const Index j, const Index i,
+                              const bool isCorrelated = true);
+    void   assumeDataCorrelated(const Index k1, const Index k2,
+                                const bool isCorrelated = true);
+    void   assumeDataCorrelated(const bool isCorrelated = true);
+    void   fitPoint(const Index k, const bool isFitPoint = true);
+    void   fitPointRange(const Index k1, const Index k2,
                         const bool isFitPoint = true);
-    void  fitAllPoints(const bool isFitPoint = true);
-    Index getNData(void)     const;
-    Index getNFitPoint(void) const;
-    Index getXDim(void)      const;
-    Index getYDim(void)      const;
-    Index getStatXDim(void)  const;
-    void  setFitInterface(const FitInterface &fitInterface);
-    void  setNData(const Index nData);
-    void  setXDim(const Index xDim);
-    void  setYDim(const Index yDim);
-    void  resize(const Index nData, const Index xDim, const Index yDim);
+    void   fitAllPoints(const bool isFitPoint = true);
+    Index  getNData(void)        const;
+    Index  getNFitPoint(void)    const;
+    Index  getXDim(void)         const;
+    Index  getYDim(void)         const;
+    Index  getStatXDim(void)     const;
+    double getSvdTolerance(void) const;
+    void   setFitInterface(const FitInterface &fitInterface);
+    void   setNData(const Index nData);
+    void   setXDim(const Index xDim);
+    void   setYDim(const Index yDim);
+    void   setSvdTolerance(const double tolerance);
+    void   resize(const Index nData, const Index xDim, const Index yDim);
     // test
     bool isFitPoint(const Index k) const;
     bool isXExact(const Index i) const;
@@ -71,8 +73,9 @@ public:
     bool isYXCorrelated(const Index j, const Index i) const;
     bool isDataCorrelated(const Index k1, const Index k2) const;
 private:
-    IVec isXExact_, isFitPoint_;
-    IMat isXXCorr_, isYYCorr_, isYXCorr_, isDataCorr_;
+    IVec   isXExact_, isFitPoint_;
+    IMat   isXXCorr_, isYYCorr_, isYXCorr_, isDataCorr_;
+    double svdTolerance_{1.0e-10};
 };
 
 END_LATAN_NAMESPACE

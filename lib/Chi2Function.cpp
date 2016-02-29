@@ -233,7 +233,7 @@ void Chi2Function::initBuffer(void) const
     lowerYX = upperYX.transpose();
 
     // inversion
-    buffer_->invVar = buffer_->invVar.inverse().eval();
+    buffer_->invVar = buffer_->invVar.pInverse(data_->getSvdTolerance());
     buffer_->isInit = true;
 }
 

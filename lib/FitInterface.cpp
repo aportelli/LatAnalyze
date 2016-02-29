@@ -128,16 +128,22 @@ Index FitInterface::getStatXDim(void) const
     return isXExact_.size() - isXExact_.sum();
 }
 
+double FitInterface::getSvdTolerance(void) const
+{
+    return svdTolerance_;
+}
+
 void FitInterface::setFitInterface(const FitInterface &fitInterface)
 {
     if (&fitInterface != this)
     {
-        isXExact_   = fitInterface.isXExact_;
-        isFitPoint_ = fitInterface.isFitPoint_;
-        isXXCorr_   = fitInterface.isXXCorr_;
-        isYYCorr_   = fitInterface.isYYCorr_;
-        isYXCorr_   = fitInterface.isYXCorr_;
-        isDataCorr_ = fitInterface.isDataCorr_;
+        isXExact_     = fitInterface.isXExact_;
+        isFitPoint_   = fitInterface.isFitPoint_;
+        isXXCorr_     = fitInterface.isXXCorr_;
+        isYYCorr_     = fitInterface.isYYCorr_;
+        isYXCorr_     = fitInterface.isYXCorr_;
+        isDataCorr_   = fitInterface.isDataCorr_;
+        svdTolerance_ = fitInterface.svdTolerance_;
     }
 }
 
@@ -154,6 +160,11 @@ void FitInterface::setXDim(const Index xDim)
 void FitInterface::setYDim(const Index yDim)
 {
     resize(getNData(), getXDim(), yDim);
+}
+
+void FitInterface::setSvdTolerance(const double tolerance)
+{
+    svdTolerance_ = tolerance;
 }
 
 void FitInterface::resize(const Index nData, const Index xDim, const Index yDim)
