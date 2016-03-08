@@ -18,13 +18,11 @@ libLatAnalyze_la_SOURCES = \
     AsciiFile.cpp          \
     AsciiParser.ypp        \
     AsciiLexer.lpp         \
-    Chi2Function.cpp       \
     CompiledFunction.cpp   \
     CompiledModel.cpp      \
     Derivative.cpp         \
     Exceptions.cpp         \
     File.cpp               \
-    FitInterface.cpp       \
     Function.cpp           \
     Global.cpp             \
     GslHybridRootFinder.cpp\
@@ -46,19 +44,15 @@ libLatAnalyze_la_SOURCES = \
     RootFinder.cpp         \
     Solver.cpp             \
     TabFunction.cpp        \
-    XYSampleData.cpp       \
-    XYStatData.cpp         \
 	../config.h
 libLatAnalyze_ladir = $(pkgincludedir)
 libLatAnalyze_la_HEADERS = \
     AsciiFile.hpp          \
-    Chi2Function.hpp       \
     CompiledFunction.hpp   \
     CompiledModel.hpp      \
     Dataset.hpp            \
     Derivative.hpp         \
     Exceptions.hpp         \
-    FitInterface.hpp       \
     Function.hpp           \
     File.hpp               \
     Global.hpp             \
@@ -81,9 +75,7 @@ libLatAnalyze_la_HEADERS = \
     RootFinder.hpp         \
     TabFunction.hpp        \
     Solver.hpp             \
-    StatArray.hpp          \
-    XYSampleData.hpp       \
-    XYStatData.hpp
+    StatArray.hpp
 if HAVE_MINUIT
     libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
     libLatAnalyze_la_HEADERS += MinuitMinimizer.hpp

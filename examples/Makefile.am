@@ -26,7 +26,7 @@ noinst_PROGRAMS =           \
     exRootFinder
 
 if HAVE_MINUIT
-noinst_PROGRAMS += exFit exMin
+noinst_PROGRAMS += exMin
 endif
 
 exCompiledDoubleFunction_SOURCES = exCompiledDoubleFunction.cpp
@@ -36,12 +36,6 @@ exCompiledDoubleFunction_LDFLAGS = -L../lib/.libs -lLatAnalyze
 exDerivative_SOURCES             = exDerivative.cpp
 exDerivative_CFLAGS              = -g -O2
 exDerivative_LDFLAGS             = -L../lib/.libs -lLatAnalyze
-
-if HAVE_MINUIT
-exFit_SOURCES                    = exFit.cpp
-exFit_CFLAGS                     = -g -O2
-exFit_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
-endif
 
 exInterp_SOURCES                 = exInterp.cpp
 exInterp_CFLAGS                  = -g -O2
