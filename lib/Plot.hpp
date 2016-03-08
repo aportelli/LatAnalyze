@@ -21,9 +21,11 @@
 #define Latan_Plot_hpp_
 
 #include <LatAnalyze/Global.hpp>
+#include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Mat.hpp>
+#include <LatAnalyze/MatSample.hpp>
 #include <LatAnalyze/Histogram.hpp>
-#include <LatAnalyze/XYStatData.hpp>
+//#include <LatAnalyze/XYStatData.hpp>
 #include <sstream>
 #include <vector>
 
@@ -92,7 +94,7 @@ public:
     PlotData(const DMatSample &x, const DMatSample &y);
     PlotData(const DVec       &x, const DMatSample &y);
     PlotData(const DMatSample &x, const DVec       &y);
-    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
+    //PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // destructor
     virtual ~PlotData(void) = default;
 };

@@ -25,7 +25,7 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Math.hpp>
-#include <LatAnalyze/XYStatData.hpp>
+//#include <LatAnalyze/XYStatData.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -47,13 +47,13 @@ public:
     TabFunction(void) = default;
     TabFunction(const DVec &x, const DVec &y,
                 const InterpType interpType = InterpType::LINEAR);
-    TabFunction(const XYStatData &data, const Index i = 0, const Index j = 0,
-                const InterpType interpType = InterpType::LINEAR);
+    //TabFunction(const XYStatData &data, const Index i = 0, const Index j = 0,
+    //            const InterpType interpType = InterpType::LINEAR);
     // destructor
     virtual ~TabFunction(void) = default;
     // access
     void setData(const DVec &x, const DVec &y);
-    void setData(const XYStatData &data, const Index i = 0, const Index j = 0);
+    // void setData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // function call
     double operator()(const double *arg) const;
     // factory
@@ -67,9 +67,9 @@ private:
 
 DoubleFunction interpolate(const DVec &x, const DVec &y,
                            const InterpType interpType = InterpType::LINEAR);
-DoubleFunction interpolate(const XYStatData &data, const Index i = 0,
-                           const Index j = 0,
-                           const InterpType interpType = InterpType::LINEAR);
+//DoubleFunction interpolate(const XYStatData &data, const Index i = 0,
+//                           const Index j = 0,
+//                           const InterpType interpType = InterpType::LINEAR);
 
 END_LATAN_NAMESPACE
 

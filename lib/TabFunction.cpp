@@ -34,12 +34,12 @@ TabFunction::TabFunction(const DVec &x, const DVec &y,
     setData(x, y);
 }
 
-TabFunction::TabFunction(const XYStatData &data, const Index i, const Index j,
-                         const InterpType interpType)
-: interpType_(interpType)
-{
-    setData(data, i, j);
-}
+//TabFunction::TabFunction(const XYStatData &data, const Index i, const Index j,
+//                         const InterpType interpType)
+//: interpType_(interpType)
+//{
+//    setData(data, i, j);
+//}
 
 // access //////////////////////////////////////////////////////////////////////
 void TabFunction::setData(const DVec &x, const DVec &y)
@@ -54,10 +54,10 @@ void TabFunction::setData(const DVec &x, const DVec &y)
     }
 }
 
-void TabFunction::setData(const XYStatData &data, const Index i, const Index j)
-{
-    setData(data.x(i), data.y(j));
-}
+//void TabFunction::setData(const XYStatData &data, const Index i, const Index j)
+//{
+//    setData(data.x(i), data.y(j));
+//}
 
 // function call ///////////////////////////////////////////////////////////////
 double TabFunction::operator()(const double *arg) const
@@ -154,11 +154,11 @@ DoubleFunction Latan::interpolate(const DVec &x, const DVec &y,
     return TabFunction(x, y, interpType).makeFunction();
 }
 
-DoubleFunction Latan::interpolate(const XYStatData &data, const Index i,
-                                  const Index j, const InterpType interpType)
-{
-    return TabFunction(data, i, j, interpType).makeFunction();
-}
+//DoubleFunction Latan::interpolate(const XYStatData &data, const Index i,
+//                                  const Index j, const InterpType interpType)
+//{
+//    return TabFunction(data, i, j, interpType).makeFunction();
+//}
 
 map<double, double>::const_iterator TabFunction::nearest(const double x) const
 {
