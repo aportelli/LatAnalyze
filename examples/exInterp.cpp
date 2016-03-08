@@ -19,8 +19,7 @@
 
 #include <LatAnalyze/TabFunction.hpp>
 
-
-int main(int argc, char* argv[])
+int main(void)
 {
     Latan::DVec xs(3);
     xs << -1.0, 0.0, 1.0;

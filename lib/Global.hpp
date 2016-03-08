@@ -21,15 +21,6 @@
 #define	Latan_Global_hpp_
 
 #include <LatCore/LatCore.hpp>
-#include <complex>
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <sstream>
-#include <type_traits>
-#include <vector>
-#include <cstdlib>
 
 #define BEGIN_LATAN_NAMESPACE \
 namespace Latan {\
