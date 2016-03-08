@@ -23,6 +23,7 @@ libLatAnalyze_la_SOURCES = \
     Derivative.cpp         \
     Exceptions.cpp         \
     File.cpp               \
+    FitInterface.cpp       \
     Function.cpp           \
     Global.cpp             \
     GslHybridRootFinder.cpp\
@@ -55,6 +56,7 @@ libLatAnalyze_la_HEADERS = \
     Exceptions.hpp         \
     Function.hpp           \
     File.hpp               \
+    FitInterface.hpp       \
     Global.hpp             \
     GslHybridRootFinder.hpp\
     GslQagsIntegrator.hpp  \
