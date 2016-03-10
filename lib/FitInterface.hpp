@@ -27,7 +27,6 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                             FitInterface                                   *
  ******************************************************************************/
-
 class FitInterface
 {
 public:
@@ -36,63 +35,61 @@ public:
     // destructor
     virtual ~FitInterface(void) = default;
     // add dimensions
-    void         addXDim(const std::string name, const Index nData);
-    void         addYDim(const std::string name);
-    unsigned int getNXDim(void);
-    unsigned int getNYDim(void);
+    void  addXDim(const std::string name, const Index nData);
+    void  addYDim(const std::string name);
+    // size access
+    Index getNXDim(void) const;
+    Index getNYDim(void) const;
+    Index getXSize(void) const;
+    Index getXSize(const Index i) const;
+    Index getYSize(void) const;
+    Index getYSize(const Index j) const;
+    Index getXFitSize(void) const;
+    Index getXFitSize(const Index i) const;
+    Index getYFitSize(void) const;
+    Index getYFitSize(const Index j) const;
     // Y dimension index helper
     template <typename... Ts>
-    Index yIndex(const Ts... is);
+    Index              dataIndex(const Ts... is) const;
+    Index              dataIndex(const std::vector<Index> &v) const;
+    std::vector<Index> dataCoord(const Index k) const;
     // enable fit points
-    void fitPoint(const bool isFitPoint, const Index j);
-private:
-    void updateYSize(void);
-private:
-    std::vector<std::string>     xDimName_, yDimName_;
-    std::map<std::string, Index> xIndex_, yIndex_;
-    std::vector<Index>           xSize_;
-    Index                        ySize_;
+    void fitPoint(const bool isFitPoint, const Index k, const Index j = 0);
+    // tests
+    bool isXUsed(const Index k) const;
+    bool isXUsed(const Index k, const Index j) const;
+    bool isFitPoint(const Index k, const Index j) const;
+    // IO
+    friend std::ostream & operator<<(std::ostream &out, FitInterface &f);
+protected:
 public:
-    IVec                         isFitPoint_;
+    // register a data point
+    void registerDataPoint(const Index k, const Index j = 0);
+    // abstract method to update data container size
+    virtual void updateDataSize(void) {};
+private:
+    std::vector<std::string>           xDimName_, yDimName_;
+    std::map<std::string, Index>       xDimIndex_, yDimIndex_;
+    std::vector<Index>                 xSize_;
+    std::vector<std::map<Index, bool>> yDataIndex_;
+    Index                              maxDataIndex_{1};
 };
+
+std::ostream & operator<<(std::ostream &out, FitInterface &f);
 
 /******************************************************************************
  *                  FitInterface template implementation                      *
  ******************************************************************************/
 // Y dimension index helper ////////////////////////////////////////////////////
 template <typename... Ts>
-Index FitInterface::yIndex(const Ts... is)
+Index FitInterface::dataIndex(const Ts... coords) const
 {
     static_assert(static_or<std::is_convertible<Index, Ts>::value...>::value,
                   "fitPoint arguments are not compatible with Index");
     
-    constexpr size_t n = sizeof...(is);
-    
-    if (n != getNXDim())
-    {
-        LATAN_ERROR(Size, "number of arguments and number of X dimensions "
-                          "mismatch");
-    }
-    
-    constexpr std::array<Index, sizeof...(is)> i = {is...};
-    Index                                      j;
-    
-    for (unsigned int d = 0; d < n; ++d)
-    {
-        if (i[d] >= xSize_[d])
-        {
-            LATAN_ERROR(Range, "index in X dimension " + strFrom(d)
-                               + " out of range");
-        }
-    }
-    j = xSize_[1]*i[0];
-    for (unsigned int d = 1; d < n-1; ++d)
-    {
-        j = xSize_[d+1]*(i[d] + j);
-    }
-    j += i[n-1];
+    const std::vector<Index> coord = {coords...};
 
-    return j;
+    return dataIndex(coord);
 }
 
 END_LATAN_NAMESPACE
