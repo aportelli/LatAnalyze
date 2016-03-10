@@ -150,20 +150,14 @@ Index FitInterface::getYSize(const Index j) const
 
 Index FitInterface::getXFitSize(void) const
 {
-    set<Index> fitIndex;
+    Index size = 0;
     
-    for (Index j = 0; j < getNYDim(); ++j)
+    for (Index i = 0; i < getNXDim(); ++i)
     {
-        for (auto &p: yDataIndex_[j])
-        {
-            if (p.second)
-            {
-                fitIndex.insert(p.first);
-            }
-        }
+        size += getXFitSize(i);
     }
     
-    return static_cast<Index>(fitIndex.size());
+    return size;
 }
 
 Index FitInterface::getXFitSize(const Index i) const
