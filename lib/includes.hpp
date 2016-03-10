@@ -20,23 +20,6 @@
 #ifndef Latan_includes_hpp_
 #define	Latan_includes_hpp_
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <sstream>
-#include <utility>
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <config.h>
 
 #endif // Latan_includes_hpp_
