@@ -21,6 +21,7 @@
 #define Latan_FitInterface_hpp_
 
 #include <LatAnalyze/Global.hpp>
+#include <LatAnalyze/Mat.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -29,13 +30,22 @@ BEGIN_LATAN_NAMESPACE
  ******************************************************************************/
 class FitInterface
 {
+private:
+    typedef struct
+    {
+        Index                           totalSize, totalXSize, totalYSize;
+        std::vector<Index>              xSize, ySize;
+        std::vector<std::vector<Index>> dataIndex;
+        std::map<Index, Index>          xTrans, dataTrans;
+    } Layout;
 public:
     // constructor
     FitInterface(void);
     // destructor
     virtual ~FitInterface(void) = default;
     // add dimensions
-    void  addXDim(const std::string name, const Index nData);
+    void  addXDim(const std::string name, const Index nData,
+                  const bool isExact = false);
     void  addYDim(const std::string name);
     // size access
     Index getNXDim(void) const;
@@ -55,6 +65,14 @@ public:
     std::vector<Index> dataCoord(const Index k) const;
     // enable fit points
     void fitPoint(const bool isFitPoint, const Index k, const Index j = 0);
+    // variance interface
+    void assumeXExact(const bool isExact, const Index i);
+    void assumeXXCorrelated(const bool isCorr, const Index i1, const Index i2,
+                            const Index vi1, const Index vi2);
+    void assumeYYCorrelated(const bool isCorr, const Index j1, const Index j2,
+                            const Index k1, const Index k2);
+    void assumeXYCorrelated(const bool isCorr, const Index i, const Index j,
+                            const Index vi, const Index k);
     // tests
     bool isXUsed(const Index k) const;
     bool isXUsed(const Index k, const Index j) const;
@@ -65,14 +83,25 @@ protected:
 public:
     // register a data point
     void registerDataPoint(const Index k, const Index j = 0);
+    // add correlation to a set
+    static void addCorr(std::set<std::array<Index, 4>> &s, const bool isCorr,
+                        const std::array<Index, 4> &c);
     // abstract method to update data container size
     virtual void updateDataSize(void) {};
+    // global layout management
+    void  updateLayout(void);
+    Index indX(const Index vi, const Index i) const;
+    Index indY(const Index k, const Index j) const;
+    DMat  makeCorrFilter(void) const;
 private:
     std::vector<std::string>           xDimName_, yDimName_;
     std::map<std::string, Index>       xDimIndex_, yDimIndex_;
     std::vector<Index>                 xSize_;
+    std::vector<bool>                  xIsExact_;
     std::vector<std::map<Index, bool>> yDataIndex_;
+    std::set<std::array<Index, 4>>     xxCorr_, yyCorr_, xyCorr_;
     Index                              maxDataIndex_{1};
+    Layout                             layout_;
 };
 
 std::ostream & operator<<(std::ostream &out, FitInterface &f);

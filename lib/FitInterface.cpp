@@ -75,7 +75,8 @@ FitInterface::FitInterface(void)
 {}
 
 // add dimensions //////////////////////////////////////////////////////////////
-void FitInterface::addXDim(const string name, const Index nData)
+void FitInterface::addXDim(const string name, const Index nData,
+                           const bool isExact)
 {
     if (getYSize() != 0)
     {
@@ -86,6 +87,7 @@ void FitInterface::addXDim(const string name, const Index nData)
     {
         xDimName_.push_back(name);
         xSize_.push_back(nData);
+        xIsExact_.push_back(isExact);
         xDimIndex_[name]  = xDimName_.size();
         maxDataIndex_    *= nData;
         updateDataSize();
@@ -248,6 +250,70 @@ void FitInterface::fitPoint(const bool isFitPoint, const Index k, const Index j)
     yDataIndex_[j][k] = isFitPoint;
 }
 
+// variance interface //////////////////////////////////////////////////////////
+void FitInterface::assumeXExact(const bool isExact, const Index i)
+{
+    checkXDim(i);
+    xIsExact_[i] = isExact;
+}
+
+void FitInterface::addCorr(set<array<Index, 4>> &s, const bool isCorr,
+                           const array<Index, 4> &c)
+{
+    if (isCorr)
+    {
+        s.insert(c);
+    }
+    else
+    {
+        auto it = s.find(c);
+        
+        if (it != s.end())
+        {
+            s.erase(it);
+        }
+    }
+}
+
+void FitInterface::assumeXXCorrelated(const bool isCorr, const Index i1,
+                                      const Index i2, const Index vi1,
+                                      const Index vi2)
+{
+    array<Index, 4> c{{i1, i2, vi1, vi2}};
+    
+    checkXIndex(vi1, i1);
+    checkXIndex(vi2, i2);
+    if ((i1 != i2) or (vi1 != vi2))
+    {
+        addCorr(xxCorr_, isCorr, c);
+    }
+}
+
+void FitInterface::assumeYYCorrelated(const bool isCorr, const Index j1,
+                                      const Index j2, const Index k1,
+                                      const Index k2)
+{
+    array<Index, 4> c{{j1, j2, k1, k2}};
+    
+    checkPoint(k1, j1);
+    checkPoint(k2, j2);
+    if ((j1 != j2) or (k1 != k2))
+    {
+        addCorr(yyCorr_, isCorr, c);
+    }
+}
+
+void FitInterface::assumeXYCorrelated(const bool isCorr, const Index i,
+                                      const Index j, const Index vi,
+                                      const Index k)
+{
+    array<Index, 4> c{{i, j, vi, k}};
+    
+    checkXIndex(vi, i);
+    checkPoint(k, j);
+    addCorr(xyCorr_, isCorr, c);
+}
+
 // tests ///////////////////////////////////////////////////////////////////////
 bool FitInterface::isXUsed(const Index k) const
 {
@@ -282,6 +348,108 @@ void FitInterface::registerDataPoint(const Index k, const Index j)
     yDataIndex_[j][k] = true;
 }
 
+// global layout management ////////////////////////////////////////////////////
+void FitInterface::updateLayout(void)
+{
+    Index size;
+    
+    layout_.totalSize  = 0;
+    layout_.totalXSize = 0;
+    layout_.totalYSize = 0;
+    layout_.xSize.clear();
+    layout_.ySize.clear();
+    layout_.dataIndex.clear();
+    layout_.xTrans.clear();
+    layout_.dataTrans.clear();
+    for (Index i = 0; i < getNXDim(); ++i)
+    {
+        if (!xIsExact_[i])
+        {
+            size = getXFitSize(i);
+            layout_.xSize.push_back(size);
+            layout_.totalXSize += size;
+            layout_.xTrans[i] = static_cast<Index>(layout_.xSize.size() - 1);
+        }
+    }
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        size = getYFitSize(j);
+        layout_.ySize.push_back(size);
+        layout_.totalYSize += size;
+    }
+    layout_.totalSize = layout_.totalXSize + layout_.totalYSize;
+    layout_.dataIndex.resize(layout_.ySize.size());
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        for (auto &p: yDataIndex_[j])
+        {
+            if (p.second)
+            {
+                layout_.dataIndex[j].push_back(p.first);
+                layout_.dataTrans[p.first] = layout_.dataIndex[j].size() - 1;
+            }
+        }
+    }
+}
+
+// WARNING: NO INDEX CHECKS IN INDEXING FUNCTIONS
+Index FitInterface::indX(const Index vi, const Index i) const
+{
+    Index ind, iTrans;
+    
+    iTrans = layout_.xTrans.at(i);
+    ind    = layout_.totalYSize;
+    for (Index a = 0; a < iTrans; ++a)
+    {
+        ind += layout_.xSize[a];
+    }
+    ind += vi;
+    
+    return ind;
+}
+
+Index FitInterface::indY(const Index k, const Index j) const
+{
+    Index ind = 0;
+    
+    for (Index a = 0; a < j; ++a)
+    {
+        ind += layout_.ySize[a];
+    }
+    ind += layout_.dataTrans.at(k);
+    
+    return ind;
+}
+
+DMat FitInterface::makeCorrFilter(void) const
+{
+    DMat f = DMat::Identity(layout_.totalSize, layout_.totalSize);
+    
+    for (auto &c: xxCorr_)
+    {
+        f(indX(c[2], c[0]), indX(c[3], c[1])) = 1.;
+        f(indX(c[3], c[1]), indX(c[2], c[0])) = 1.;
+    }
+    for (auto &c: yyCorr_)
+    {
+        if (isFitPoint(c[2], c[0]) and isFitPoint(c[3], c[1]))
+        {
+            f(indY(c[2], c[0]), indY(c[3], c[1])) = 1.;
+            f(indY(c[3], c[1]), indY(c[2], c[0])) = 1.;
+        }
+    }
+    for (auto &c: xyCorr_)
+    {
+        if (isFitPoint(c[3], c[1]))
+        {
+            f(indX(c[2], c[0]), indY(c[3], c[1])) = 1.;
+            f(indY(c[3], c[1]), indX(c[2], c[0])) = 1.;
+        }
+    }
+    
+    return f;
+}
+
 // IO //////////////////////////////////////////////////////////////////////////
 ostream & Latan::operator<<(ostream &out, FitInterface &f)
 {
@@ -304,6 +472,60 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
                 out << vi << ",";
             }
             out << "\b) fit: " << (p.second ? "true" : "false") << endl;
+        }
+    }
+    out << "X/X correlations (i1 i2 vi1 vi2): ";
+    if (f.xxCorr_.empty())
+    {
+        out << "no" << endl;
+    }
+    else
+    {
+        out << endl;
+        for (auto &c: f.xxCorr_)
+        {
+            out << "  * ";
+            for (auto i: c)
+            {
+                out << i << " ";
+            }
+            out << endl;
+        }
+    }
+    out << "Y/Y correlations (j1 j2 k1 k2): ";
+    if (f.yyCorr_.empty())
+    {
+        out << "no" << endl;
+    }
+    else
+    {
+        out << endl;
+        for (auto &c: f.yyCorr_)
+        {
+            out << "  * ";
+            for (auto i: c)
+            {
+                out << i << " ";
+            }
+            out << endl;
+        }
+    }
+    out << "X/Y correlations (i j vi k): ";
+    if (f.xyCorr_.empty())
+    {
+        out << "no";
+    }
+    else
+    {
+        out << endl;
+        for (auto &c: f.xyCorr_)
+        {
+            out << "  * ";
+            for (auto i: c)
+            {
+                out << i << " ";
+            }
+            out << endl;
         }
     }
     

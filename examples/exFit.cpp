@@ -21,14 +21,15 @@ int main(void)
     f.registerDataPoint(f.dataIndex(1,1,1), 1);
     f.registerDataPoint(f.dataIndex(2,2,3), 1);
     f.fitPoint(false, f.dataIndex(1,1,1), 1);
+    f.assumeXXCorrelated(true, 0, 0, 0, 1);
+    f.assumeXXCorrelated(true, 1, 1, 0, 1);
+    f.assumeXXCorrelated(true, 2, 2, 0, 1);
+    f.assumeYYCorrelated(true, 0, 0, f.dataIndex(0,0,0), f.dataIndex(1,1,1));
+    f.assumeYYCorrelated(true, 1, 1, f.dataIndex(0,0,0), f.dataIndex(2,2,3));
+    f.assumeXYCorrelated(true, 0, 0, 0, f.dataIndex(1,1,1));
     cout << f << endl;
-    DEBUG_VAR(f.getYFitSize());
-    DEBUG_VAR(f.getYFitSize(0));
-    DEBUG_VAR(f.getYFitSize(1));
-    DEBUG_VAR(f.getXFitSize());
-    DEBUG_VAR(f.getXFitSize(0));
-    DEBUG_VAR(f.getXFitSize(1));
-    DEBUG_VAR(f.getXFitSize(2));
+    f.updateLayout();
+    DEBUG_MAT(f.makeCorrFilter());
     
     return EXIT_SUCCESS;
 }
