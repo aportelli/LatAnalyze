@@ -395,6 +395,8 @@ void FitInterface::updateLayout(void)
     {
         Index size, ifit;
         
+        layout.nXFitDim   = 0;
+        layout.nYFitDim   = 0;
         layout.totalSize  = 0;
         layout.totalXSize = 0;
         layout.totalYSize = 0;
@@ -413,6 +415,7 @@ void FitInterface::updateLayout(void)
         {
             if (!xIsExact_[i])
             {
+                layout.nXFitDim++;
                 size = getXFitSize(i);
                 layout.xSize.push_back(size);
                 layout.totalXSize += size;
@@ -448,6 +451,7 @@ void FitInterface::updateLayout(void)
         {
             Index s = 0;
             
+            layout.nYFitDim++;
             size = getYFitSize(j);
             layout.ySize.push_back(size);
             layout.totalYSize += size;

@@ -22,8 +22,35 @@
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/FitInterface.hpp>
+#include <LatAnalyze/Minimizer.hpp>
+#include <LatAnalyze/Model.hpp>
 
 BEGIN_LATAN_NAMESPACE
+
+/******************************************************************************
+ *                           object for fit result                            *
+ ******************************************************************************/
+class FitResult: public DVec
+{
+    friend class XYStatData;
+    friend class SampleFitResult;
+public:
+    // constructors
+    FitResult(void) = default;
+    EIGEN_EXPR_CTOR(FitResult, FitResult, Base, MatExpr)
+    // destructor
+    virtual ~FitResult(void) = default;
+    // access
+    double                 getChi2(void) const;
+    double                 getChi2PerDof(void) const;
+    double                 getNDof(void) const;
+    double                 getPValue(void) const;
+    const DoubleFunction & getModel(const Index j = 0) const;
+private:
+    double                      chi2_{0.0};
+    Index                       nDof_{0};
+    std::vector<DoubleFunction> model_;
+};
 
 /******************************************************************************
  *                    class for X vs. Y statistical data                      *
@@ -32,11 +59,9 @@ class XYStatData: public FitInterface
 {
 public:
     // constructor
-    XYStatData(void);
+    XYStatData(void) = default;
     // destructor
     virtual ~XYStatData(void) = default;
-    // schedule fit var matrix update
-    void scheduleFitVarMatInit(void);
     // data access
     double &       x(const Index vi, const Index i = 0);
     const double & x(const Index vi, const Index i = 0) const;
@@ -52,23 +77,91 @@ public:
     const DMat &   getXYVar(const Index i, const Index j) const;
     DVec           getXError(const Index i) const;
     DVec           getYError(const Index j) const;
-    // get total fit variance matrix
-    const DMat &   getFitVar(void);
+    // get total fit variance matrix and its pseudo-inverse
+    const DMat & getFitVarMat(void);
+    const DMat & getFitVarMatPInv(void);
+    // fit
+    FitResult fit(Minimizer &minimizer, const DVec &init,
+                  const std::vector<const DoubleModel *> &v);
 protected:
     // create data
     virtual void createXData(const Index nData);
     virtual void createYData(void);
     void         resizeVarMat(void);
 private:
-    // make total fit variance matrix
+    // schedule buffer computation
+    void scheduleFitVarMatInit(void);
+    void scheduleXMapInit(void);
+    void scheduleChi2DataVecInit(void);
+    // buffer total fit variance matrix
     void updateFitVarMat(void);
+    // buffer list of x vectors
+    void updateXMap(void);
+    // buffer chi^2 vectors
+    void updateChi2DataVec(void);
+    void updateChi2ModVec(const DVec p,
+                          const std::vector<const DoubleModel *> &v);
 private:
     std::vector<std::map<Index, double>> yData_;
     std::vector<DVec>                    xData_;
+    std::map<Index, DVec>                xMap_;
     Mat<DMat>                            xxVar_, yyVar_, xyVar_;
-    DMat                                 fitVar_;
+    DMat                                 fitVar_, fitVarInv_;
+    DVec                                 chi2DataVec_, chi2ModVec_, chi2Vec_;
     bool                                 initVarMat_{true};
+    bool                                 initXMap_{true};
+    bool                                 initChi2DataVec_{true};
 };
+
+/******************************************************************************
+ *                       error check macros                                   *
+ ******************************************************************************/
+#define checkVarMat(m, var)\
+if (((m).rows() != (var).rows()) or ((m).cols() != (var).cols()))\
+{\
+    LATAN_ERROR(Size, "provided variance matrix has a wrong size"\
+                " (expected " + strFrom((var).rows()) + "x"\
+                + strFrom((var).cols()) + ", got " + strFrom((m).rows())\
+                + "x" + strFrom((m).cols()) + ")");\
+}
+
+
+#define checkErrVec(err, var)\
+if ((err).size() != (var).rows())\
+{\
+    LATAN_ERROR(Size, "provided error vector has a wrong size"\
+                " (expected " + strFrom((var).rows()) + ", got "\
+                + strFrom((err).size()) + ")");\
+}
+
+#define checkModelVec(v)\
+if (static_cast<Index>((v).size()) != getNYDim())\
+{\
+    LATAN_ERROR(Size, "provided model vector has a wrong size"\
+                " (expected " + strFrom(getNYDim()) + ", got "\
+                + strFrom((v).size()) + ")");\
+}\
+for (unsigned int _i = 1; _i < (v).size(); ++_i)\
+{\
+    if ((v)[_i]->getNArg() != getNXDim())\
+    {\
+        LATAN_ERROR(Size, "model " + strFrom(_i) + " has a wrong"\
+                    + " number of argument (expected " + strFrom(getNXDim())\
+                    + ", got " + strFrom((v)[_i]->getNArg()));\
+    }\
+}\
+{\
+    Index _nPar = (v)[0]->getNPar();\
+    for (unsigned int _i = 1; _i < (v).size(); ++_i)\
+    {\
+        if ((v)[_i]->getNPar() != _nPar)\
+        {\
+            LATAN_ERROR(Size, "model " + strFrom(_i) + " has a wrong"\
+                        + " number of parameter (expected " + strFrom(_nPar)\
+                        + ", got " + strFrom((v)[_i]->getNPar()));\
+        }\
+    }\
+}
 
 END_LATAN_NAMESPACE
 
