@@ -33,10 +33,21 @@ class FitInterface
 private:
     typedef struct
     {
+        Index                           nXFitDim, nYFitDim;
+        // X/Y block sizes
         Index                           totalSize, totalXSize, totalYSize;
+        // size of each X/Y dimension
         std::vector<Index>              xSize, ySize;
-        std::vector<std::vector<Index>> dataIndex;
-        std::map<Index, Index>          xTrans, dataTrans;
+        // lookup tables
+        // xDim        : x fit dim ifit -> x dim i
+        // x           : x fit point ifit,rfit -> x point r
+        // xFitDim     : x dim i -> x fit dim ifit (-1 if empty)
+        // xFit        : x point i,r -> x fit point rfit (-1 if empty)
+        // data        : y fit point jfit,sfit -> y point index k
+        // yFitFromData: y point indec k,j -> y fit point sfit (-1 if empty)
+        std::vector<Index>                  xDim, yDim, xFitDim, yFitDim;
+        std::vector<std::vector<Index>>     x, y, data, xFit, yFit;
+        std::vector<std::map<Index, Index>> yFitFromData;
     } Layout;
 public:
     // constructor
@@ -58,6 +69,7 @@ public:
     Index getXFitSize(const Index i) const;
     Index getYFitSize(void) const;
     Index getYFitSize(const Index j) const;
+    Index getMaxDataIndex(void) const;
     // Y dimension index helper
     template <typename... Ts>
     Index              dataIndex(const Ts... is) const;
@@ -67,32 +79,37 @@ public:
     void fitPoint(const bool isFitPoint, const Index k, const Index j = 0);
     // variance interface
     void assumeXExact(const bool isExact, const Index i);
-    void assumeXXCorrelated(const bool isCorr, const Index i1, const Index i2,
-                            const Index vi1, const Index vi2);
-    void assumeYYCorrelated(const bool isCorr, const Index j1, const Index j2,
-                            const Index k1, const Index k2);
-    void assumeXYCorrelated(const bool isCorr, const Index i, const Index j,
-                            const Index vi, const Index k);
+    void assumeXXCorrelated(const bool isCorr, const Index r1, const Index i1,
+                            const Index r2, const Index i2);
+    void assumeYYCorrelated(const bool isCorr, const Index k1, const Index j1,
+                            const Index k2, const Index j2);
+    void assumeXYCorrelated(const bool isCorr, const Index r, const Index i,
+                            const Index k, const Index j);
     // tests
-    bool isXUsed(const Index k) const;
-    bool isXUsed(const Index k, const Index j) const;
+    bool pointExists(const Index k) const;
+    bool pointExists(const Index k, const Index j) const;
+    bool isXUsed(const Index r, const Index i, const bool inFit = true) const;
     bool isFitPoint(const Index k, const Index j) const;
+    // make correlation filter for fit variance matrix
+    DMat makeCorrFilter(void);
     // IO
     friend std::ostream & operator<<(std::ostream &out, FitInterface &f);
 protected:
-public:
     // register a data point
     void registerDataPoint(const Index k, const Index j = 0);
     // add correlation to a set
     static void addCorr(std::set<std::array<Index, 4>> &s, const bool isCorr,
                         const std::array<Index, 4> &c);
-    // abstract method to update data container size
-    virtual void updateDataSize(void) {};
+    // abstract methods to create data containers
+    virtual void createXData(const Index nData) = 0;
+    virtual void createYData(void) = 0;
     // global layout management
+    void  scheduleLayoutInit(void);
     void  updateLayout(void);
-    Index indX(const Index vi, const Index i) const;
+    Index indX(const Index r, const Index i) const;
     Index indY(const Index k, const Index j) const;
-    DMat  makeCorrFilter(void) const;
+protected:
+    Layout layout;
 private:
     std::vector<std::string>           xDimName_, yDimName_;
     std::map<std::string, Index>       xDimIndex_, yDimIndex_;
@@ -101,7 +118,7 @@ private:
     std::vector<std::map<Index, bool>> yDataIndex_;
     std::set<std::array<Index, 4>>     xxCorr_, yyCorr_, xyCorr_;
     Index                              maxDataIndex_{1};
-    Layout                             layout_;
+    bool                               initLayout_{true};
 };
 
 std::ostream & operator<<(std::ostream &out, FitInterface &f);
@@ -119,6 +136,52 @@ Index FitInterface::dataIndex(const Ts... coords) const
     const std::vector<Index> coord = {coords...};
 
     return dataIndex(coord);
+}
+
+/******************************************************************************
+ *                       error check macros                                   *
+ ******************************************************************************/
+#define checkXDim(i)\
+if ((i) >= getNXDim())\
+{\
+    LATAN_ERROR(Range, "X dimension " + strFrom(i) + " out of range");\
+}
+
+#define checkXIndex(vi, i)\
+if ((vi) >= getXSize(i))\
+{\
+    LATAN_ERROR(Range, "index " + strFrom(vi) + " in X dimension "\
+                + strFrom(i) + " out of range");\
+}
+
+#define checkYDim(j)\
+if ((j) >= getNYDim())\
+{\
+    LATAN_ERROR(Range, "Y dimension " + strFrom(j) + " out of range");\
+}
+
+#define checkDataIndex(k)\
+if ((k) >= getMaxDataIndex())\
+{\
+    LATAN_ERROR(Range, "data point index " + strFrom(k) + " invalid");\
+}
+
+#define checkDataCoord(v)\
+if (static_cast<Index>((v).size()) != getNXDim())\
+{\
+    LATAN_ERROR(Size, "number of coordinates and number of X dimensions "\
+                "mismatch");\
+}\
+for (unsigned int i_ = 0; i_ < (v).size(); ++i_)\
+{\
+    checkXIndex((v)[i_], i_);\
+}
+
+#define checkPoint(k, j)\
+if (!pointExists(k, j))\
+{\
+    LATAN_ERROR(Range, "no data point in Y dimension " + strFrom(j)\
+                + " with index " + strFrom(k));\
 }
 
 END_LATAN_NAMESPACE

@@ -23,50 +23,6 @@
 using namespace std;
 using namespace Latan;
 
-// error checks ////////////////////////////////////////////////////////////////
-#define checkXDim(i)\
-if ((i) >= getNXDim())\
-{\
-    LATAN_ERROR(Range, "X dimension " + strFrom(i) + " out of range");\
-}
-
-#define checkXIndex(vi, i)\
-if ((vi) >= getXSize(i))\
-{\
-    LATAN_ERROR(Range, "index " + strFrom(vi) + " in X dimension "\
-                + strFrom(i) + " out of range");\
-}
-
-#define checkYDim(j)\
-if ((j) >= getNYDim())\
-{\
-    LATAN_ERROR(Range, "Y dimension " + strFrom(j) + " out of range");\
-}
-
-#define checkDataIndex(k)\
-if ((k) >= maxDataIndex_)\
-{\
-    LATAN_ERROR(Range, "data point index " + strFrom(k) + " invalid");\
-}
-
-#define checkDataCoord(v)\
-if (static_cast<Index>((v).size()) != getNXDim())\
-{\
-    LATAN_ERROR(Size, "number of coordinates and number of X dimensions "\
-                "mismatch");\
-}\
-for (unsigned int i_ = 0; i_ < (v).size(); ++i_)\
-{\
-    checkXIndex((v)[i_], i_);\
-}
-
-#define checkPoint(k, j)\
-if (!isXUsed(k, j))\
-{\
-    LATAN_ERROR(Range, "no data point in Y dimension " + strFrom(j)\
-                + " with index " + strFrom(k));\
-}
-
 /******************************************************************************
  *                     FitInterface implementation                            *
  ******************************************************************************/
@@ -90,7 +46,8 @@ void FitInterface::addXDim(const string name, const Index nData,
         xIsExact_.push_back(isExact);
         xDimIndex_[name]  = xDimName_.size();
         maxDataIndex_    *= nData;
-        updateDataSize();
+        createXData(nData);
+        scheduleLayoutInit();
     }
 }
 
@@ -99,6 +56,8 @@ void FitInterface::addYDim(const string name)
     yDimName_.push_back(name);
     yDataIndex_.push_back(map<Index, bool>());
     yDimIndex_[name] = yDimName_.size();
+    createYData();
+    scheduleLayoutInit();
 }
 
 // size access /////////////////////////////////////////////////////////////////
@@ -209,6 +168,11 @@ Index FitInterface::getYFitSize(const Index j) const
     return size;
 }
 
+Index FitInterface::getMaxDataIndex(void) const
+{
+    return maxDataIndex_;
+}
+
 // Y dimension index helper ////////////////////////////////////////////////////
 Index FitInterface::dataIndex(const vector<Index> &v) const
 {
@@ -248,6 +212,7 @@ void FitInterface::fitPoint(const bool isFitPoint, const Index k, const Index j)
 {
     checkPoint(k, j);
     yDataIndex_[j][k] = isFitPoint;
+    scheduleLayoutInit();
 }
 
 // variance interface //////////////////////////////////////////////////////////
@@ -255,6 +220,7 @@ void FitInterface::assumeXExact(const bool isExact, const Index i)
 {
     checkXDim(i);
     xIsExact_[i] = isExact;
+    scheduleLayoutInit();
 }
 
 void FitInterface::addCorr(set<array<Index, 4>> &s, const bool isCorr,
@@ -275,25 +241,26 @@ void FitInterface::addCorr(set<array<Index, 4>> &s, const bool isCorr,
     }
 }
 
-void FitInterface::assumeXXCorrelated(const bool isCorr, const Index i1,
-                                      const Index i2, const Index vi1,
-                                      const Index vi2)
+void FitInterface::assumeXXCorrelated(const bool isCorr, const Index r1,
+                                      const Index i1, const Index r2,
+                                      const Index i2)
 {
-    array<Index, 4> c{{i1, i2, vi1, vi2}};
+    array<Index, 4> c{{r1, i1, r2, i2}};
     
-    checkXIndex(vi1, i1);
-    checkXIndex(vi2, i2);
-    if ((i1 != i2) or (vi1 != vi2))
+    checkXIndex(r1, i1);
+    checkXIndex(r2, i2);
+    if ((i1 != i2) or (r1 != r2))
     {
         addCorr(xxCorr_, isCorr, c);
     }
+    scheduleLayoutInit();
 }
 
-void FitInterface::assumeYYCorrelated(const bool isCorr, const Index j1,
-                                      const Index j2, const Index k1,
-                                      const Index k2)
+void FitInterface::assumeYYCorrelated(const bool isCorr, const Index k1,
+                                      const Index j1, const Index k2,
+                                      const Index j2)
 {
-    array<Index, 4> c{{j1, j2, k1, k2}};
+    array<Index, 4> c{{k1, j1, k2, j2}};
     
     checkPoint(k1, j1);
     checkPoint(k2, j2);
@@ -301,37 +268,62 @@ void FitInterface::assumeYYCorrelated(const bool isCorr, const Index j1,
     {
         addCorr(yyCorr_, isCorr, c);
     }
+    scheduleLayoutInit();
 }
 
-void FitInterface::assumeXYCorrelated(const bool isCorr, const Index i,
-                                      const Index j, const Index vi,
-                                      const Index k)
+void FitInterface::assumeXYCorrelated(const bool isCorr, const Index r,
+                                      const Index i, const Index k,
+                                      const Index j)
 {
-    array<Index, 4> c{{i, j, vi, k}};
+    array<Index, 4> c{{r, i, k, j}};
     
-    checkXIndex(vi, i);
+    checkXIndex(r, i);
     checkPoint(k, j);
     addCorr(xyCorr_, isCorr, c);
+    scheduleLayoutInit();
 }
 
 // tests ///////////////////////////////////////////////////////////////////////
-bool FitInterface::isXUsed(const Index k) const
+bool FitInterface::pointExists(const Index k) const
 {
     bool isUsed = false;
     
     for (Index j = 0; j < getNYDim(); ++j)
     {
-        isUsed = isUsed or isXUsed(k, j);
+        isUsed = isUsed or pointExists(k, j);
     }
     
     return isUsed;
 }
 
-bool FitInterface::isXUsed(const Index k, const Index j) const
+bool FitInterface::pointExists(const Index k, const Index j) const
 {
     checkYDim(j);
     
     return !(yDataIndex_[j].find(k) == yDataIndex_[j].end());
+}
+
+bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit) const
+{
+    vector<Index> v;
+    
+    checkXDim(i);
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        for (auto &p: yDataIndex_[j])
+        {
+            if (p.second or !inFit)
+            {
+                v      = dataCoord(p.first);
+                if (v[i] == r)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 bool FitInterface::isFitPoint(const Index k, const Index j) const
@@ -341,113 +333,190 @@ bool FitInterface::isFitPoint(const Index k, const Index j) const
     return yDataIndex_[j].at(k);
 }
 
+// make correlation filter for fit variance matrix /////////////////////////////
+DMat FitInterface::makeCorrFilter(void)
+{
+    updateLayout();
+    
+    DMat  f = DMat::Identity(layout.totalSize, layout.totalSize);
+    Index row, col;
+    
+    for (auto &c: xxCorr_)
+    {
+        row = indX(c[0], c[1]);
+        col = indX(c[2], c[3]);
+        if ((row != -1) and (col != -1))
+        {
+            f(row, col) = 1.;
+            f(col, row) = 1.;
+        }
+    }
+    for (auto &c: yyCorr_)
+    {
+        row = indY(c[0], c[1]);
+        col = indY(c[2], c[3]);
+        if ((row != -1) and (col != -1))
+        {
+            f(row, col) = 1.;
+            f(col, row) = 1.;
+        }
+    }
+    for (auto &c: xyCorr_)
+    {
+        row = indX(c[0], c[1]);
+        col = indY(c[2], c[3]);
+        if ((row != -1) and (col != -1))
+        {
+            f(row, col) = 1.;
+            f(col, row) = 1.;
+        }
+    }
+    
+    return f;
+}
+
 // register a data point ///////////////////////////////////////////////////////
 void FitInterface::registerDataPoint(const Index k, const Index j)
 {
     checkYDim(j);
     yDataIndex_[j][k] = true;
+    scheduleLayoutInit();
 }
 
 // global layout management ////////////////////////////////////////////////////
+void FitInterface::scheduleLayoutInit(void)
+{
+    initLayout_ = true;
+}
+
 void FitInterface::updateLayout(void)
 {
-    Index size;
-    
-    layout_.totalSize  = 0;
-    layout_.totalXSize = 0;
-    layout_.totalYSize = 0;
-    layout_.xSize.clear();
-    layout_.ySize.clear();
-    layout_.dataIndex.clear();
-    layout_.xTrans.clear();
-    layout_.dataTrans.clear();
-    for (Index i = 0; i < getNXDim(); ++i)
+    if (initLayout_)
     {
-        if (!xIsExact_[i])
+        Index size, ifit;
+        
+        layout.totalSize  = 0;
+        layout.totalXSize = 0;
+        layout.totalYSize = 0;
+        layout.xSize.clear();
+        layout.ySize.clear();
+        layout.xDim.clear();
+        layout.yDim.clear();
+        layout.xFitDim.clear();
+        layout.yFitDim.clear();
+        layout.x.clear();
+        layout.y.clear();
+        layout.xFit.clear();
+        layout.yFit.clear();
+        ifit = 0;
+        for (Index i = 0; i < getNXDim(); ++i)
         {
-            size = getXFitSize(i);
-            layout_.xSize.push_back(size);
-            layout_.totalXSize += size;
-            layout_.xTrans[i] = static_cast<Index>(layout_.xSize.size() - 1);
-        }
-    }
-    for (Index j = 0; j < getNYDim(); ++j)
-    {
-        size = getYFitSize(j);
-        layout_.ySize.push_back(size);
-        layout_.totalYSize += size;
-    }
-    layout_.totalSize = layout_.totalXSize + layout_.totalYSize;
-    layout_.dataIndex.resize(layout_.ySize.size());
-    for (Index j = 0; j < getNYDim(); ++j)
-    {
-        for (auto &p: yDataIndex_[j])
-        {
-            if (p.second)
+            if (!xIsExact_[i])
             {
-                layout_.dataIndex[j].push_back(p.first);
-                layout_.dataTrans[p.first] = layout_.dataIndex[j].size() - 1;
+                size = getXFitSize(i);
+                layout.xSize.push_back(size);
+                layout.totalXSize += size;
+                layout.xDim.push_back(i);
+                layout.xFitDim.push_back(layout.xDim.size() - 1);
+                layout.x.push_back(vector<Index>());
+                layout.xFit.push_back(vector<Index>());
+                for (Index r = 0; r < getXSize(i); ++r)
+                {
+                    if (isXUsed(r, i))
+                    {
+                        layout.x[ifit].push_back(r);
+                        layout.xFit[i].push_back(layout.x[ifit].size() - 1);
+                    }
+                    else
+                    {
+                        layout.xFit[i].push_back(-1);
+                    }
+                }
+                ifit++;
+            }
+            else
+            {
+                layout.xFitDim.push_back(-1);
+                layout.xFit.push_back(vector<Index>());
+                for (Index r = 0; r < getXSize(i); ++r)
+                {
+                    layout.xFit[i].push_back(-1);
+                }
             }
         }
+        for (Index j = 0; j < getNYDim(); ++j)
+        {
+            Index s = 0;
+            
+            size = getYFitSize(j);
+            layout.ySize.push_back(size);
+            layout.totalYSize += size;
+            layout.yDim.push_back(j);
+            layout.yFitDim.push_back(layout.yDim.size() - 1);
+            layout.y.push_back(vector<Index>());
+            layout.yFit.push_back(vector<Index>());
+            layout.data.push_back(vector<Index>());
+            layout.yFitFromData.push_back(map<Index, Index>());
+            for (auto &p: yDataIndex_[j])
+            {
+                if (p.second)
+                {
+                    layout.y[j].push_back(s);
+                    layout.yFit[j].push_back(layout.y[j].size() - 1);
+                    layout.data[j].push_back(p.first);
+                    layout.yFitFromData[j][p.first] = layout.y[j].size() - 1;
+                }
+                else
+                {
+                    layout.yFit[j].push_back(-1);
+                    layout.yFitFromData[j][p.first] = -1;
+                }
+                s++;
+            }
+        }
+        layout.totalSize = layout.totalXSize + layout.totalYSize;
+        layout.nXFitDim  = static_cast<Index>(layout.xSize.size());
+        layout.nYFitDim  = static_cast<Index>(layout.ySize.size());
+        initLayout_      = false;
     }
 }
 
-// WARNING: NO INDEX CHECKS IN INDEXING FUNCTIONS
-Index FitInterface::indX(const Index vi, const Index i) const
+Index FitInterface::indX(const Index r, const Index i) const
 {
-    Index ind, iTrans;
+    Index ind = -1;
     
-    iTrans = layout_.xTrans.at(i);
-    ind    = layout_.totalYSize;
-    for (Index a = 0; a < iTrans; ++a)
+    if (layout.xFit[i][r] != -1)
     {
-        ind += layout_.xSize[a];
+        Index ifit = layout.xFitDim[i], rfit = layout.xFit[i][r];
+        
+        ind = layout.totalYSize;
+        for (Index a = 0; a < ifit; ++a)
+        {
+            ind += layout.xSize[a];
+        }
+        ind += rfit;
     }
-    ind += vi;
     
     return ind;
 }
 
 Index FitInterface::indY(const Index k, const Index j) const
 {
-    Index ind = 0;
+    Index ind = -1;
     
-    for (Index a = 0; a < j; ++a)
+    if (layout.yFitFromData[j].at(k) != -1)
     {
-        ind += layout_.ySize[a];
+        Index jfit = layout.yFitDim[j], sfit = layout.yFitFromData[j].at(k);
+        
+        ind = 0;
+        for (Index b = 0; b < jfit; ++b)
+        {
+            ind += layout.ySize[b];
+        }
+        ind += sfit;
     }
-    ind += layout_.dataTrans.at(k);
     
     return ind;
-}
-
-DMat FitInterface::makeCorrFilter(void) const
-{
-    DMat f = DMat::Identity(layout_.totalSize, layout_.totalSize);
-    
-    for (auto &c: xxCorr_)
-    {
-        f(indX(c[2], c[0]), indX(c[3], c[1])) = 1.;
-        f(indX(c[3], c[1]), indX(c[2], c[0])) = 1.;
-    }
-    for (auto &c: yyCorr_)
-    {
-        if (isFitPoint(c[2], c[0]) and isFitPoint(c[3], c[1]))
-        {
-            f(indY(c[2], c[0]), indY(c[3], c[1])) = 1.;
-            f(indY(c[3], c[1]), indY(c[2], c[0])) = 1.;
-        }
-    }
-    for (auto &c: xyCorr_)
-    {
-        if (isFitPoint(c[3], c[1]))
-        {
-            f(indX(c[2], c[0]), indY(c[3], c[1])) = 1.;
-            f(indY(c[3], c[1]), indX(c[2], c[0])) = 1.;
-        }
-    }
-    
-    return f;
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
@@ -457,7 +526,12 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
     for (Index i = 0; i < f.getNXDim(); ++i)
     {
         out << "  * " << i << " \"" << f.xDimName_[i] << "\": ";
-        out << f.getXSize(i) << " value(s)" << endl;
+        out << f.getXSize(i) << " value(s)";
+        if (f.xIsExact_[i])
+        {
+            out << " (assumed exact)";
+        }
+        out << endl;
     }
     out << "Y dimensions: " << f.getNYDim() << endl;
     for (Index j = 0; j < f.getNYDim(); ++j)
@@ -474,7 +548,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
             out << "\b) fit: " << (p.second ? "true" : "false") << endl;
         }
     }
-    out << "X/X correlations (i1 i2 vi1 vi2): ";
+    out << "X/X correlations (r1 i1 r2 i2): ";
     if (f.xxCorr_.empty())
     {
         out << "no" << endl;
@@ -492,7 +566,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
             out << endl;
         }
     }
-    out << "Y/Y correlations (j1 j2 k1 k2): ";
+    out << "Y/Y correlations (k1 j1 k2 j2): ";
     if (f.yyCorr_.empty())
     {
         out << "no" << endl;
@@ -510,7 +584,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
             out << endl;
         }
     }
-    out << "X/Y correlations (i j vi k): ";
+    out << "X/Y correlations (r i k j): ";
     if (f.xyCorr_.empty())
     {
         out << "no";
