@@ -105,6 +105,8 @@ protected:
     virtual void createYData(void) = 0;
     // global layout management
     void  scheduleLayoutInit(void);
+    void  scheduleFitVarMatInit(const bool init = true);
+    bool  initVarMat(void);
     void  updateLayout(void);
     Index indX(const Index r, const Index i) const;
     Index indY(const Index k, const Index j) const;
@@ -118,7 +120,7 @@ private:
     std::vector<std::map<Index, bool>> yDataIndex_;
     std::set<std::array<Index, 4>>     xxCorr_, yyCorr_, xyCorr_;
     Index                              maxDataIndex_{1};
-    bool                               initLayout_{true};
+    bool                               initLayout_{true}, initVarMat_{true};
 };
 
 std::ostream & operator<<(std::ostream &out, FitInterface &f);

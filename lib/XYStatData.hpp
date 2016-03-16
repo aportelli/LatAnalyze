@@ -83,6 +83,9 @@ public:
     // fit
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const std::vector<const DoubleModel *> &v);
+    template <typename... Ts>
+    FitResult fit(Minimizer &minimizer, const DVec &init,
+                  const DoubleModel &model, const Ts... models);
 protected:
     // create data
     virtual void createXData(const Index nData);
@@ -90,7 +93,6 @@ protected:
     void         resizeVarMat(void);
 private:
     // schedule buffer computation
-    void scheduleFitVarMatInit(void);
     void scheduleXMapInit(void);
     void scheduleChi2DataVecInit(void);
     // buffer total fit variance matrix
@@ -108,10 +110,24 @@ private:
     Mat<DMat>                            xxVar_, yyVar_, xyVar_;
     DMat                                 fitVar_, fitVarInv_;
     DVec                                 chi2DataVec_, chi2ModVec_, chi2Vec_;
-    bool                                 initVarMat_{true};
     bool                                 initXMap_{true};
     bool                                 initChi2DataVec_{true};
 };
+
+/******************************************************************************
+ *                     XYStatData template implementation                     *
+ ******************************************************************************/
+template <typename... Ts>
+FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+                          const DoubleModel &model, const Ts... models)
+{
+    static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
+                  "model arguments are not compatible with DoubleModel");
+    
+    std::vector<const DoubleModel *> modelVector{&model, &models...};
+    
+    return fit(minimizer, init, modelVector);
+}
 
 /******************************************************************************
  *                       error check macros                                   *

@@ -253,7 +253,7 @@ void FitInterface::assumeXXCorrelated(const bool isCorr, const Index r1,
     {
         addCorr(xxCorr_, isCorr, c);
     }
-    scheduleLayoutInit();
+    scheduleFitVarMatInit();
 }
 
 void FitInterface::assumeYYCorrelated(const bool isCorr, const Index k1,
@@ -268,7 +268,7 @@ void FitInterface::assumeYYCorrelated(const bool isCorr, const Index k1,
     {
         addCorr(yyCorr_, isCorr, c);
     }
-    scheduleLayoutInit();
+    scheduleFitVarMatInit();
 }
 
 void FitInterface::assumeXYCorrelated(const bool isCorr, const Index r,
@@ -280,7 +280,7 @@ void FitInterface::assumeXYCorrelated(const bool isCorr, const Index r,
     checkXIndex(r, i);
     checkPoint(k, j);
     addCorr(xyCorr_, isCorr, c);
-    scheduleLayoutInit();
+    scheduleFitVarMatInit();
 }
 
 // tests ///////////////////////////////////////////////////////////////////////
@@ -387,6 +387,17 @@ void FitInterface::registerDataPoint(const Index k, const Index j)
 void FitInterface::scheduleLayoutInit(void)
 {
     initLayout_ = true;
+    scheduleFitVarMatInit();
+}
+
+void FitInterface::scheduleFitVarMatInit(const bool init)
+{
+    initVarMat_ = init;
+}
+
+bool FitInterface::initVarMat(void)
+{
+    return initVarMat_;
 }
 
 void FitInterface::updateLayout(void)

@@ -205,6 +205,11 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     // check model consistency
     checkModelVec(v);
     
+    // buffering
+    updateLayout();
+    updateFitVarMat();
+    updateChi2DataVec();
+    
     // get number of parameters
     Index nPar      = v[0]->getNPar();
     Index totalNPar = nPar + layout.totalXSize;
@@ -225,8 +230,6 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     FitResult result;
     DVec      totalInit(totalNPar);
     
-    updateFitVarMat();
-    updateChi2DataVec();
     totalInit.segment(0, nPar) = init;
     totalInit.segment(nPar, layout.totalXSize) =
         chi2DataVec_.segment(layout.totalYSize, layout.totalXSize);
@@ -280,11 +283,6 @@ void XYStatData::resizeVarMat(void)
 }
 
 // schedule buffer computation /////////////////////////////////////////////////
-void XYStatData::scheduleFitVarMatInit(void)
-{
-    initVarMat_ = true;
-}
-
 void XYStatData::scheduleXMapInit(void)
 {
     initXMap_ = true;
@@ -298,7 +296,7 @@ void XYStatData::scheduleChi2DataVecInit(void)
 // buffer total fit variance matrix ////////////////////////////////////////////
 void XYStatData::updateFitVarMat(void)
 {
-    if (initVarMat_)
+    if (initVarMat())
     {
         updateLayout();
         
@@ -378,8 +376,9 @@ void XYStatData::updateFitVarMat(void)
         chi2DataVec_.resize(layout.totalSize);
         chi2ModVec_.resize(layout.totalSize);
         chi2Vec_.resize(layout.totalSize);
-        fitVarInv_  = fitVar_.pInverse();
-        initVarMat_ = false;
+        fitVar_    = fitVar_.cwiseProduct(makeCorrFilter());
+        fitVarInv_ = fitVar_.pInverse();
+        scheduleFitVarMatInit(false);
     }
 }
 
@@ -419,6 +418,7 @@ void XYStatData::updateChi2DataVec(void)
     {
         Index a = 0, j, k, i, r;
         
+        updateLayout();
         for (Index jfit = 0; jfit < layout.nYFitDim; ++jfit)
         for (Index sfit = 0; sfit < layout.ySize[jfit]; ++sfit)
         {
@@ -442,6 +442,8 @@ void XYStatData::updateChi2DataVec(void)
 void XYStatData::updateChi2ModVec(const DVec p,
                                   const vector<const DoubleModel *> &v)
 {
+    updateLayout();
+    
     Index nPar = v[0]->getNPar(), a = 0, j, k;
     auto  &par = p.segment(0, nPar), &xsi = p.segment(nPar, layout.totalXSize);
     
@@ -454,7 +456,7 @@ void XYStatData::updateChi2ModVec(const DVec p,
         chi2ModVec_(a) = (*v[j])(xMap_[k].data(), par.data());
         a++;
     }
-    chi2ModVec_.segment(a, layout.totalSize) = xsi;
+    chi2ModVec_.segment(a, layout.totalXSize) = xsi;
 }
 
 

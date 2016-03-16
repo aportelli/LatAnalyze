@@ -1,46 +1,51 @@
 #include <iostream>
+#include <cmath>
+#include <LatAnalyze/CompiledModel.hpp>
+#include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
 using namespace std;
 using namespace Latan;
 
+const Index  nPoint = 30;
+const double xErr = .01, yErr   = .1;
+const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
+
 int main(void)
 {
-    XYStatData f;
+    // generate fake data
+    XYStatData  data;
+    RandGen     rg;
+    double      x_k, y_k;
+    DoubleModel f([](const double *x, const double *p)
+                  {return p[1]*exp(-x[0]*p[0]);}, 1, 2);
     
-    f.addYDim("q1");
-    f.addYDim("q2");
-    f.addXDim("x1", 6);
-    f.addXDim("x2", 5);
-    f.addXDim("x3", 5);
-    f.y(f.dataIndex(0,0,0), 0) = 2;
-    f.y(f.dataIndex(1,1,1), 0) = 4;
-    f.y(f.dataIndex(2,2,2), 0) = 5;
-    f.y(f.dataIndex(2,3,3), 0) = 10;
-    f.y(f.dataIndex(0,0,0), 1) = 1;
-    f.y(f.dataIndex(1,1,1), 1) = 2;
-    f.y(f.dataIndex(2,2,3), 1) = 4;
-    f.fitPoint(false, f.dataIndex(2,2,2), 0);
-    f.fitPoint(false, f.dataIndex(1,1,1), 1);
-    f.assumeXXCorrelated(true, 0, 0, 1, 0);
-    f.assumeXXCorrelated(true, 0, 1, 1, 1);
-    f.assumeXXCorrelated(true, 0, 2, 1, 2);
-    f.assumeXXCorrelated(true, 0, 0, 1, 2);
-    f.assumeXXCorrelated(true, 3, 2, 4, 2);
-    f.assumeYYCorrelated(true, f.dataIndex(0,0,0), 0, f.dataIndex(2,3,3), 0);
-    f.assumeYYCorrelated(true, f.dataIndex(0,0,0), 1, f.dataIndex(2,2,3), 1);
-    f.assumeXYCorrelated(true, 0, 0, f.dataIndex(1,1,1), 0);
-    f.assumeXExact(true, 0);
-    f.assumeXExact(true, 1);
-    f.assumeXExact(true, 2);
-    cout << f << endl;
-    f.setXXVar(0, 0, DMat::Identity(6, 6));
-    f.setXXVar(0, 2, DMat::Identity(6, 5));
-    f.setXXVar(1, 1, DMat::Identity(5, 5));
-    f.setXXVar(2, 2, DMat::Identity(5, 5));
-    DEBUG_MAT(f.makeCorrFilter());
-    DEBUG_MAT(f.getFitVar());
-    DEBUG_MAT(f.getFitVar().cwiseProduct(f.makeCorrFilter()));
+    data.addXDim("x", nPoint);
+    data.addYDim("y");
+    for (Index k = 0; k < nPoint; ++k)
+    {
+        x_k          = k*dx + rg.gaussian(0.0, xErr);
+        y_k          = f(&x_k, exactPar) + rg.gaussian(0.0, yErr);
+        printf("% 8e % 8e % 8e % 8e\n", x_k, xErr, y_k, yErr);
+        data.x(k) = x_k;
+        data.y(k) = y_k;
+    }
+    cout << endl;
+    data.setXError(0, DVec::Constant(nPoint, xErr));
+    data.setYError(0, DVec::Constant(nPoint, yErr));
+    cout << data << endl;
+    
+    // fit
+    DVec init = DVec::Constant(2, 0.5);
+    FitResult p;
+    MinuitMinimizer minimizer;
+    
+    minimizer.setVerbosity(MinuitMinimizer::Verbosity::Debug);
+    p = data.fit(minimizer, init, f);
+    cout << "a= " << p(0) << " b= " << p(1);
+    cout << " chi^2/ndof= " << p.getChi2PerDof();
+    cout << " p-value= " << p.getPValue() <<endl;
     
     return EXIT_SUCCESS;
 }
