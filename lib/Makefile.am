@@ -45,6 +45,7 @@ libLatAnalyze_la_SOURCES = \
     RootFinder.cpp         \
     Solver.cpp             \
     TabFunction.cpp        \
+    XYSampleData.cpp       \
     XYStatData.cpp         \
 	../config.h
 libLatAnalyze_ladir = $(pkgincludedir)
@@ -79,6 +80,7 @@ libLatAnalyze_la_HEADERS = \
     TabFunction.hpp        \
     Solver.hpp             \
     StatArray.hpp          \
+    XYSampleData.hpp       \
     XYStatData.hpp
 if HAVE_MINUIT
     libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
