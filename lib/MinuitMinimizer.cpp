@@ -134,7 +134,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // pre-minimization
-    MnSimplex       preMinimizer(minuitF, parameters, 1);
+    MnMigrad        preMinimizer(minuitF, parameters, 1);
     FunctionMinimum preMin = preMinimizer();
     
     if (verbosity >= Verbosity::Debug)
