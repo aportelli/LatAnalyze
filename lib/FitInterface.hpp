@@ -51,7 +51,7 @@ private:
     } Layout;
 public:
     // constructor
-    FitInterface(void);
+    FitInterface(void) = default;
     // destructor
     virtual ~FitInterface(void) = default;
     // add dimensions
@@ -92,6 +92,8 @@ public:
     bool isFitPoint(const Index k, const Index j) const;
     // make correlation filter for fit variance matrix
     DMat makeCorrFilter(void);
+    // schedule variance matrix initialization
+    void  scheduleFitVarMatInit(const bool init = true);
     // IO
     friend std::ostream & operator<<(std::ostream &out, FitInterface &f);
 protected:
@@ -101,11 +103,10 @@ protected:
     static void addCorr(std::set<std::array<Index, 4>> &s, const bool isCorr,
                         const std::array<Index, 4> &c);
     // abstract methods to create data containers
-    virtual void createXData(const Index nData) = 0;
-    virtual void createYData(void) = 0;
+    virtual void createXData(const std::string name, const Index nData) = 0;
+    virtual void createYData(const std::string name) = 0;
     // global layout management
     void  scheduleLayoutInit(void);
-    void  scheduleFitVarMatInit(const bool init = true);
     bool  initVarMat(void);
     void  updateLayout(void);
     Index indX(const Index r, const Index i) const;

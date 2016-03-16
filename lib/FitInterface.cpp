@@ -26,9 +26,6 @@ using namespace Latan;
 /******************************************************************************
  *                     FitInterface implementation                            *
  ******************************************************************************/
-// constructor /////////////////////////////////////////////////////////////////
-FitInterface::FitInterface(void)
-{}
 
 // add dimensions //////////////////////////////////////////////////////////////
 void FitInterface::addXDim(const string name, const Index nData,
@@ -46,7 +43,7 @@ void FitInterface::addXDim(const string name, const Index nData,
         xIsExact_.push_back(isExact);
         xDimIndex_[name]  = xDimName_.size();
         maxDataIndex_    *= nData;
-        createXData(nData);
+        createXData(name, nData);
         scheduleLayoutInit();
     }
 }
@@ -56,7 +53,7 @@ void FitInterface::addYDim(const string name)
     yDimName_.push_back(name);
     yDataIndex_.push_back(map<Index, bool>());
     yDimIndex_[name] = yDimName_.size();
-    createYData();
+    createYData(name);
     scheduleLayoutInit();
 }
 
@@ -375,6 +372,12 @@ DMat FitInterface::makeCorrFilter(void)
     return f;
 }
 
+// schedule variance matrix initialization /////////////////////////////////////
+void FitInterface::scheduleFitVarMatInit(const bool init)
+{
+    initVarMat_ = init;
+}
+
 // register a data point ///////////////////////////////////////////////////////
 void FitInterface::registerDataPoint(const Index k, const Index j)
 {
@@ -388,11 +391,6 @@ void FitInterface::scheduleLayoutInit(void)
 {
     initLayout_ = true;
     scheduleFitVarMatInit();
-}
-
-void FitInterface::scheduleFitVarMatInit(const bool init)
-{
-    initVarMat_ = init;
 }
 
 bool FitInterface::initVarMat(void)

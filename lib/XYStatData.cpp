@@ -57,20 +57,20 @@ const DoubleFunction & FitResult::getModel(const Index j) const
  *                       XYStatData implementation                            *
  ******************************************************************************/
 // data access /////////////////////////////////////////////////////////////////
-double & XYStatData::x(const Index vi, const Index i)
+double & XYStatData::x(const Index r, const Index i)
 {
-    checkXIndex(vi, i);
+    checkXIndex(r, i);
     scheduleXMapInit();
     scheduleChi2DataVecInit();
     
-    return xData_[i](vi);
+    return xData_[i](r);
 }
 
-const double & XYStatData::x(const Index vi, const Index i) const
+const double & XYStatData::x(const Index r, const Index i) const
 {
-    checkXIndex(vi, i);
+    checkXIndex(r, i);
     
-    return xData_[i](vi);
+    return xData_[i](r);
 }
 
 double & XYStatData::y(const Index k, const Index j)
@@ -247,13 +247,13 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
 }
 
 // create data /////////////////////////////////////////////////////////////////
-void XYStatData::createXData(const Index nData)
+void XYStatData::createXData(const std::string name __dumb, const Index nData)
 {
     xData_.push_back(DVec::Zero(nData));
     resizeVarMat();
 }
 
-void XYStatData::createYData(void)
+void XYStatData::createYData(const std::string name __dumb)
 {
     yData_.push_back(map<Index, double>());
     resizeVarMat();
@@ -458,5 +458,3 @@ void XYStatData::updateChi2ModVec(const DVec p,
     }
     chi2ModVec_.segment(a, layout.totalXSize) = xsi;
 }
-
-
