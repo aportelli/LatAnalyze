@@ -9,7 +9,7 @@ using namespace std;
 using namespace Latan;
 
 const Index  nPoint = 30;
-const double xErr = .01, yErr   = .1;
+const double xErr = .2, yErr   = .1;
 const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
 
 int main(void)
@@ -17,7 +17,7 @@ int main(void)
     // generate fake data
     XYStatData  data;
     RandGen     rg;
-    double      x_k, y_k;
+    double      x1_k, x2_k;
     DoubleModel f([](const double *x, const double *p)
                   {return p[1]*exp(-x[0]*p[0]);}, 1, 2);
     
@@ -25,11 +25,11 @@ int main(void)
     data.addYDim("y");
     for (Index k = 0; k < nPoint; ++k)
     {
-        x_k          = k*dx + rg.gaussian(0.0, xErr);
-        y_k          = f(&x_k, exactPar) + rg.gaussian(0.0, yErr);
-        printf("% 8e % 8e % 8e % 8e\n", x_k, xErr, y_k, yErr);
-        data.x(k) = x_k;
-        data.y(k) = y_k;
+        x1_k      = rg.gaussian(k*dx, xErr);
+        x2_k      = rg.gaussian(k*dx, xErr);
+        data.x(k) = x1_k;
+        data.y(k) = rg.gaussian(f(&x2_k, exactPar), yErr);
+        printf("% 8e % 8e % 8e % 8e\n", data.x(k), data.y(k), xErr, yErr);
     }
     cout << endl;
     data.setXError(0, DVec::Constant(nPoint, xErr));
@@ -42,9 +42,9 @@ int main(void)
     MinuitMinimizer minimizer;
     
     p = data.fit(minimizer, init, f);
-    cout << "a= " << p(0) << " b= " << p(1);
-    cout << " chi^2/ndof= " << p.getChi2PerDof();
-    cout << " p-value= " << p.getPValue() <<endl;
+    cout << "a= " << p(0) << " b= " << p(1) << endl;
+    cout << "chi^2/ndof= " << p.getChi2PerDof() << endl;
+    cout << "p-value= " << p.getPValue() <<endl;
     
     return EXIT_SUCCESS;
 }

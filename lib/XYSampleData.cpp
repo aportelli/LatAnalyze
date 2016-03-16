@@ -100,6 +100,10 @@ DSample & XYSampleData::x(const Index r, const Index i)
     checkXIndex(r, i);
     scheduleDataInit();
     scheduleComputeVarMat();
+    if (xData_[i][r].size() == 0)
+    {
+        xData_[i][r].resize(nSample_);
+    }
     
     return xData_[i][r];
 }
@@ -120,6 +124,10 @@ DSample & XYSampleData::y(const Index k, const Index j)
     }
     scheduleDataInit();
     scheduleComputeVarMat();
+    if (yData_[j][k].size() == 0)
+    {
+        yData_[j][k].resize(nSample_);
+    }
     
     return yData_[j][k];
 }
@@ -194,7 +202,6 @@ void XYSampleData::setDataToSample(const Index s)
 {
     if (initData_ or (s != dataSample_))
     {
-        data_.copyInterface(*this);
         for (Index i = 0; i < getNXDim(); ++i)
         for (Index r = 0; r < getXSize(i); ++r)
         {
@@ -205,6 +212,7 @@ void XYSampleData::setDataToSample(const Index s)
         {
             data_.y(p.first, j) = p.second[s];
         }
+        data_.copyInterface(*this);
         dataSample_ = s;
         initData_   = false;
     }
@@ -232,7 +240,7 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     FOR_STAT_ARRAY(result, s)
     {
         setDataToSample(s);
-        sampleResult = data_.fit(minimizer, init, v);
+        sampleResult    = data_.fit(minimizer, init, v);
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
         result.nDof_    = sampleResult.getNDof();
@@ -265,7 +273,7 @@ void XYSampleData::computeVarMat(void)
     {
         // initialize data if necessary
         setDataToSample(central);
-        
+
         // compute relevant sizes
         Index size = 0, ySize = 0;
         
@@ -282,10 +290,11 @@ void XYSampleData::computeVarMat(void)
         // compute total matrix
         DMatSample z(nSample_, size, 1);
         DMat       var;
-        Index      a = 0;
+        Index      a;
         
         FOR_STAT_ARRAY(z, s)
         {
+            a = 0;
             for (Index j = 0; j < getNYDim(); ++j)
             for (auto &p: yData_[j])
             {
@@ -311,7 +320,7 @@ void XYSampleData::computeVarMat(void)
             for (Index i2 = 0; i2 < getNXDim(); ++i2)
             {
                 data_.setXXVar(i1, i2,
-                               var.block(a1, getXSize(i1), a2, getXSize(i2)));
+                               var.block(a1, a2, getXSize(i1), getXSize(i2)));
                 a2 += getXSize(i2);
             }
             a1 += getXSize(i1);
@@ -323,7 +332,7 @@ void XYSampleData::computeVarMat(void)
             for (Index j2 = 0; j2 < getNYDim(); ++j2)
             {
                 data_.setYYVar(j1, j2,
-                               var.block(a1, getYSize(j1), a2, getYSize(j2)));
+                               var.block(a1, a2, getYSize(j1), getYSize(j2)));
                 a2 += getYSize(j2);
             }
             a1 += getYSize(j1);
@@ -332,10 +341,10 @@ void XYSampleData::computeVarMat(void)
         for (Index i = 0; i < getNXDim(); ++i)
         {
             a2 = 0;
-            for (Index j = 0; j < getNXDim(); ++j)
+            for (Index j = 0; j < getNYDim(); ++j)
             {
                 data_.setXYVar(i, j,
-                               var.block(a1, getXSize(i), a2, getYSize(j)));
+                               var.block(a1, a2, getXSize(i), getYSize(j)));
                 a2 += getYSize(j);
             }
             a1 += getXSize(i);
@@ -350,12 +359,14 @@ void XYSampleData::computeVarMat(void)
 }
 
 // create data /////////////////////////////////////////////////////////////////
-void XYSampleData::createXData(const string name __dumb, const Index nData)
+void XYSampleData::createXData(const string name, const Index nData)
 {
+    data_.addXDim(name, nData);
     xData_.push_back(vector<DSample>(nData));
 }
 
-void XYSampleData::createYData(const string name __dumb)
+void XYSampleData::createYData(const string name)
 {
+    data_.addYDim(name);
     yData_.push_back(map<Index, DSample>());
 }

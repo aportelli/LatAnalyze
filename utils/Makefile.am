@@ -1,11 +1,3 @@
-if CC_GNU
-    COM_CFLAGS = -Wall -W -pedantic
-else
-if CC_INTEL
-    COM_CFLAGS = -Wall
-endif
-endif
-
 if CXX_GNU
     COM_CXXFLAGS = -Wall -W -pedantic
 else
