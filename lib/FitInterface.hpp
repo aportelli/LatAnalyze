@@ -54,6 +54,8 @@ public:
     FitInterface(void) = default;
     // destructor
     virtual ~FitInterface(void) = default;
+    // copy object (not as a constructor to be accessed from derived class)
+    void copyInterface(const FitInterface &d);
     // add dimensions
     void  addXDim(const std::string name, const Index nData,
                   const bool isExact = false);

@@ -26,6 +26,11 @@ using namespace Latan;
 /******************************************************************************
  *                     FitInterface implementation                            *
  ******************************************************************************/
+// copy object (not as a constructor to be accessed from derived class) ////////
+void FitInterface::copyInterface(const FitInterface &d)
+{
+    *this = d;
+}
 
 // add dimensions //////////////////////////////////////////////////////////////
 void FitInterface::addXDim(const string name, const Index nData,
