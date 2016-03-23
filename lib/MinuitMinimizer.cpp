@@ -29,7 +29,7 @@ static constexpr double       initErr = 0.1;
 static constexpr unsigned int maxTry  = 10u;
 
 /******************************************************************************
- *                 MinuitMinimizer implementation                          *
+ *                    MinuitMinimizer implementation                          *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
