@@ -1,7 +1,7 @@
 /*
  * MinuitMinimizer.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,48 +19,18 @@
 
 #include <LatAnalyze/MinuitMinimizer.hpp>
 #include <LatAnalyze/includes.hpp>
-
-#pragma GCC diagnostic ignored "-Wconversion"
-
-#include <Minuit2/FCNBase.h>
-#include <Minuit2/FunctionMinimum.h>
-#include <Minuit2/MnMigrad.h>
-#include <Minuit2/MnPrint.h>
-#include <Minuit2/MnPlot.h>
-#include <Minuit2/MnScan.h>
-#include <Minuit2/MnSimplex.h>
-#include <Minuit2/ScanMinimizer.h>
-#include <Minuit2/SimplexMinimizer.h>
-#include <Minuit2/VariableMetricMinimizer.h>
+#include <Minuit2/Minuit2Minimizer.h>
+#include <Math/Functor.h>
 
 using namespace std;
-using namespace ROOT;
-using namespace Minuit2;
 using namespace Latan;
 
-static constexpr double       initErr = 0.5;
+static constexpr double       initErr = 0.1;
 static constexpr unsigned int maxTry  = 10u;
 
 /******************************************************************************
- *                    MinuitMinimizer implementation                          *
+ *                 MinuitMinimizer implementation                          *
  ******************************************************************************/
-// MinuitFunction constructor //////////////////////////////////////////////////
-MinuitMinimizer::MinuitFunction::MinuitFunction(const DoubleFunction &f)
-: f_(&f)
-{}
-
-// MinuitFunction minuit members ///////////////////////////////////////////////
-double MinuitMinimizer::MinuitFunction::operator()
-    (const vector<double> &x) const
-{
-    return (*f_)(x);
-}
-
-double MinuitMinimizer::MinuitFunction::Up(void) const
-{
-    return 1.;
-}
-
 // constructors ////////////////////////////////////////////////////////////////
 MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
 {
@@ -79,126 +49,135 @@ MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
     return algorithm_;
 }
 
-double MinuitMinimizer::getPrecision(void) const
-{
-    LATAN_ERROR(Implementation,
-                "Minuit minimizer precision cannot be accessed");
-    
-    return 0.;
-}
-
 void MinuitMinimizer::setAlgorithm(const Algorithm algorithm)
 {
     algorithm_ = algorithm;
 }
 
-void MinuitMinimizer::setPrecision(const double precision __dumb)
-{
-    LATAN_ERROR(Implementation,
-                "Minuit minimizer precision cannot be accessed");
-}
-
 // minimization ////////////////////////////////////////////////////////////////
 const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
 {
-    DVec &x = getState();
-    Verbosity verbosity = getVerbosity();
+    using namespace ROOT;
+    using namespace Minuit2;
     
+    DVec                        &x = getState();
+    int                         printLevel;
+    EMinimizerType              minuitAlg;
+    unique_ptr<Math::Minimizer> min;
+    
+    // convert Latan parameters to Minuit parameters
+    switch (getVerbosity())
+    {
+        case Verbosity::Silent:
+            printLevel = 0;
+            break;
+        case Verbosity::Normal:
+            printLevel = 2;
+            break;
+        case Verbosity::Debug:
+            printLevel = 3;
+            break;
+    }
+    switch (getAlgorithm())
+    {
+        case Algorithm::Migrad:
+            minuitAlg = kMigrad;
+            break;
+        case Algorithm::Simplex:
+            minuitAlg = kSimplex;
+            break;
+        case Algorithm::Combined:
+            minuitAlg = kCombined;
+            break;
+    }
+    
+    // resize minimizer state to match function number of arguments
     if (f.getNArg() != x.size())
     {
         resize(f.getNArg());
     }
     
-    // set parameters
-    MinuitFunction   minuitF(f);
-    MnUserParameters parameters;
+    // create and set minimizer
+    min.reset(new Minuit2Minimizer(minuitAlg));
+    min->SetMaxFunctionCalls(getMaxIteration());
+    min->SetTolerance(getPrecision());
+    min->SetPrintLevel(printLevel);
     
+    // set function and variables
+    Math::Functor minuitF(f, x.size());
+    string        name;
+    double        val, step;
+    
+    min->SetFunction(minuitF);
     for (Index i = 0; i < x.size(); ++i)
     {
-        parameters.Add("x_" + strFrom(i), x(i), initErr*fabs(x(i)));
-        if (hasLowLimit(i)&&hasHighLimit(i))
+        name = "x_" + strFrom(i);
+        val  = x(i);
+        step = (fabs(x(i)) != 0.) ? initErr*fabs(x(i)) : 1.;
+        if (hasHighLimit(i) and !hasLowLimit(i))
         {
-            parameters.SetLimits(static_cast<unsigned int>(i),
-                                 getLowLimit(i), getHighLimit(i));
+            min->SetUpperLimitedVariable(i, name, val, step, getHighLimit(i));
         }
-        else if (hasLowLimit(i))
+        else if (!hasHighLimit(i) and hasLowLimit(i))
         {
-            parameters.SetLowerLimit(static_cast<unsigned int>(i),
-                                     getLowLimit(i));
+            min->SetLowerLimitedVariable(i, name, val, step, getLowLimit(i));
         }
-        else if (hasHighLimit(i))
+        else if (hasHighLimit(i) and hasLowLimit(i))
         {
-            parameters.SetUpperLimit(static_cast<unsigned int>(i),
-                                     getHighLimit(i));
+            min->SetLimitedVariable(i, name, val, step, getLowLimit(i),
+                                    getHighLimit(i));
+        }
+        else
+        {
+            min->SetVariable(i, name, val, step);
         }
     }
     
-    // pre-minimization
-    MnMigrad        preMinimizer(minuitF, parameters, 1);
-    FunctionMinimum preMin = preMinimizer();
+    // minimize
+    int          status;
+    unsigned int n = 0;
     
-    if (verbosity >= Verbosity::Debug)
+    if (getVerbosity() >= Verbosity::Normal)
     {
-        cout << "-- MINUIT pre-minimization -----------------------------";
-        cout << preMin;
-        cout << "--------------------------------------------------------";
-        cout << endl;
+        cout << "========== Minuit pre-minimization " << endl;
     }
-    for (unsigned int i = 0; i < x.size(); ++i)
+    min->SetStrategy(0);
+    min->Minimize();
+    do
     {
-        parameters.SetValue(i, preMin.UserParameters().Value(i));
-        parameters.SetError(i, 2.*preMin.UserParameters().Error(i));
-    }
-    
-    // minimization and output
-    unique_ptr<MnApplication> minimizer(nullptr);
-    if (algorithm_ == Algorithm::Migrad)
-    {
-       minimizer.reset(new MnMigrad(minuitF, parameters, 2));
-    }
-    else if (algorithm_ == Algorithm::Simplex)
-    {
-        minimizer.reset(new MnSimplex(minuitF, parameters, 2));
-    }
-    unsigned int    iTry = 0;
-    FunctionMinimum min = (*minimizer)();
-
-    while ((!min.IsValid())&&(iTry < maxTry))
-    {
-        min = (*minimizer)();
-        iTry++;
-    }
-    if (!min.IsValid())
-    {
-        LATAN_WARNING("MINUIT library reported that minimization result is not valid");
-    }
-    for (unsigned int i = 0; i < x.size(); ++i)
-    {
-        x(i) = min.UserParameters().Value(i);
-    }
-    if (verbosity >= Verbosity::Normal)
-    {
-        cout << "-- MINUIT minimization ---------------------------------";
-        cout << min;
-        cout << "--------------------------------------------------------";
-        cout << endl;
-    }
-    if (verbosity >= Verbosity::Debug)
-    {
-        vector<pair<double, double>> scanRes;
-        MnPlot plot;
-        MnScan scanner(minuitF, preMin.UserParameters(), 2);
-        
-        cout << "-- MINUIT scan -----------------------------------------";
-        cout << endl;
-        for (unsigned int i = 0; i < x.size(); i++)
+        n++;
+        if (getVerbosity() >= Verbosity::Normal)
         {
-            cout << "Parameter x_" << i << endl;
-            scanRes = scanner.Scan(i);
-            plot(scanRes);
+            cout << "========== Minuit minimization, try #" << n << endl;
         }
-        cout << "--------------------------------------------------------";
-        cout << endl;
+        min->SetStrategy(2);
+        min->Minimize();
+        status = min->Status();
+    } while (status and (n < maxTry));
+    if (getVerbosity() >= Verbosity::Normal)
+    {
+        cout << "==============================" << endl;
+    }
+    switch (status)
+    {
+        case 1:
+            LATAN_WARNING("invalid minimum: covariance matrix was made positive");
+            break;
+        case 2:
+            LATAN_WARNING("invalid minimum: Hesse analysis is not valid");
+            break;
+        case 3:
+            LATAN_WARNING("invalid minimum: requested precision not reached");
+            break;
+        case 4:
+            LATAN_WARNING("invalid minimum: iteration limit reached");
+            break;
+    }
+    
+    // save and return result
+    for (Index i = 0; i < x.size(); ++i)
+    {
+        x(i) = min->X()[i];
     }
     
     return x;

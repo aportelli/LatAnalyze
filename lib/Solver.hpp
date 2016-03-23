@@ -31,7 +31,7 @@ BEGIN_LATAN_NAMESPACE
 class Solver
 {
 public:
-    static const     unsigned int defaultMaxIteration = 1000u;
+    static const     unsigned int defaultMaxIteration = 10000u;
     static constexpr double       defaultPrec = 1.0e-7;
 public:
     enum class Verbosity

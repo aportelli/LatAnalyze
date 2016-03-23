@@ -8,41 +8,49 @@
 using namespace std;
 using namespace Latan;
 
-const Index  nPoint  = 30;
+const Index  nPoint1 = 10, nPoint2 = 10;
 const Index  nSample = 1000;
-const double xErr = .2, yErr   = .1;
-const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
+const double xErr = .1, yErr   = .1;
+const double exactPar[2] = {0.5,5.};
+const double dx1 = 10.0/static_cast<double>(nPoint1);
+const double dx2 = 5.0/static_cast<double>(nPoint2);
 
 int main(void)
 {
     // generate fake data
-    DMatSample   x(nSample, nPoint, 1), y(nSample, nPoint, 1);
     XYSampleData data(nSample);
-    RandGen     rg;
-    double      x1_k, x2_k;
-    DoubleModel f([](const double *t, const double *p)
-                  {return p[1]*exp(-t[0]*p[0]);}, 1, 2);
+    RandGen      rg;
+    double       xBuf[2];
+    DoubleModel  f([](const double *x, const double *p)
+                   {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
     
-    data.addXDim("x", nPoint);
+    data.addXDim("x", nPoint1);
+    data.addXDim("off", nPoint2);
     data.addYDim("y");
-    FOR_STAT_ARRAY(x, s)
+    for (Index s = central; s < nSample; ++s)
     {
-        for (Index k = 0; k < nPoint; ++k)
+        for (Index i1 = 0; i1 < nPoint1; ++i1)
         {
-            x1_k         = rg.gaussian(k*dx, xErr);
-            x2_k         = rg.gaussian(k*dx, xErr);
-            data.x(k)[s] = x1_k;
-            data.y(k)[s] = rg.gaussian(f(&x2_k, exactPar), yErr);
+            xBuf[0]          = i1*dx1;
+            data.x(i1, 0)[s] = rg.gaussian(xBuf[0], xErr);
+            for (Index i2 = 0; i2 < nPoint2; ++i2)
+            {
+                xBuf[1]                           = i2*dx2;
+                data.x(i2, 1)[s]                  = xBuf[1];
+                data.y(data.dataIndex(i1, i2))[s] =
+                    rg.gaussian(f(xBuf, exactPar), yErr);
+            }
         }
     }
+    data.assumeXExact(true, 1);
     cout << data << endl;
     
     // fit
-    DVec init = DVec::Constant(2, 0.5);
+    DVec init = DVec::Constant(2, 0.1);
     DMat err;
     SampleFitResult p;
     MinuitMinimizer minimizer;
-    
+
     p   = data.fit(minimizer, init, f);
     err = p.variance().cwiseSqrt();
     cout << "a= " << p[central](0) << " +/- " << err(0) << endl;
