@@ -407,7 +407,8 @@ void FitInterface::updateLayout(void)
 {
     if (initLayout_)
     {
-        Index size, ifit;
+        Index         size, ifit;
+        vector<Index> v;
         
         layout.nXFitDim   = 0;
         layout.nYFitDim   = 0;
@@ -416,6 +417,7 @@ void FitInterface::updateLayout(void)
         layout.totalYSize = 0;
         layout.xSize.clear();
         layout.ySize.clear();
+        layout.dataIndexSet.clear();
         layout.xDim.clear();
         layout.yDim.clear();
         layout.xFitDim.clear();
@@ -479,6 +481,7 @@ void FitInterface::updateLayout(void)
             {
                 if (p.second)
                 {
+                    layout.dataIndexSet.insert(p.first);
                     layout.y[j].push_back(s);
                     layout.yFit[j].push_back(layout.y[j].size() - 1);
                     layout.data[j].push_back(p.first);
@@ -495,7 +498,15 @@ void FitInterface::updateLayout(void)
         layout.totalSize = layout.totalXSize + layout.totalYSize;
         layout.nXFitDim  = static_cast<Index>(layout.xSize.size());
         layout.nYFitDim  = static_cast<Index>(layout.ySize.size());
-        initLayout_      = false;
+        for (Index k: layout.dataIndexSet)
+        {
+            v = dataCoord(k);
+            for (Index i = 0; i < getNXDim(); ++i)
+            {
+                layout.xIndFromData[k].push_back(indX(v[i], i));
+            }
+        }
+        initLayout_ = false;
     }
 }
 

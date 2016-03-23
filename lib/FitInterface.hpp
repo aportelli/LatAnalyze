@@ -38,16 +38,20 @@ private:
         Index                           totalSize, totalXSize, totalYSize;
         // size of each X/Y dimension
         std::vector<Index>              xSize, ySize;
+        // set of active data indices
+        std::set<Index>                 dataIndexSet;
         // lookup tables
         // xDim        : x fit dim ifit -> x dim i
         // x           : x fit point ifit,rfit -> x point r
         // xFitDim     : x dim i -> x fit dim ifit (-1 if empty)
         // xFit        : x point i,r -> x fit point rfit (-1 if empty)
         // data        : y fit point jfit,sfit -> y point index k
-        // yFitFromData: y point indec k,j -> y fit point sfit (-1 if empty)
+        // yFitFromData: y point index k,j -> y fit point sfit (-1 if empty)
+        // xIndFromData: data index k -> index of coordinates of associated x
         std::vector<Index>                  xDim, yDim, xFitDim, yFitDim;
         std::vector<std::vector<Index>>     x, y, data, xFit, yFit;
         std::vector<std::map<Index, Index>> yFitFromData;
+        std::map<Index, std::vector<Index>> xIndFromData;
     } Layout;
 public:
     // constructor

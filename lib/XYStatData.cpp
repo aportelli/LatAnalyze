@@ -250,6 +250,7 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
 void XYStatData::createXData(const std::string name __dumb, const Index nData)
 {
     xData_.push_back(DVec::Zero(nData));
+    xBuf_.resize(xData_.size());
     resizeVarMat();
 }
 
@@ -444,7 +445,7 @@ void XYStatData::updateChi2ModVec(const DVec p,
 {
     updateLayout();
     
-    Index nPar = v[0]->getNPar(), a = 0, j, k;
+    Index nPar = v[0]->getNPar(), a = 0, j, k, ind;
     auto  &par = p.segment(0, nPar), &xsi = p.segment(nPar, layout.totalXSize);
     
     updateXMap();
@@ -453,7 +454,12 @@ void XYStatData::updateChi2ModVec(const DVec p,
     {
         j              = layout.yDim[jfit];
         k              = layout.data[jfit][sfit];
-        chi2ModVec_(a) = (*v[j])(xMap_[k].data(), par.data());
+        for (Index i = 0; i < getNXDim(); ++i)
+        {
+            ind      = layout.xIndFromData[k][i] - layout.totalYSize;
+            xBuf_(i) = (ind >= 0) ? xsi(ind) : xMap_[k](i);
+        }
+        chi2ModVec_(a) = (*v[j])(xBuf_.data(), par.data());
         a++;
     }
     chi2ModVec_.segment(a, layout.totalXSize) = xsi;

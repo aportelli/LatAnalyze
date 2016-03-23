@@ -110,6 +110,7 @@ private:
     Mat<DMat>                            xxVar_, yyVar_, xyVar_;
     DMat                                 fitVar_, fitVarInv_;
     DVec                                 chi2DataVec_, chi2ModVec_, chi2Vec_;
+    DVec                                 xBuf_;
     bool                                 initXMap_{true};
     bool                                 initChi2DataVec_{true};
 };

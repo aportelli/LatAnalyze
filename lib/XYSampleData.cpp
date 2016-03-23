@@ -207,7 +207,7 @@ void XYSampleData::setDataToSample(const Index s)
         {
             data_.x(r, i) = xData_[i][r][s];
         }
-        for (Index j = 0; j < getNXDim(); ++j)
+        for (Index j = 0; j < getNYDim(); ++j)
         for (auto &p: yData_[j])
         {
             data_.y(p.first, j) = p.second[s];
@@ -234,13 +234,15 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     
     SampleFitResult result;
     FitResult       sampleResult;
+    DVec            initCopy = init;
     
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
     FOR_STAT_ARRAY(result, s)
     {
         setDataToSample(s);
-        sampleResult    = data_.fit(minimizer, init, v);
+        sampleResult    = data_.fit(minimizer, initCopy, v);
+        initCopy        = sampleResult.segment(0, initCopy.size());
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
         result.nDof_    = sampleResult.getNDof();
