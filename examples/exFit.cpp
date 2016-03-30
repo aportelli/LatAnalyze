@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Latan;
 
-const Index  nPoint1 = 5, nPoint2 = 5;
+const Index  nPoint1 = 10, nPoint2 = 10;
 const double xErr = .1, yErr   = .1;
 const double exactPar[2] = {0.5,5.};
 const double dx1 = 10.0/static_cast<double>(nPoint1);
