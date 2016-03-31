@@ -55,27 +55,31 @@ private:
     } Layout;
 public:
     // constructor
-    FitInterface(void) = default;
+    FitInterface(void);
     // destructor
     virtual ~FitInterface(void) = default;
     // copy object (not as a constructor to be accessed from derived class)
     void copyInterface(const FitInterface &d);
     // add dimensions
-    void  addXDim(const std::string name, const Index nData,
+    void  addXDim(const Index nData, const std::string name = "",
                   const bool isExact = false);
-    void  addYDim(const std::string name);
-    // size access
-    Index getNXDim(void) const;
-    Index getNYDim(void) const;
-    Index getXSize(void) const;
-    Index getXSize(const Index i) const;
-    Index getYSize(void) const;
-    Index getYSize(const Index j) const;
-    Index getXFitSize(void) const;
-    Index getXFitSize(const Index i) const;
-    Index getYFitSize(void) const;
-    Index getYFitSize(const Index j) const;
-    Index getMaxDataIndex(void) const;
+    void  addYDim(const std::string name = "");
+    // access
+          Index     getNXDim(void) const;
+          Index     getNYDim(void) const;
+          Index     getXSize(void) const;
+          Index     getXSize(const Index i) const;
+          Index     getYSize(void) const;
+          Index     getYSize(const Index j) const;
+          Index     getXFitSize(void) const;
+          Index     getXFitSize(const Index i) const;
+          Index     getYFitSize(void) const;
+          Index     getYFitSize(const Index j) const;
+          Index     getMaxDataIndex(void) const;
+          VarName & xName(void);
+    const VarName & xName(void) const;
+          VarName & yName(void);
+    const VarName & yName(void) const;
     // Y dimension index helper
     template <typename... Ts>
     Index              dataIndex(const Ts... is) const;
@@ -120,8 +124,7 @@ protected:
 protected:
     Layout layout;
 private:
-    std::vector<std::string>           xDimName_, yDimName_;
-    std::map<std::string, Index>       xDimIndex_, yDimIndex_;
+    VarName                            xName_, yName_;
     std::vector<Index>                 xSize_;
     std::vector<bool>                  xIsExact_;
     std::vector<std::map<Index, bool>> yDataIndex_;

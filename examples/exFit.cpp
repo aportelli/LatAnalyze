@@ -24,9 +24,9 @@ int main(void)
     DoubleModel f([](const double *x, const double *p)
                   {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
     
-    data.addXDim("x", nPoint1);
-    data.addXDim("off", nPoint2);
-    data.addYDim("y");
+    data.addXDim(nPoint1);
+    data.addXDim(nPoint2);
+    data.addYDim();
     for (Index i1 = 0; i1 < nPoint1; ++i1)
     {
         xBuf[0]       = i1*dx1;
@@ -52,11 +52,11 @@ int main(void)
     FitResult p;
     MinuitMinimizer minimizer;
     
+    f.parName().setName(0, "m");
+    f.parName().setName(1, "A");
     minimizer.setVerbosity(Minimizer::Verbosity::Normal);
     p = data.fit(minimizer, init, f);
-    cout << "a= " << p(0) << " b= " << p(1) << endl;
-    cout << "chi^2/ndof= " << p.getChi2PerDof() << endl;
-    cout << "p-value= " << p.getPValue() <<endl;
+    p.print();
     
     return EXIT_SUCCESS;
 }

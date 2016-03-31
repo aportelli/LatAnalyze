@@ -43,10 +43,14 @@ public:
     // destructor
     virtual ~DoubleModel(void) = default;
     // access
-    virtual Index getNArg(void) const;
-    virtual Index getNPar(void) const;
-    void  setFunction(const vecFunc &f, const Index nArg,
-                      const Index nPar);
+    virtual Index     getNArg(void) const;
+    virtual Index     getNPar(void) const;
+            void      setFunction(const vecFunc &f, const Index nArg,
+                                  const Index nPar);
+            VarName & varName(void);
+      const VarName & varName(void) const;
+            VarName & parName(void);
+      const VarName & parName(void) const;
     // function call
     double operator()(const DVec &data, const DVec &par) const;
     double operator()(const std::vector<double> &data,
@@ -61,6 +65,7 @@ private:
     void checkSize(const Index nArg, const Index nPar) const;
 private:
     std::shared_ptr<ModelSize> size_;
+    VarName                    varName_, parName_;
     vecFunc                    f_;
 };
 

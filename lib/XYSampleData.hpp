@@ -47,16 +47,21 @@ public:
     double                       getChi2PerDof(const Index s = central) const;
     DSample                      getChi2PerDof(const PlaceHolder ph) const;
     double                       getNDof(void) const;
+    Index                        getNPar(void) const;
     double                       getPValue(const Index s = central) const;
     const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
     const DoubleFunctionSample & getModel(const PlaceHolder ph,
                                           const Index j = 0) const;
     FitResult                    getFitResult(const Index s = central) const;
+    // IO
+    void print(const bool printXsi = false,
+               std::ostream &out = std::cout) const;
 private:
     DSample                           chi2_;
-    double                            nDof_{0.};
+    Index                             nDof_{0}, nPar_{0};
     std::vector<DoubleFunctionSample> model_;
+    std::vector<std::string>          parName_;
 };
 
 /******************************************************************************

@@ -111,7 +111,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     min->SetFunction(minuitF);
     for (Index i = 0; i < x.size(); ++i)
     {
-        name = "x_" + strFrom(i);
+        name = f.varName().getName(i);
         val  = x(i);
         step = (fabs(x(i)) != 0.) ? initErr*fabs(x(i)) : 1.;
         if (hasHighLimit(i) and !hasLowLimit(i))
@@ -139,7 +139,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     if (getVerbosity() >= Verbosity::Normal)
     {
-        cout << "========== Minuit pre-minimization " << endl;
+        cout << "========== Minuit minimization, pass #1";
+        cout << " ==========" << endl;
     }
     min->SetStrategy(0);
     min->Minimize();
@@ -148,7 +149,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
         n++;
         if (getVerbosity() >= Verbosity::Normal)
         {
-            cout << "========== Minuit minimization, try #" << n << endl;
+            cout << "========== Minuit minimization, pass #" << n + 1;
+            cout << " ==========" << endl;
         }
         min->SetStrategy(2);
         min->Minimize();
@@ -156,7 +158,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     } while (status and (n < maxTry));
     if (getVerbosity() >= Verbosity::Normal)
     {
-        cout << "==============================" << endl;
+        cout << "======================================" << endl;
     }
     switch (status)
     {

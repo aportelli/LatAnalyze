@@ -24,9 +24,9 @@ int main(void)
     DoubleModel  f([](const double *x, const double *p)
                    {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
     
-    data.addXDim("x", nPoint1);
-    data.addXDim("off", nPoint2);
-    data.addYDim("y");
+    data.addXDim(nPoint1);
+    data.addXDim(nPoint2);
+    data.addYDim();
     for (Index s = central; s < nSample; ++s)
     {
         for (Index i1 = 0; i1 < nPoint1; ++i1)
@@ -47,16 +47,13 @@ int main(void)
     
     // fit
     DVec init = DVec::Constant(2, 0.1);
-    DMat err;
     SampleFitResult p;
     MinuitMinimizer minimizer;
 
-    p   = data.fit(minimizer, init, f);
-    err = p.variance().cwiseSqrt();
-    cout << "a= " << p[central](0) << " +/- " << err(0) << endl;
-    cout << "b= " << p[central](1) << " +/- " << err(1) << endl;
-    cout << "chi^2/ndof= " << p.getChi2PerDof() << endl;
-    cout << "p-value= " << p.getPValue() << endl;
+    f.parName().setName(0, "m");
+    f.parName().setName(1, "A");
+    p = data.fit(minimizer, init, f);
+    p.print();
     
     return EXIT_SUCCESS;
 }

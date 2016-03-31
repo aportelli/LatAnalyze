@@ -33,6 +33,7 @@ BEGIN_LATAN_NAMESPACE
 class FitResult: public DVec
 {
     friend class XYStatData;
+    friend class XYSampleData;
     friend class SampleFitResult;
 public:
     // constructors
@@ -44,12 +45,17 @@ public:
     double                 getChi2(void) const;
     double                 getChi2PerDof(void) const;
     double                 getNDof(void) const;
+    Index                  getNPar(void) const;
     double                 getPValue(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
+    // IO
+    void print(const bool printXsi = false,
+               std::ostream &out = std::cout) const;
 private:
-    double                      chi2_{0.0};
-    Index                       nDof_{0};
+    double                      chi2_{0.};
+    Index                       nDof_{0}, nPar_{0};
     std::vector<DoubleFunction> model_;
+    std::vector<std::string>    parName_;
 };
 
 /******************************************************************************

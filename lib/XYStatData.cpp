@@ -43,6 +43,11 @@ double FitResult::getNDof(void) const
     return static_cast<double>(nDof_);
 }
 
+Index FitResult::getNPar(void) const
+{
+    return nPar_;
+}
+
 double FitResult::getPValue(void) const
 {
     return Math::chi2PValue(getChi2(), getNDof());;
@@ -51,6 +56,22 @@ double FitResult::getPValue(void) const
 const DoubleFunction & FitResult::getModel(const Index j) const
 {
     return model_[static_cast<unsigned int>(j)];
+}
+
+// IO //////////////////////////////////////////////////////////////////////////
+void FitResult::print(const bool printXsi, ostream &out) const
+{
+    char  buf[256];
+    Index pMax = printXsi ? size() : nPar_;
+    
+    sprintf(buf, "chi^2/dof= %.1f/%d= %.2f -- p-value= %.2e", getChi2(),
+            static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
+    out << buf << endl;
+    for (Index p = 0; p < pMax; ++p)
+    {
+        sprintf(buf, "%8s= %e", parName_[p].c_str(), (*this)(p));
+        out << buf << endl;
+    }
 }
 
 /******************************************************************************
@@ -226,6 +247,15 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     };
     DoubleFunction chi2(chi2Func, totalNPar);
     
+    for (Index p = 0; p < nPar; ++p)
+    {
+        chi2.varName().setName(p, v[0]->parName().getName(p));
+    }
+    for (Index p = 0; p < totalNPar - nPar; ++p)
+    {
+        chi2.varName().setName(p + nPar, "xsi_" + strFrom(p));
+    }
+    
     // minimization
     FitResult result;
     DVec      totalInit(totalNPar);
@@ -236,11 +266,16 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     minimizer.setInit(totalInit);
     result       = minimizer(chi2);
     result.chi2_ = chi2(result);
+    result.nPar_ = nPar;
     result.nDof_ = layout.totalYSize - nPar;
     result.model_.resize(v.size());
     for (unsigned int j = 0; j < v.size(); ++j)
     {
         result.model_[j] = v[j]->fixPar(result);
+    }
+    for (Index p = 0; p < totalNPar; ++p)
+    {
+        result.parName_.push_back(chi2.varName().getName(p));
     }
     
     return result;

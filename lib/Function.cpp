@@ -29,6 +29,7 @@ using namespace Latan;
 // constructor /////////////////////////////////////////////////////////////////
 DoubleFunction::DoubleFunction(const vecFunc &f, const Index nArg)
 : buffer_(new DVec)
+, varName_("x")
 {
     setFunction(f, nArg);
 }
@@ -43,6 +44,16 @@ void DoubleFunction::setFunction(const vecFunc &f, const Index nArg)
 {
     buffer_->resize(nArg);
     f_ = f;
+}
+
+VarName & DoubleFunction::varName(void)
+{
+    return varName_;
+}
+
+const VarName & DoubleFunction::varName(void) const
+{
+    return varName_;
 }
 
 // error checking //////////////////////////////////////////////////////////////

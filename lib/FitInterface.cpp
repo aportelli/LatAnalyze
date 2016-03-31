@@ -26,6 +26,12 @@ using namespace Latan;
 /******************************************************************************
  *                     FitInterface implementation                            *
  ******************************************************************************/
+// constructor /////////////////////////////////////////////////////////////////
+FitInterface::FitInterface(void)
+: xName_("x")
+, yName_("y")
+{}
+
 // copy object (not as a constructor to be accessed from derived class) ////////
 void FitInterface::copyInterface(const FitInterface &d)
 {
@@ -33,7 +39,7 @@ void FitInterface::copyInterface(const FitInterface &d)
 }
 
 // add dimensions //////////////////////////////////////////////////////////////
-void FitInterface::addXDim(const string name, const Index nData,
+void FitInterface::addXDim(const Index nData, const string name,
                            const bool isExact)
 {
     if (getYSize() != 0)
@@ -43,34 +49,38 @@ void FitInterface::addXDim(const string name, const Index nData,
     }
     else
     {
-        xDimName_.push_back(name);
         xSize_.push_back(nData);
         xIsExact_.push_back(isExact);
-        xDimIndex_[name]  = xDimName_.size();
-        maxDataIndex_    *= nData;
+        maxDataIndex_ *= nData;
         createXData(name, nData);
         scheduleLayoutInit();
+        if (!name.empty())
+        {
+            xName().setName(getNXDim(), name);
+        }
     }
 }
 
 void FitInterface::addYDim(const string name)
 {
-    yDimName_.push_back(name);
     yDataIndex_.push_back(map<Index, bool>());
-    yDimIndex_[name] = yDimName_.size();
     createYData(name);
     scheduleLayoutInit();
+    if (!name.empty())
+    {
+        yName().setName(getNYDim(), name);
+    }
 }
 
-// size access /////////////////////////////////////////////////////////////////
+// access //////////////////////////////////////////////////////////////////////
 Index FitInterface::getNXDim(void) const
 {
-    return xDimName_.size();
+    return xSize_.size();
 }
 
 Index FitInterface::getNYDim(void) const
 {
-    return yDimName_.size();
+    return yDataIndex_.size();
 }
 
 Index FitInterface::getXSize(void) const
@@ -173,6 +183,26 @@ Index FitInterface::getYFitSize(const Index j) const
 Index FitInterface::getMaxDataIndex(void) const
 {
     return maxDataIndex_;
+}
+
+VarName & FitInterface::xName(void)
+{
+    return xName_;
+}
+
+const VarName & FitInterface::xName(void) const
+{
+    return xName_;
+}
+
+VarName & FitInterface::yName(void)
+{
+    return yName_;
+}
+
+const VarName & FitInterface::yName(void) const
+{
+    return yName_;
 }
 
 // Y dimension index helper ////////////////////////////////////////////////////
@@ -554,7 +584,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
     out << "X dimensions: " << f.getNXDim() << endl;
     for (Index i = 0; i < f.getNXDim(); ++i)
     {
-        out << "  * " << i << " \"" << f.xDimName_[i] << "\": ";
+        out << "  * " << i << " \"" << f.xName().getName(i) << "\": ";
         out << f.getXSize(i) << " value(s)";
         if (f.xIsExact_[i])
         {
@@ -565,7 +595,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
     out << "Y dimensions: " << f.getNYDim() << endl;
     for (Index j = 0; j < f.getNYDim(); ++j)
     {
-        out << "  * " << j << " \"" << f.yDimName_[j] << "\": ";
+        out << "  * " << j << " \"" << f.yName().getName(j) << "\": ";
         out << f.getYSize(j) << " value(s)" << endl;
         for (auto &p: f.yDataIndex_[j])
         {

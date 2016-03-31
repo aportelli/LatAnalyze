@@ -52,6 +52,11 @@ double SampleFitResult::getNDof(void) const
     return static_cast<double>(nDof_);
 }
 
+Index SampleFitResult::getNPar(void) const
+{
+    return nPar_;
+}
+
 double SampleFitResult::getPValue(const Index s) const
 {
     return Math::chi2PValue(getChi2(s), getNDof());
@@ -84,6 +89,24 @@ FitResult SampleFitResult::getFitResult(const Index s) const
     }
     
     return fit;
+}
+
+// IO //////////////////////////////////////////////////////////////////////////
+void SampleFitResult::print(const bool printXsi, ostream &out) const
+{
+    char  buf[256];
+    Index pMax = printXsi ? size() : nPar_;
+    DMat  err = this->variance().cwiseSqrt();
+    
+    sprintf(buf, "chi^2/dof= %.1f/%d= %.2f -- p-value= %.2e", getChi2(),
+            static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
+    out << buf << endl;
+    for (Index p = 0; p < pMax; ++p)
+    {
+        sprintf(buf, "%8s= % e +/- %e", parName_[p].c_str(),
+                (*this)[central](p), err(p));
+        out << buf << endl;
+    }
 }
 
 /******************************************************************************
@@ -238,6 +261,7 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
+    result.model_.resize(v.size());
     FOR_STAT_ARRAY(result, s)
     {
         setDataToSample(s);
@@ -245,14 +269,17 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
         initCopy        = sampleResult.segment(0, initCopy.size());
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
-        result.nDof_    = sampleResult.getNDof();
-        result.model_.resize(v.size());
+        
+        
         for (unsigned int j = 0; j < v.size(); ++j)
         {
             result.model_[j].resize(nSample_);
             result.model_[j][s] = sampleResult.getModel(j);
         }
     }
+    result.nPar_    = sampleResult.getNPar();
+    result.nDof_    = sampleResult.getNDof();
+    result.parName_ = sampleResult.parName_;
     
     return result;
 }
@@ -363,7 +390,7 @@ void XYSampleData::computeVarMat(void)
 // create data /////////////////////////////////////////////////////////////////
 void XYSampleData::createXData(const string name, const Index nData)
 {
-    data_.addXDim(name, nData);
+    data_.addXDim(nData, name);
     xData_.push_back(vector<DSample>(nData));
 }
 

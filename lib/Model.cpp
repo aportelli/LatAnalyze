@@ -31,6 +31,8 @@ using namespace Latan;
 // constructor /////////////////////////////////////////////////////////////////
 DoubleModel::DoubleModel(const vecFunc &f, const Index nArg, const Index nPar)
 : size_(new ModelSize)
+, varName_("x")
+, parName_("p")
 {
     setFunction(f, nArg, nPar);
 }
@@ -52,6 +54,26 @@ void DoubleModel::setFunction(const vecFunc &f, const Index nArg,
     size_->nArg = nArg;
     size_->nPar = nPar;
     f_          = f;
+}
+
+VarName & DoubleModel::varName(void)
+{
+    return varName_;
+}
+
+const VarName & DoubleModel::varName(void) const
+{
+    return varName_;
+}
+
+VarName & DoubleModel::parName(void)
+{
+    return parName_;
+}
+
+const VarName & DoubleModel::parName(void) const
+{
+    return parName_;
 }
 
 // error checking //////////////////////////////////////////////////////////////

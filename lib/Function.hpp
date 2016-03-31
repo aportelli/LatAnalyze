@@ -43,8 +43,10 @@ public:
     // destructor
     virtual ~DoubleFunction(void) = default;
     // access
-    virtual Index getNArg(void) const;
-    void    setFunction(const vecFunc &f, const Index nArg);
+    virtual Index     getNArg(void) const;
+            void      setFunction(const vecFunc &f, const Index nArg);
+            VarName & varName(void);
+    const   VarName & varName(void) const;
     // function call
     double operator()(const double *arg) const;
     double operator()(const DVec &arg) const;
@@ -75,6 +77,7 @@ private:
     void checkSize(const Index nPar) const;
 private:
     std::shared_ptr<DVec> buffer_{nullptr};
+    VarName               varName_;
     vecFunc               f_;
 };
 
