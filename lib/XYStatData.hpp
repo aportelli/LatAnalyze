@@ -87,8 +87,13 @@ public:
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
     // fit
+    FitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                  const std::vector<const DoubleModel *> &v);
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const std::vector<const DoubleModel *> &v);
+    template <typename... Ts>
+    FitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                  const DoubleModel &model, const Ts... models);
     template <typename... Ts>
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const DoubleModel &model, const Ts... models);
@@ -125,7 +130,7 @@ private:
  *                     XYStatData template implementation                     *
  ******************************************************************************/
 template <typename... Ts>
-FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+FitResult XYStatData::fit(std::vector<Minimizer *> &minimizer, const DVec &init,
                           const DoubleModel &model, const Ts... models)
 {
     static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
@@ -134,6 +139,18 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     std::vector<const DoubleModel *> modelVector{&model, &models...};
     
     return fit(minimizer, init, modelVector);
+}
+
+template <typename... Ts>
+FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+                          const DoubleModel &model, const Ts... models)
+{
+    static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
+                  "model arguments are not compatible with DoubleModel");
+    
+    std::vector<Minimizer *> mv{&minimizer};
+    
+    return fit(mv, init, model, models...);
 }
 
 /******************************************************************************

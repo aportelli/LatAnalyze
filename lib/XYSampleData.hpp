@@ -92,11 +92,16 @@ public:
     // get internal XYStatData
     const XYStatData & getData(void);
     // fit
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                        const std::vector<const DoubleModel *> &v);
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
                         const std::vector<const DoubleModel *> &v);
-    template <typename... Mods>
+    template <typename... Ts>
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                        const DoubleModel &model, const Ts... models);
+    template <typename... Ts>
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
-                        const DoubleModel &model, const Mods... models);
+                        const DoubleModel &model, const Ts... models);
 private:
     // schedule data initilization from samples
     void scheduleDataInit(void);
@@ -118,15 +123,28 @@ private:
  *                    XYSampleData template implementation                    *
  ******************************************************************************/
 template <typename... Ts>
-SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
+SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
+                                  const DVec &init,
                                   const DoubleModel &model, const Ts... models)
 {
     static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
-                  "model arguments are not compatible with DoubleModel &");
+                  "model arguments are not compatible with DoubleModel");
     
     std::vector<const DoubleModel *> modelVector{&model, &models...};
     
     return fit(minimizer, init, modelVector);
+}
+
+template <typename... Ts>
+SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
+                                  const DoubleModel &model, const Ts... models)
+{
+    static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
+                  "model arguments are not compatible with DoubleModel");
+    
+    std::vector<Minimizer *> mv{&minimizer};
+    
+    return fit(mv, init, model, models...);
 }
 
 END_LATAN_NAMESPACE

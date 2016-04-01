@@ -250,7 +250,8 @@ const XYStatData & XYSampleData::getData(void)
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
-SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
+SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
+                                  const DVec &init,
                                   const std::vector<const DoubleModel *> &v)
 {
     computeVarMat();
@@ -265,12 +266,17 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     FOR_STAT_ARRAY(result, s)
     {
         setDataToSample(s);
-        sampleResult    = data_.fit(minimizer, initCopy, v);
+        if (s == central)
+        {
+            sampleResult = data_.fit(minimizer, initCopy, v);
+        }
+        else
+        {
+            sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
+        }
         initCopy        = sampleResult.segment(0, initCopy.size());
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
-        
-        
         for (unsigned int j = 0; j < v.size(); ++j)
         {
             result.model_[j].resize(nSample_);
@@ -282,6 +288,15 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
     result.parName_ = sampleResult.parName_;
     
     return result;
+}
+
+SampleFitResult XYSampleData::fit(Minimizer &minimizer,
+                                  const DVec &init,
+                                  const std::vector<const DoubleModel *> &v)
+{
+    vector<Minimizer *> mv{&minimizer};
+    
+    return fit(mv, init, v);
 }
 
 // schedule data initilization from samples ////////////////////////////////////

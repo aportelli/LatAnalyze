@@ -24,6 +24,8 @@
 using namespace std;
 using namespace Latan;
 
+static constexpr double maxXsiDev = 10.;
+
 /******************************************************************************
  *                          FitResult implementation                          *
  ******************************************************************************/
@@ -220,7 +222,7 @@ const DMat & XYStatData::getFitVarMatPInv(void)
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
-FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
                           const vector<const DoubleModel *> &v)
 {
     // check model consistency
@@ -257,14 +259,31 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     }
     
     // minimization
-    FitResult result;
-    DVec      totalInit(totalNPar);
+    FitResult    result;
+    DVec         totalInit(totalNPar);
     
+    //// set total init vector
     totalInit.segment(0, nPar) = init;
     totalInit.segment(nPar, layout.totalXSize) =
         chi2DataVec_.segment(layout.totalYSize, layout.totalXSize);
-    minimizer.setInit(totalInit);
-    result       = minimizer(chi2);
+    for (auto &m: minimizer)
+    {
+        m->setInit(totalInit);
+        //// do not allow more than maxXsiDev std. deviations on the x-axis
+        for (Index p = nPar; p < totalNPar; ++p)
+        {
+            double err;
+            
+            err = sqrt(fitVar_.diagonal()(layout.totalYSize + p - nPar));
+            m->useLowLimit(p);
+            m->useHighLimit(p);
+            m->setLowLimit(p, totalInit(p) - maxXsiDev*err);
+            m->setHighLimit(p, totalInit(p) + maxXsiDev*err);
+        }
+        //// minimize and store results
+        result    = (*m)(chi2);
+        totalInit = result;
+    }
     result.chi2_ = chi2(result);
     result.nPar_ = nPar;
     result.nDof_ = layout.totalYSize - nPar;
@@ -279,6 +298,14 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     }
     
     return result;
+}
+
+FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
+                          const vector<const DoubleModel *> &v)
+{
+    vector<Minimizer *> mv{&minimizer};
+    
+    return fit(mv, init, v);
 }
 
 // create data /////////////////////////////////////////////////////////////////
