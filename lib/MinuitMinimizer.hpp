@@ -27,7 +27,8 @@
 BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
- *        interface to CERN Minuit minimizer (http://www.cern.ch/minuit)      *
+ *                  interface to CERN Minuit minimizer                        *
+ * ( http://www.cern.ch/minuit )                                              *
  ******************************************************************************/
 class MinuitMinimizer: public Minimizer
 {

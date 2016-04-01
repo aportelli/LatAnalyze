@@ -25,8 +25,7 @@
 using namespace std;
 using namespace Latan;
 
-static constexpr double       initErr = 0.1;
-static constexpr unsigned int maxTry  = 10u;
+static constexpr double initErr = 0.1;
 
 /******************************************************************************
  *                    MinuitMinimizer implementation                          *
@@ -137,28 +136,21 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     int          status;
     unsigned int n = 0;
     
-    if (getVerbosity() >= Verbosity::Normal)
-    {
-        cout << "========== Minuit minimization, pass #1";
-        cout << " ==========" << endl;
-    }
-    min->SetStrategy(0);
-    min->Minimize();
+    min->SetStrategy(2);
     do
     {
-        n++;
         if (getVerbosity() >= Verbosity::Normal)
         {
             cout << "========== Minuit minimization, pass #" << n + 1;
-            cout << " ==========" << endl;
+            cout << " =========" << endl;
         }
-        min->SetStrategy(2);
         min->Minimize();
         status = min->Status();
-    } while (status and (n < maxTry));
+        n++;
+    } while (status and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
     {
-        cout << "======================================" << endl;
+        cout << "=================================================" << endl;
     }
     switch (status)
     {

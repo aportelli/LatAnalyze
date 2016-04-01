@@ -49,9 +49,13 @@ void Minimizer::resize(const Index dim)
     }
 }
 
-// limits //////////////////////////////////////////////////////////////////////
 double Minimizer::getHighLimit(const Index i) const
 {
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid variable index");
+    }
+    
     return highLimit_(i);
 }
 
@@ -62,6 +66,11 @@ const DVec & Minimizer::getHighLimit(const PlaceHolder ph __dumb) const
 
 double Minimizer::getLowLimit(const Index i) const
 {
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid variable index");
+    }
+    
     return lowLimit_(i);
 }
 
@@ -72,11 +81,21 @@ const DVec & Minimizer::getLowLimit(const PlaceHolder ph __dumb) const
 
 bool Minimizer::hasHighLimit(const Index i) const
 {
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid variable index");
+    }
+    
     return hasHighLimit_(i);
 }
 
 bool Minimizer::hasLowLimit(const Index i) const
 {
+    if (i >= getDim())
+    {
+        LATAN_ERROR(Size, "invalid variable index");
+    }
+    
     return hasLowLimit_(i);
 }
 
@@ -84,7 +103,7 @@ void Minimizer::setHighLimit(const Index i, const double l)
 {
     if (i >= getDim())
     {
-        LATAN_ERROR(Size, "invalid limit index");
+        resize(i + 1);
     }
     else
     {
@@ -97,7 +116,7 @@ void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
     if (l.size() != getDim())
     {
-        LATAN_ERROR(Size, "invalid limit vector size");
+        resize(l.size());
     }
     else
     {
@@ -110,7 +129,7 @@ void Minimizer::setLowLimit(const Index i, const double l)
 {
     if (i >= getDim())
     {
-        LATAN_ERROR(Size, "invalid limit index");
+        resize(i + 1);
     }
     else
     {
@@ -123,7 +142,7 @@ void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
     if (l.size() != getDim())
     {
-        LATAN_ERROR(Size, "invalid limit vector size");
+        resize(l.size());
     }
     else
     {
@@ -136,7 +155,7 @@ void Minimizer::useHighLimit(const Index i, const bool use)
 {
     if (i >= getDim())
     {
-        LATAN_ERROR(Size, "invalid limit index");
+        resize(i + 1);
     }
     else
     {
@@ -153,7 +172,7 @@ void Minimizer::useLowLimit(const Index i, const bool use)
 {
     if (i >= getDim())
     {
-        LATAN_ERROR(Size, "invalid limit index");
+        resize(i + 1);
     }
     else
     {
@@ -164,4 +183,14 @@ void Minimizer::useLowLimit(const Index i, const bool use)
 void Minimizer::useLowLimit(const PlaceHolder ph __dumb, const bool use)
 {
     hasLowLimit_.fill(use);
+}
+
+unsigned int Minimizer::getMaxPass(void) const
+{
+    return maxPass_;
+}
+
+void Minimizer::setMaxPass(const unsigned int maxPass)
+{
+    maxPass_ = maxPass;
 }
