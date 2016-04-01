@@ -45,6 +45,12 @@ AC_ARG_WITH([Minuit2],
     [AM_CFLAGS="$AM_CFLAGS -I$with_Minuit2/include"]
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_Minuit2/include"]
 	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"])
+AC_ARG_WITH([nlopt],
+    [AS_HELP_STRING([--with-nlopt=prefix],
+        [try this for a non-standard install prefix of the nlopt library])],
+    [AM_CFLAGS="$AM_CFLAGS -I$with_nlopt/include"]
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_nlopt/include"]
+    [AM_LDFLAGS="$AM_LDFLAGS -L$with_nlopt/lib"])
 AC_ARG_WITH([LatCore],
     [AS_HELP_STRING([--with-LatCore=prefix],
     [use this option for a non-standard install prefix of the LatCore library])],
@@ -84,6 +90,13 @@ AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
 AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([GSL library not found])])
+AC_CHECK_LIB([nlopt_cxx],[nlopt_create],
+    [AC_DEFINE([HAVE_NLOPT],
+    [1],
+    [Define to 1 if you have the `NLopt' library (-lnlopt_cxx).])]
+    [have_nlopt=true]
+    [LIBS="$LIBS -lnlopt_cxx"],[])
+AM_CONDITIONAL([HAVE_NLOPT], [test x$have_nlopt = xtrue])
 AC_CHECK_LIB([LatCore],[_ZN7LatCore12testFunctionEv],[],
     [AC_MSG_ERROR([LatCore library not found])])
 SAVED_LDFLAGS=$LDFLAGS

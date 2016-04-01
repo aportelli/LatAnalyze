@@ -12,7 +12,7 @@ AM_YFLAGS = -d
 
 BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
-lib_LTLIBRARIES    = libLatAnalyze.la
+lib_LTLIBRARIES = libLatAnalyze.la
 
 libLatAnalyze_la_SOURCES = \
     AsciiFile.cpp          \
@@ -85,6 +85,10 @@ libLatAnalyze_la_HEADERS = \
 if HAVE_MINUIT
     libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
     libLatAnalyze_la_HEADERS += MinuitMinimizer.hpp
+endif
+if HAVE_NLOPT
+    libLatAnalyze_la_SOURCES += NloptMinimizer.cpp
+    libLatAnalyze_la_HEADERS += NloptMinimizer.hpp
 endif
 libLatAnalyze_la_CXXFLAGS = $(COM_CXXFLAGS)
 

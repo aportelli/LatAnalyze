@@ -2,6 +2,7 @@
 #include <cmath>
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/NloptMinimizer.hpp>
 #include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYSampleData.hpp>
 
@@ -43,16 +44,29 @@ int main(void)
         }
     }
     data.assumeXExact(true, 1);
-    cout << data << endl;
+    
+    // set minimizers
+    DVec                init = DVec::Constant(2, 0.1);
+    SampleFitResult     p;
+    NloptMinimizer      globalMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
+    MinuitMinimizer     localMin;
+    vector<Minimizer *> min{&globalMin, &localMin};
+    
+    globalMin.setPrecision(0.01);
+    globalMin.setMaxIteration(10000);
+    globalMin.useLowLimit(0);
+    globalMin.setLowLimit(0, 0.);
+    globalMin.useHighLimit(0);
+    globalMin.setHighLimit(0, 20.);
+    globalMin.useLowLimit(1);
+    globalMin.setLowLimit(1, 0.);
+    globalMin.useHighLimit(1);
+    globalMin.setHighLimit(1, 20.);
     
     // fit
-    DVec init = DVec::Constant(2, 0.1);
-    SampleFitResult p;
-    MinuitMinimizer minimizer;
-
     f.parName().setName(0, "m");
     f.parName().setName(1, "A");
-    p = data.fit(minimizer, init, f);
+    p = data.fit(min, init, f);
     p.print();
     
     return EXIT_SUCCESS;

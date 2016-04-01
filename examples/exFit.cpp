@@ -3,6 +3,7 @@
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/NloptMinimizer.hpp>
 #include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
@@ -37,25 +38,36 @@ int main(void)
             data.x(i2, 1)                  = xBuf[1];
             data.y(data.dataIndex(i1, i2)) = rg.gaussian(f(xBuf, exactPar),
                                                          yErr);
-            printf("% 8e % 8e % 8e % 8e % 8e\n", data.x(i1, 0), xErr,
-                   data.x(i2, 1), data.y(i1), yErr);
         }
     }
-    cout << endl;
     data.setXError(0, DVec::Constant(data.getXSize(0), xErr));
     data.assumeXExact(true, 1);
     data.setYError(0, DVec::Constant(data.getYSize(), yErr));
-    cout << data << endl;
+    
+    // set minimizers
+    DVec                init = DVec::Constant(2, 0.1);
+    FitResult           p;
+    NloptMinimizer      globalMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
+    MinuitMinimizer     localMin;
+    vector<Minimizer *> min{&globalMin, &localMin};
+    
+    globalMin.setVerbosity(Minimizer::Verbosity::Normal);
+    globalMin.setPrecision(0.01);
+    globalMin.setMaxIteration(10000);
+    globalMin.useLowLimit(0);
+    globalMin.setLowLimit(0, 0.);
+    globalMin.useHighLimit(0);
+    globalMin.setHighLimit(0, 20.);
+    globalMin.useLowLimit(1);
+    globalMin.setLowLimit(1, 0.);
+    globalMin.useHighLimit(1);
+    globalMin.setHighLimit(1, 20.);
+    localMin.setVerbosity(Minimizer::Verbosity::Normal);
     
     // fit
-    DVec init = DVec::Constant(2, 0.1);
-    FitResult p;
-    MinuitMinimizer minimizer;
-    
     f.parName().setName(0, "m");
     f.parName().setName(1, "A");
-    minimizer.setVerbosity(Minimizer::Verbosity::Normal);
-    p = data.fit(minimizer, init, f);
+    p = data.fit(min, init, f);
     p.print();
     
     return EXIT_SUCCESS;
