@@ -41,9 +41,7 @@ public:
     };
 public:
     // constructor
-    MinuitMinimizer(const Algorithm algorithm = defaultAlg_);
-    explicit MinuitMinimizer(const Index dim,
-                             const Algorithm algorithm = defaultAlg_);
+    explicit MinuitMinimizer(const Algorithm algorithm = defaultAlg_);
     // destructor
     virtual ~MinuitMinimizer(void) = default;
     // access

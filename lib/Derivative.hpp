@@ -39,9 +39,11 @@ public:
     // destructor
     virtual ~Derivative(void) = default;
     // access
+    Index  getDir(void) const;
     Index  getNPoint(void) const;
     Index  getOrder(void) const;
     double getStep(void) const;
+    void   setDir(const Index dir);
     void   setFunction(const DoubleFunction &f);
     void   setOrderAndPoint(const Index order, const DVec &point);
     void   setStep(const double step);
@@ -73,16 +75,13 @@ public:
     static const Index defaultPrecOrder = 2;
 public:
     // constructor
-    CentralDerivative(const DoubleFunction &f, const Index dir = 0,
+    CentralDerivative(const DoubleFunction &f = DoubleFunction(),
+                      const Index dir = 0,
                       const Index order = 1,
                       const Index precOrder = defaultPrecOrder);
     // destructor
     virtual ~CentralDerivative(void) = default;
     // access
-    using Derivative::getNPoint;
-    using Derivative::getStep;
-    using Derivative::getOrder;
-    using Derivative::setStep;
     Index getPrecOrder(void) const;
     void  setOrder(const Index order, const Index precOrder = defaultPrecOrder);
     // function call

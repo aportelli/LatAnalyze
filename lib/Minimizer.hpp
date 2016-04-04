@@ -36,7 +36,6 @@ class Minimizer: public Solver
 public:
     // constructor
     Minimizer(void) = default;
-    explicit Minimizer(const Index dim);
     // destructor
     virtual ~Minimizer(void) = default;
     // access

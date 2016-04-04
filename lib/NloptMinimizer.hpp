@@ -43,13 +43,12 @@ private:
     struct NloptFuncData
     {
         const DoubleFunction *f{nullptr};
+        Derivative           *d{nullptr};
         unsigned int         evalCount{0};
     };
 public:
     // constructor
-    NloptMinimizer(const Algorithm algorithm = defaultAlg_);
-    explicit NloptMinimizer(const Index dim,
-                            const Algorithm algorithm = defaultAlg_);
+    explicit NloptMinimizer(const Algorithm algorithm = defaultAlg_);
     // destructor
     virtual ~NloptMinimizer(void) = default;
     // access
@@ -63,9 +62,12 @@ private:
     // NLopt function wrapper
     static double funcWrapper(unsigned int n, const double *arg,
                               double *grad , void *vdata);
+    // NLopt return status parser
+    static bool minSuccess(const nlopt::result status);
 private:
     Algorithm                  algorithm_;
     static constexpr Algorithm defaultAlg_ = Algorithm::LN_NELDERMEAD;
+    CentralDerivative          der_;
 };
 
 END_LATAN_NAMESPACE

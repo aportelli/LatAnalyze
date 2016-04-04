@@ -31,11 +31,12 @@ using namespace Math;
 // constructor /////////////////////////////////////////////////////////////////
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const double step)
-: f_(f)
-, dir_(dir)
-, step_(step)
-, buffer_(new DVec(f.getNArg()))
-{}
+: buffer_(new DVec(f.getNArg()))
+{
+    setFunction(f);
+    setDir(dir);
+    setStep(step);
+}
 
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const Index order, const DVec &point, const double step)
@@ -45,6 +46,11 @@ Derivative::Derivative(const DoubleFunction &f, const Index dir,
 }
 
 // access //////////////////////////////////////////////////////////////////////
+Index Derivative::getDir(void) const
+{
+    return dir_;
+}
+
 Index Derivative::getOrder(void) const
 {
     return order_;
@@ -58,6 +64,11 @@ Index Derivative::getNPoint(void) const
 double Derivative::getStep(void) const
 {
     return step_;
+}
+
+void Derivative::setDir(const Index dir)
+{
+    dir_ = dir;
 }
 
 void Derivative::setFunction(const DoubleFunction &f)

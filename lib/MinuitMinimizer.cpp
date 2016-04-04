@@ -36,12 +36,6 @@ MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
     setAlgorithm(algorithm);
 }
 
-MinuitMinimizer::MinuitMinimizer(const Index dim, const Algorithm algorithm)
-: Minimizer(dim)
-{
-    setAlgorithm(algorithm);
-}
-
 // access //////////////////////////////////////////////////////////////////////
 MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
 {

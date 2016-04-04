@@ -30,12 +30,7 @@ using namespace Latan;
 NloptMinimizer::NloptMinimizer(const Algorithm algorithm)
 {
     setAlgorithm(algorithm);
-}
-
-NloptMinimizer::NloptMinimizer(const Index dim, const Algorithm algorithm)
-: Minimizer(dim)
-{
-    setAlgorithm(algorithm);
+    der_.setOrder(1, 1);
 }
 
 // access //////////////////////////////////////////////////////////////////////
@@ -67,7 +62,10 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
     
     min.set_maxeval(getMaxIteration());
     min.set_xtol_rel(getPrecision());
+    min.set_ftol_rel(-1.);
+    der_.setFunction(f);
     data.f = &f;
+    data.d = &der_;
     min.set_min_objective(&funcWrapper, &data);
     for (Index i = 0; i < x.size(); ++i)
     {
@@ -126,13 +124,12 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
             x(i) = vx[i];
         }
         n++;
-    } while ((status != nlopt::XTOL_REACHED) and (status != nlopt::SUCCESS)
-             and (n < getMaxPass()));
+    } while (!minSuccess(status) and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
     {
         cout << "=================================================" << endl;
     }
-    if ((status != nlopt::XTOL_REACHED) and (status != nlopt::SUCCESS))
+    if (!minSuccess(status))
     {
         LATAN_WARNING("invalid minimum: " + returnMessage(status));
     }
@@ -163,13 +160,37 @@ string NloptMinimizer::returnMessage(const nlopt::result status)
 }
 
 // NLopt function wrapper //////////////////////////////////////////////////////
-double NloptMinimizer::funcWrapper(unsigned int n __dumb, const double *arg,
+double NloptMinimizer::funcWrapper(unsigned int n, const double *arg,
                                    double *grad , void *vdata)
 {
     NloptFuncData &data = *static_cast<NloptFuncData *>(vdata);
     
-    assert(grad == nullptr);
+    if (grad)
+    {
+        for (unsigned int i = 0; i < n; ++i)
+        {
+            data.d->setDir(i);
+            grad[i] = (*(data.d))(arg);
+        }
+        data.evalCount += data.d->getNPoint()*n;
+    }
     data.evalCount++;
     
     return (*data.f)(arg);
+}
+
+// NLopt return status parser //////////////////////////////////////////////////
+bool NloptMinimizer::minSuccess(const nlopt::result status)
+{
+    switch (status)
+    {
+        case nlopt::SUCCESS:
+        case nlopt::FTOL_REACHED:
+        case nlopt::XTOL_REACHED:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+    }
 }
