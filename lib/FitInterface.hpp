@@ -65,26 +65,27 @@ public:
                   const bool isExact = false);
     void  addYDim(const std::string name = "");
     // access
-          Index     getNXDim(void) const;
-          Index     getNYDim(void) const;
-          Index     getXSize(void) const;
-          Index     getXSize(const Index i) const;
-          Index     getYSize(void) const;
-          Index     getYSize(const Index j) const;
-          Index     getXFitSize(void) const;
-          Index     getXFitSize(const Index i) const;
-          Index     getYFitSize(void) const;
-          Index     getYFitSize(const Index j) const;
-          Index     getMaxDataIndex(void) const;
-          VarName & xName(void);
-    const VarName & xName(void) const;
-          VarName & yName(void);
-    const VarName & yName(void) const;
+          Index             getNXDim(void) const;
+          Index             getNYDim(void) const;
+          Index             getXSize(void) const;
+          Index             getXSize(const Index i) const;
+          Index             getYSize(void) const;
+          Index             getYSize(const Index j) const;
+          Index             getXFitSize(void);
+          Index             getXFitSize(const Index i);
+          Index             getYFitSize(void) const;
+          Index             getYFitSize(const Index j) const;
+          Index             getMaxDataIndex(void) const;
+    const std::set<Index> & getDataIndexSet(void) const;
+          VarName &         xName(void);
+    const VarName &         xName(void) const;
+          VarName &         yName(void);
+    const VarName &         yName(void) const;
     // Y dimension index helper
     template <typename... Ts>
-    Index              dataIndex(const Ts... is) const;
-    Index              dataIndex(const std::vector<Index> &v) const;
-    std::vector<Index> dataCoord(const Index k) const;
+    Index                      dataIndex(const Ts... is) const;
+    Index                      dataIndex(const std::vector<Index> &v) const;
+    const std::vector<Index> & dataCoord(const Index k);
     // enable fit points
     void fitPoint(const bool isFitPoint, const Index k, const Index j = 0);
     // variance interface
@@ -98,7 +99,8 @@ public:
     // tests
     bool pointExists(const Index k) const;
     bool pointExists(const Index k, const Index j) const;
-    bool isXUsed(const Index r, const Index i, const bool inFit = true) const;
+    bool isXExact(const Index i) const;
+    bool isXUsed(const Index r, const Index i, const bool inFit = true);
     bool isFitPoint(const Index k, const Index j) const;
     // make correlation filter for fit variance matrix
     DMat makeCorrFilter(void);
@@ -115,22 +117,31 @@ protected:
     // abstract methods to create data containers
     virtual void createXData(const std::string name, const Index nData) = 0;
     virtual void createYData(const std::string name) = 0;
+    // coordinate buffering
+    void scheduleDataCoordInit(void);
+    void updateDataCoord(void);
     // global layout management
     void  scheduleLayoutInit(void);
     bool  initVarMat(void);
     void  updateLayout(void);
     Index indX(const Index r, const Index i) const;
     Index indY(const Index k, const Index j) const;
+private:
+    // function to convert an row-major index into coordinates
+    std::vector<Index> rowMajToCoord(const Index k) const;
 protected:
     Layout layout;
 private:
-    VarName                            xName_, yName_;
-    std::vector<Index>                 xSize_;
-    std::vector<bool>                  xIsExact_;
-    std::vector<std::map<Index, bool>> yDataIndex_;
-    std::set<std::array<Index, 4>>     xxCorr_, yyCorr_, xyCorr_;
-    Index                              maxDataIndex_{1};
-    bool                               initLayout_{true}, initVarMat_{true};
+    VarName                             xName_, yName_;
+    std::vector<Index>                  xSize_;
+    std::vector<bool>                   xIsExact_;
+    std::map<Index, std::vector<Index>> dataCoord_;
+    std::set<Index>                     dataIndexSet_;
+    std::vector<std::map<Index, bool>>  yDataIndex_;
+    std::set<std::array<Index, 4>>      xxCorr_, yyCorr_, xyCorr_;
+    Index                               maxDataIndex_{1};
+    bool                                initLayout_{true}, initVarMat_{true};
+    bool                                initDataCoord_{true};
 };
 
 std::ostream & operator<<(std::ostream &out, FitInterface &f);

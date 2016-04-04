@@ -69,10 +69,11 @@ public:
     // destructor
     virtual ~XYStatData(void) = default;
     // data access
-    double &       x(const Index r, const Index i = 0);
-    const double & x(const Index r, const Index i = 0) const;
-    double &       y(const Index k, const Index j = 0);
-    const double & y(const Index k, const Index j = 0) const;
+    double &       x(const Index r, const Index);
+    const double & x(const Index r, const Index) const;
+    const DVec &   x(const Index k);
+    double &       y(const Index k, const Index);
+    const double & y(const Index k, const Index) const;
     void           setXXVar(const Index i1, const Index i2, const DMat &m);
     void           setYYVar(const Index j1, const Index j2, const DMat &m);
     void           setXYVar(const Index i, const Index j, const DMat &m);
@@ -83,6 +84,7 @@ public:
     const DMat &   getXYVar(const Index i, const Index j) const;
     DVec           getXError(const Index i) const;
     DVec           getYError(const Index j) const;
+    DMat           getTable(const Index i, const Index j);
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
@@ -97,6 +99,10 @@ public:
     template <typename... Ts>
     FitResult fit(Minimizer &minimizer, const DVec &init,
                   const DoubleModel &model, const Ts... models);
+    // residuals
+    XYStatData getResiduals(const FitResult &fit);
+    XYStatData getPartialResiduals(const FitResult &fit, const DVec &ref,
+                                   const Index i);
 protected:
     // create data
     virtual void createXData(const std::string name, const Index nData);

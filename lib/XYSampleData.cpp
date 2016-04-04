@@ -138,6 +138,15 @@ const DSample & XYSampleData::x(const Index r, const Index i) const
     return xData_[i][r];
 }
 
+const DMatSample & XYSampleData::x(const Index k)
+{
+    checkDataIndex(k);
+    
+    updateXMap();
+    
+    return xMap_.at(k);
+}
+
 DSample & XYSampleData::y(const Index k, const Index j)
 {
     checkYDim(j);
@@ -297,6 +306,74 @@ SampleFitResult XYSampleData::fit(Minimizer &minimizer,
     vector<Minimizer *> mv{&minimizer};
     
     return fit(mv, init, v);
+}
+
+// residuals ///////////////////////////////////////////////////////////////////
+XYSampleData XYSampleData::getResiduals(const SampleFitResult &fit)
+{
+    XYSampleData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunctionSample &f = fit.getModel(_, j);
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+        }
+    }
+    
+    return res;
+}
+
+XYSampleData XYSampleData::getPartialResiduals(const SampleFitResult &fit,
+                                               const DVec &ref, const Index i)
+{
+    XYSampleData res(*this);
+    DMatSample   buf(nSample_);
+    
+    buf.fill(ref);
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunctionSample &f = fit.getModel(_, j);
+        
+        for (auto &p: yData_[j])
+        {
+            FOR_STAT_ARRAY(buf, s)
+            {
+                buf[s](i) = x(p.first)[s](i);
+            }
+            res.y(p.first, j) -= f(x(p.first)) - f(buf);
+        }
+    }
+    
+    return res;
+}
+
+// buffer list of x vectors ////////////////////////////////////////////////////
+void XYSampleData::scheduleXMapInit(void)
+{
+    initXMap_ = true;
+}
+
+void XYSampleData::updateXMap(void)
+{
+    if (initXMap_)
+    {
+        for (Index s = central; s < nSample_; ++s)
+        {
+            setDataToSample(s);
+            for (auto k: getDataIndexSet())
+            {
+                if (s == central)
+                {
+                    xMap_[k].resize(nSample_);
+                }
+                xMap_[k][s] = data_.x(k);
+            }
+        }
+        initXMap_ = false;
+    }
 }
 
 // schedule data initilization from samples ////////////////////////////////////

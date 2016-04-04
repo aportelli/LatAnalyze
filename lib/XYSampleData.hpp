@@ -75,15 +75,16 @@ public:
     // destructor
     virtual ~XYSampleData(void) = default;
     // data access
-    DSample &       x(const Index r, const Index i = 0);
-    const DSample & x(const Index r, const Index i = 0) const;
-    DSample &       y(const Index k, const Index j = 0);
-    const DSample & y(const Index k, const Index j = 0) const;
-    const DMat &    getXXVar(const Index i1, const Index i2);
-    const DMat &    getYYVar(const Index j1, const Index j2);
-    const DMat &    getXYVar(const Index i, const Index j);
-    DVec            getXError(const Index i);
-    DVec            getYError(const Index j);
+    DSample &          x(const Index r, const Index i);
+    const DSample &    x(const Index r, const Index i) const;
+    const DMatSample & x(const Index k);
+    DSample &          y(const Index k, const Index j);
+    const DSample &    y(const Index k, const Index j) const;
+    const DMat &       getXXVar(const Index i1, const Index i2);
+    const DMat &       getYYVar(const Index j1, const Index j2);
+    const DMat &       getXYVar(const Index i, const Index j);
+    DVec               getXError(const Index i);
+    DVec               getYError(const Index j);
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
@@ -102,7 +103,14 @@ public:
     template <typename... Ts>
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
                         const DoubleModel &model, const Ts... models);
+    // residuals
+    XYSampleData getResiduals(const SampleFitResult &fit);
+    XYSampleData getPartialResiduals(const SampleFitResult &fit, const DVec &x,
+                                     const Index i);
 private:
+    // buffer list of x vectors
+    void scheduleXMapInit(void);
+    void updateXMap(void);
     // schedule data initilization from samples
     void scheduleDataInit(void);
     // variance matrix computation
@@ -114,9 +122,11 @@ private:
 private:
     std::vector<std::map<Index, DSample>> yData_;
     std::vector<std::vector<DSample>>     xData_;
+    std::map<Index, DMatSample>           xMap_;
     XYStatData                            data_;
     Index                                 nSample_, dataSample_{central};
     bool                                  initData_{true}, computeVarMat_{true};
+    bool                                  initXMap_{true};
 };
 
 /******************************************************************************

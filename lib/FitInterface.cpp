@@ -54,6 +54,7 @@ void FitInterface::addXDim(const Index nData, const string name,
         maxDataIndex_ *= nData;
         createXData(name, nData);
         scheduleLayoutInit();
+        scheduleDataCoordInit();
         if (!name.empty())
         {
             xName().setName(getNXDim(), name);
@@ -121,7 +122,7 @@ Index FitInterface::getYSize(const Index j) const
     return static_cast<Index>(yDataIndex_[j].size());
 }
 
-Index FitInterface::getXFitSize(void) const
+Index FitInterface::getXFitSize(void)
 {
     Index size = 0;
     
@@ -133,7 +134,7 @@ Index FitInterface::getXFitSize(void) const
     return size;
 }
 
-Index FitInterface::getXFitSize(const Index i) const
+Index FitInterface::getXFitSize(const Index i)
 {
     set<Index>    fitCoord;
     vector<Index> v;
@@ -185,6 +186,11 @@ Index FitInterface::getMaxDataIndex(void) const
     return maxDataIndex_;
 }
 
+const set<Index> & FitInterface::getDataIndexSet(void) const
+{
+    return dataIndexSet_;
+}
+
 VarName & FitInterface::xName(void)
 {
     return xName_;
@@ -221,22 +227,13 @@ Index FitInterface::dataIndex(const vector<Index> &v) const
     return k;
 }
 
-vector<Index> FitInterface::dataCoord(const Index k) const
+const vector<Index> & FitInterface::dataCoord(const Index k)
 {
-    vector<Index> v(getNXDim());
-    Index         buf, dimProd;
-    
     checkDataIndex(k);
-    buf     = k;
-    dimProd = 1;
-    for (Index d = getNXDim() - 1; d >= 0; --d)
-    {
-        v[d]     = (buf/dimProd)%xSize_[d];
-        buf     -= dimProd*v[d];
-        dimProd *= xSize_[d];
-    }
     
-    return v;
+    updateDataCoord();
+    
+    return dataCoord_.at(k);
 }
 
 // enable fit points ///////////////////////////////////////////////////////////
@@ -335,7 +332,12 @@ bool FitInterface::pointExists(const Index k, const Index j) const
     return !(yDataIndex_[j].find(k) == yDataIndex_[j].end());
 }
 
-bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit) const
+bool FitInterface::isXExact(const Index i) const
+{
+    return xIsExact_[i];
+}
+
+bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit)
 {
     vector<Index> v;
     
@@ -346,7 +348,7 @@ bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit) const
         {
             if (p.second or !inFit)
             {
-                v      = dataCoord(p.first);
+                v = dataCoord(p.first);
                 if (v[i] == r)
                 {
                     return true;
@@ -418,7 +420,27 @@ void FitInterface::registerDataPoint(const Index k, const Index j)
 {
     checkYDim(j);
     yDataIndex_[j][k] = true;
+    dataIndexSet_.insert(k);
     scheduleLayoutInit();
+}
+
+// coordinate buffering ////////////////////////////////////////////////////////
+void FitInterface::scheduleDataCoordInit(void)
+{
+    initDataCoord_ = true;
+}
+
+void FitInterface::updateDataCoord(void)
+{
+    if (initDataCoord_)
+    {
+        dataCoord_.clear();
+        for (auto k: getDataIndexSet())
+        {
+            dataCoord_[k] = rowMajToCoord(k);
+        }
+        initDataCoord_ = false;
+    }
 }
 
 // global layout management ////////////////////////////////////////////////////
@@ -576,6 +598,25 @@ Index FitInterface::indY(const Index k, const Index j) const
     }
     
     return ind;
+}
+
+// function to convert an row-major index into coordinates /////////////////////
+vector<Index> FitInterface::rowMajToCoord(const Index k) const
+{
+    vector<Index> v(getNXDim());
+    Index         buf, dimProd;
+    
+    checkDataIndex(k);
+    buf     = k;
+    dimProd = 1;
+    for (Index d = getNXDim() - 1; d >= 0; --d)
+    {
+        v[d]     = (buf/dimProd)%xSize_[d];
+        buf     -= dimProd*v[d];
+        dimProd *= xSize_[d];
+    }
+    
+    return v;
 }
 
 // IO //////////////////////////////////////////////////////////////////////////

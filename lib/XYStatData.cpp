@@ -96,6 +96,15 @@ const double & XYStatData::x(const Index r, const Index i) const
     return xData_[i](r);
 }
 
+const DVec & XYStatData::x(const Index k)
+{
+    checkDataIndex(k);
+    
+    updateXMap();
+    
+    return xMap_.at(k);
+}
+
 double & XYStatData::y(const Index k, const Index j)
 {
     checkYDim(j);
@@ -206,6 +215,29 @@ DVec XYStatData::getYError(const Index j) const
     return yyVar_(j, j).diagonal().cwiseSqrt();
 }
 
+DMat XYStatData::getTable(const Index i, const Index j)
+{
+    checkXDim(i);
+    checkYDim(j);
+ 
+    DMat  table(getYSize(j), 4);
+    Index row = 0;
+    
+    for (auto &p: yData_[j])
+    {
+        Index k = p.first;
+        Index r = dataCoord(k)[i];
+        
+        table(row, 0) = x(k)(i);
+        table(row, 2) = p.second;
+        table(row, 1) = xxVar_(i, i).diagonal().cwiseSqrt()(r);
+        table(row, 3) = yyVar_(j, j).diagonal().cwiseSqrt()(row);
+        row++;
+    }
+    
+    return table;
+}
+
 // get total fit variance matrix ///////////////////////////////////////////////
 const DMat & XYStatData::getFitVarMat(void)
 {
@@ -306,6 +338,44 @@ FitResult XYStatData::fit(Minimizer &minimizer, const DVec &init,
     vector<Minimizer *> mv{&minimizer};
     
     return fit(mv, init, v);
+}
+
+// residuals ///////////////////////////////////////////////////////////////////
+XYStatData XYStatData::getResiduals(const FitResult &fit)
+{
+    XYStatData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunction &f = fit.getModel(j);
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+        }
+    }
+    
+    return res;
+}
+
+XYStatData XYStatData::getPartialResiduals(const FitResult &fit,
+                                           const DVec &ref, const Index i)
+{
+    XYStatData res(*this);
+    DVec       buf(ref);
+    
+    for (Index j = 0; j < res.getNYDim(); ++j)
+    {
+        const DoubleFunction &f = fit.getModel(j);
+        
+        for (auto &p: yData_[j])
+        {
+            buf(i)             = x(p.first)(i);
+            res.y(p.first, j) -= f(x(p.first)) - f(buf);
+        }
+    }
+    
+    return res;
 }
 
 // create data /////////////////////////////////////////////////////////////////
@@ -450,24 +520,13 @@ void XYStatData::updateXMap(void)
 {
     if (initXMap_)
     {
-        vector<Index> v;
-        set<Index>    indSet;
-        
-        for (Index j = 0; j < getNYDim(); ++j)
-        {
-            for (auto &p: yData_[j])
-            {
-                indSet.insert(p.first);
-            }
-        }
         xMap_.clear();
-        for (auto k: indSet)
+        for (auto k: getDataIndexSet())
         {
-            xMap_[k] = DVec(getNXDim());
-            v = dataCoord(k);
+            xMap_[k]      = DVec(getNXDim());
             for (Index i = 0; i < getNXDim(); ++i)
             {
-                xMap_[k](i) = xData_[i](v[i]);
+                xMap_[k](i) = xData_[i](dataCoord(k)[i]);
             }
         }
         initXMap_ = false;
@@ -510,7 +569,6 @@ void XYStatData::updateChi2ModVec(const DVec p,
     Index nPar = v[0]->getNPar(), a = 0, j, k, ind;
     auto  &par = p.segment(0, nPar), &xsi = p.segment(nPar, layout.totalXSize);
     
-    updateXMap();
     for (Index jfit = 0; jfit < layout.nYFitDim; ++jfit)
     for (Index sfit = 0; sfit < layout.ySize[jfit]; ++sfit)
     {
@@ -519,7 +577,7 @@ void XYStatData::updateChi2ModVec(const DVec p,
         for (Index i = 0; i < getNXDim(); ++i)
         {
             ind      = layout.xIndFromData[k][i] - layout.totalYSize;
-            xBuf_(i) = (ind >= 0) ? xsi(ind) : xMap_[k](i);
+            xBuf_(i) = (ind >= 0) ? xsi(ind) : x(k)(i);
         }
         chi2ModVec_(a) = (*v[j])(xBuf_.data(), par.data());
         a++;

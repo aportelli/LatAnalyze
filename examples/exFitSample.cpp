@@ -3,6 +3,7 @@
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/MinuitMinimizer.hpp>
 #include <LatAnalyze/NloptMinimizer.hpp>
+#include <LatAnalyze/Plot.hpp>
 #include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYSampleData.hpp>
 
@@ -11,7 +12,7 @@ using namespace Latan;
 
 const Index  nPoint1 = 10, nPoint2 = 10;
 const Index  nSample = 1000;
-const double xErr = .1, yErr   = .1;
+const double xErr = .1, yErr   = .3;
 const double exactPar[2] = {0.5,5.};
 const double dx1 = 10.0/static_cast<double>(nPoint1);
 const double dx2 = 5.0/static_cast<double>(nPoint2);
@@ -25,6 +26,7 @@ int main(void)
     DoubleModel  f([](const double *x, const double *p)
                    {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
     
+    cout << "-- generating fake data..." << endl;
     data.addXDim(nPoint1);
     data.addXDim(nPoint2);
     data.addYDim();
@@ -36,9 +38,9 @@ int main(void)
             data.x(i1, 0)[s] = rg.gaussian(xBuf[0], xErr);
             for (Index i2 = 0; i2 < nPoint2; ++i2)
             {
-                xBuf[1]                           = i2*dx2;
-                data.x(i2, 1)[s]                  = xBuf[1];
-                data.y(data.dataIndex(i1, i2))[s] =
+                xBuf[1]                              = i2*dx2;
+                data.x(i2, 1)[s]                     = xBuf[1];
+                data.y(data.dataIndex(i1, i2), 0)[s] =
                     rg.gaussian(f(xBuf, exactPar), yErr);
             }
         }
@@ -52,7 +54,7 @@ int main(void)
     MinuitMinimizer     localMin;
     vector<Minimizer *> min{&globalMin, &localMin};
     
-    globalMin.setPrecision(0.01);
+    globalMin.setPrecision(0.1);
     globalMin.setMaxIteration(10000);
     globalMin.useLowLimit(0);
     globalMin.setLowLimit(0, 0.);
@@ -64,10 +66,28 @@ int main(void)
     globalMin.setHighLimit(1, 20.);
     
     // fit
+    cout << "-- fit..." << endl;
     f.parName().setName(0, "m");
     f.parName().setName(1, "A");
     p = data.fit(min, init, f);
     p.print();
+    
+    // plot
+    Plot       plot;
+    DVec       ref(2);
+    XYStatData res;
+    
+    cout << "-- generating plots..." << endl;
+    ref(1) = 0.;
+    res    = data.getPartialResiduals(p, ref, 0).getData();
+    plot << PlotRange(Axis::x, 0., 10.);
+    plot << Color("rgb 'blue'");
+    plot << PlotPredBand(p.getModel(_).bind(0, ref), 0., 10.);
+    plot << Color("rgb 'blue'");
+    plot << PlotFunction(p.getModel().bind(0, ref), 0., 10.);
+    plot << Color("rgb 'red'");
+    plot << PlotData(res);
+    plot.display();
     
     return EXIT_SUCCESS;
 }
