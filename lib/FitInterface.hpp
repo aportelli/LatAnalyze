@@ -77,6 +77,8 @@ public:
           Index             getYFitSize(const Index j) const;
           Index             getMaxDataIndex(void) const;
     const std::set<Index> & getDataIndexSet(void) const;
+          double            getSvdTolerance(void) const;
+          void              setSvdTolerance(const double &tol);
           VarName &         xName(void);
     const VarName &         xName(void) const;
           VarName &         yName(void);
@@ -147,6 +149,7 @@ private:
     bool                                initLayout_{true};
     bool                                initVarMat_{true};
     bool                                initDataCoord_{true};
+    double                              svdTol_{1.e-10};
 };
 
 std::ostream & operator<<(std::ostream &out, FitInterface &f);

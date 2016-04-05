@@ -191,6 +191,16 @@ const set<Index> & FitInterface::getDataIndexSet(void) const
     return dataIndexSet_;
 }
 
+double FitInterface::getSvdTolerance(void) const
+{
+    return svdTol_;
+}
+
+void FitInterface::setSvdTolerance(const double &tol)
+{
+    svdTol_ = tol;
+}
+
 VarName & FitInterface::xName(void)
 {
     return xName_;
