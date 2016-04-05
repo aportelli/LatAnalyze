@@ -35,7 +35,7 @@ BEGIN_LATAN_NAMESPACE
                                     std::placeholders::_1, x))
 
 template <typename T>
-class MatSample: public Sample<Mat<T>>, public IoObject
+class MatSample: public Sample<Mat<T>>
 {
 public:
     // block type template
@@ -104,9 +104,6 @@ public:
                      const Index nCol);
     // resize all matrices
     void resizeMat(const Index nRow, const Index nCol);
-    // IO type
-    virtual IoType getType(void) const;
-
 };
 
 // non-member operators
@@ -383,12 +380,6 @@ void MatSample<T>::resizeMat(const Index nRow, const Index nCol)
     }
 }
 
-// IO type /////////////////////////////////////////////////////////////////////
-template <typename T>
-IoObject::IoType MatSample<T>::getType(void) const
-{
-    return IoType::noType;
-}
 
 END_LATAN_NAMESPACE
 

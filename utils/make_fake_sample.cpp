@@ -42,21 +42,21 @@ int main(int argc, char *argv[])
     nSample     = strTo<Index>(argv[3]);
     outFileName = argv[4];
 
-    RandGen    gen;
-    DMatSample res(nSample, 1, 1);
+    RandGen gen;
+    DSample res(nSample);
 
     FOR_STAT_ARRAY(res, s)
     {
         if (s == central)
         {
-            res[s](0, 0) = val;
+            res[s] = val;
         }
         else
         {
-            res[s](0, 0) = gen.gaussian(val, err);
+            res[s] = gen.gaussian(val, err);
         }
     }
-    Io::save<DMatSample>(res, outFileName);
+    Io::save<DSample>(res, outFileName);
 
     return EXIT_SUCCESS;
 }

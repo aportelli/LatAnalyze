@@ -46,7 +46,8 @@ public:
     virtual ~Hdf5File(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
-    virtual void save(const DMatSample &s, const std::string &name);
+    virtual void save(const DSample &ds, const std::string &name);
+    virtual void save(const DMatSample &ms, const std::string &name);
     virtual void save(const RandGenState &state, const std::string &name);
     // read first name
     virtual std::string getFirstName(void);
@@ -60,6 +61,7 @@ private:
             std::string getFirstGroupName(void);
     virtual std::string load(const std::string &name = "");
                    void load(DMat &m, const H5NS::DataSet &d);
+                   void load(DSample &ds, const H5NS::DataSet &d);
                    void load(DMatSample &s, const H5NS::DataSet &d);
                    void load(RandGenState &state, const H5NS::DataSet &d);
     // check name for forbidden characters
