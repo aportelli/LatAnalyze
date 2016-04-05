@@ -122,7 +122,7 @@ Index FitInterface::getYSize(const Index j) const
     return static_cast<Index>(yDataIndex_[j].size());
 }
 
-Index FitInterface::getXFitSize(void)
+Index FitInterface::getXFitSize(void) const
 {
     Index size = 0;
     
@@ -134,7 +134,7 @@ Index FitInterface::getXFitSize(void)
     return size;
 }
 
-Index FitInterface::getXFitSize(const Index i)
+Index FitInterface::getXFitSize(const Index i) const
 {
     set<Index>    fitCoord;
     vector<Index> v;
@@ -227,7 +227,7 @@ Index FitInterface::dataIndex(const vector<Index> &v) const
     return k;
 }
 
-const vector<Index> & FitInterface::dataCoord(const Index k)
+const vector<Index> & FitInterface::dataCoord(const Index k) const
 {
     checkDataIndex(k);
     
@@ -370,7 +370,7 @@ bool FitInterface::isXExact(const Index i) const
     return xIsExact_[i];
 }
 
-bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit)
+bool FitInterface::isXUsed(const Index r, const Index i, const bool inFit) const
 {
     vector<Index> v;
     
@@ -463,16 +463,18 @@ void FitInterface::scheduleDataCoordInit(void)
     initDataCoord_ = true;
 }
 
-void FitInterface::updateDataCoord(void)
+void FitInterface::updateDataCoord(void) const
 {
+    FitInterface * modThis = const_cast<FitInterface *>(this);
+    
     if (initDataCoord_)
     {
-        dataCoord_.clear();
+        modThis->dataCoord_.clear();
         for (auto k: getDataIndexSet())
         {
-            dataCoord_[k] = rowMajToCoord(k);
+            modThis->dataCoord_[k] = rowMajToCoord(k);
         }
-        initDataCoord_ = false;
+        modThis->initDataCoord_ = false;
     }
 }
 
@@ -483,68 +485,70 @@ void FitInterface::scheduleLayoutInit(void)
     scheduleFitVarMatInit();
 }
 
-bool FitInterface::initVarMat(void)
+bool FitInterface::initVarMat(void) const
 {
     return initVarMat_;
 }
 
-void FitInterface::updateLayout(void)
+void FitInterface::updateLayout(void) const
 {
     if (initLayout_)
     {
-        Index         size, ifit;
-        vector<Index> v;
+        FitInterface * modThis = const_cast<FitInterface *>(this);
+        Layout &       l = modThis->layout;
+        Index          size, ifit;
+        vector<Index>  v;
         
-        layout.nXFitDim   = 0;
-        layout.nYFitDim   = 0;
-        layout.totalSize  = 0;
-        layout.totalXSize = 0;
-        layout.totalYSize = 0;
-        layout.xSize.clear();
-        layout.ySize.clear();
-        layout.dataIndexSet.clear();
-        layout.xDim.clear();
-        layout.yDim.clear();
-        layout.xFitDim.clear();
-        layout.yFitDim.clear();
-        layout.x.clear();
-        layout.y.clear();
-        layout.xFit.clear();
-        layout.yFit.clear();
+        l.nXFitDim   = 0;
+        l.nYFitDim   = 0;
+        l.totalSize  = 0;
+        l.totalXSize = 0;
+        l.totalYSize = 0;
+        l.xSize.clear();
+        l.ySize.clear();
+        l.dataIndexSet.clear();
+        l.xDim.clear();
+        l.yDim.clear();
+        l.xFitDim.clear();
+        l.yFitDim.clear();
+        l.x.clear();
+        l.y.clear();
+        l.xFit.clear();
+        l.yFit.clear();
         ifit = 0;
         for (Index i = 0; i < getNXDim(); ++i)
         {
             if (!xIsExact_[i])
             {
-                layout.nXFitDim++;
+                l.nXFitDim++;
                 size = getXFitSize(i);
-                layout.xSize.push_back(size);
-                layout.totalXSize += size;
-                layout.xDim.push_back(i);
-                layout.xFitDim.push_back(layout.xDim.size() - 1);
-                layout.x.push_back(vector<Index>());
-                layout.xFit.push_back(vector<Index>());
+                l.xSize.push_back(size);
+                l.totalXSize += size;
+                l.xDim.push_back(i);
+                l.xFitDim.push_back(layout.xDim.size() - 1);
+                l.x.push_back(vector<Index>());
+                l.xFit.push_back(vector<Index>());
                 for (Index r = 0; r < getXSize(i); ++r)
                 {
                     if (isXUsed(r, i))
                     {
-                        layout.x[ifit].push_back(r);
-                        layout.xFit[i].push_back(layout.x[ifit].size() - 1);
+                        l.x[ifit].push_back(r);
+                        l.xFit[i].push_back(layout.x[ifit].size() - 1);
                     }
                     else
                     {
-                        layout.xFit[i].push_back(-1);
+                        l.xFit[i].push_back(-1);
                     }
                 }
                 ifit++;
             }
             else
             {
-                layout.xFitDim.push_back(-1);
-                layout.xFit.push_back(vector<Index>());
+                l.xFitDim.push_back(-1);
+                l.xFit.push_back(vector<Index>());
                 for (Index r = 0; r < getXSize(i); ++r)
                 {
-                    layout.xFit[i].push_back(-1);
+                    l.xFit[i].push_back(-1);
                 }
             }
         }
@@ -552,46 +556,46 @@ void FitInterface::updateLayout(void)
         {
             Index s = 0;
             
-            layout.nYFitDim++;
+            l.nYFitDim++;
             size = getYFitSize(j);
-            layout.ySize.push_back(size);
-            layout.totalYSize += size;
-            layout.yDim.push_back(j);
-            layout.yFitDim.push_back(layout.yDim.size() - 1);
-            layout.y.push_back(vector<Index>());
-            layout.yFit.push_back(vector<Index>());
-            layout.data.push_back(vector<Index>());
-            layout.yFitFromData.push_back(map<Index, Index>());
+            l.ySize.push_back(size);
+            l.totalYSize += size;
+            l.yDim.push_back(j);
+            l.yFitDim.push_back(layout.yDim.size() - 1);
+            l.y.push_back(vector<Index>());
+            l.yFit.push_back(vector<Index>());
+            l.data.push_back(vector<Index>());
+            l.yFitFromData.push_back(map<Index, Index>());
             for (auto &p: yDataIndex_[j])
             {
                 if (p.second)
                 {
-                    layout.dataIndexSet.insert(p.first);
-                    layout.y[j].push_back(s);
-                    layout.yFit[j].push_back(layout.y[j].size() - 1);
-                    layout.data[j].push_back(p.first);
-                    layout.yFitFromData[j][p.first] = layout.y[j].size() - 1;
+                    l.dataIndexSet.insert(p.first);
+                    l.y[j].push_back(s);
+                    l.yFit[j].push_back(layout.y[j].size() - 1);
+                    l.data[j].push_back(p.first);
+                    l.yFitFromData[j][p.first] = layout.y[j].size() - 1;
                 }
                 else
                 {
-                    layout.yFit[j].push_back(-1);
-                    layout.yFitFromData[j][p.first] = -1;
+                    l.yFit[j].push_back(-1);
+                    l.yFitFromData[j][p.first] = -1;
                 }
                 s++;
             }
         }
-        layout.totalSize = layout.totalXSize + layout.totalYSize;
-        layout.nXFitDim  = static_cast<Index>(layout.xSize.size());
-        layout.nYFitDim  = static_cast<Index>(layout.ySize.size());
+        l.totalSize = layout.totalXSize + layout.totalYSize;
+        l.nXFitDim  = static_cast<Index>(layout.xSize.size());
+        l.nYFitDim  = static_cast<Index>(layout.ySize.size());
         for (Index k: layout.dataIndexSet)
         {
             v = dataCoord(k);
             for (Index i = 0; i < getNXDim(); ++i)
             {
-                layout.xIndFromData[k].push_back(indX(v[i], i));
+                l.xIndFromData[k].push_back(indX(v[i], i));
             }
         }
-        initLayout_ = false;
+        modThis->initLayout_ = false;
     }
 }
 

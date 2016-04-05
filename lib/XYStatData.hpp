@@ -69,11 +69,11 @@ public:
     // destructor
     virtual ~XYStatData(void) = default;
     // data access
-    double &       x(const Index r, const Index);
-    const double & x(const Index r, const Index) const;
-    const DVec &   x(const Index k);
-    double &       y(const Index k, const Index);
-    const double & y(const Index k, const Index) const;
+    double &       x(const Index r, const Index i);
+    const double & x(const Index r, const Index i) const;
+    const DVec &   x(const Index k) const;
+    double &       y(const Index k, const Index j);
+    const double & y(const Index k, const Index j) const;
     void           setXXVar(const Index i1, const Index i2, const DMat &m);
     void           setYYVar(const Index j1, const Index j2, const DMat &m);
     void           setXYVar(const Index i, const Index j, const DMat &m);
@@ -84,7 +84,7 @@ public:
     const DMat &   getXYVar(const Index i, const Index j) const;
     DVec           getXError(const Index i) const;
     DVec           getYError(const Index j) const;
-    DMat           getTable(const Index i, const Index j);
+    DMat           getTable(const Index i, const Index j) const;
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
@@ -115,7 +115,7 @@ private:
     // buffer total fit variance matrix
     void updateFitVarMat(void);
     // buffer list of x vectors
-    void updateXMap(void);
+    void updateXMap(void) const;
     // buffer chi^2 vectors
     void updateChi2DataVec(void);
     void updateChi2ModVec(const DVec p,

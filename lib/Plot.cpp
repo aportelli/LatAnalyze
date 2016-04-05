@@ -167,7 +167,7 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
     setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
 }
 
-PlotData::PlotData(XYStatData &data, const Index i, const Index j)
+PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 {
     string usingCmd, tmpFileName;
     

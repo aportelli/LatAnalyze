@@ -96,7 +96,7 @@ const double & XYStatData::x(const Index r, const Index i) const
     return xData_[i](r);
 }
 
-const DVec & XYStatData::x(const Index k)
+const DVec & XYStatData::x(const Index k) const
 {
     checkDataIndex(k);
     
@@ -215,7 +215,7 @@ DVec XYStatData::getYError(const Index j) const
     return yyVar_(j, j).diagonal().cwiseSqrt();
 }
 
-DMat XYStatData::getTable(const Index i, const Index j)
+DMat XYStatData::getTable(const Index i, const Index j) const
 {
     checkXDim(i);
     checkYDim(j);
@@ -510,26 +510,28 @@ void XYStatData::updateFitVarMat(void)
         chi2ModVec_.resize(layout.totalSize);
         chi2Vec_.resize(layout.totalSize);
         fitVar_    = fitVar_.cwiseProduct(makeCorrFilter());
-        fitVarInv_ = fitVar_.pInverse();
+        fitVarInv_ = fitVar_.pInverse(getSvdTolerance());
         scheduleFitVarMatInit(false);
     }
 }
 
 // buffer list of x vectors ////////////////////////////////////////////////////
-void XYStatData::updateXMap(void)
+void XYStatData::updateXMap(void) const
 {
     if (initXMap_)
     {
-        xMap_.clear();
+        XYStatData * modThis = const_cast<XYStatData *>(this);
+        
+        modThis->xMap_.clear();
         for (auto k: getDataIndexSet())
         {
-            xMap_[k]      = DVec(getNXDim());
+            modThis->xMap_[k] = DVec(getNXDim());
             for (Index i = 0; i < getNXDim(); ++i)
             {
-                xMap_[k](i) = xData_[i](dataCoord(k)[i]);
+                modThis->xMap_[k](i) = xData_[i](dataCoord(k)[i]);
             }
         }
-        initXMap_ = false;
+        modThis->initXMap_ = false;
     }
 }
 

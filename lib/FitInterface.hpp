@@ -71,8 +71,8 @@ public:
           Index             getXSize(const Index i) const;
           Index             getYSize(void) const;
           Index             getYSize(const Index j) const;
-          Index             getXFitSize(void);
-          Index             getXFitSize(const Index i);
+          Index             getXFitSize(void) const;
+          Index             getXFitSize(const Index i) const;
           Index             getYFitSize(void) const;
           Index             getYFitSize(const Index j) const;
           Index             getMaxDataIndex(void) const;
@@ -81,11 +81,12 @@ public:
     const VarName &         xName(void) const;
           VarName &         yName(void);
     const VarName &         yName(void) const;
+    
     // Y dimension index helper
     template <typename... Ts>
     Index                      dataIndex(const Ts... is) const;
     Index                      dataIndex(const std::vector<Index> &v) const;
-    const std::vector<Index> & dataCoord(const Index k);
+    const std::vector<Index> & dataCoord(const Index k) const;
     // enable fit points
     void fitPoint(const bool isFitPoint, const Index k, const Index j = 0);
     // variance interface
@@ -103,7 +104,7 @@ public:
     bool pointExists(const Index k) const;
     bool pointExists(const Index k, const Index j) const;
     bool isXExact(const Index i) const;
-    bool isXUsed(const Index r, const Index i, const bool inFit = true);
+    bool isXUsed(const Index r, const Index i, const bool inFit = true) const;
     bool isFitPoint(const Index k, const Index j) const;
     // make correlation filter for fit variance matrix
     DMat makeCorrFilter(void);
@@ -122,11 +123,11 @@ protected:
     virtual void createYData(const std::string name) = 0;
     // coordinate buffering
     void scheduleDataCoordInit(void);
-    void updateDataCoord(void);
+    void updateDataCoord(void) const;
     // global layout management
     void  scheduleLayoutInit(void);
-    bool  initVarMat(void);
-    void  updateLayout(void);
+    bool  initVarMat(void) const;
+    void  updateLayout(void) const;
     Index indX(const Index r, const Index i) const;
     Index indY(const Index k, const Index j) const;
 private:
@@ -143,7 +144,8 @@ private:
     std::vector<std::map<Index, bool>>  yDataIndex_;
     std::set<std::array<Index, 4>>      xxCorr_, yyCorr_, xyCorr_;
     Index                               maxDataIndex_{1};
-    bool                                initLayout_{true}, initVarMat_{true};
+    bool                                initLayout_{true};
+    bool                                initVarMat_{true};
     bool                                initDataCoord_{true};
 };
 
