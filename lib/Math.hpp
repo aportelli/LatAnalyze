@@ -68,6 +68,9 @@ namespace MATH_NAMESPACE
         return res;
     }
     
+    // convert variance matrix to correlation matrix
+    DMat varToCorr(const DMat &var);
+    
     // Constants
     const double pi = 3.1415926535897932384626433832795028841970;
     const double e  = 2.7182818284590452353602874713526624977572;

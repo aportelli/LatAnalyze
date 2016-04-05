@@ -25,6 +25,19 @@ using namespace std;
 using namespace Latan;
 
 /******************************************************************************
+ *                             Custom math functions                          *
+ ******************************************************************************/
+DMat MATH_NAMESPACE::varToCorr(const DMat &var)
+{
+    DMat res = var, invDiag = res.diagonal();
+    
+    invDiag = invDiag.cwiseInverse().cwiseSqrt();
+    res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
+    
+    return res;
+}
+
+/******************************************************************************
  *                             Standard C functions                           *
  ******************************************************************************/
 
