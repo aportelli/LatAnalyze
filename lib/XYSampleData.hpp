@@ -80,6 +80,9 @@ public:
     const DMatSample & x(const Index k);
     DSample &          y(const Index k, const Index j);
     const DSample &    y(const Index k, const Index j) const;
+    template <typename... Ts>
+    void               setUnidimData(const DMatSample &xData,
+                                     const Ts & ...yDatas);
     const DMat &       getXXVar(const Index i1, const Index i2);
     const DMat &       getYYVar(const Index j1, const Index j2);
     const DMat &       getXYVar(const Index i, const Index j);
@@ -132,6 +135,25 @@ private:
 /******************************************************************************
  *                    XYSampleData template implementation                    *
  ******************************************************************************/
+template <typename... Ts>
+void XYSampleData::setUnidimData(const DMatSample &xData, const Ts & ...yDatas)
+{
+    static_assert(static_or<std::is_assignable<DMatSample, Ts>::value...>::value,
+                  "y data arguments are not compatible with DMatSample");
+    
+    std::vector<const DMatSample *> yData{&yDatas...};
+    
+    FOR_STAT_ARRAY(xData, s)
+    FOR_VEC(xData[central], r)
+    {
+        x(r, 0)[s] = xData[s](r);
+        for (unsigned int j = 0; j < yData.size(); ++j)
+        {
+            y(r, j)[s] = (*(yData[j]))[s](r);
+        }
+    }
+}
+
 template <typename... Ts>
 SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                                   const DVec &init,

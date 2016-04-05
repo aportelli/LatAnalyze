@@ -79,6 +79,8 @@ public:
     void           setXYVar(const Index i, const Index j, const DMat &m);
     void           setXError(const Index i, const DVec &err);
     void           setYError(const Index j, const DVec &err);
+    template <typename... Ts>
+    void           setUnidimData(const DMat &xData, const Ts & ...yDatas);
     const DMat &   getXXVar(const Index i1, const Index i2) const;
     const DMat &   getYYVar(const Index j1, const Index j2) const;
     const DMat &   getXYVar(const Index i, const Index j) const;
@@ -135,6 +137,24 @@ private:
 /******************************************************************************
  *                     XYStatData template implementation                     *
  ******************************************************************************/
+template <typename... Ts>
+void XYStatData::setUnidimData(const DMat &xData, const Ts & ...yDatas)
+{
+    static_assert(static_or<std::is_assignable<DMat, Ts>::value...>::value,
+                  "y data arguments are not compatible with DMat");
+    
+    std::vector<const DMat *> yData{&yDatas...};
+    
+    FOR_VEC(xData, r)
+    {
+        x(r, 0) = xData(r);
+        for (unsigned int j = 0; j < yData.size(); ++j)
+        {
+            y(r, j) = (*(yData[j]))(r);
+        }
+    }
+}
+
 template <typename... Ts>
 FitResult XYStatData::fit(std::vector<Minimizer *> &minimizer, const DVec &init,
                           const DoubleModel &model, const Ts... models)
