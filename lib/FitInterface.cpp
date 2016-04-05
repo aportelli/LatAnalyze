@@ -285,6 +285,16 @@ void FitInterface::assumeXXCorrelated(const bool isCorr, const Index r1,
     scheduleFitVarMatInit();
 }
 
+void FitInterface::assumeXXCorrelated(const bool isCorr, const Index i1,
+                                      const Index i2)
+{
+    for (Index r1 = 0; r1 < getXSize(i1); ++r1)
+    for (Index r2 = 0; r2 < getXSize(i2); ++r2)
+    {
+        assumeXXCorrelated(isCorr, r1, i1, r2, i2);
+    }
+}
+
 void FitInterface::assumeYYCorrelated(const bool isCorr, const Index k1,
                                       const Index j1, const Index k2,
                                       const Index j2)
@@ -300,6 +310,18 @@ void FitInterface::assumeYYCorrelated(const bool isCorr, const Index k1,
     scheduleFitVarMatInit();
 }
 
+void FitInterface::assumeYYCorrelated(const bool isCorr, const Index j1,
+                                      const Index j2)
+{
+    checkYDim(j1);
+    checkYDim(j2);
+    for (auto &p1: yDataIndex_[j1])
+    for (auto &p2: yDataIndex_[j2])
+    {
+        assumeYYCorrelated(isCorr, p1.first, j1, p2.first, j2);
+    }
+}
+
 void FitInterface::assumeXYCorrelated(const bool isCorr, const Index r,
                                       const Index i, const Index k,
                                       const Index j)
@@ -310,6 +332,17 @@ void FitInterface::assumeXYCorrelated(const bool isCorr, const Index r,
     checkPoint(k, j);
     addCorr(xyCorr_, isCorr, c);
     scheduleFitVarMatInit();
+}
+
+void FitInterface::assumeXYCorrelated(const bool isCorr, const Index i,
+                                      const Index j)
+{
+    checkYDim(j);
+    for (Index r = 0; r < getXSize(i); ++r)
+    for (auto &p: yDataIndex_[j])
+    {
+        assumeXYCorrelated(isCorr, r, i, p.first, j);
+    }
 }
 
 // tests ///////////////////////////////////////////////////////////////////////

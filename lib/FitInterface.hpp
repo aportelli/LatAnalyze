@@ -92,10 +92,13 @@ public:
     void assumeXExact(const bool isExact, const Index i);
     void assumeXXCorrelated(const bool isCorr, const Index r1, const Index i1,
                             const Index r2, const Index i2);
+    void assumeXXCorrelated(const bool isCorr, const Index i1, const Index i2);
     void assumeYYCorrelated(const bool isCorr, const Index k1, const Index j1,
                             const Index k2, const Index j2);
+    void assumeYYCorrelated(const bool isCorr, const Index j1, const Index j2);
     void assumeXYCorrelated(const bool isCorr, const Index r, const Index i,
                             const Index k, const Index j);
+    void assumeXYCorrelated(const bool isCorr, const Index i, const Index j);
     // tests
     bool pointExists(const Index k) const;
     bool pointExists(const Index k, const Index j) const;
