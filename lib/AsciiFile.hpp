@@ -49,6 +49,7 @@ public:
         std::string first;
         // parsing buffers
         RandGenState       stateBuf;
+        DSample            dSampleBuf;
         DMatSample         dMatSampleBuf;
         std::queue<DMat>   dMatQueue;
         std::queue<double> doubleQueue;
@@ -66,7 +67,8 @@ public:
     virtual ~AsciiFile(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
-    virtual void save(const DMatSample &s, const std::string &name);
+    virtual void save(const DSample &ds, const std::string &name);
+    virtual void save(const DMatSample &ms, const std::string &name);
     virtual void save(const RandGenState &state, const std::string &name);
     // read first name
     virtual std::string getFirstName(void);

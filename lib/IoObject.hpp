@@ -30,12 +30,14 @@ BEGIN_LATAN_NAMESPACE
 class IoObject
 {
 public:
+    // conserve order for datafile retro-compatibility!
     enum class IoType: short int
     {
         noType     = 0,
         dMat       = 1,
         dMatSample = 2,
-        rgState    = 3
+        rgState    = 3,
+        dSample    = 4
     };
 public:
     // destructor

@@ -52,10 +52,6 @@ unsigned int File::getMode(void) const
 // internal functions //////////////////////////////////////////////////////////
 void File::deleteData(void)
 {
-    for (auto &i : data_)
-    {
-        i.second.reset();
-    }
     data_.clear();
 }
 

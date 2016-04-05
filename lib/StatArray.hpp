@@ -33,7 +33,7 @@ BEGIN_LATAN_NAMESPACE
  *                     Array class with statistics                            *
  ******************************************************************************/
 template <typename T, Index os = 0>
-class StatArray: public Array<T, dynamic, 1>
+class StatArray: public Array<T, dynamic, 1>, public IoObject
 {
 protected:
     typedef Array<T, dynamic, 1> Base;
@@ -60,8 +60,10 @@ public:
     T    variance(const Index pos = 0, const Index n = -1) const;
     T    varianceMatrix(const Index pos = 0, const Index n = -1) const;
     T    correlationMatrix(const Index pos = 0, const Index n = -1) const;
+    // IO type
+    virtual IoType getType(void) const;
 public:
-    static const Index offset = os;
+    static constexpr Index offset = os;
 };
 
 // reduction operations
@@ -77,12 +79,10 @@ namespace ReducOp
 }
 
 // Sample types
-#define SAMPLE_OFFSET 1
-
-const int central = -SAMPLE_OFFSET;
+const int central = -1;
 
 template <typename T>
-using Sample = StatArray<T, SAMPLE_OFFSET>;
+using Sample = StatArray<T, 1>;
 
 typedef Sample<double>               DSample;
 typedef Sample<std::complex<double>> CSample;
@@ -271,6 +271,13 @@ namespace ReducOp
         
         return v1*v2.transpose();
     }
+}
+
+// IO type /////////////////////////////////////////////////////////////////////
+template <typename T, Index os>
+IoObject::IoType StatArray<T, os>::getType(void) const
+{
+    return IoType::noType;
 }
 
 END_LATAN_NAMESPACE

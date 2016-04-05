@@ -61,7 +61,8 @@ public:
     template <typename IoT>
     const IoT &  read(const std::string &name = "");
     virtual void save(const DMat &m, const std::string &name)             = 0;
-    virtual void save(const DMatSample &state, const std::string &name)   = 0;
+    virtual void save(const DSample &ds, const std::string &name)         = 0;
+    virtual void save(const DMatSample &ms, const std::string &name)      = 0;
     virtual void save(const RandGenState &state, const std::string &name) = 0;
     // read first name
     virtual std::string getFirstName(void) = 0;

@@ -30,6 +30,7 @@ using namespace H5NS;
 constexpr unsigned int maxGroupNameSize = 1024u;
 
 const short dMatType       = static_cast<short>(IoObject::IoType::dMat);
+const short dSampleType    = static_cast<short>(IoObject::IoType::dSample);
 const short dMatSampleType = static_cast<short>(IoObject::IoType::dMatSample);
 const short rgStateType    = static_cast<short>(IoObject::IoType::rgState);
 
@@ -65,7 +66,6 @@ void Hdf5File::save(const DMat &m, const string &name)
     hsize_t   dim[2]  = {static_cast<hsize_t>(m.rows()),
                          static_cast<hsize_t>(m.cols())};
     hsize_t   attrDim = 1;
-
     DataSpace dataSpace(2, dim), attrSpace(1, &attrDim);
 
     group = h5File_->createGroup(name.c_str() + nameOffset(name));
@@ -75,7 +75,31 @@ void Hdf5File::save(const DMat &m, const string &name)
     dataset.write(m.data(), PredType::NATIVE_DOUBLE);
 }
 
-void Hdf5File::save(const DMatSample &sample, const string &name)
+void Hdf5File::save(const DSample &ds, const string &name)
+{
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+    
+    Group          group;
+    Attribute      attr;
+    DataSet        dataset;
+    hsize_t        dim     = static_cast<hsize_t>(ds.size() + 1);
+    hsize_t        attrDim = 1;
+    DataSpace      dataSpace(1, &dim), attrSpace(1, &attrDim);
+    const long int nSample = ds.size();
+    
+    group = h5File_->createGroup(name.c_str() + nameOffset(name));
+    attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
+    attr.write(PredType::NATIVE_SHORT, &dSampleType);
+    attr  = group.createAttribute("nSample", PredType::NATIVE_LONG, attrSpace);
+    attr.write(PredType::NATIVE_LONG, &nSample);
+    dataset = group.createDataSet("data", PredType::NATIVE_DOUBLE, dataSpace);
+    dataset.write(ds.data(), PredType::NATIVE_DOUBLE);
+}
+
+void Hdf5File::save(const DMatSample &ms, const string &name)
 {
     if (name.empty())
     {
@@ -85,11 +109,11 @@ void Hdf5File::save(const DMatSample &sample, const string &name)
     Group          group;
     Attribute      attr;
     DataSet        dataset;
-    hsize_t        dim[2]  = {static_cast<hsize_t>(sample[central].rows()),
-                              static_cast<hsize_t>(sample[central].cols())};
+    hsize_t        dim[2]  = {static_cast<hsize_t>(ms[central].rows()),
+                              static_cast<hsize_t>(ms[central].cols())};
     hsize_t        attrDim = 1;
     DataSpace      dataSpace(2, dim), attrSpace(1, &attrDim);
-    const long int nSample = sample.size();
+    const long int nSample = ms.size();
     string         datasetName;
 
     group = h5File_->createGroup(name.c_str() + nameOffset(name));
@@ -97,13 +121,13 @@ void Hdf5File::save(const DMatSample &sample, const string &name)
     attr.write(PredType::NATIVE_SHORT, &dMatSampleType);
     attr  = group.createAttribute("nSample", PredType::NATIVE_LONG, attrSpace);
     attr.write(PredType::NATIVE_LONG, &nSample);
-    FOR_STAT_ARRAY(sample, s)
+    FOR_STAT_ARRAY(ms, s)
     {
         datasetName = (s == central) ? "data_C" : ("data_S_" + strFrom(s));
         dataset     = group.createDataSet(datasetName.c_str(),
                                           PredType::NATIVE_DOUBLE,
                                           dataSpace);
-        dataset.write(sample[s].data(), PredType::NATIVE_DOUBLE);
+        dataset.write(ms[s].data(), PredType::NATIVE_DOUBLE);
     }
 }
 
@@ -253,6 +277,17 @@ void Hdf5File::load(DMat &m, const DataSet &d)
     d.read(m.data(), PredType::NATIVE_DOUBLE);
 }
 
+void Hdf5File::load(DSample &ds, const DataSet &d)
+{
+    DataSpace dataspace;
+    hsize_t   dim[1];
+    
+    dataspace = d.getSpace();
+    dataspace.getSimpleExtentDims(dim);
+    ds.resize(dim[0] - 1);
+    d.read(ds.data(), PredType::NATIVE_DOUBLE);
+}
+
 void Hdf5File::load(RandGenState &state, const DataSet &d)
 {
     DataSpace dataspace;
@@ -291,6 +326,15 @@ string Hdf5File::load(const string &name)
             {
                 DMat *pt = new DMat;
 
+                data_[groupName].reset(pt);
+                dataset = group.openDataSet("data");
+                load(*pt, dataset);
+                break;
+            }
+            case IoObject::IoType::dSample:
+            {
+                DSample *pt = new DSample;
+                
                 data_[groupName].reset(pt);
                 dataset = group.openDataSet("data");
                 load(*pt, dataset);

@@ -1,5 +1,5 @@
 /*
- * MatSample.cpp, part of LatAnalyze 3
+ * StatArray.cpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2015 Antonin Portelli
  *
@@ -17,7 +17,7 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <LatAnalyze/MatSample.hpp>
+#include <LatAnalyze/StatArray.hpp>
 #include <LatAnalyze/includes.hpp>
 
 using namespace std;
@@ -25,7 +25,7 @@ using namespace std;
 namespace Latan
 {
     template <>
-    IoObject::IoType MatSample<double>::getType(void) const
+    IoObject::IoType StatArray<Mat<double>, -1>::getType(void) const
     {
         return IoType::dMatSample;
     }
