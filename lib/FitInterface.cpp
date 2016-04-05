@@ -36,6 +36,7 @@ FitInterface::FitInterface(void)
 void FitInterface::copyInterface(const FitInterface &d)
 {
     *this = d;
+    scheduleFitVarMatInit();
 }
 
 // add dimensions //////////////////////////////////////////////////////////////
@@ -471,6 +472,7 @@ void FitInterface::registerDataPoint(const Index k, const Index j)
 void FitInterface::scheduleDataCoordInit(void)
 {
     initDataCoord_ = true;
+    scheduleFitVarMatInit();
 }
 
 void FitInterface::updateDataCoord(void) const

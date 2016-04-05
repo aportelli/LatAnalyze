@@ -92,6 +92,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     // create and set minimizer
     min.reset(new Minuit2Minimizer(minuitAlg));
+    min->SetStrategy(2);
     min->SetMaxFunctionCalls(getMaxIteration());
     min->SetTolerance(getPrecision());
     min->SetPrintLevel(printLevel);
@@ -130,7 +131,6 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     int          status;
     unsigned int n = 0;
     
-    min->SetStrategy(2);
     do
     {
         if (getVerbosity() >= Verbosity::Normal)

@@ -244,7 +244,6 @@ void XYSampleData::setDataToSample(const Index s)
         {
             data_.y(p.first, j) = p.second[s];
         }
-        data_.copyInterface(*this);
         dataSample_ = s;
         initData_   = false;
     }
@@ -474,7 +473,7 @@ void XYSampleData::computeVarMat(void)
     }
     if (initVarMat())
     {
-        data_.scheduleFitVarMatInit();
+        data_.copyInterface(*this);
         scheduleFitVarMatInit(false);
     }
 }

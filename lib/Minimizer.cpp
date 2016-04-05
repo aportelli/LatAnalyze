@@ -99,11 +99,8 @@ void Minimizer::setHighLimit(const Index i, const double l)
     {
         resize(i + 1);
     }
-    else
-    {
-        highLimit_(i) = l;
-        useHighLimit(i);
-    }
+    highLimit_(i) = l;
+    useHighLimit(i);
 }
 
 void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
@@ -112,11 +109,8 @@ void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
     {
         resize(l.size());
     }
-    else
-    {
-        highLimit_ = l;
-        useHighLimit(_);
-    }
+    highLimit_ = l;
+    useHighLimit(_);
 }
 
 void Minimizer::setLowLimit(const Index i, const double l)
@@ -125,11 +119,8 @@ void Minimizer::setLowLimit(const Index i, const double l)
     {
         resize(i + 1);
     }
-    else
-    {
-        lowLimit_(i) = l;
-        useLowLimit(i);
-    }
+    lowLimit_(i) = l;
+    useLowLimit(i);
 }
 
 void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
@@ -138,11 +129,8 @@ void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
     {
         resize(l.size());
     }
-    else
-    {
-        lowLimit_ = l;
-        useLowLimit(_);
-    }
+    lowLimit_ = l;
+    useLowLimit(_);
 }
 
 void Minimizer::useHighLimit(const Index i, const bool use)
@@ -151,10 +139,7 @@ void Minimizer::useHighLimit(const Index i, const bool use)
     {
         resize(i + 1);
     }
-    else
-    {
-        hasHighLimit_(i) = use;
-    }
+    hasHighLimit_(i) = use;
 }
 
 void Minimizer::useHighLimit(const PlaceHolder ph __dumb, const bool use)
@@ -168,10 +153,7 @@ void Minimizer::useLowLimit(const Index i, const bool use)
     {
         resize(i + 1);
     }
-    else
-    {
-        hasLowLimit_(i) = use;
-    }
+    hasLowLimit_(i) = use;
 }
 
 void Minimizer::useLowLimit(const PlaceHolder ph __dumb, const bool use)
