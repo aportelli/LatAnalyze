@@ -247,6 +247,14 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     setCommand("'" + tmpFileName + "' u 1:2 w steps");
 }
 
+// PlotMatrixNoRange constructor ///////////////////////////////////////////////
+PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
+{
+    string tmpFileName = dumpToTmpFile(m);
+    
+    setCommand("'" + tmpFileName + "' matrix w image");
+}
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/

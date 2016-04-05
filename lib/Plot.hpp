@@ -49,11 +49,11 @@ public:
     // destructor
     virtual ~PlotObject(void) = default;
     // access
-    std::string                 popTmpFile(void);
-    const std::string &         getCommand(void) const;
-    const std::string &         getHeadCommand(void) const;
+    std::string         popTmpFile(void);
+    const std::string & getCommand(void) const;
+    const std::string & getHeadCommand(void) const;
     // test
-    bool                        gotTmpFile(void) const;
+    bool                gotTmpFile(void) const;
 protected:
     // access
     void pushTmpFile(const std::string &fileName);
@@ -137,6 +137,20 @@ public:
     // destructor
     virtual ~PlotHistogram(void) = default;
 };
+
+class PlotMatrixNoRange: public PlotObject
+{
+public:
+    // constructor
+    PlotMatrixNoRange(const DMat &m);
+    // destructor
+    virtual ~PlotMatrixNoRange(void) = default;
+};
+
+#define PlotMatrix(m)\
+PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
+PlotRange(Axis::y, -.5, (m).rows() - .5) <<\
+PlotMatrixNoRange(m)
 
 /******************************************************************************
  *                             Plot modifiers                                 *
