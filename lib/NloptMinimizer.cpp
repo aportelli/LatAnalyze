@@ -94,7 +94,7 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
             cout << "Algorithm: " << min.get_algorithm_name() << endl;
             cout << "Max eval.= " << min.get_maxeval();
             cout << " -- Precision= " << min.get_xtol_rel() << endl;
-            cout << "starting f(x)= " << f(x) << endl;
+            printf("Starting f(x)= %.10e\n", f(x));
         }
         try
         {
@@ -108,10 +108,10 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
         }
         if (getVerbosity() >= Verbosity::Normal)
         {
-            cout << "Found minimum " << res << " at:" << endl;
+            printf("Found minimum %.10e at:\n", res);
             for (Index i = 0; i < x.size(); ++i)
             {
-                printf("%8s= %e\n", f.varName().getName(i).c_str(), vx[i]);
+                printf("%8s= %.10e\n", f.varName().getName(i).c_str(), vx[i]);
             }
             cout << "after " << data.evalCount << " evaluations" << endl;
             cout << "Minimization ended with code " << status;
