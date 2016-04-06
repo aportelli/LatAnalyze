@@ -136,6 +136,20 @@ public:
     virtual ~PlotHistogram(void) = default;
 };
 
+class PlotMatrixNoRange: public PlotObject
+{
+public:
+    // constructor
+    PlotMatrixNoRange(const DMat &m);
+    // destructor
+    virtual ~PlotMatrixNoRange(void) = default;
+};
+
+#define PlotMatrix(m)\
+PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
+PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
+PlotMatrixNoRange(m)
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/
