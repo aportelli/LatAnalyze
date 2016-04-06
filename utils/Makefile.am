@@ -18,6 +18,7 @@ bin_PROGRAMS =            \
     latan_create_rg_state \
     latan_make_fake_sample\
     latan_sample_combine  \
+    latan_sample_plot_corr\
     latan_sample_read     \
     latan_resample
 
@@ -32,6 +33,10 @@ latan_make_fake_sample_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_combine_SOURCES  = sample_combine.cpp
 latan_sample_combine_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_combine_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_plot_corr_SOURCES  = sample_plot_corr.cpp
+latan_sample_plot_corr_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_plot_corr_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_read_SOURCES  = sample_read.cpp
 latan_sample_read_CXXFLAGS = $(COM_CXXFLAGS)
