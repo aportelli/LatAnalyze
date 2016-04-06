@@ -121,11 +121,13 @@ private:
     // buffer chi^2 vectors
     void updateChi2DataVec(void);
     void updateChi2ModVec(const DVec p,
-                          const std::vector<const DoubleModel *> &v);
+                          const std::vector<const DoubleModel *> &v,
+                          const Index nPar, const Index nXDim);
 private:
     std::vector<std::map<Index, double>> yData_;
+    // no map here for fit performance
     std::vector<DVec>                    xData_;
-    std::map<Index, DVec>                xMap_;
+    std::vector<DVec>                    xMap_;
     Mat<DMat>                            xxVar_, yyVar_, xyVar_;
     DMat                                 fitVar_, fitVarInv_;
     DVec                                 chi2DataVec_, chi2ModVec_, chi2Vec_;

@@ -51,7 +51,8 @@ private:
         std::vector<Index>                  xDim, yDim, xFitDim, yFitDim;
         std::vector<std::vector<Index>>     x, y, data, xFit, yFit;
         std::vector<std::map<Index, Index>> yFitFromData;
-        std::map<Index, std::vector<Index>> xIndFromData;
+        // no map here for fit performance
+        std::vector<std::vector<Index>>     xIndFromData;
     } Layout;
 public:
     // constructor

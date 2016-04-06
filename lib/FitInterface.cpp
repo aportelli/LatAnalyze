@@ -632,6 +632,7 @@ void FitInterface::updateLayout(void) const
         l.totalSize = layout.totalXSize + layout.totalYSize;
         l.nXFitDim  = static_cast<Index>(layout.xSize.size());
         l.nYFitDim  = static_cast<Index>(layout.ySize.size());
+        l.xIndFromData.resize(getMaxDataIndex());
         for (Index k: layout.dataIndexSet)
         {
             v = dataCoord(k);

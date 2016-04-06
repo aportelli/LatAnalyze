@@ -267,19 +267,31 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
     
     // get number of parameters
     Index nPar      = v[0]->getNPar();
+    Index nXDim     = getNXDim();
     Index totalNPar = nPar + layout.totalXSize;
     
-    // chi^2 function
-    auto chi2Func = [this, totalNPar, &v](const double *x)->double
+    // chi^2 functions
+    auto corrChi2Func = [this, nPar, nXDim, totalNPar, &v](const double *x)->double
     {
         ConstMap<DVec> p(x, totalNPar);
         
-        updateChi2ModVec(p, v);
+        updateChi2ModVec(p, v, nPar, nXDim);
         chi2Vec_ = (chi2ModVec_ - chi2DataVec_);
         
-        return (chi2Vec_.transpose()*fitVarInv_).dot(chi2Vec_);
+        return chi2Vec_.dot(fitVarInv_*chi2Vec_);
     };
-    DoubleFunction chi2(chi2Func, totalNPar);
+    DoubleFunction corrChi2(corrChi2Func, totalNPar);
+    auto uncorrChi2Func = [this, nPar, nXDim, totalNPar, &v](const double *x)->double
+    {
+        ConstMap<DVec> p(x, totalNPar);
+        
+        updateChi2ModVec(p, v, nPar, nXDim);
+        chi2Vec_ = (chi2ModVec_ - chi2DataVec_);
+        
+        return chi2Vec_.dot(chi2Vec_.cwiseQuotient(fitVar_.diagonal()));
+    };
+    DoubleFunction uncorrChi2(uncorrChi2Func, totalNPar);
+    DoubleFunction &chi2 = hasCorrelations() ? corrChi2 : uncorrChi2;
     
     for (Index p = 0; p < nPar; ++p)
     {
@@ -523,6 +535,7 @@ void XYStatData::updateXMap(void) const
         XYStatData * modThis = const_cast<XYStatData *>(this);
         
         modThis->xMap_.clear();
+        modThis->xMap_.resize(getMaxDataIndex());
         for (auto k: getDataIndexSet())
         {
             modThis->xMap_[k] = DVec(getNXDim());
@@ -563,26 +576,32 @@ void XYStatData::updateChi2DataVec(void)
     }
 }
 
+// WARNING: updateChi2ModVec is heavily called by fit
 void XYStatData::updateChi2ModVec(const DVec p,
-                                  const vector<const DoubleModel *> &v)
+                                  const vector<const DoubleModel *> &v,
+                                  const Index nPar, const Index nXDim)
 {
     updateLayout();
+    updateXMap();
     
-    Index nPar = v[0]->getNPar(), a = 0, j, k, ind;
+    Index a = 0, j, k, ind;
     auto  &par = p.segment(0, nPar), &xsi = p.segment(nPar, layout.totalXSize);
     
     for (Index jfit = 0; jfit < layout.nYFitDim; ++jfit)
-    for (Index sfit = 0; sfit < layout.ySize[jfit]; ++sfit)
     {
-        j              = layout.yDim[jfit];
-        k              = layout.data[jfit][sfit];
-        for (Index i = 0; i < getNXDim(); ++i)
+        j = layout.yDim[jfit];
+        for (Index sfit = 0; sfit < layout.ySize[jfit]; ++sfit)
         {
-            ind      = layout.xIndFromData[k][i] - layout.totalYSize;
-            xBuf_(i) = (ind >= 0) ? xsi(ind) : x(k)(i);
+            
+            k = layout.data[jfit][sfit];
+            for (Index i = 0; i < nXDim; ++i)
+            {
+                ind      = layout.xIndFromData[k][i] - layout.totalYSize;
+                xBuf_(i) = (ind >= 0) ? xsi(ind) : xMap_[k](i);
+            }
+            chi2ModVec_(a) = (*v[j])(xBuf_.data(), par.data());
+            a++;
         }
-        chi2ModVec_(a) = (*v[j])(xBuf_.data(), par.data());
-        a++;
     }
     chi2ModVec_.segment(a, layout.totalXSize) = xsi;
 }
