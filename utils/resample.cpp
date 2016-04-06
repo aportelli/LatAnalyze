@@ -1,7 +1,7 @@
 /*
  * resample.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <map>
-#include <libgen.h>
-#include <unistd.h>
 #include <LatAnalyze/Dataset.hpp>
 #include <LatAnalyze/Io.hpp>
 

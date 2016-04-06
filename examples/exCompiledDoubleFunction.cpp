@@ -1,5 +1,3 @@
-#include <iostream>
-#include <iomanip>
 #include <LatAnalyze/CompiledFunction.hpp>
 
 using namespace std;

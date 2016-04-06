@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/CompiledFunction.hpp>
 #include <LatAnalyze/MinuitMinimizer.hpp>
 

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 #include <LatAnalyze/Plot.hpp>

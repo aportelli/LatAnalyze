@@ -5,7 +5,6 @@
 #include <LatAnalyze/MinuitMinimizer.hpp>
 #include <LatAnalyze/NloptMinimizer.hpp>
 #include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
 using namespace std;

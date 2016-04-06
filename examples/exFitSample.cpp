@@ -1,10 +1,7 @@
-#include <iostream>
-#include <cmath>
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/MinuitMinimizer.hpp>
 #include <LatAnalyze/NloptMinimizer.hpp>
 #include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYSampleData.hpp>
 
 using namespace std;

@@ -1,7 +1,7 @@
 /*
  * StatArray.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Mat.hpp>
-#include <iostream>
 
 #define FOR_STAT_ARRAY(ar, i) \
 for (Latan::Index i = -(ar).offset; i < (ar).size(); ++i)
