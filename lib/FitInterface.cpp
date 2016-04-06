@@ -411,6 +411,39 @@ bool FitInterface::isFitPoint(const Index k, const Index j) const
     return yDataIndex_[j].at(k);
 }
 
+bool FitInterface::isXXCorrelated(const Index r1, const Index i1,
+                                  const Index r2, const Index i2) const
+{
+    array<Index, 4> c{{r1, i1, r2, i2}};
+    auto            it = xxCorr_.find(c);
+    
+    return (it != xxCorr_.end());
+}
+
+bool FitInterface::isYYCorrelated(const Index k1, const Index j1,
+                                  const Index k2, const Index j2) const
+{
+    array<Index, 4> c{{k1, j1, k2, j2}};
+    auto            it = yyCorr_.find(c);
+    
+    return (it != yyCorr_.end());
+}
+
+bool FitInterface::isXYCorrelated(const Index r, const Index i,
+                                  const Index k, const Index j) const
+{
+    array<Index, 4> c{{r, i, k, j}};
+    auto            it = xyCorr_.find(c);
+    
+    return (it != xyCorr_.end());
+}
+
+bool FitInterface::hasCorrelations(void) const
+{
+    return ((xxCorr_.size() != 0) or (yyCorr_.size() != 0)
+            or (xyCorr_.size() != 0));
+}
+
 // make correlation filter for fit variance matrix /////////////////////////////
 DMat FitInterface::makeCorrFilter(void)
 {

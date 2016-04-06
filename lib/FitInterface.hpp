@@ -108,6 +108,13 @@ public:
     bool isXExact(const Index i) const;
     bool isXUsed(const Index r, const Index i, const bool inFit = true) const;
     bool isFitPoint(const Index k, const Index j) const;
+    bool isXXCorrelated(const Index r1, const Index i1, const Index r2,
+                        const Index i2) const;
+    bool isYYCorrelated(const Index k1, const Index j1, const Index k2,
+                        const Index j2) const;
+    bool isXYCorrelated(const Index r, const Index i, const Index k,
+                        const Index j) const;
+    bool hasCorrelations(void) const;
     // make correlation filter for fit variance matrix
     DMat makeCorrFilter(void);
     // schedule variance matrix initialization
