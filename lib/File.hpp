@@ -24,9 +24,6 @@
 #include <LatAnalyze/IoObject.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/RandGen.hpp>
-#include <queue>
-#include <unordered_map>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -63,7 +60,6 @@ public:
     virtual void save(const DMat &m, const std::string &name)             = 0;
     virtual void save(const DSample &ds, const std::string &name)         = 0;
     virtual void save(const DMatSample &ms, const std::string &name)      = 0;
-    virtual void save(const RandGenState &state, const std::string &name) = 0;
     // read first name
     virtual std::string getFirstName(void) = 0;
     // tests

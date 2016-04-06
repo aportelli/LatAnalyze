@@ -24,7 +24,6 @@
 #include <LatAnalyze/File.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <H5Cpp.h>
 
 BEGIN_LATAN_NAMESPACE
@@ -48,7 +47,6 @@ public:
     virtual void save(const DMat &m, const std::string &name);
     virtual void save(const DSample &ds, const std::string &name);
     virtual void save(const DMatSample &ms, const std::string &name);
-    virtual void save(const RandGenState &state, const std::string &name);
     // read first name
     virtual std::string getFirstName(void);
     // tests
@@ -63,7 +61,6 @@ private:
                    void load(DMat &m, const H5NS::DataSet &d);
                    void load(DSample &ds, const H5NS::DataSet &d);
                    void load(DMatSample &s, const H5NS::DataSet &d);
-                   void load(RandGenState &state, const H5NS::DataSet &d);
     // check name for forbidden characters
     static size_t nameOffset(const std::string &name);
 private:

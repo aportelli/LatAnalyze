@@ -20,11 +20,13 @@ const double dx2 = 5.0/static_cast<double>(nPoint2);
 int main(void)
 {
     // generate fake data
-    XYSampleData data(nSample);
-    RandGen      rg;
-    double       xBuf[2];
-    DoubleModel  f([](const double *x, const double *p)
-                   {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
+    XYSampleData          data(nSample);
+    double                xBuf[2];
+    random_device         rd;
+    mt19937               gen(rd());
+    normal_distribution<> dis;
+    DoubleModel           f([](const double *x, const double *p)
+                            {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
     
     cout << "-- generating fake data..." << endl;
     data.addXDim(nPoint1);
@@ -35,13 +37,13 @@ int main(void)
         for (Index i1 = 0; i1 < nPoint1; ++i1)
         {
             xBuf[0]          = i1*dx1;
-            data.x(i1, 0)[s] = rg.gaussian(xBuf[0], xErr);
+            data.x(i1, 0)[s] = xErr*dis(gen) + xBuf[0];
             for (Index i2 = 0; i2 < nPoint2; ++i2)
             {
                 xBuf[1]                              = i2*dx2;
                 data.x(i2, 1)[s]                     = xBuf[1];
-                data.y(data.dataIndex(i1, i2), 0)[s] =
-                    rg.gaussian(f(xBuf, exactPar), yErr);
+                data.y(data.dataIndex(i1, i2), 0)[s] = yErr*dis(gen)
+                                                       + f(xBuf, exactPar);
             }
         }
     }

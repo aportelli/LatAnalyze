@@ -36,8 +36,7 @@ public:
         noType     = 0,
         dMat       = 1,
         dMatSample = 2,
-        rgState    = 3,
-        dSample    = 4
+        dSample    = 3
     };
 public:
     // destructor

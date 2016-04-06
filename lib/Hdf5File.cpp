@@ -32,7 +32,6 @@ constexpr unsigned int maxGroupNameSize = 1024u;
 const short dMatType       = static_cast<short>(IoObject::IoType::dMat);
 const short dSampleType    = static_cast<short>(IoObject::IoType::dSample);
 const short dMatSampleType = static_cast<short>(IoObject::IoType::dMatSample);
-const short rgStateType    = static_cast<short>(IoObject::IoType::rgState);
 
 /******************************************************************************
  *                          Hdf5File implementation                           *
@@ -129,27 +128,6 @@ void Hdf5File::save(const DMatSample &ms, const string &name)
                                           dataSpace);
         dataset.write(ms[s].data(), PredType::NATIVE_DOUBLE);
     }
-}
-
-void Hdf5File::save(const RandGenState &state, const string &name)
-{
-    if (name.empty())
-    {
-        LATAN_ERROR(Io, "trying to save data with an empty name");
-    }
-
-    Group     group;
-    Attribute attr;
-    DataSet   dataset;
-    hsize_t   dim     = RLXG_STATE_SIZE;
-    hsize_t   attrDim = 1;
-    DataSpace dataSpace(1, &dim), attrSpace(1, &attrDim);
-
-    group = h5File_->createGroup(name.c_str() + nameOffset(name));
-    attr  = group.createAttribute("type", PredType::NATIVE_SHORT, attrSpace);
-    attr.write(PredType::NATIVE_SHORT, &rgStateType);
-    dataset = group.createDataSet("data", PredType::NATIVE_INT, dataSpace);
-    dataset.write(state.data(), PredType::NATIVE_INT);
 }
 
 // read first name ////////////////////////////////////////////////////////////
@@ -288,20 +266,6 @@ void Hdf5File::load(DSample &ds, const DataSet &d)
     d.read(ds.data(), PredType::NATIVE_DOUBLE);
 }
 
-void Hdf5File::load(RandGenState &state, const DataSet &d)
-{
-    DataSpace dataspace;
-    hsize_t   dim[1];
-
-    dataspace = d.getSpace();
-    dataspace.getSimpleExtentDims(dim);
-    if (dim[0] != RLXG_STATE_SIZE)
-    {
-        LATAN_ERROR(Io, "random generator state has a wrong length");
-    }
-    d.read(state.data(), PredType::NATIVE_INT);
-}
-
 string Hdf5File::load(const string &name)
 {
     if ((mode_ & Mode::read)&&(isOpen()))
@@ -362,15 +326,6 @@ string Hdf5File::load(const string &name)
                     }
                     load((*pt)[s], dataset);
                 }
-                break;
-            }
-            case IoObject::IoType::rgState:
-            {
-                RandGenState *pt = new RandGenState;
-
-                data_[groupName].reset(pt);
-                dataset = group.openDataSet("data");
-                load(*pt, dataset);
                 break;
             }
             default:

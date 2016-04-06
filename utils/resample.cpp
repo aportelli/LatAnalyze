@@ -34,7 +34,7 @@ using namespace Latan;
 static void usage(const string &cmdName)
 {
     cerr << "usage: " << cmdName;
-    cerr << " [-n <nsample> -b <bin size> -r <state> -o <output dir> -f {h5|sample}]";
+    cerr << " [-n <nsample> -b <bin size> -r <seed> -o <output dir> -f {h5|sample}]";
     cerr << " <data list> <name list>";
     cerr << endl;
     exit(EXIT_FAILURE);
@@ -43,10 +43,12 @@ static void usage(const string &cmdName)
 int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
-    int    c;
-    string manFileName, nameFileName, stateFileName, cmdName, outDirName = ".";
-    string ext = "h5";
-    Index  binSize = 1, nSample = DEF_NSAMPLE;
+    int           c;
+    random_device rd;
+    SeedType      seed = rd();
+    string        manFileName, nameFileName, cmdName, outDirName = ".";
+    string        ext = "h5";
+    Index         binSize = 1, nSample = DEF_NSAMPLE;
     
     opterr = 0;
     cmdName = basename(argv[0]);
@@ -64,7 +66,7 @@ int main(int argc, char *argv[])
                 outDirName = optarg;
                 break;
             case 'r':
-                stateFileName = optarg;
+                seed = strTo<SeedType>(optarg);
                 break;
             case 'f':
                 ext = optarg;
@@ -126,25 +128,15 @@ int main(int argc, char *argv[])
     
     // data resampling /////////////////////////////////////////////////////////
     DMatSample   s(nSample);
-    RandGen      g;
-    RandGenState state;
     
     cout << "-- resampling data..." << endl;
-    if (!stateFileName.empty())
-    {
-        state = Io::load<RandGenState>(stateFileName);
-    }
     for (unsigned int i = 0; i < name.size(); ++i)
     {
         const string outFileName = name[i] + "_" + manFileName + "." + ext;
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);
-        if (!stateFileName.empty())
-        {
-            g.setState(state);
-        }
-        s = data[name[i]].bootstrapMean(nSample, g);
+        s = data[name[i]].bootstrapMean(nSample, seed);
         Io::save<DMatSample>(s, outDirName + "/" + outFileName,
                              File::Mode::write, outFileName);
     }

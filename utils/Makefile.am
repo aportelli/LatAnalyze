@@ -7,16 +7,11 @@ endif
 endif
 
 bin_PROGRAMS =            \
-    latan_create_rg_state \
     latan_make_fake_sample\
     latan_sample_combine  \
     latan_sample_plot_corr\
     latan_sample_read     \
     latan_resample
-
-latan_create_rg_state_SOURCES  = create_rg_state.cpp
-latan_create_rg_state_CXXFLAGS = $(COM_CXXFLAGS)
-latan_create_rg_state_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_make_fake_sample_SOURCES  = make_fake_sample.cpp
 latan_make_fake_sample_CXXFLAGS = $(COM_CXXFLAGS)

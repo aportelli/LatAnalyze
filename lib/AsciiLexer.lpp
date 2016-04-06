@@ -76,7 +76,7 @@ BLANK   [ \t]
 %%
 
 {LMARK}            {BEGIN(MARK);}
-{INT}              {yylval->val_int    = strTo<int>(yytext);    RETTOK(INT);}
+{INT}              {yylval->val_int    = strTo<long int>(yytext); RETTOK(INT);}
 {FLOAT}            {yylval->val_double = strTo<double>(yytext); RETTOK(FLOAT);}
 ({ALPHA}|{DIGIT})+ {strcpy(yylval->val_str,yytext); RETTOK(ID);}
 <MARK>latan_begin  {BEGIN(TYPE); RETTOK(OPEN);}

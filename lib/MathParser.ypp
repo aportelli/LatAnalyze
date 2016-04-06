@@ -18,9 +18,6 @@
  */
 
 %{
-    #include <iostream>
-    #include <sstream>
-    #include <cstring>
     #include <LatAnalyze/Global.hpp>
 	#include <LatAnalyze/MathInterpreter.hpp>
 
@@ -36,7 +33,7 @@
 %}
 
 %pure-parser
-%name-prefix = "_math_"
+%name-prefix "_math_"
 %locations
 %defines
 %error-verbose

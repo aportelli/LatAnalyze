@@ -40,7 +40,6 @@ libLatAnalyze_la_SOURCES = \
     Minimizer.cpp          \
     Model.cpp              \
     Plot.cpp               \
-    RandGen.cpp            \
     RootFinder.cpp         \
     Solver.cpp             \
     StatArray.cpp          \
@@ -75,7 +74,6 @@ libLatAnalyze_la_HEADERS = \
     Model.hpp              \
     ParserState.hpp        \
     Plot.hpp               \
-    RandGen.hpp            \
     RootFinder.hpp         \
     TabFunction.hpp        \
     Solver.hpp             \

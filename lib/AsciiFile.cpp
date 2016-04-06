@@ -105,20 +105,6 @@ void AsciiFile::save(const DMatSample &ms, const std::string &name)
     fileStream_ << "#L latan_end rs_sample " << endl;
 }
 
-void AsciiFile::save(const RandGenState &state, const std::string &name)
-{
-    if (name.empty())
-    {
-        LATAN_ERROR(Io, "trying to save data with an empty name");
-    }
-    
-    checkWritability();
-    isParsed_ = false;
-    fileStream_ << "#L latan_begin rg_state " << name << endl;
-    fileStream_ << state << endl;
-    fileStream_ << "#L latan_end rg_state " << endl;
-}
-
 // read first name ////////////////////////////////////////////////////////////
 string AsciiFile::getFirstName(void)
 {

@@ -25,7 +25,6 @@
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
 #include <LatAnalyze/ParserState.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <fstream>
 
 BEGIN_LATAN_NAMESPACE
@@ -48,12 +47,11 @@ public:
         bool        isFirst;
         std::string first;
         // parsing buffers
-        RandGenState       stateBuf;
+        int                intBuf;
         DSample            dSampleBuf;
         DMatSample         dMatSampleBuf;
         std::queue<DMat>   dMatQueue;
         std::queue<double> doubleQueue;
-        std::queue<int>    intQueue;
     private:
         // allocation/deallocation functions defined in IoAsciiLexer.lpp
         virtual void initScanner(void);
@@ -69,7 +67,6 @@ public:
     virtual void save(const DMat &m, const std::string &name);
     virtual void save(const DSample &ds, const std::string &name);
     virtual void save(const DMatSample &ms, const std::string &name);
-    virtual void save(const RandGenState &state, const std::string &name);
     // read first name
     virtual std::string getFirstName(void);
     // tests

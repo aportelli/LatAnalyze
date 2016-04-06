@@ -22,11 +22,6 @@
 	#include <LatAnalyze/AsciiFile.hpp>
     #include <LatAnalyze/Mat.hpp>
     #include <LatAnalyze/MatSample.hpp>
-    #include <LatAnalyze/RandGen.hpp>
-    #include <iostream>
-    #include <sstream>
-    #include <utility>
-    #include <cstring>
 
     #if (defined __INTEL_COMPILER)
     #pragma warning disable 1682 2259
@@ -47,7 +42,7 @@
 %}
 
 %pure-parser
-%name-prefix = "_Ascii_"
+%name-prefix "_Ascii_"
 %locations
 %defines
 %error-verbose
@@ -57,10 +52,10 @@
 
 %union
 {
-	int    val_int;
-	double val_double;
-    char   val_char;
-    char   val_str[256];
+	long int val_int;
+	double   val_double;
+    char     val_char;
+    char     val_str[256];
 }
 
 %token <val_char>   ERR
@@ -69,7 +64,7 @@
 %token <val_str>    ID
 %token OPEN CLOSE MAT SAMPLE RG_STATE
 
-%type <val_str> mat matsample dsample rg_state
+%type <val_str> mat matsample dsample
 
 %{
 	int _Ascii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
@@ -110,11 +105,6 @@ data:
     {
         TEST_FIRST($1);
         (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
-    }
-    | rg_state
-    {
-        TEST_FIRST($1);
-        (*state->data)[$1].reset(new RandGenState(state->stateBuf));
     }
     ;
 
@@ -187,23 +177,6 @@ matsample:
     }
     ;
 
-rg_state:
-      OPEN RG_STATE ID ints CLOSE RG_STATE
-    {
-        if (state->intQueue.size() != RLXG_STATE_SIZE)
-        {
-            LATAN_ERROR(Size, "random generator state '" + *state->streamName
-                        + ":" + $3 + "' has a wrong size");
-        }
-        for (Index i = 0; i < RLXG_STATE_SIZE; ++i)
-        {
-            state->stateBuf[i] = state->intQueue.front();
-            state->intQueue.pop();
-        }
-        strcpy($$, $3);
-    }
-    ;
-
 mats:
       mats mat
     | mat
@@ -214,9 +187,4 @@ floats:
     | floats INT   {state->doubleQueue.push(static_cast<double>($2));}
     | FLOAT        {state->doubleQueue.push($1);}
     | INT          {state->doubleQueue.push(static_cast<double>($1));}
-    ;
-
-ints:
-      ints INT {state->intQueue.push($2);}
-    | INT      {state->intQueue.push($1);}
     ;

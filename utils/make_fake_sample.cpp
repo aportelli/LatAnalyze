@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/RandGen.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -42,8 +41,10 @@ int main(int argc, char *argv[])
     nSample     = strTo<Index>(argv[3]);
     outFileName = argv[4];
 
-    RandGen gen;
-    DSample res(nSample);
+    random_device         rd;
+    mt19937               gen(rd());
+    normal_distribution<> dis(val, err);
+    DSample               res(nSample);
 
     FOR_STAT_ARRAY(res, s)
     {
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            res[s] = gen.gaussian(val, err);
+            res[s] = dis(gen);
         }
     }
     Io::save<DSample>(res, outFileName);
