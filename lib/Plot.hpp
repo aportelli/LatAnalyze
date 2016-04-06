@@ -149,7 +149,7 @@ public:
 
 #define PlotMatrix(m)\
 PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
-PlotRange(Axis::y, -.5, (m).rows() - .5) <<\
+PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
 PlotMatrixNoRange(m)
 
 /******************************************************************************
