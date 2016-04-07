@@ -23,6 +23,8 @@
 using namespace std;
 using namespace Latan;
 
+PlaceHolder Latan::_;
+
 const string Env::fullName  = PACKAGE_STRING;
 const string Env::name      = PACKAGE_NAME;
 const string Env::version   = PACKAGE_VERSION;

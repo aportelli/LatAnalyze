@@ -65,14 +65,14 @@ double SampleFitResult::getPValue(const Index s) const
 const DoubleFunction & SampleFitResult::getModel(const Index s,
                                                  const Index j) const
 {
-    return model_[static_cast<unsigned int>(j)][s];
+    return model_[j][s];
 }
 
 const DoubleFunctionSample & SampleFitResult::getModel(
                                                     const PlaceHolder ph __dumb,
                                                     const Index j) const
 {
-    return model_[static_cast<unsigned int>(j)];
+    return model_[j];
 }
 
 FitResult SampleFitResult::getFitResult(const Index s) const
@@ -292,7 +292,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         }
     }
     result.nPar_    = sampleResult.getNPar();
-    result.nDof_    = sampleResult.getNDof();
+    result.nDof_    = sampleResult.nDof_;
     result.parName_ = sampleResult.parName_;
     
     return result;

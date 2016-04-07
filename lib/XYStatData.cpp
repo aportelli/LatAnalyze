@@ -57,7 +57,7 @@ double FitResult::getPValue(void) const
 
 const DoubleFunction & FitResult::getModel(const Index j) const
 {
-    return model_[static_cast<unsigned int>(j)];
+    return model_[j];
 }
 
 // IO //////////////////////////////////////////////////////////////////////////

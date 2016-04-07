@@ -1,8 +1,8 @@
 if CXX_GNU
-    COM_CXXFLAGS = -Wall -W -pedantic
+    COM_CXXFLAGS = -Wall -W -pedantic -Wno-deprecated-declarations
 else
 if CXX_INTEL
-    COM_CXXFLAGS = -Wall
+    COM_CXXFLAGS = -wd1682 -Wall
 endif
 endif
 

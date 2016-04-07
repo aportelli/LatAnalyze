@@ -54,9 +54,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     using namespace Minuit2;
     
     DVec                        &x = getState();
-    int                         printLevel;
-    EMinimizerType              minuitAlg;
-    unique_ptr<Math::Minimizer> min;
+    int                         printLevel = 0;
+    EMinimizerType              minuitAlg  = kCombined;
     
     // convert Latan parameters to Minuit parameters
     switch (getVerbosity())
@@ -91,18 +90,19 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // create and set minimizer
-    min.reset(new Minuit2Minimizer(minuitAlg));
-    min->SetStrategy(2);
-    min->SetMaxFunctionCalls(getMaxIteration());
-    min->SetTolerance(getPrecision());
-    min->SetPrintLevel(printLevel);
+    Minuit2Minimizer min(minuitAlg);
+    
+    min.SetStrategy(2);
+    min.SetMaxFunctionCalls(getMaxIteration());
+    min.SetTolerance(getPrecision());
+    min.SetPrintLevel(printLevel);
     
     // set function and variables
     Math::Functor minuitF(f, x.size());
     string        name;
     double        val, step;
     
-    min->SetFunction(minuitF);
+    min.SetFunction(minuitF);
     for (Index i = 0; i < x.size(); ++i)
     {
         name = f.varName().getName(i);
@@ -110,20 +110,20 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
         step = (fabs(x(i)) != 0.) ? initErr*fabs(x(i)) : 1.;
         if (hasHighLimit(i) and !hasLowLimit(i))
         {
-            min->SetUpperLimitedVariable(i, name, val, step, getHighLimit(i));
+            min.SetUpperLimitedVariable(i, name, val, step, getHighLimit(i));
         }
         else if (!hasHighLimit(i) and hasLowLimit(i))
         {
-            min->SetLowerLimitedVariable(i, name, val, step, getLowLimit(i));
+            min.SetLowerLimitedVariable(i, name, val, step, getLowLimit(i));
         }
         else if (hasHighLimit(i) and hasLowLimit(i))
         {
-            min->SetLimitedVariable(i, name, val, step, getLowLimit(i),
-                                    getHighLimit(i));
+            min.SetLimitedVariable(i, name, val, step, getLowLimit(i),
+                                   getHighLimit(i));
         }
         else
         {
-            min->SetVariable(i, name, val, step);
+            min.SetVariable(i, name, val, step);
         }
     }
     
@@ -138,8 +138,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             cout << "========== Minuit minimization, pass #" << n + 1;
             cout << " =========" << endl;
         }
-        min->Minimize();
-        status = min->Status();
+        min.Minimize();
+        status = min.Status();
         n++;
     } while (status and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
@@ -165,7 +165,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     // save and return result
     for (Index i = 0; i < x.size(); ++i)
     {
-        x(i) = min->X()[i];
+        x(i) = min.X()[i];
     }
     
     return x;

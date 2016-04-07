@@ -1,9 +1,9 @@
 COM_CXXFLAGS = -Wall
 if CXX_GNU
-    COM_CXXFLAGS += -W -pedantic
+    COM_CXXFLAGS += -W -pedantic -Wno-deprecated-declarations
 else
 if CXX_INTEL
-    COM_CXXFLAGS +=
+    COM_CXXFLAGS += -wd1682
 endif
 endif
 
@@ -12,12 +12,19 @@ AM_YFLAGS = -d
 
 BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
-lib_LTLIBRARIES = libLatAnalyze.la
+lib_LTLIBRARIES    = libLatAnalyze.la
+noinst_LTLIBRARIES = libLexers.la
+
+libLexers_la_SOURCES  = AsciiLexer.lpp MathLexer.lpp
+if CXX_GNU
+    libLexers_la_CXXFLAGS = $(COM_CXXFLAGS) -Wno-unused-function
+else
+    libLexers_la_CXXFLAGS = $(COM_CXXFLAGS)
+endif
 
 libLatAnalyze_la_SOURCES = \
     AsciiFile.cpp          \
     AsciiParser.ypp        \
-    AsciiLexer.lpp         \
     CompiledFunction.cpp   \
     CompiledModel.cpp      \
     Derivative.cpp         \
@@ -36,7 +43,6 @@ libLatAnalyze_la_SOURCES = \
     Math.cpp               \
     MathInterpreter.cpp    \
     MathParser.ypp         \
-    MathLexer.lpp          \
     Minimizer.cpp          \
     Model.cpp              \
     Plot.cpp               \
@@ -89,5 +95,6 @@ if HAVE_NLOPT
     libLatAnalyze_la_HEADERS += NloptMinimizer.hpp
 endif
 libLatAnalyze_la_CXXFLAGS = $(COM_CXXFLAGS)
+libLatAnalyze_la_LIBADD   = libLexers.la
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

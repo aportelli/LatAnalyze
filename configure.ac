@@ -27,43 +27,34 @@ m4_ifdef([AM_PROG_AR],[AM_PROG_AR])
 LT_INIT
 
 # Options
-AC_ARG_ENABLE([SSE],
-	[AS_HELP_STRING([--enable-SSE],
-		[compiles SSE version of ranlux random generator])],
-	[AC_DEFINE([HAVE_SSE],
-				[1],
-				[Define to 1 if your CPU support SSE instructions.])])
 AC_ARG_WITH([gsl],
     [AS_HELP_STRING([--with-gsl=prefix],
 		[try this for a non-standard install prefix of the GSL library])],
-    [AM_CFLAGS="$AM_CFLAGS -I$with_gsl/include"]
 	[AM_CXXFLAGS="$AM_CXXFLAGS -I$with_gsl/include"]
 	[AM_LDFLAGS="$AM_LDFLAGS -L$with_gsl/lib"])
-AC_ARG_WITH([Minuit2],
-    [AS_HELP_STRING([--with-Minuit2=prefix],
+AC_ARG_WITH([minuit],
+    [AS_HELP_STRING([--with-minuit=prefix],
 		[try this for a non-standard install prefix of the Minuit2 library])],
-    [AM_CFLAGS="$AM_CFLAGS -I$with_Minuit2/include"]
-    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_Minuit2/include"]
-	[AM_LDFLAGS="$AM_LDFLAGS -L$with_Minuit2/lib"])
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_minuit/include"]
+	[AM_LDFLAGS="$AM_LDFLAGS -L$with_minuit/lib"])
 AC_ARG_WITH([nlopt],
     [AS_HELP_STRING([--with-nlopt=prefix],
-        [try this for a non-standard install prefix of the nlopt library])],
-    [AM_CFLAGS="$AM_CFLAGS -I$with_nlopt/include"]
+        [try this for a non-standard install prefix of the NLopt library])],
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_nlopt/include"]
     [AM_LDFLAGS="$AM_LDFLAGS -L$with_nlopt/lib"])
-AC_ARG_WITH([LatCore],
-    [AS_HELP_STRING([--with-LatCore=prefix],
+AC_ARG_WITH([hdf5],
+    [AS_HELP_STRING([--with-hdf5=prefix],
+    [try this for a non-standard install prefix of the HDF5 library])],
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_hdf5/include"]
+    [AM_LDFLAGS="$AM_LDFLAGS -L$with_hdf5/lib"])
+AC_ARG_WITH([latcore],
+    [AS_HELP_STRING([--with-latcore=prefix],
     [use this option for a non-standard install prefix of the LatCore library])],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_LatCore/include"]
-    [AM_LDFLAGS="$AM_LDFLAGS -L$with_LatCore/lib"])
-AX_LIB_HDF5()
-if test x$with_hdf5 = xno; then
-    AC_MSG_ERROR([HDF5 library not found])
-fi
-CFLAGS="$AM_CFLAGS $HDF5_CFLAGS $CFLAGS"
-CXXFLAGS="$AM_CXXFLAGS $HDF5_CPPFLAGS $CXXFLAGS"
-LDFLAGS="$AM_LDFLAGS $HDF5_LDFLAGS $LDFLAGS"
-LIBS="$LIBS $HDF5_LIBS -lhdf5_cpp"
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_latcore/include"]
+    [AM_LDFLAGS="$AM_LDFLAGS -L$with_latcore/lib"])
+CFLAGS="$AM_CFLAGS $CFLAGS"
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 
 # Get compilers informations
 AX_COMPILER_VENDOR
@@ -97,6 +88,13 @@ AC_CHECK_LIB([nlopt_cxx],[nlopt_create],
     [have_nlopt=true]
     [LIBS="$LIBS -lnlopt_cxx"],[])
 AM_CONDITIONAL([HAVE_NLOPT], [test x$have_nlopt = xtrue])
+AC_CHECK_LIB([hdf5_cpp],[H5Fopen],
+    [AC_DEFINE([HAVE_HDF5],
+    [1],
+    [Define to 1 if you have the `HDF5' library (-lhdf5_cpp).])]
+    [have_hdf5=true]
+    [LIBS="$LIBS -lhdf5_cpp"],[],[-lhdf5])
+AM_CONDITIONAL([HAVE_HDF5], [test x$have_hdf5 = xtrue])
 AC_CHECK_LIB([LatCore],[_ZN7LatCore12testFunctionEv],[],
     [AC_MSG_ERROR([LatCore library not found])])
 SAVED_LDFLAGS=$LDFLAGS
