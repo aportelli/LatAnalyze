@@ -1,4 +1,4 @@
-COM_CXXFLAGS = -Wall -Wconversion
+COM_CXXFLAGS = -Wall
 if CXX_GNU
     COM_CXXFLAGS += -W -pedantic
 else
