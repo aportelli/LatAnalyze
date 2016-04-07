@@ -8,10 +8,11 @@ AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
 AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([1.11 -Wall -Werror foreign])
 AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
-
+AM_CONDITIONAL([HAVE_AM_MINOR_LE_11],
+               [test `automake --version | grep automake | awk -F '.' '{print $2}'` -le 11])
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_AWK
@@ -93,10 +94,8 @@ AC_CHECK_LIB([hdf5_cpp],[H5Fopen],
     [1],
     [Define to 1 if you have the `HDF5' library (-lhdf5_cpp).])]
     [have_hdf5=true]
-    [LIBS="$LIBS -lhdf5_cpp"],[],[-lhdf5])
+    [LIBS="$LIBS -lhdf5_cpp -lhdf5"],[],[-lhdf5])
 AM_CONDITIONAL([HAVE_HDF5], [test x$have_hdf5 = xtrue])
-AC_CHECK_LIB([LatCore],[_ZN7LatCore12testFunctionEv],[],
-    [AC_MSG_ERROR([LatCore library not found])])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
 AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);
@@ -112,6 +111,17 @@ AC_LINK_IFELSE(
 	[have_minuit=false]
     [AC_MSG_RESULT([no])])
 AM_CONDITIONAL([HAVE_MINUIT], [test x$have_minuit = xtrue])
+LDFLAGS=$SAVED_LDFLAGS
+SAVED_LDFLAGS=$LDFLAGS
+LDFLAGS="$LDFLAGS -lLatCore"
+AC_MSG_CHECKING([for LatCore::XmlReader in -lLatCore]);
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM([#include <LatCore/XmlReader.hpp>],
+    [LatCore::XmlReader dummy()])],
+	[LIBS="$LIBS -lLatCore"]
+	[AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no])]
+    [AC_MSG_ERROR([LatCore library not found])])
 LDFLAGS=$SAVED_LDFLAGS
 
 # Checks for header files.
