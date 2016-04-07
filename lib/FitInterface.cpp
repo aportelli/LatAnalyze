@@ -225,7 +225,7 @@ const VarName & FitInterface::yName(void) const
 // Y dimension index helper ////////////////////////////////////////////////////
 Index FitInterface::dataIndex(const vector<Index> &v) const
 {
-    Index k, n = static_cast<Index>(v.size());
+    Index k, n = v.size();
     
     checkDataCoord(v);
     k = xSize_[1]*v[0];
@@ -371,6 +371,7 @@ bool FitInterface::pointExists(const Index k) const
 
 bool FitInterface::pointExists(const Index k, const Index j) const
 {
+    checkDataIndex(k);
     checkYDim(j);
     
     return !(yDataIndex_[j].find(k) == yDataIndex_[j].end());
@@ -378,6 +379,8 @@ bool FitInterface::pointExists(const Index k, const Index j) const
 
 bool FitInterface::isXExact(const Index i) const
 {
+    checkXDim(i);
+
     return xIsExact_[i];
 }
 
@@ -710,7 +713,7 @@ ostream & Latan::operator<<(ostream &out, FitInterface &f)
     {
         out << "  * " << i << " \"" << f.xName().getName(i) << "\": ";
         out << f.getXSize(i) << " value(s)";
-        if (f.xIsExact_[i])
+        if (f.isXExact(i))
         {
             out << " (assumed exact)";
         }
