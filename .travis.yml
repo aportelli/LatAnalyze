@@ -1,5 +1,9 @@
 language: cpp
 
+notifications:
+  email: false
+  slack: ukqcd:mQLXCtz8D2cg89xT8j1a4wku
+  
 cache:
   directories:
     - ci-scripts/local
