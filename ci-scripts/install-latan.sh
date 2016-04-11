@@ -14,6 +14,6 @@ cd ..
 mkdir -p build
 cd build
 if [[ "$OS" == "osx" ]]; then EXTRA_FLAGS='--with-gsl=/usr/local'; fi
-../configure --prefix=$PREFIX --with-minuit=$PREFIX --with-nlopt=$PREFIX --with-latcore=$PREFIX --with-hdf5=$PREFIX $EXTRA_FLAGS
+../configure --prefix=$PREFIX --with-minuit=$PREFIX --with-nlopt=$PREFIX --with-latcore=$PREFIX --with-hdf5=$PREFIX $EXTRA_FLAGS CXXFLAGS='-O3 -march=native -mtune=native'
 make -j4
 make install
