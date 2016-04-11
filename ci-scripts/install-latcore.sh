@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+if (( $# != 1 )); then
+  echo "usage: `basename $0` <prefix> {osx|linux}" 1>&2
+  exit 1
+fi
+PREFIX=$1
+
 set -ex
 INITDIR=`pwd`
 cd local/build
@@ -13,7 +19,7 @@ else
   ./bootstrap.sh
 fi
 cd build
-../configure --prefix=${INITDIR}/local
+../configure --prefix=${PREFIX}
 make -j4 
 make install
 cd ${INITDIR}
