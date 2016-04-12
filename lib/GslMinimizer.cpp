@@ -356,4 +356,6 @@ string GslMinimizer::getAlgorithmName(const Algorithm algorithm)
             return "improved Nelder-Mead simplex with random start";
             break;
     }
+    
+    return "";
 }
