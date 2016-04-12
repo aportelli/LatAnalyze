@@ -35,9 +35,9 @@ class MinuitMinimizer: public Minimizer
 public:
     enum class Algorithm
     {
-        Migrad   = 1,
-        Simplex  = 2,
-        Combined = 3
+        migrad   = 1,
+        simplex  = 2,
+        combined = 3
     };
 public:
     // constructor
@@ -45,13 +45,14 @@ public:
     // destructor
     virtual ~MinuitMinimizer(void) = default;
     // access
-    Algorithm getAlgorithm(void) const;
-    void      setAlgorithm(const Algorithm algorithm);
+    Algorithm    getAlgorithm(void) const;
+    void         setAlgorithm(const Algorithm algorithm);
+    virtual bool supportLimits(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
 private:
     Algorithm                  algorithm_;
-    static constexpr Algorithm defaultAlg_ = Algorithm::Combined;
+    static constexpr Algorithm defaultAlg_ = Algorithm::combined;
 };
 
 END_LATAN_NAMESPACE

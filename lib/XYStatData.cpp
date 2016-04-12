@@ -313,16 +313,19 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
     for (auto &m: minimizer)
     {
         m->setInit(totalInit);
-        //// do not allow more than maxXsiDev std. deviations on the x-axis
-        for (Index p = nPar; p < totalNPar; ++p)
+        if (m->supportLimits())
         {
-            double err;
-            
-            err = sqrt(fitVar_.diagonal()(layout.totalYSize + p - nPar));
-            m->useLowLimit(p);
-            m->useHighLimit(p);
-            m->setLowLimit(p, totalInit(p) - maxXsiDev*err);
-            m->setHighLimit(p, totalInit(p) + maxXsiDev*err);
+            //// do not allow more than maxXsiDev std. deviations on the x-axis
+            for (Index p = nPar; p < totalNPar; ++p)
+            {
+                double err;
+                
+                err = sqrt(fitVar_.diagonal()(layout.totalYSize + p - nPar));
+                m->useLowLimit(p);
+                m->useHighLimit(p);
+                m->setLowLimit(p, totalInit(p) - maxXsiDev*err);
+                m->setHighLimit(p, totalInit(p) + maxXsiDev*err);
+            }
         }
         //// minimize and store results
         result    = (*m)(chi2);

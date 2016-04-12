@@ -47,6 +47,11 @@ void MinuitMinimizer::setAlgorithm(const Algorithm algorithm)
     algorithm_ = algorithm;
 }
 
+bool MinuitMinimizer::supportLimits(void) const
+{
+    return true;
+}
+
 // minimization ////////////////////////////////////////////////////////////////
 const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
 {
@@ -72,13 +77,13 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     switch (getAlgorithm())
     {
-        case Algorithm::Migrad:
+        case Algorithm::migrad:
             minuitAlg = kMigrad;
             break;
-        case Algorithm::Simplex:
+        case Algorithm::simplex:
             minuitAlg = kSimplex;
             break;
-        case Algorithm::Combined:
+        case Algorithm::combined:
             minuitAlg = kCombined;
             break;
     }

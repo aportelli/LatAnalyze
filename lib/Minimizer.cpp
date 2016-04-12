@@ -43,8 +43,15 @@ void Minimizer::resize(const Index dim)
     }
 }
 
+#define checkSupport \
+if (!supportLimits())\
+{\
+    LATAN_ERROR(Implementation, "minimizer does not support limits");\
+}
+
 double Minimizer::getHighLimit(const Index i) const
 {
+    checkSupport;
     if (i >= getDim())
     {
         LATAN_ERROR(Size, "invalid variable index");
@@ -55,11 +62,14 @@ double Minimizer::getHighLimit(const Index i) const
 
 const DVec & Minimizer::getHighLimit(const PlaceHolder ph __dumb) const
 {
+    checkSupport;
+    
     return highLimit_;
 }
 
 double Minimizer::getLowLimit(const Index i) const
 {
+    checkSupport;
     if (i >= getDim())
     {
         LATAN_ERROR(Size, "invalid variable index");
@@ -70,11 +80,14 @@ double Minimizer::getLowLimit(const Index i) const
 
 const DVec & Minimizer::getLowLimit(const PlaceHolder ph __dumb) const
 {
+    checkSupport;
+    
     return lowLimit_;
 }
 
 bool Minimizer::hasHighLimit(const Index i) const
 {
+    checkSupport;
     if (i >= getDim())
     {
         LATAN_ERROR(Size, "invalid variable index");
@@ -85,6 +98,7 @@ bool Minimizer::hasHighLimit(const Index i) const
 
 bool Minimizer::hasLowLimit(const Index i) const
 {
+    checkSupport;
     if (i >= getDim())
     {
         LATAN_ERROR(Size, "invalid variable index");
@@ -95,6 +109,7 @@ bool Minimizer::hasLowLimit(const Index i) const
 
 void Minimizer::setHighLimit(const Index i, const double l)
 {
+    checkSupport;
     if (i >= getDim())
     {
         resize(i + 1);
@@ -105,6 +120,7 @@ void Minimizer::setHighLimit(const Index i, const double l)
 
 void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
+    checkSupport;
     if (l.size() != getDim())
     {
         resize(l.size());
@@ -115,6 +131,7 @@ void Minimizer::setHighLimit(const PlaceHolder ph __dumb, const DVec &l)
 
 void Minimizer::setLowLimit(const Index i, const double l)
 {
+    checkSupport;
     if (i >= getDim())
     {
         resize(i + 1);
@@ -125,6 +142,7 @@ void Minimizer::setLowLimit(const Index i, const double l)
 
 void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
 {
+    checkSupport;
     if (l.size() != getDim())
     {
         resize(l.size());
@@ -135,6 +153,7 @@ void Minimizer::setLowLimit(const PlaceHolder ph __dumb, const DVec &l)
 
 void Minimizer::useHighLimit(const Index i, const bool use)
 {
+    checkSupport;
     if (i >= getDim())
     {
         resize(i + 1);
@@ -144,11 +163,13 @@ void Minimizer::useHighLimit(const Index i, const bool use)
 
 void Minimizer::useHighLimit(const PlaceHolder ph __dumb, const bool use)
 {
+    checkSupport;
     hasHighLimit_.fill(use);
 }
 
 void Minimizer::useLowLimit(const Index i, const bool use)
 {
+    checkSupport;
     if (i >= getDim())
     {
         resize(i + 1);
@@ -158,6 +179,7 @@ void Minimizer::useLowLimit(const Index i, const bool use)
 
 void Minimizer::useLowLimit(const PlaceHolder ph __dumb, const bool use)
 {
+    checkSupport;
     hasLowLimit_.fill(use);
 }
 

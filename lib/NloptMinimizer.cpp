@@ -44,6 +44,11 @@ void NloptMinimizer::setAlgorithm(const Algorithm algorithm)
     algorithm_ = algorithm;
 }
 
+bool NloptMinimizer::supportLimits(void) const
+{
+    return true;
+}
+
 // minimization ////////////////////////////////////////////////////////////////
 const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
 {
@@ -75,7 +80,7 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
     min.set_lower_bounds(lb);
     min.set_upper_bounds(hb);
     
-    // minimise
+    // minimize
     double         res;
     vector<double> vx(x.size());
     nlopt::result  status;

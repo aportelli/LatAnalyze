@@ -2,8 +2,7 @@
 #include <cmath>
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/MinuitMinimizer.hpp>
-#include <LatAnalyze/NloptMinimizer.hpp>
+#include <LatAnalyze/GslMinimizer.hpp>
 #include <LatAnalyze/Plot.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
@@ -48,26 +47,12 @@ int main(void)
     data.setYError(0, DVec::Constant(data.getYSize(), yErr));
     
     // set minimizers
-    DVec                init = DVec::Constant(2, 0.1);
-    FitResult           p;
-    NloptMinimizer      globalMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
-    MinuitMinimizer     localMin;
-    vector<Minimizer *> min{&globalMin, &localMin};
-    
-    globalMin.setVerbosity(Minimizer::Verbosity::Normal);
-    globalMin.setPrecision(0.1);
-    globalMin.setMaxIteration(10000);
-    globalMin.useLowLimit(0);
-    globalMin.setLowLimit(0, 0.);
-    globalMin.useHighLimit(0);
-    globalMin.setHighLimit(0, 20.);
-    globalMin.useLowLimit(1);
-    globalMin.setLowLimit(1, 0.);
-    globalMin.useHighLimit(1);
-    globalMin.setHighLimit(1, 20.);
-    localMin.setVerbosity(Minimizer::Verbosity::Normal);
+    DVec         init = DVec::Constant(2, 0.1);
+    FitResult    p;
+    GslMinimizer min(GslMinimizer::Algorithm::bfgs2);
     
     // fit
+    min.setVerbosity(Minimizer::Verbosity::Debug);
     cout << "-- fit..." << endl;
     f.parName().setName(0, "m");
     f.parName().setName(1, "A");

@@ -41,6 +41,7 @@ CONST_EXC(Range, Logic("range error: " + msg, loc))
 CONST_EXC(Size, Logic("size error: " + msg, loc))
 // runtime errors
 CONST_EXC(Runtime, runtime_error(Env::msgPrefix + msg + ERR_SUFF))
+CONST_EXC(Argument, Runtime("argument error: " + msg, loc))
 CONST_EXC(Compilation, Runtime("compilation error: " + msg, loc))
 CONST_EXC(Io, Runtime("IO error: " + msg, loc))
 CONST_EXC(Memory, Runtime("memory error: " + msg, loc))

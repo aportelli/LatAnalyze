@@ -51,6 +51,7 @@ namespace Exceptions
     DECL_EXC(Size, Logic);
     // runtime errors
     DECL_EXC(Runtime, std::runtime_error);
+    DECL_EXC(Argument, Runtime);
     DECL_EXC(Compilation, Runtime);
     DECL_EXC(Io, Runtime);
     DECL_EXC(Memory, Runtime);

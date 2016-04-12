@@ -32,6 +32,7 @@ libLatAnalyze_la_SOURCES = \
     Function.cpp           \
     Global.cpp             \
     GslHybridRootFinder.cpp\
+	GslMinimizer.cpp       \
     GslQagsIntegrator.cpp  \
     Hdf5File.cpp           \
     Histogram.cpp          \
@@ -64,6 +65,7 @@ libLatAnalyze_la_HEADERS = \
     FitInterface.hpp       \
     Global.hpp             \
     GslHybridRootFinder.hpp\
+	GslMinimizer.hpp       \
     GslQagsIntegrator.hpp  \
     Hdf5File.hpp           \
     Histogram.hpp          \

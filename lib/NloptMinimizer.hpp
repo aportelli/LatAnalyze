@@ -52,8 +52,9 @@ public:
     // destructor
     virtual ~NloptMinimizer(void) = default;
     // access
-    Algorithm getAlgorithm(void) const;
-    void      setAlgorithm(const Algorithm algorithm);
+    Algorithm    getAlgorithm(void) const;
+    void         setAlgorithm(const Algorithm algorithm);
+    virtual bool supportLimits(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
 private:

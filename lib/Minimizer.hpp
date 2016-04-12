@@ -56,6 +56,7 @@ public:
     virtual void         useLowLimit(const Index i, const bool use = true);
     virtual void         useLowLimit(const PlaceHolder ph = _,
                                      const bool use = true);
+    virtual bool         supportLimits(void) const = 0;
     virtual unsigned int getMaxPass(void) const;
     virtual void         setMaxPass(const unsigned int maxPass);
     // minimization

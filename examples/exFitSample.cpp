@@ -1,6 +1,5 @@
 #include <LatAnalyze/CompiledModel.hpp>
-#include <LatAnalyze/MinuitMinimizer.hpp>
-#include <LatAnalyze/NloptMinimizer.hpp>
+#include <LatAnalyze/GslMinimizer.hpp>
 #include <LatAnalyze/Plot.hpp>
 #include <LatAnalyze/XYSampleData.hpp>
 
@@ -47,22 +46,9 @@ int main(void)
     data.assumeXExact(true, 1);
     
     // set minimizers
-    DVec                init = DVec::Constant(2, 0.1);
-    SampleFitResult     p;
-    NloptMinimizer      globalMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
-    MinuitMinimizer     localMin;
-    vector<Minimizer *> min{&globalMin, &localMin};
-    
-    globalMin.setPrecision(0.1);
-    globalMin.setMaxIteration(10000);
-    globalMin.useLowLimit(0);
-    globalMin.setLowLimit(0, 0.);
-    globalMin.useHighLimit(0);
-    globalMin.setHighLimit(0, 20.);
-    globalMin.useLowLimit(1);
-    globalMin.setLowLimit(1, 0.);
-    globalMin.useHighLimit(1);
-    globalMin.setHighLimit(1, 20.);
+    DVec            init = DVec::Constant(2, 0.1);
+    SampleFitResult p;
+    GslMinimizer    min(GslMinimizer::Algorithm::bfgs2);
     
     // fit
     cout << "-- fit..." << endl;
