@@ -32,7 +32,7 @@ libLatAnalyze_la_SOURCES = \
     Function.cpp           \
     Global.cpp             \
     GslHybridRootFinder.cpp\
-	GslMinimizer.cpp       \
+    GslMinimizer.cpp       \
     GslQagsIntegrator.cpp  \
     Histogram.cpp          \
     includes.hpp           \
@@ -64,7 +64,7 @@ libLatAnalyze_la_HEADERS = \
     FitInterface.hpp       \
     Global.hpp             \
     GslHybridRootFinder.hpp\
-	GslMinimizer.hpp       \
+    GslMinimizer.hpp       \
     GslQagsIntegrator.hpp  \
     Histogram.hpp          \
     Integrator.hpp         \
@@ -106,6 +106,8 @@ AsciiParser.hpp: AsciiParser.ypp
 MathParser.hpp: MathParser.ypp
 	$(AM_V_YACC) $(YACC) -o MathParser.cpp --defines=MathParser.hpp $<
 endif
+
+BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
 
 CLEANFILES =       \
     MathLexer.cpp  \
