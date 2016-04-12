@@ -107,8 +107,6 @@ MathParser.hpp: MathParser.ypp
 	$(AM_V_YACC) $(YACC) -o MathParser.cpp --defines=MathParser.hpp $<
 endif
 
-BUILT_SOURCES = AsciiParser.hpp MathParser.hpp
-
 CLEANFILES =       \
     MathLexer.cpp  \
     AsciiLexer.cpp \

@@ -133,3 +133,18 @@ AC_SUBST([AM_LDFLAGS])
 
 AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile examples/Makefile])
 AC_OUTPUT
+
+echo "*********************************************"
+echo "* ${PACKAGE_NAME} v${VERSION}" build options
+echo "*********************************************"
+echo "* C++ compiler     : $CXX"
+echo "* HDF5 support     : `test x$HAVE_HDF5_TRUE = 'x'   && echo yes \
+                                                          || echo no`"
+echo "* Minuit minimizers: `test x$HAVE_MINUIT_TRUE = 'x' && echo yes \
+                                                          || echo no`"
+echo "* NLopt minimizers : `test x$HAVE_NLOPT_TRUE = 'x'  && echo yes \
+                                                          || echo no`"
+echo "*********************************************"
+
+
+
