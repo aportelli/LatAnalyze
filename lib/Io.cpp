@@ -19,6 +19,10 @@
 
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#ifdef HAVE_HDF5
+#include <LatAnalyze/Hdf5File.hpp>
+#endif
 
 using namespace std;
 using namespace Latan;
@@ -34,14 +38,16 @@ unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
 {
     string ext = extension(fileName);
     
-    if (ext == "h5")
-    {
-        return unique_ptr<File>(new Hdf5File(fileName, mode));
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
+    if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
     {
         return unique_ptr<File>(new AsciiFile(fileName, mode));
     }
+#ifdef HAVE_HDF5
+    else if (ext == "h5")
+    {
+        return unique_ptr<File>(new Hdf5File(fileName, mode));
+    }
+#endif
     else
     {
         LATAN_ERROR(Io, "unknown file extension '" + ext + "'");

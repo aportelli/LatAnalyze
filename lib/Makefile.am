@@ -34,7 +34,6 @@ libLatAnalyze_la_SOURCES = \
     GslHybridRootFinder.cpp\
 	GslMinimizer.cpp       \
     GslQagsIntegrator.cpp  \
-    Hdf5File.cpp           \
     Histogram.cpp          \
     includes.hpp           \
     Io.cpp                 \
@@ -67,7 +66,6 @@ libLatAnalyze_la_HEADERS = \
     GslHybridRootFinder.hpp\
 	GslMinimizer.hpp       \
     GslQagsIntegrator.hpp  \
-    Hdf5File.hpp           \
     Histogram.hpp          \
     Integrator.hpp         \
     Io.hpp                 \
@@ -86,6 +84,10 @@ libLatAnalyze_la_HEADERS = \
     StatArray.hpp          \
     XYSampleData.hpp       \
     XYStatData.hpp
+if HAVE_HDF5
+    libLatAnalyze_la_SOURCES += Hdf5File.cpp
+    libLatAnalyze_la_HEADERS += Hdf5File.hpp
+endif
 if HAVE_MINUIT
     libLatAnalyze_la_SOURCES += MinuitMinimizer.cpp
     libLatAnalyze_la_HEADERS += MinuitMinimizer.hpp
