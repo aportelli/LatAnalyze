@@ -9,17 +9,16 @@ endif
 noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exDerivative            \
+    exFit                   \
+    exFitSample             \
     exIntegrator            \
     exInterp                \
     exMat                   \
     exMathInterpreter       \
+    exMin                   \
     exPlot                  \
     exRand                  \
     exRootFinder
-
-if HAVE_MINUIT
-noinst_PROGRAMS += exFit exFitSample exMin
-endif
 
 exCompiledDoubleFunction_SOURCES  = exCompiledDoubleFunction.cpp
 exCompiledDoubleFunction_CXXFLAGS = $(COM_CXXFLAGS)
@@ -29,7 +28,6 @@ exDerivative_SOURCES              = exDerivative.cpp
 exDerivative_CXXFLAGS             = $(COM_CXXFLAGS)
 exDerivative_LDFLAGS              = -L../lib/.libs -lLatAnalyze
 
-if HAVE_MINUIT
 exFit_SOURCES                     = exFit.cpp
 exFit_CXXFLAGS                    = $(COM_CXXFLAGS)
 exFit_LDFLAGS                     = -L../lib/.libs -lLatAnalyze
@@ -37,7 +35,6 @@ exFit_LDFLAGS                     = -L../lib/.libs -lLatAnalyze
 exFitSample_SOURCES               = exFitSample.cpp
 exFitSample_CXXFLAGS              = $(COM_CXXFLAGS)
 exFitSample_LDFLAGS               = -L../lib/.libs -lLatAnalyze
-endif
 
 exInterp_SOURCES                  = exInterp.cpp
 exInterp_CXXFLAGS                 = $(COM_CXXFLAGS)
@@ -51,11 +48,9 @@ exMat_SOURCES                     = exMat.cpp
 exMat_CXXFLAGS                    = $(COM_CXXFLAGS)
 exMat_LDFLAGS                     = -L../lib/.libs -lLatAnalyze
 
-if HAVE_MINUIT
 exMin_SOURCES                     = exMin.cpp
 exMin_CXXFLAGS                    = $(COM_CXXFLAGS)
 exMin_LDFLAGS                     = -L../lib/.libs -lLatAnalyze
-endif
 
 exMathInterpreter_SOURCES         = exMathInterpreter.cpp
 exMathInterpreter_CXXFLAGS        = $(COM_CXXFLAGS)

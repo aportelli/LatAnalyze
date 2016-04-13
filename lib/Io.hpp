@@ -21,8 +21,7 @@
 #define Latan_Io_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <LatAnalyze/AsciiFile.hpp>
-#include <LatAnalyze/Hdf5File.hpp>
+#include <LatAnalyze/File.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
