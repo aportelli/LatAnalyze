@@ -27,3 +27,6 @@ lib/*Parser.hpp
 # Eigen headers
 lib/Eigen/*
 lib/eigen_files.mk
+
+# CI builds
+ci-scripts/local/*

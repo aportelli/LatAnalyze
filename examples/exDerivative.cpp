@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/Derivative.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 #include <LatAnalyze/Math.hpp>

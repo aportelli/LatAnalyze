@@ -1,7 +1,7 @@
 /*
  * Io.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/AsciiFile.hpp>
+#ifdef HAVE_HDF5
+#include <LatAnalyze/Hdf5File.hpp>
+#endif
 
 using namespace std;
 using namespace Latan;
@@ -34,14 +38,16 @@ unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
 {
     string ext = extension(fileName);
     
-    if (ext == "h5")
-    {
-        return unique_ptr<File>(new Hdf5File(fileName, mode));
-    }
-    else if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
+    if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
     {
         return unique_ptr<File>(new AsciiFile(fileName, mode));
     }
+#ifdef HAVE_HDF5
+    else if (ext == "h5")
+    {
+        return unique_ptr<File>(new Hdf5File(fileName, mode));
+    }
+#endif
     else
     {
         LATAN_ERROR(Io, "unknown file extension '" + ext + "'");

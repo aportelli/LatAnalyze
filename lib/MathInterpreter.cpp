@@ -1,7 +1,7 @@
 /*
  * MathInterpreter.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -411,7 +411,7 @@ void ExprNode::pushArg(ExprNode *node)
 // ExprNode operators //////////////////////////////////////////////////////////
 const ExprNode &ExprNode::operator[](const Index i) const
 {
-    return *arg_[static_cast<unsigned int>(i)];
+    return *arg_[i];
 }
 
 ostream &Latan::operator<<(ostream &out, const ExprNode &n)
@@ -451,7 +451,7 @@ try\
 }\
 catch (out_of_range)\
 {\
-    address         = static_cast<unsigned int>((table).size());\
+    address         = (table).size();\
     (table)[(name)] = address;\
 }\
 
@@ -582,7 +582,7 @@ MathInterpreter::MathInterpreter(const std::string &code)
 // access //////////////////////////////////////////////////////////////////////
 const Instruction * MathInterpreter::operator[](const Index i) const
 {
-    return program_[static_cast<unsigned int>(i)].get();
+    return program_[i].get();
 }
 
 const ExprNode * MathInterpreter::getAST(void) const

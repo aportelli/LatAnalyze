@@ -1,7 +1,7 @@
 /*
  * MathParser.ypp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +18,15 @@
  */
 
 %{
-    #include <iostream>
-    #include <sstream>
-    #include <cstring>
     #include <LatAnalyze/Global.hpp>
 	#include <LatAnalyze/MathInterpreter.hpp>
-
-    #if (defined __INTEL_COMPILER)
-    #pragma warning disable 1682 2259
-    #elif (defined __GNUC__)||(defined __clang__)
-    #pragma GCC diagnostic ignored "-Wconversion"
-    #pragma GCC diagnostic ignored "-Wsign-conversion"
-    #endif
 
     using namespace std;
     using namespace Latan;
 %}
 
 %pure-parser
-%name-prefix = "_math_"
+%name-prefix "_math_"
 %locations
 %defines
 %error-verbose

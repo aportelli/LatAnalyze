@@ -1,7 +1,7 @@
 /*
  * MatSample.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/StatArray.hpp>
-#include <functional>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -35,7 +34,7 @@ BEGIN_LATAN_NAMESPACE
                                     std::placeholders::_1, x))
 
 template <typename T>
-class MatSample: public Sample<Mat<T>>, public IoObject
+class MatSample: public Sample<Mat<T>>
 {
 public:
     // block type template
@@ -104,9 +103,6 @@ public:
                      const Index nCol);
     // resize all matrices
     void resizeMat(const Index nRow, const Index nCol);
-    // IO type
-    virtual IoType getType(void) const;
-
 };
 
 // non-member operators
@@ -383,12 +379,6 @@ void MatSample<T>::resizeMat(const Index nRow, const Index nCol)
     }
 }
 
-// IO type /////////////////////////////////////////////////////////////////////
-template <typename T>
-IoObject::IoType MatSample<T>::getType(void) const
-{
-    return IoType::noType;
-}
 
 END_LATAN_NAMESPACE
 

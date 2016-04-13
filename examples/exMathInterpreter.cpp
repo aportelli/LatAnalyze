@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/Math.hpp>
 #include <LatAnalyze/MathInterpreter.hpp>
 

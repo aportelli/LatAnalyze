@@ -1,7 +1,7 @@
 /*
- * create_rg_state.cpp, part of LatAnalyze 3
+ * sample_plot_corr.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,34 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/RandGen.hpp>
+#include <LatAnalyze/Math.hpp>
+#include <LatAnalyze/Plot.hpp>
 
-using namespace Latan;
 using namespace std;
+using namespace Latan;
+using namespace Math;
 
 int main(int argc, char *argv[])
 {
-    string outFilename;
-    
     if (argc != 2)
     {
-        cerr << "usage: " << argv[0] << " <output file>" << endl;
+        cerr << "usage: " << argv[0] << " <file>" << endl;
         
         return EXIT_FAILURE;
     }
-    outFilename = argv[1];
     
-    RandGen gen;
+    string     fileName = argv[1], name;
+    DMatSample sample;
+    DMat       var;
+    Plot       p;
     
-    Io::save(gen.getState(), outFilename);
+    cout << "-- computing variance matrix from '" << fileName << "'..." << endl;
+    name   = Io::getFirstName(fileName);
+    sample = Io::load<DMatSample>(fileName);
+    var    = sample.varianceMatrix();
+    p << PlotMatrix(varToCorr(var));
+    p.display();
     
     return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 /*
  * Minimizer.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,12 +36,10 @@ class Minimizer: public Solver
 public:
     // constructor
     Minimizer(void) = default;
-    explicit Minimizer(const Index dim);
     // destructor
     virtual ~Minimizer(void) = default;
     // access
-    virtual void resize(const Index dim);
-    // limits
+    virtual void         resize(const Index dim);
     virtual double       getHighLimit(const Index i) const ;
     virtual const DVec & getHighLimit(const PlaceHolder ph = _) const;
     virtual double       getLowLimit(const Index i) const;
@@ -58,11 +56,15 @@ public:
     virtual void         useLowLimit(const Index i, const bool use = true);
     virtual void         useLowLimit(const PlaceHolder ph = _,
                                      const bool use = true);
+    virtual bool         supportLimits(void) const = 0;
+    virtual unsigned int getMaxPass(void) const;
+    virtual void         setMaxPass(const unsigned int maxPass);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f) = 0;
 private:
-    DVec      highLimit_, lowLimit_;
-    Vec<bool> hasHighLimit_, hasLowLimit_;
+    DVec         highLimit_, lowLimit_;
+    Vec<bool>    hasHighLimit_, hasLowLimit_;
+    unsigned int maxPass_{5u};
 };
 
 END_LATAN_NAMESPACE

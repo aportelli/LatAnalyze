@@ -1,7 +1,7 @@
 /*
  * File.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,6 @@
 #include <LatAnalyze/IoObject.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/RandGen.hpp>
-#include <queue>
-#include <unordered_map>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -61,8 +58,8 @@ public:
     template <typename IoT>
     const IoT &  read(const std::string &name = "");
     virtual void save(const DMat &m, const std::string &name)             = 0;
-    virtual void save(const DMatSample &state, const std::string &name)   = 0;
-    virtual void save(const RandGenState &state, const std::string &name) = 0;
+    virtual void save(const DSample &ds, const std::string &name)         = 0;
+    virtual void save(const DMatSample &ms, const std::string &name)      = 0;
     // read first name
     virtual std::string getFirstName(void) = 0;
     // tests

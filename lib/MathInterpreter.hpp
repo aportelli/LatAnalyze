@@ -1,7 +1,7 @@
 /*
  * MathInterpreter.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,6 @@
 #ifndef Latan_MathInterpreter_hpp_
 #define	Latan_MathInterpreter_hpp_
 
-#include <iostream>
-#include <map>
-#include <queue>
-#include <string>
-#include <stack>
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/ParserState.hpp>

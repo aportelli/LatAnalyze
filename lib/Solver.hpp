@@ -1,7 +1,7 @@
 /*
  * Solver.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ BEGIN_LATAN_NAMESPACE
 class Solver
 {
 public:
-    static const     unsigned int defaultMaxIteration = 1000u;
+    static const     unsigned int defaultMaxIteration = 10000u;
     static constexpr double       defaultPrec = 1.0e-7;
 public:
     enum class Verbosity

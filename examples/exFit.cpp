@@ -1,53 +1,77 @@
 #include <iostream>
 #include <cmath>
 #include <LatAnalyze/CompiledModel.hpp>
-#include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/Io.hpp>
+#include <LatAnalyze/GslMinimizer.hpp>
 #include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <LatAnalyze/XYStatData.hpp>
 
 using namespace std;
 using namespace Latan;
 
-const Index  nPoint = 20;
-const double exactPar[2] = {0.5,5.0}, dx = 10.0/static_cast<double>(nPoint);
+const Index  nPoint1 = 10, nPoint2 = 10;
+const double xErr = .1, yErr   = .3;
+const double exactPar[2] = {0.5,5.};
+const double dx1 = 10.0/static_cast<double>(nPoint1);
+const double dx2 = 5.0/static_cast<double>(nPoint2);
 
 int main(void)
 {
     // generate fake data
-    XYStatData  data(nPoint, 1, 1);
-    RandGen     rg;
-    double      x_k, y_k;
-    DoubleModel f = compile("return p_1*exp(-x_0*p_0);", 1, 2);
-
-    for (Index k = 0; k < nPoint; ++k)
+    XYStatData            data;
+    random_device         rd;
+    mt19937               gen(rd());
+    normal_distribution<> dis;
+    double                xBuf[2];
+    DoubleModel           f([](const double *x, const double *p)
+                            {return p[1]*exp(-x[0]*p[0])+x[1];}, 2, 2);
+    
+    cout << "-- generating fake data..." << endl;
+    data.addXDim(nPoint1);
+    data.addXDim(nPoint2);
+    data.addYDim();
+    for (Index i1 = 0; i1 < nPoint1; ++i1)
     {
-        x_k          = k*dx;
-        y_k          = f(&x_k, exactPar) + rg.gaussian(0.0, 0.1);
-        cout << x_k << " " << y_k << " " << 0.1 << endl;
-        data.x(0, k) = x_k;
-        data.y(0, k) = y_k;
+        xBuf[0]       = i1*dx1;
+        data.x(i1, 0) = xErr*dis(gen) + xBuf[0];
+        for (Index i2 = 0; i2 < nPoint2; ++i2)
+        {
+            xBuf[1]                           = i2*dx2;
+            data.x(i2, 1)                     = xBuf[1];
+            data.y(data.dataIndex(i1, i2), 0) = yErr*dis(gen)
+                                                + f(xBuf, exactPar);
+        }
     }
-    data.yyVar(0, 0).diagonal() = DMat::Constant(nPoint, 1, 0.1*0.1);
-    data.assumeXExact(0);
-
+    data.setXError(0, DVec::Constant(data.getXSize(0), xErr));
+    data.assumeXExact(true, 1);
+    data.setYError(0, DVec::Constant(data.getYSize(), yErr));
+    
+    // set minimizers
+    DVec         init = DVec::Constant(2, 0.1);
+    FitResult    p;
+    GslMinimizer min(GslMinimizer::Algorithm::bfgs2);
+    
     // fit
-    DVec init = DVec::Constant(2, 0.5);
-    FitResult p;
-    MinuitMinimizer minimizer;
+    min.setVerbosity(Minimizer::Verbosity::Debug);
+    cout << "-- fit..." << endl;
+    f.parName().setName(0, "m");
+    f.parName().setName(1, "A");
+    p = data.fit(min, init, f);
+    p.print();
     
-    data.fitAllPoints();
-    p = data.fit(minimizer, init, f);
+    // plot
+    Plot       plot;
+    DVec       ref(2);
+    XYStatData res;
     
-    cout << "a= " << p(0) << " b= " << p(1);
-    cout << " chi^2/ndof= " << p.getChi2PerDof();
-    cout << " p-value= " << p.getPValue() <<endl;
-
-    // plot result
-    Plot plot;
-    
-    plot << LogScale(Axis::y) << PlotData(data);
-    plot << Color("rgb 'blue'") << PlotFunction(p.getModel(), 0.0, 10.0);
+    cout << "-- generating plots..." << endl;
+    ref(1) = 0.;
+    res    = data.getPartialResiduals(p, ref, 0);
+    plot << PlotRange(Axis::x, 0., 10.);
+    plot << Color("rgb 'blue'");
+    plot << PlotFunction(p.getModel().bind(0, ref), 0., 10.);
+    plot << Color("rgb 'red'");
+    plot << PlotData(res);
     plot.display();
     
     return EXIT_SUCCESS;

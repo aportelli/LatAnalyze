@@ -1,7 +1,7 @@
 /*
  * Model.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Mat.hpp>
-#include <vector>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -43,10 +42,14 @@ public:
     // destructor
     virtual ~DoubleModel(void) = default;
     // access
-    virtual Index getNArg(void) const;
-    virtual Index getNPar(void) const;
-    void  setFunction(const vecFunc &f, const Index nArg,
-                      const Index nPar);
+    virtual Index     getNArg(void) const;
+    virtual Index     getNPar(void) const;
+            void      setFunction(const vecFunc &f, const Index nArg,
+                                  const Index nPar);
+            VarName & varName(void);
+      const VarName & varName(void) const;
+            VarName & parName(void);
+      const VarName & parName(void) const;
     // function call
     double operator()(const DVec &data, const DVec &par) const;
     double operator()(const std::vector<double> &data,
@@ -61,6 +64,7 @@ private:
     void checkSize(const Index nArg, const Index nPar) const;
 private:
     std::shared_ptr<ModelSize> size_;
+    VarName                    varName_, parName_;
     vecFunc                    f_;
 };
 

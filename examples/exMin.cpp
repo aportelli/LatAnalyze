@@ -1,6 +1,5 @@
-#include <iostream>
 #include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/MinuitMinimizer.hpp>
+#include <LatAnalyze/GslMinimizer.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -17,8 +16,8 @@ int main(int argc, char* argv[])
     }
     source = argv[1];
     
-    DoubleFunction  f = compile(source, 1);
-    MinuitMinimizer minimize;
+    DoubleFunction f = compile(source, 1);
+    GslMinimizer   minimize;
     DVec init(1);
     double min;
 

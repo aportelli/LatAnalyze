@@ -1,7 +1,7 @@
 /*
  * includes.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +20,6 @@
 #ifndef Latan_includes_hpp_
 #define	Latan_includes_hpp_
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <sstream>
-#include <utility>
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <config.h>
 
 #endif // Latan_includes_hpp_

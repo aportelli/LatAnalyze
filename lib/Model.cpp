@@ -1,7 +1,7 @@
 /*
  * Model.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 
 #include <LatAnalyze/Model.hpp>
 #include <LatAnalyze/includes.hpp>
-#include <functional>
 
 using namespace std;
 using namespace std::placeholders;
@@ -31,6 +30,8 @@ using namespace Latan;
 // constructor /////////////////////////////////////////////////////////////////
 DoubleModel::DoubleModel(const vecFunc &f, const Index nArg, const Index nPar)
 : size_(new ModelSize)
+, varName_("x")
+, parName_("p")
 {
     setFunction(f, nArg, nPar);
 }
@@ -52,6 +53,26 @@ void DoubleModel::setFunction(const vecFunc &f, const Index nArg,
     size_->nArg = nArg;
     size_->nPar = nPar;
     f_          = f;
+}
+
+VarName & DoubleModel::varName(void)
+{
+    return varName_;
+}
+
+const VarName & DoubleModel::varName(void) const
+{
+    return varName_;
+}
+
+VarName & DoubleModel::parName(void)
+{
+    return parName_;
+}
+
+const VarName & DoubleModel::parName(void) const
+{
+    return parName_;
 }
 
 // error checking //////////////////////////////////////////////////////////////

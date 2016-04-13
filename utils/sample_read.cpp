@@ -17,7 +17,6 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <LatAnalyze/Io.hpp>
 
 using namespace std;
@@ -35,14 +34,29 @@ int main(int argc, char *argv[])
     string fileName = argv[1], copy = (argc >= 3) ? argv[2] : "";
     
     cout << "-- loading sample from '" << fileName << "'..." << endl;
-    DMatSample s    = Io::load<DMatSample>(fileName);
-    string     name = Io::getFirstName(fileName);
-    cout << scientific;
-    cout << "central value:\n"      << s[central]               << endl;
-    cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
-    if (!copy.empty())
+    try
     {
-        Io::save(s, copy, File::Mode::write, name);
+        DMatSample s    = Io::load<DMatSample>(fileName);
+        string     name = Io::getFirstName(fileName);
+        cout << scientific;
+        cout << "central value:\n"      << s[central]               << endl;
+        cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
+        if (!copy.empty())
+        {
+            Io::save(s, copy, File::Mode::write, name);
+        }
+    }
+    catch (bad_cast &e)
+    {
+        DSample s    = Io::load<DSample>(fileName);
+        string  name = Io::getFirstName(fileName);
+        cout << scientific;
+        cout << "central value:\n"      << s[central]         << endl;
+        cout << "standard deviation:\n" << sqrt(s.variance()) << endl;
+        if (!copy.empty())
+        {
+            Io::save(s, copy, File::Mode::write, name);
+        }
     }
     
     return EXIT_SUCCESS;

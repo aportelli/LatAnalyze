@@ -1,7 +1,7 @@
 /*
  * ParserState.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #define	Latan_ParserState_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <iostream>
 
 BEGIN_LATAN_NAMESPACE
 

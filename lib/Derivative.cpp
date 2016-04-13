@@ -1,7 +1,7 @@
 /*
  * Derivative.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +31,12 @@ using namespace Math;
 // constructor /////////////////////////////////////////////////////////////////
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const double step)
-: f_(f)
-, dir_(dir)
-, step_(step)
-, buffer_(new DVec(f.getNArg()))
-{}
+: buffer_(new DVec(f.getNArg()))
+{
+    setFunction(f);
+    setDir(dir);
+    setStep(step);
+}
 
 Derivative::Derivative(const DoubleFunction &f, const Index dir,
                        const Index order, const DVec &point, const double step)
@@ -45,6 +46,11 @@ Derivative::Derivative(const DoubleFunction &f, const Index dir,
 }
 
 // access //////////////////////////////////////////////////////////////////////
+Index Derivative::getDir(void) const
+{
+    return dir_;
+}
+
 Index Derivative::getOrder(void) const
 {
     return order_;
@@ -58,6 +64,11 @@ Index Derivative::getNPoint(void) const
 double Derivative::getStep(void) const
 {
     return step_;
+}
+
+void Derivative::setDir(const Index dir)
+{
+    dir_ = dir;
 }
 
 void Derivative::setFunction(const DoubleFunction &f)

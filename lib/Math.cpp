@@ -1,7 +1,7 @@
 /*
  * Math.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,19 @@
 
 using namespace std;
 using namespace Latan;
+
+/******************************************************************************
+ *                             Custom math functions                          *
+ ******************************************************************************/
+DMat MATH_NAMESPACE::varToCorr(const DMat &var)
+{
+    DMat res = var, invDiag = res.diagonal();
+    
+    invDiag = invDiag.cwiseInverse().cwiseSqrt();
+    res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
+    
+    return res;
+}
 
 /******************************************************************************
  *                             Standard C functions                           *

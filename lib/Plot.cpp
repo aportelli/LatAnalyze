@@ -1,7 +1,7 @@
 /*
  * Plot.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,15 +169,10 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 {
-    DMat d(data.getNData(), 4);
     string usingCmd, tmpFileName;
     
-    d.col(0)    = data.x(i);
-    d.col(2)    = data.y(j);
-    d.col(1)    = data.xxVar(i, i).diagonal().array().sqrt();
-    d.col(3)    = data.yyVar(j, j).diagonal().array().sqrt();
     usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
-    tmpFileName = dumpToTmpFile(d);
+    tmpFileName = dumpToTmpFile(data.getTable(i, j));
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
@@ -250,6 +245,14 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' u 1:2 w steps");
+}
+
+// PlotMatrixNoRange constructor ///////////////////////////////////////////////
+PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
+{
+    string tmpFileName = dumpToTmpFile(m);
+    
+    setCommand("'" + tmpFileName + "' matrix w image");
 }
 
 /******************************************************************************

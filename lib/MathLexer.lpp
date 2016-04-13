@@ -1,7 +1,7 @@
 /*
  * MathLexer.lpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,20 +25,9 @@
 %option yylineno
 
 %{
-    #include <iostream>
     #include <LatAnalyze/MathInterpreter.hpp>
     #include "MathParser.hpp"
-
-    #if (defined __INTEL_COMPILER)
-    #pragma warning disable 1682 2259
-    #elif (defined __GNUC__)||(defined __clang__)
-    #pragma GCC diagnostic ignored "-Wconversion"
-    #pragma GCC diagnostic ignored "-Wsign-conversion"
-    #pragma GCC diagnostic ignored "-Wsign-compare"
-    #pragma GCC diagnostic ignored "-Wunused-function"
-    #pragma GCC diagnostic ignored "-Wunused-parameter"
-    #endif
-
+    
     using namespace std;
     using namespace Latan;
     

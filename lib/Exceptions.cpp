@@ -1,7 +1,7 @@
 /*
  * Exceptions.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ CONST_EXC(Range, Logic("range error: " + msg, loc))
 CONST_EXC(Size, Logic("size error: " + msg, loc))
 // runtime errors
 CONST_EXC(Runtime, runtime_error(Env::msgPrefix + msg + ERR_SUFF))
+CONST_EXC(Argument, Runtime("argument error: " + msg, loc))
 CONST_EXC(Compilation, Runtime("compilation error: " + msg, loc))
 CONST_EXC(Io, Runtime("IO error: " + msg, loc))
 CONST_EXC(Memory, Runtime("memory error: " + msg, loc))

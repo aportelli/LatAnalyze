@@ -1,29 +1,17 @@
-if CC_GNU
-    COM_CFLAGS = -Wall -W -pedantic
-else
-if CC_INTEL
-    COM_CFLAGS = -Wall
-endif
-endif
-
 if CXX_GNU
-    COM_CXXFLAGS = -Wall -W -pedantic
+    COM_CXXFLAGS = -Wall -W -pedantic -Wno-deprecated-declarations
 else
 if CXX_INTEL
-    COM_CXXFLAGS = -Wall
+    COM_CXXFLAGS = -wd1682 -Wall
 endif
 endif
 
 bin_PROGRAMS =            \
-    latan_create_rg_state \
     latan_make_fake_sample\
     latan_sample_combine  \
+    latan_sample_plot_corr\
     latan_sample_read     \
     latan_resample
-
-latan_create_rg_state_SOURCES  = create_rg_state.cpp
-latan_create_rg_state_CXXFLAGS = $(COM_CXXFLAGS)
-latan_create_rg_state_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_make_fake_sample_SOURCES  = make_fake_sample.cpp
 latan_make_fake_sample_CXXFLAGS = $(COM_CXXFLAGS)
@@ -32,6 +20,10 @@ latan_make_fake_sample_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_combine_SOURCES  = sample_combine.cpp
 latan_sample_combine_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_combine_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_plot_corr_SOURCES  = sample_plot_corr.cpp
+latan_sample_plot_corr_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_plot_corr_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_read_SOURCES  = sample_read.cpp
 latan_sample_read_CXXFLAGS = $(COM_CXXFLAGS)

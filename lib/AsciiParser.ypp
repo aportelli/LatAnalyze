@@ -1,7 +1,7 @@
 /*
  * AsciiParser.ypp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,18 +22,6 @@
 	#include <LatAnalyze/AsciiFile.hpp>
     #include <LatAnalyze/Mat.hpp>
     #include <LatAnalyze/MatSample.hpp>
-    #include <LatAnalyze/RandGen.hpp>
-    #include <iostream>
-    #include <sstream>
-    #include <utility>
-    #include <cstring>
-
-    #if (defined __INTEL_COMPILER)
-    #pragma warning disable 1682 2259
-    #elif (defined __GNUC__)||(defined __clang__)
-    #pragma GCC diagnostic ignored "-Wconversion"
-    #pragma GCC diagnostic ignored "-Wsign-conversion"
-    #endif
 
     using namespace std;
     using namespace Latan;
@@ -47,7 +35,7 @@
 %}
 
 %pure-parser
-%name-prefix = "_Ascii_"
+%name-prefix "_Ascii_"
 %locations
 %defines
 %error-verbose
@@ -57,10 +45,10 @@
 
 %union
 {
-	int    val_int;
-	double val_double;
-    char   val_char;
-    char   val_str[256];
+	long int val_int;
+	double   val_double;
+    char     val_char;
+    char     val_str[256];
 }
 
 %token <val_char>   ERR
@@ -69,7 +57,7 @@
 %token <val_str>    ID
 %token OPEN CLOSE MAT SAMPLE RG_STATE
 
-%type <val_str> mat sample rg_state
+%type <val_str> mat matsample dsample
 
 %{
 	int _Ascii_lex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
@@ -101,15 +89,15 @@ data:
         (*state->data)[$1].reset(new DMat(state->dMatQueue.front()));
         state->dMatQueue.pop();
     }
-    | sample
+    | dsample
+    {
+        TEST_FIRST($1);
+        (*state->data)[$1].reset(new DSample(state->dSampleBuf));
+    }
+    | matsample
     {
         TEST_FIRST($1);
         (*state->data)[$1].reset(new DMatSample(state->dMatSampleBuf));
-    }
-    | rg_state
-    {
-        TEST_FIRST($1);
-        (*state->data)[$1].reset(new RandGenState(state->stateBuf));
     }
     ;
 
@@ -138,15 +126,37 @@ mat:
     }
     ;
 
-sample:
-      OPEN SAMPLE ID INT mats CLOSE SAMPLE
+dsample:
+      OPEN SAMPLE ID INT mat CLOSE SAMPLE
+    {
+        const unsigned int nSample = $4, os = DMatSample::offset;
+        
+        DMat &m = state->dMatQueue.front();
+        if (m.rows() != nSample + os)
+        {
+            LATAN_ERROR(Size, "double sample '" + *state->streamName + ":"
+                        + $3 + "' has a wrong size");
+        }
+        if (m.cols() != 1)
+        {
+            LATAN_ERROR(Size, "double sample '" + *state->streamName + ":"
+                        + $3 + "' is not stored as a column vector");
+        }
+        state->dSampleBuf = m.array();
+        state->dMatQueue.pop();
+        strcpy($$, $3);
+    }
+    ;
+
+matsample:
+      OPEN SAMPLE ID INT mat mats CLOSE SAMPLE
     {
         const unsigned int nSample = $4, os = DMatSample::offset;
         
         if (state->dMatQueue.size() != nSample + os)
         {
-            LATAN_ERROR(Size, "sample '" + *state->streamName + ":" + $3 +
-                        "' has a wrong size");
+            LATAN_ERROR(Size, "matrix sample '" + *state->streamName + ":"
+                        + $3 + "' has a wrong size");
         }
         state->dMatSampleBuf.resize(nSample);
         state->dMatSampleBuf[central] = state->dMatQueue.front();
@@ -155,22 +165,6 @@ sample:
         {
             state->dMatSampleBuf[i] = state->dMatQueue.front();
             state->dMatQueue.pop();
-        }
-        strcpy($$, $3);
-    }
-
-rg_state:
-      OPEN RG_STATE ID ints CLOSE RG_STATE
-    {
-        if (state->intQueue.size() != RLXG_STATE_SIZE)
-        {
-            LATAN_ERROR(Size, "random generator state '" + *state->streamName
-                        + ":" + $3 + "' has a wrong size");
-        }
-        for (Index i = 0; i < RLXG_STATE_SIZE; ++i)
-        {
-            state->stateBuf[i] = state->intQueue.front();
-            state->intQueue.pop();
         }
         strcpy($$, $3);
     }
@@ -186,9 +180,4 @@ floats:
     | floats INT   {state->doubleQueue.push(static_cast<double>($2));}
     | FLOAT        {state->doubleQueue.push($1);}
     | INT          {state->doubleQueue.push(static_cast<double>($1));}
-    ;
-
-ints:
-      ints INT {state->intQueue.push($2);}
-    | INT      {state->intQueue.push($1);}
     ;

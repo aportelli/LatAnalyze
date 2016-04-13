@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/GslHybridRootFinder.hpp>
 

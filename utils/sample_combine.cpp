@@ -1,7 +1,7 @@
 /*
  * sample_combine.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <libgen.h>
-#include <unistd.h>
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 
@@ -33,6 +30,108 @@ static void usage(const string &cmdName)
     cerr << " <n> <function> <sample 1> ... <sample n>";
     cerr << endl;
     exit(EXIT_FAILURE);
+}
+
+template <typename T>
+static void loadAndCheck(vector<T> &sample, const vector<string> &fileName)
+{
+    const unsigned int n = sample.size();
+    Index              nSample = 0;
+    
+    cout << "-- loading data..." << endl;
+    for (unsigned int i = 0; i < n; ++i)
+    {
+        sample[i] = Io::load<T>(fileName[i]);
+        if (i == 0)
+        {
+            nSample = sample[i].size();
+        }
+        else if (sample[i].size() != nSample)
+        {
+            cerr << "error: number of sample mismatch (between '";
+            cerr << fileName[0] << "' and '" << fileName[i] << "')" << endl;
+            abort();
+        }
+    }
+}
+
+template <typename T>
+static void combine(const string &outFileName __dumb,
+                    const vector<T> &sample __dumb, const string &code __dumb)
+{
+    abort();
+}
+
+template <>
+void combine(const string &outFileName, const vector<DSample> &sample,
+             const string &code)
+{
+    const unsigned int n = sample.size();
+    DoubleFunction     f = compile(code, n);
+    DSample            result(sample[0]);
+    DVec               buf(n);
+    
+    cout << "-- combining data..." << endl;
+    result = sample[0];
+    FOR_STAT_ARRAY(result, s)
+    {
+        for (unsigned int k = 0; k < n; ++k)
+        {
+            buf[k] = sample[k][s];
+        }
+        result[s] = f(buf);
+    }
+    cout << scientific;
+    cout << "central value:\n"      << result[central];
+    cout << endl;
+    cout << "standard deviation:\n" << sqrt(result.variance());
+    cout << endl;
+    if (!outFileName.empty())
+    {
+        Io::save<DSample>(result, outFileName);
+    }
+}
+
+template <>
+void combine(const string &outFileName, const vector<DMatSample> &sample,
+             const string &code)
+{
+    const unsigned int n = sample.size();
+    DoubleFunction     f = compile(code, n);
+    DVec               buf(n);
+    DMatSample         result(sample[0]);
+    
+    cout << "-- combining data..." << endl;
+    FOR_STAT_ARRAY(result, s)
+    {
+        FOR_MAT(result[s], i, j)
+        {
+            for (unsigned int k = 0; k < n; ++k)
+            {
+                buf[k] = sample[k][s](i,j);
+            }
+            result[s](i, j) = f(buf);
+        }
+    }
+    cout << scientific;
+    cout << "central value:\n"      << result[central];
+    cout << endl;
+    cout << "standard deviation:\n" << result.variance().cwiseSqrt();
+    cout << endl;
+    if (!outFileName.empty())
+    {
+        Io::save<DMatSample>(result, outFileName);
+    }
+}
+
+template <typename T>
+void process(const string &outFileName, const vector<string> &fileName,
+             const string &code)
+{
+    vector<T> sample(fileName.size());
+    
+    loadAndCheck(sample, fileName);
+    combine(outFileName, sample, code);
 }
 
 int main(int argc, char *argv[])
@@ -82,54 +181,16 @@ int main(int argc, char *argv[])
     {
         usage(cmdName);
     }
-
-    // data loading ////////////////////////////////////////////////////////////
-    vector<DMatSample> sample(n);
-    Index              nSample = 0;
-
-    cout << "-- loading data..." << endl;
-    for (unsigned int i = 0; i < n; ++i)
+    
+    // process data ////////////////////////////////////////////////////////////
+    try
     {
-        sample[i] = Io::load<DMatSample>(fileName[i]);
-        if (i == 0)
-        {
-            nSample = sample[i].size();
-        }
-        else if (sample[i].size() != nSample)
-        {
-            cerr << "error: number of sample mismatch (between '";
-            cerr << fileName[0] << "' and '" << fileName[i] << "')" << endl;
-
-            return EXIT_FAILURE;
-        }
+        process<DSample>(outFileName, fileName, code);
     }
-
-    // combine data ////////////////////////////////////////////////////////////
-    DoubleFunction f = compile(code, n);
-    DVec           buf(n);
-    DMatSample     result(sample[0]);
-
-    cout << "-- combining data..." << endl;
-    FOR_STAT_ARRAY(result, s)
+    catch (bad_cast &e)
     {
-        FOR_MAT(result[s], i, j)
-        {
-            for (unsigned int k = 0; k < n; ++k)
-            {
-                buf[k] = sample[k][s](i,j);
-            }
-            result[s](i, j) = f(buf);
-        }
+        process<DMatSample>(outFileName, fileName, code);
     }
-
-    // output //////////////////////////////////////////////////////////////////
-    cout << scientific;
-    cout << "central value:\n"      << result[central]               << endl;
-    cout << "standard deviation:\n" << result.variance().cwiseSqrt() << endl;
-    if (!outFileName.empty())
-    {
-        Io::save<DMatSample>(result, outFileName);
-    }
-
+    
     return EXIT_SUCCESS;
 }

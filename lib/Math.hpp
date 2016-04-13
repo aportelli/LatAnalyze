@@ -1,7 +1,7 @@
 /*
  * Math.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,9 @@ namespace MATH_NAMESPACE
         
         return res;
     }
+    
+    // convert variance matrix to correlation matrix
+    DMat varToCorr(const DMat &var);
     
     // Constants
     const double pi = 3.1415926535897932384626433832795028841970;

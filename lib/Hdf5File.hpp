@@ -1,7 +1,7 @@
 /*
  * Hdf5File.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli, Matt Spraggs
+ * Copyright (C) 2013 - 2016 Antonin Portelli, Matt Spraggs
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <LatAnalyze/File.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/RandGen.hpp>
 #include <H5Cpp.h>
 
 BEGIN_LATAN_NAMESPACE
@@ -46,8 +45,8 @@ public:
     virtual ~Hdf5File(void);
     // access
     virtual void save(const DMat &m, const std::string &name);
-    virtual void save(const DMatSample &s, const std::string &name);
-    virtual void save(const RandGenState &state, const std::string &name);
+    virtual void save(const DSample &ds, const std::string &name);
+    virtual void save(const DMatSample &ms, const std::string &name);
     // read first name
     virtual std::string getFirstName(void);
     // tests
@@ -60,8 +59,8 @@ private:
             std::string getFirstGroupName(void);
     virtual std::string load(const std::string &name = "");
                    void load(DMat &m, const H5NS::DataSet &d);
+                   void load(DSample &ds, const H5NS::DataSet &d);
                    void load(DMatSample &s, const H5NS::DataSet &d);
-                   void load(RandGenState &state, const H5NS::DataSet &d);
     // check name for forbidden characters
     static size_t nameOffset(const std::string &name);
 private:

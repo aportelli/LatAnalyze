@@ -1,7 +1,7 @@
 /*
  * Plot.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 #define Latan_Plot_hpp_
 
 #include <LatAnalyze/Global.hpp>
+#include <LatAnalyze/Function.hpp>
 #include <LatAnalyze/Mat.hpp>
+#include <LatAnalyze/MatSample.hpp>
 #include <LatAnalyze/Histogram.hpp>
 #include <LatAnalyze/XYStatData.hpp>
-#include <sstream>
-#include <vector>
 
 // gnuplot default parameters
 #ifndef GNUPLOT_BIN
@@ -47,11 +47,11 @@ public:
     // destructor
     virtual ~PlotObject(void) = default;
     // access
-    std::string                 popTmpFile(void);
-    const std::string &         getCommand(void) const;
-    const std::string &         getHeadCommand(void) const;
+    std::string         popTmpFile(void);
+    const std::string & getCommand(void) const;
+    const std::string & getHeadCommand(void) const;
     // test
-    bool                        gotTmpFile(void) const;
+    bool                gotTmpFile(void) const;
 protected:
     // access
     void pushTmpFile(const std::string &fileName);
@@ -135,6 +135,20 @@ public:
     // destructor
     virtual ~PlotHistogram(void) = default;
 };
+
+class PlotMatrixNoRange: public PlotObject
+{
+public:
+    // constructor
+    PlotMatrixNoRange(const DMat &m);
+    // destructor
+    virtual ~PlotMatrixNoRange(void) = default;
+};
+
+#define PlotMatrix(m)\
+PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
+PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
+PlotMatrixNoRange(m)
 
 /******************************************************************************
  *                             Plot modifiers                                 *

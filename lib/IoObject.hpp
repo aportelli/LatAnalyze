@@ -1,7 +1,7 @@
 /*
  * IoObject.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,13 @@ BEGIN_LATAN_NAMESPACE
 class IoObject
 {
 public:
+    // conserve order for datafile retro-compatibility!
     enum class IoType: short int
     {
         noType     = 0,
         dMat       = 1,
         dMatSample = 2,
-        rgState    = 3
+        dSample    = 3
     };
 public:
     // destructor

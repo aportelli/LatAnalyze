@@ -1,4 +1,3 @@
-#include <iostream>
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/Mat.hpp>
 #include <LatAnalyze/Math.hpp>
@@ -9,7 +8,7 @@ using namespace Latan;
 int main(void)
 {
     DMat A(2, 3), B(3, 2), C = DMat::Random(6, 6);
-    const string fileName = "exMat.h5";
+    const string fileName = "exMat.dat";
     
     A << 1, 2, 3,
          4, 5, 6;

@@ -1,7 +1,7 @@
 /*
  * AsciiFile.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,22 @@ void AsciiFile::save(const DMat &m, const std::string &name)
     fileStream_.precision(defaultPrec);
 }
 
-void AsciiFile::save(const DMatSample &s, const std::string &name)
+void AsciiFile::save(const DSample &ds, const std::string &name)
+{
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+    
+    checkWritability();
+    isParsed_ = false;
+    fileStream_ << "#L latan_begin rs_sample " << name << endl;
+    fileStream_ << ds.size() << endl;
+    save(ds.matrix(), name + "_data");
+    fileStream_ << "#L latan_end rs_sample " << endl;
+}
+
+void AsciiFile::save(const DMatSample &ms, const std::string &name)
 {
     if (name.empty())
     {
@@ -81,27 +96,13 @@ void AsciiFile::save(const DMatSample &s, const std::string &name)
     checkWritability();
     isParsed_ = false;
     fileStream_ << "#L latan_begin rs_sample " << name << endl;
-    fileStream_ << s.size() << endl;
-    save(s[central], name + "_C");
-    for (Index i = 0; i < s.size(); ++i)
+    fileStream_ << ms.size() << endl;
+    save(ms[central], name + "_C");
+    for (Index i = 0; i < ms.size(); ++i)
     {
-        save(s[i], name + "_S_" + strFrom(i));
+        save(ms[i], name + "_S_" + strFrom(i));
     }
     fileStream_ << "#L latan_end rs_sample " << endl;
-}
-
-void AsciiFile::save(const RandGenState &state, const std::string &name)
-{
-    if (name.empty())
-    {
-        LATAN_ERROR(Io, "trying to save data with an empty name");
-    }
-    
-    checkWritability();
-    isParsed_ = false;
-    fileStream_ << "#L latan_begin rg_state " << name << endl;
-    fileStream_ << state << endl;
-    fileStream_ << "#L latan_end rg_state " << endl;
 }
 
 // read first name ////////////////////////////////////////////////////////////

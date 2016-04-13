@@ -1,7 +1,7 @@
 /*
  * resample.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2015 Antonin Portelli
+ * Copyright (C) 2013 - 2016 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <map>
-#include <libgen.h>
-#include <unistd.h>
 #include <LatAnalyze/Dataset.hpp>
 #include <LatAnalyze/Io.hpp>
 
@@ -34,7 +30,7 @@ using namespace Latan;
 static void usage(const string &cmdName)
 {
     cerr << "usage: " << cmdName;
-    cerr << " [-n <nsample> -b <bin size> -r <state> -o <output dir> -f {h5|sample}]";
+    cerr << " [-n <nsample> -b <bin size> -r <seed> -o <output dir> -f {h5|sample}]";
     cerr << " <data list> <name list>";
     cerr << endl;
     exit(EXIT_FAILURE);
@@ -43,10 +39,12 @@ static void usage(const string &cmdName)
 int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
-    int    c;
-    string manFileName, nameFileName, stateFileName, cmdName, outDirName = ".";
-    string ext = "h5";
-    Index  binSize = 1, nSample = DEF_NSAMPLE;
+    int           c;
+    random_device rd;
+    SeedType      seed = rd();
+    string        manFileName, nameFileName, cmdName, outDirName = ".";
+    string        ext = "h5";
+    Index         binSize = 1, nSample = DEF_NSAMPLE;
     
     opterr = 0;
     cmdName = basename(argv[0]);
@@ -64,7 +62,7 @@ int main(int argc, char *argv[])
                 outDirName = optarg;
                 break;
             case 'r':
-                stateFileName = optarg;
+                seed = strTo<SeedType>(optarg);
                 break;
             case 'f':
                 ext = optarg;
@@ -126,25 +124,15 @@ int main(int argc, char *argv[])
     
     // data resampling /////////////////////////////////////////////////////////
     DMatSample   s(nSample);
-    RandGen      g;
-    RandGenState state;
     
     cout << "-- resampling data..." << endl;
-    if (!stateFileName.empty())
-    {
-        state = Io::load<RandGenState>(stateFileName);
-    }
     for (unsigned int i = 0; i < name.size(); ++i)
     {
         const string outFileName = name[i] + "_" + manFileName + "." + ext;
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);
-        if (!stateFileName.empty())
-        {
-            g.setState(state);
-        }
-        s = data[name[i]].bootstrapMean(nSample, g);
+        s = data[name[i]].bootstrapMean(nSample, seed);
         Io::save<DMatSample>(s, outDirName + "/" + outFileName,
                              File::Mode::write, outFileName);
     }
