@@ -98,7 +98,7 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
     Index pMax = printXsi ? size() : nPar_;
     DMat  err = this->variance().cwiseSqrt();
     
-    sprintf(buf, "chi^2/dof= %.1f/%d= %.2f -- p-value= %.2e", getChi2(),
+    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- p-value= %.2e", getChi2(),
             static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
