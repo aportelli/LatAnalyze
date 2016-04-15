@@ -110,6 +110,12 @@ const IoT& File::getData(const std::string &name) const
         LATAN_ERROR(Definition, "no data with name '" + name + "' in file "
                     + name_);
     }
+    catch(std::bad_cast)
+    {
+        LATAN_ERROR(Definition, "data with name '" + name + "' in file "
+                    + name_ + " does not have type '" + typeid(IoT).name()
+                    + "'");
+    }
 }
 
 END_LATAN_NAMESPACE
