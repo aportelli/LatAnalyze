@@ -458,7 +458,7 @@ void Plot::getProgramPath(void)
         {
             for (i=0;path[i];)
             {
-                for (j=i;(path[j])&&(path[j]!=':');j++);
+                for (j=i;(path[j]) and (path[j]!=':');j++);
                 lg = j - i;
                 strncpy(buf,path + i,(size_t)(lg));
                 if (lg == 0)

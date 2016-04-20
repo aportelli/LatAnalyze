@@ -183,7 +183,7 @@ DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction &f)\
     setFunction(res, getNArg());\
     return *this;\
 }\
-DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction &&f)\
+DoubleFunction & DoubleFunction::operator op##=(const DoubleFunction  and f)\
 {\
     *this op##= f;\
     return *this;\

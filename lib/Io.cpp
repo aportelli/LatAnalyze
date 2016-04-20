@@ -38,7 +38,7 @@ unique_ptr<File> Io::open(const std::string &fileName, const unsigned int mode)
 {
     string ext = extension(fileName);
     
-    if ((ext == "dat")||(ext == "sample")||(ext == "seed"))
+    if ((ext == "dat") or (ext == "sample") or (ext == "seed"))
     {
         return unique_ptr<File>(new AsciiFile(fileName, mode));
     }

@@ -122,7 +122,7 @@ GslHybridRootFinder::operator()(const vector<DoubleFunction *> &func)
             break;
         }
         status = gsl_multiroot_test_residual(solver_->f, getPrecision());
-    } while ((status == GSL_CONTINUE)&&(iter < getMaxIteration()));
+    } while ((status == GSL_CONTINUE) and (iter < getMaxIteration()));
     if (verbosity >= Verbosity::Debug)
     {
         cout << "--- done" << endl;

@@ -478,7 +478,7 @@ void SemicolonNode::compile(Program &program, RunContext &context) const
         bool isSemiColumn = isDerivedFrom<SemicolonNode>(&n[i]);
         bool isKeyword    = isDerivedFrom<KeywordNode>(&n[i]);
         
-        if (isAssign||isSemiColumn||isKeyword)
+        if (isAssign or isSemiColumn or isKeyword)
         {
             n[i].compile(program, context);
         }
@@ -513,7 +513,7 @@ void AssignNode::compile(Program &program, RunContext &context) const
 }
 
 // MathOpNode compile //////////////////////////////////////////////////////////
-#define IFNODE(name, nArg) if ((n.getName() == (name))&&(n.getNArg() == nArg))
+#define IFNODE(name, nArg) if ((n.getName() == (name)) and (n.getNArg() == nArg))
 #define ELIFNODE(name, nArg) else IFNODE(name, nArg)
 #define ELSE else
 
@@ -703,7 +703,7 @@ void MathInterpreter::compile(RunContext &context)
                 }
             }
         }
-        if (!root_||!gotReturn)
+        if (!root_ or !gotReturn)
         {
             LATAN_ERROR(Syntax, "expected 'return' in program '" + codeName_
                         + "'");

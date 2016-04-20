@@ -165,7 +165,7 @@ double Histogram::operator()(const double x) const
 // percentiles & confidence interval ///////////////////////////////////////////
 double Histogram::percentile(const double p) const
 {
-    if ((p < 0.0)||(p > 100.0))
+    if ((p < 0.0) or (p > 100.0))
     {
         LATAN_ERROR(Range, "percentile (" + strFrom(p) + ")"
                     " is outside the [0, 100] range");

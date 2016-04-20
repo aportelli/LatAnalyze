@@ -262,7 +262,7 @@ namespace ReducOp
     inline Mat<double> tensProd(const Mat<double>  &v1,
                                 const Mat<double>  &v2)
     {
-        if ((v1.cols() != 1)||(v2.cols() != 1))
+        if ((v1.cols() != 1) or (v2.cols() != 1))
         {
             LATAN_ERROR(Size,
                         "tensorial product is only valid with column vectors");

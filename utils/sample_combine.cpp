@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     {
         process<DSample>(outFileName, fileName, code);
     }
-    catch (bad_cast &e)
+    catch (Exceptions::Definition)
     {
         process<DMatSample>(outFileName, fileName, code);
     }
