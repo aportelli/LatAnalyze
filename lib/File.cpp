@@ -57,7 +57,7 @@ void File::deleteData(void)
 
 void File::checkWritability(void)
 {
-    if (!((mode_ & Mode::write)||(mode_ & Mode::append))||!isOpen())
+    if (!((mode_ & Mode::write) or (mode_ & Mode::append)) or !isOpen())
     {
         LATAN_ERROR(Io, "file '" + name_ + "' is not writable");
     }

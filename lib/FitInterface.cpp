@@ -58,7 +58,7 @@ void FitInterface::addXDim(const Index nData, const string name,
         scheduleDataCoordInit();
         if (!name.empty())
         {
-            xName().setName(getNXDim(), name);
+            xName().setName(getNXDim() - 1, name);
         }
     }
 }
@@ -70,7 +70,7 @@ void FitInterface::addYDim(const string name)
     scheduleLayoutInit();
     if (!name.empty())
     {
-        yName().setName(getNYDim(), name);
+        yName().setName(getNYDim() - 1, name);
     }
 }
 

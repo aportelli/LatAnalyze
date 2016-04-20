@@ -55,6 +55,11 @@ in the `ci-scripts` directory where `<prefix>` is where you want LatAnalyze (and
 For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
 
 ## History
+#### v3.1.1
+Fixes:
+* Minuit precision fixed
+* Minor fit interface fixes
+
 #### v3.1
 Additions:
 * Wrappers to NLopt and GSL minimisers.

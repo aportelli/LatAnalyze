@@ -58,9 +58,10 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     using namespace ROOT;
     using namespace Minuit2;
     
-    DVec                        &x = getState();
-    int                         printLevel = 0;
-    EMinimizerType              minuitAlg  = kCombined;
+    DVec           &x = getState();
+    int            printLevel = 0;
+    EMinimizerType minuitAlg  = kCombined;
+    double         prec = getPrecision();
     
     // convert Latan parameters to Minuit parameters
     switch (getVerbosity())
@@ -75,16 +76,21 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             printLevel = 3;
             break;
     }
+    // The factor of 0.002 here is to compensate the dirty hack in Minuit
+    // source used to match the C++ and F77 versions
+    // (cf. VariableMetricBuilder.cxx)
     switch (getAlgorithm())
     {
         case Algorithm::migrad:
-            minuitAlg = kMigrad;
+            minuitAlg  = kMigrad;
+            prec      /= 0.002;
             break;
         case Algorithm::simplex:
             minuitAlg = kSimplex;
             break;
         case Algorithm::combined:
-            minuitAlg = kCombined;
+            minuitAlg  = kCombined;
+            prec      /= 0.002;
             break;
     }
     
@@ -99,7 +105,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     min.SetStrategy(2);
     min.SetMaxFunctionCalls(getMaxIteration());
-    min.SetTolerance(getPrecision());
+    min.SetTolerance(prec);
     min.SetPrintLevel(printLevel);
     
     // set function and variables
@@ -146,7 +152,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
         min.Minimize();
         status = min.Status();
         n++;
-    } while (status and (n < getMaxPass()));
+    } while ((status >= 2) and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
     {
         cout << "=================================================" << endl;
@@ -154,7 +160,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     switch (status)
     {
         case 1:
-            LATAN_WARNING("invalid minimum: covariance matrix was made positive");
+            // covariance matrix was made positive, the minimum is still good
+            // it just means that Minuit error analysis is inaccurate
             break;
         case 2:
             LATAN_WARNING("invalid minimum: Hesse analysis is not valid");

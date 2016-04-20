@@ -24,7 +24,7 @@ using namespace Latan;
 
 int main(int argc, char *argv[])
 {
-    if ((argc < 2) || (argc > 3))
+    if ((argc < 2) or (argc > 3))
     {
         cerr << "usage: " << argv[0] << " <file> [<copy>]" << endl;
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
             Io::save(s, copy, File::Mode::write, name);
         }
     }
-    catch (bad_cast &e)
+    catch (Exceptions::Definition)
     {
         DSample s    = Io::load<DSample>(fileName);
         string  name = Io::getFirstName(fileName);
