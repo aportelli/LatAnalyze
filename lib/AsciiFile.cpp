@@ -170,7 +170,7 @@ void AsciiFile::open(const string &name, const unsigned int mode)
 
 std::string AsciiFile::load(const string &name)
 {
-    if ((mode_ & Mode::read)&&(isOpen()))
+    if ((mode_ & Mode::read) and (isOpen()))
     {
         if (!isParsed_)
         {

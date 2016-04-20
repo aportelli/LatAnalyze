@@ -207,14 +207,14 @@ string Hdf5File::getFirstGroupName(void)
 {
     string res;
 
-    if ((mode_ & Mode::read)&&(isOpen()))
+    if ((mode_ & Mode::read) and (isOpen()))
     {
         auto firstGroupName = [](hid_t loc_id, const char *name, void *fname)
         {
             H5G_stat_t statbuf;
 
             H5Gget_objinfo(loc_id, name, 0, &statbuf);
-            if ((statbuf.type == H5G_GROUP) && (strlen((char *)fname) == 0))
+            if ((statbuf.type == H5G_GROUP) and (strlen((char *)fname) == 0))
             {
                 strncpy((char *)fname, name, maxGroupNameSize);
             }
@@ -268,7 +268,7 @@ void Hdf5File::load(DSample &ds, const DataSet &d)
 
 string Hdf5File::load(const string &name)
 {
-    if ((mode_ & Mode::read)&&(isOpen()))
+    if ((mode_ & Mode::read) and (isOpen()))
     {
         string           groupName;
         Group            group;
