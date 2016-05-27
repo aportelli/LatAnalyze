@@ -277,12 +277,12 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         if (s == central)
         {
             sampleResult = data_.fit(minimizer, initCopy, v);
+            initCopy     = sampleResult.segment(0, initCopy.size());
         }
         else
         {
             sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
         }
-        initCopy        = sampleResult.segment(0, initCopy.size());
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
         for (unsigned int j = 0; j < v.size(); ++j)
