@@ -8,6 +8,7 @@ endif
 
 bin_PROGRAMS =            \
     latan-sample-combine  \
+    latan-sample-element  \
     latan-sample-fake     \
     latan-sample-plot-corr\
     latan-sample-read     \
@@ -16,6 +17,10 @@ bin_PROGRAMS =            \
 latan_sample_combine_SOURCES  = sample-combine.cpp
 latan_sample_combine_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_combine_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_element_SOURCES  = sample-element.cpp
+latan_sample_element_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_element_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_fake_SOURCES  = sample-fake.cpp
 latan_sample_fake_CXXFLAGS = $(COM_CXXFLAGS)
