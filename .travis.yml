@@ -64,7 +64,7 @@ matrix:
 before_install:
   - export LATDIR=`pwd`
   - cd ci-scripts
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "clang" ]] && [ ! -e clang/bin ]; then wget $CLANG_LINK; tar -xf `basename $CLANG_LINK`; mv clang+* clang; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "clang" ]] && [ ! -e clang/bin ]; then wget $CLANG_LINK; tar -xf `basename $CLANG_LINK`; mv clang+* clang; pwd; ls; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "clang" ]]; then export PATH="${LATDIR}/ci-scripts/clang/bin:${PATH}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gsl; fi
