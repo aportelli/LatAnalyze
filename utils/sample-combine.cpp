@@ -17,20 +17,12 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <LatCore/OptParser.hpp>
 #include <LatAnalyze/Io.hpp>
 #include <LatAnalyze/CompiledFunction.hpp>
 
 using namespace std;
 using namespace Latan;
-
-static void usage(const string &cmdName)
-{
-    cerr << "usage: " << cmdName;
-    cerr << " [-o <output sample>]";
-    cerr << " <n> <function> <sample 1> ... <sample n>";
-    cerr << endl;
-    exit(EXIT_FAILURE);
-}
 
 template <typename T>
 static void loadAndCheck(vector<T> &sample, const vector<string> &fileName)
@@ -38,7 +30,6 @@ static void loadAndCheck(vector<T> &sample, const vector<string> &fileName)
     const unsigned int n = sample.size();
     Index              nSample = 0;
     
-    cout << "-- loading data..." << endl;
     for (unsigned int i = 0; i < n; ++i)
     {
         sample[i] = Io::load<T>(fileName[i]);
@@ -137,49 +128,41 @@ void process(const string &outFileName, const vector<string> &fileName,
 int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
+    OptParser      opt;
+    bool           parsed;
     string         cmdName, outFileName = "", code;
     vector<string> fileName;
-    int            c;
     unsigned int   n = 0;
 
-    opterr = 0;
-    cmdName = basename(argv[0]);
-    while ((c = getopt(argc, argv, "o:")) != -1)
+    opt.addOption("o", "output", OptParser::OptType::value  , true,
+                  "output file name (default: result not saved)");
+    opt.addOption("" , "help"  , OptParser::OptType::trigger, true,
+                  "show this help message and exit");
+    parsed = opt.parse(argc, argv);
+    if (opt.getArgs().size() >= 1)
     {
-        switch (c)
-        {
-            case 'o':
-                outFileName = optarg;
-                break;
-            case '?':
-                cerr << "error parsing option -" << char(optopt) << endl;
-                usage(cmdName);
-                break;
-            default:
-                usage(cmdName);
-                break;
-        }
-    }
-    if (argc - optind >= 1)
-    {
-        n = strTo<unsigned int>(argv[optind]);
-        if (argc - optind == static_cast<int>(n + 2))
-        {
-            fileName.resize(n);
-            code = argv[optind + 1];
-            for (unsigned int i = 0; i < n; ++i)
-            {
-                fileName[i] = argv[optind + 2 + i];
-            }
-        }
-        else
-        {
-            usage(cmdName);
-        }
+        n = strTo<unsigned int>(opt.getArgs()[0]);
     }
     else
     {
-        usage(cmdName);
+        parsed = false;
+    }
+    if (!parsed or (opt.getArgs().size() != n + 2) or opt.gotOption("help"))
+    {
+        cerr << "usage: " << argv[0];
+        cerr << " <options> <n> <function> <sample 1> ... <sample n>" << endl;
+        cerr << endl << "Possible options:" << endl << opt << endl;
+        
+        return EXIT_FAILURE;
+    }
+    if (opt.gotOption("o"))
+    {
+        outFileName = opt.optionValue("o");
+    }
+    code = opt.getArgs()[1];
+    for (unsigned int i = 0; i < n; ++i)
+    {
+        fileName.push_back(opt.getArgs()[2 + i]);
     }
     
     // process data ////////////////////////////////////////////////////////////
