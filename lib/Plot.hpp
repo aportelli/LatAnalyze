@@ -106,6 +106,16 @@ public:
     virtual ~PlotHLine(void) = default;
 };
 
+class PlotBand: public PlotObject
+{
+public:
+    // constructor
+    PlotBand(const double xMin, const double xMax, const double yMin,
+             const double yMax, const double opacity = 0.15);
+    // destructor
+    virtual ~PlotBand(void) = default;
+};
+
 class PlotFunction: public PlotObject
 {
 public:

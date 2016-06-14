@@ -98,7 +98,7 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
     Index pMax = printXsi ? size() : nPar_;
     DMat  err = this->variance().cwiseSqrt();
     
-    sprintf(buf, "chi^2/dof= %.1f/%d= %.2f -- p-value= %.2e", getChi2(),
+    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- p-value= %.2e", getChi2(),
             static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
@@ -277,12 +277,12 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         if (s == central)
         {
             sampleResult = data_.fit(minimizer, initCopy, v);
+            initCopy     = sampleResult.segment(0, initCopy.size());
         }
         else
         {
             sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
         }
-        initCopy        = sampleResult.segment(0, initCopy.size());
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
         for (unsigned int j = 0; j < v.size(); ++j)

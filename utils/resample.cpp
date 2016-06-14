@@ -17,74 +17,66 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <LatCore/OptParser.hpp>
 #include <LatAnalyze/Dataset.hpp>
 #include <LatAnalyze/Io.hpp>
+#include <LatAnalyze/includes.hpp>
 
 #ifndef DEF_NSAMPLE
-#define DEF_NSAMPLE 100
+#define DEF_NSAMPLE "100"
+#endif
+
+#ifdef HAVE_HDF5
+#define DEF_FMT "h5"
+#else
+#define DEF_FMT "sample"
 #endif
 
 using namespace std;
 using namespace Latan;
 
-static void usage(const string &cmdName)
-{
-    cerr << "usage: " << cmdName;
-    cerr << " [-n <nsample> -b <bin size> -r <seed> -o <output dir> -f {h5|sample}]";
-    cerr << " <data list> <name list>";
-    cerr << endl;
-    exit(EXIT_FAILURE);
-}
-
 int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
-    int           c;
+    OptParser     opt;
+    bool          parsed;
     random_device rd;
     SeedType      seed = rd();
-    string        manFileName, nameFileName, cmdName, outDirName = ".";
-    string        ext = "h5";
-    Index         binSize = 1, nSample = DEF_NSAMPLE;
+    string        manFileName, nameFileName, outDirName;
+    string        ext;
+    Index         binSize, nSample;
     
-    opterr = 0;
-    cmdName = basename(argv[0]);
-    while ((c = getopt(argc, argv, "b:n:r:o:f:")) != -1)
+    opt.addOption("n", "nsample"   , OptParser::OptType::value,   true,
+                  "number of samples", DEF_NSAMPLE);
+    opt.addOption("b", "bin"       , OptParser::OptType::value,   true,
+                  "bin size", "1");
+    opt.addOption("r", "seed"      , OptParser::OptType::value,   true,
+                  "random generator seed (default: random)");
+    opt.addOption("o", "output-dir", OptParser::OptType::value,   true,
+                  "output directory", ".");
+    opt.addOption("f", "format"    , OptParser::OptType::value,   true,
+                  "output file format", DEF_FMT);
+    opt.addOption("" , "help"      , OptParser::OptType::trigger, true,
+                  "show this help message and exit");
+    parsed = opt.parse(argc, argv);
+    if (!parsed or (opt.getArgs().size() != 1) or opt.gotOption("help"))
     {
-        switch (c)
-        {
-            case 'b':
-                binSize = strTo<Index>(optarg);
-                break;
-            case 'n':
-                nSample = strTo<Index>(optarg);
-                break;
-            case 'o':
-                outDirName = optarg;
-                break;
-            case 'r':
-                seed = strTo<SeedType>(optarg);
-                break;
-            case 'f':
-                ext = optarg;
-                break;
-            case '?':
-                cerr << "error parsing option -" << char(optopt) << endl;
-                usage(cmdName);
-                break;
-            default:
-                usage(cmdName);
-                break;
-        }
+        cerr << "usage: " << argv[0];
+        cerr << " <datafile list> <name list> <options>" << endl;
+        cerr << endl << "Possible options:" << endl << opt << endl;
+        
+        return EXIT_FAILURE;
     }
-    if (argc - optind == 2)
+    nSample = opt.optionValue<Index>("n");
+    binSize = opt.optionValue<Index>("b");
+    if (opt.gotOption("r"))
     {
-        manFileName  = argv[optind];
-        nameFileName = argv[optind+1];
+        seed = opt.optionValue<SeedType>("r");
     }
-    else
-    {
-        usage(cmdName);
-    }
+    ext          = opt.optionValue("f");
+    outDirName   = opt.optionValue("o");
+    manFileName  = opt.getArgs()[0];
+    nameFileName = opt.getArgs()[1];
     
     // parameter parsing ///////////////////////////////////////////////////////
     vector<string> dataFileName, name;

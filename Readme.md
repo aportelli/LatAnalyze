@@ -55,11 +55,21 @@ in the `ci-scripts` directory where `<prefix>` is where you want LatAnalyze (and
 For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
 
 ## History
+#### v3.2 (needs LatCore 1.1)
+Additions:
+* 2-pt function fitter `latan-2pt-fit`
+* Tool to extract one element of a matrix sample `latan-sample-element`
+* Band plotting
+
+Changes:
+* Sample utilities renamed `latan-sample-*`
+* Resample utility renamed `latan-resample`
+
 #### v3.1.2
 Fixes:
 * HDF5 archive URL update in build scripts
 
-#### v3.1.1
+#### v3.1.1 (needs LatCore 1.0)
 Fixes:
 * Minuit precision fixed
 * Minor fit interface fixes

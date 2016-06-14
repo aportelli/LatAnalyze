@@ -2,7 +2,7 @@
 
 # Initialization
 AC_PREREQ([2.63])
-AC_INIT([LatAnalyze],[3.1.1],[antonin.portelli@me.com],[LatAnalyze])
+AC_INIT([LatAnalyze],[3.2],[antonin.portelli@me.com],[LatAnalyze])
 AC_CONFIG_AUX_DIR([.buildutils])
 AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
@@ -131,7 +131,8 @@ AC_SUBST([LIBS])
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile examples/Makefile])
+AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile physics/Makefile 
+                 examples/Makefile])
 AC_OUTPUT
 
 echo "*********************************************"
