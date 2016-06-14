@@ -72,6 +72,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$CC" == "gcc" ]]; then brew install gcc5; fi
   
 install:
+  - ls /home/travis/build/aportelli/LatAnalyze/ci-scripts/clang/bin
   - export CC=$CC$VERSION
   - export CXX=$CXX$VERSION
   - echo $PATH
