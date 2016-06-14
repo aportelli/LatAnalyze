@@ -183,6 +183,20 @@ PlotHLine::PlotHLine(const double y)
     setCommand(strFrom(y));
 }
 
+// PlotHBand constructor ///////////////////////////////////////////////////////
+PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
+                   const double yMax, const double opacity)
+{
+    setCommand("'< printf \"%e %e\\n%e %e\\n%e %e\\n%e %e\\n%e %e\\n\" "
+               + strFrom(xMin) + " " + strFrom(yMin) + " "
+               + strFrom(xMax) + " " + strFrom(yMin) + " "
+               + strFrom(xMax) + " " + strFrom(yMax) + " "
+               + strFrom(xMin) + " " + strFrom(yMax) + " "
+               + strFrom(xMin) + " " + strFrom(yMin)
+               + "' u 1:2 w filledcurves closed fs solid " + strFrom(opacity)
+               + " noborder");
+}
+
 // PlotFunction constructor ////////////////////////////////////////////////////
 PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
                            const double xMax, const unsigned int nPoint)
