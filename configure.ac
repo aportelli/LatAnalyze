@@ -131,7 +131,8 @@ AC_SUBST([LIBS])
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_LDFLAGS])
 
-AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile examples/Makefile])
+AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile physics/Makefile 
+                 examples/Makefile])
 AC_OUTPUT
 
 echo "*********************************************"
