@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     cout << "-- computing variance matrix from '" << fileName << "'..." << endl;
     name   = Io::getFirstName(fileName);
     sample = Io::load<DMatSample>(fileName);
+    sample = sample.block(0, 0, sample[central].rows(), 1);
     var    = sample.varianceMatrix();
     p << PlotMatrix(varToCorr(var));
     p.display();
