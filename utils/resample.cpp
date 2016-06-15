@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     opt.addOption("" , "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
     parsed = opt.parse(argc, argv);
-    if (!parsed or (opt.getArgs().size() != 1) or opt.gotOption("help"))
+    if (!parsed or (opt.getArgs().size() != 2) or opt.gotOption("help"))
     {
         cerr << "usage: " << argv[0];
         cerr << " <datafile list> <name list> <options>" << endl;
