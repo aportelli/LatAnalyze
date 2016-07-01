@@ -38,11 +38,11 @@ int main(int argc, char *argv[])
                   "singular value elimination threshold", "0.");
     opt.addOption("v", "verbosity", OptParser::OptType::value  , true,
                   "minimizer verbosity level (0|1|2)", "0");
-    opt.addOption("o", "output", OptParser::OptType::value  , true,
+    opt.addOption("o", "output"   , OptParser::OptType::value  , true,
                   "output file", "");
     opt.addOption("" , "uncorr"   , OptParser::OptType::trigger, true,
                   "only do the uncorrelated fit");
-    opt.addOption("" , "fold"   , OptParser::OptType::trigger, true,
+    opt.addOption("" , "fold"     , OptParser::OptType::trigger, true,
                   "fold the correlator");
     opt.addOption("p", "plot"     , OptParser::OptType::trigger, true,
                   "show the fit plot");

@@ -6,10 +6,14 @@ if CXX_INTEL
 endif
 endif
 
-bin_PROGRAMS = latan-2pt-fit
+bin_PROGRAMS = latan-fit-2pt latan-fit-phys
 
-latan_2pt_fit_SOURCES  = 2pt-fit.cpp
-latan_2pt_fit_CXXFLAGS = $(COM_CXXFLAGS)
-latan_2pt_fit_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+latan_fit_2pt_SOURCES  = fit-2pt.cpp
+latan_fit_2pt_CXXFLAGS = $(COM_CXXFLAGS)
+latan_fit_2pt_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_fit_phys_SOURCES  = fit-phys.cpp fit-phys-env.cpp
+latan_fit_phys_CXXFLAGS = $(COM_CXXFLAGS)
+latan_fit_phys_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4
