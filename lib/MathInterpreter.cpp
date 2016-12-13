@@ -690,6 +690,7 @@ void MathInterpreter::compile(RunContext &context)
         if (root_)
         {
             context.addVariable("pi", Math::pi);
+            context.addVariable("inf", HUGE_VAL);
             ADD_STDMATH_FUNCS(context);
             root_->compile(program_, context);
             for (unsigned int i = 0; i < program_.size(); ++i)
