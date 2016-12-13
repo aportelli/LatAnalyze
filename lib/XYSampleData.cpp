@@ -171,6 +171,20 @@ const DSample & XYSampleData::y(const Index k, const Index j) const
     return yData_[j].at(k);
 }
 
+void XYSampleData::setUnidimData(const DMatSample &xData,
+                                 const vector<const DMatSample *> &v)
+{
+    FOR_STAT_ARRAY(xData, s)
+    FOR_VEC(xData[central], r)
+    {
+        x(r, 0)[s] = xData[s](r);
+        for (unsigned int j = 0; j < v.size(); ++j)
+        {
+            y(r, j)[s] = (*(v[j]))[s](r);
+        }
+    }
+}
+
 const DMat & XYSampleData::getXXVar(const Index i1, const Index i2)
 {
     checkXDim(i1);
