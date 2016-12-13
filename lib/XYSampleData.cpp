@@ -253,6 +253,7 @@ void XYSampleData::setDataToSample(const Index s)
 const XYStatData & XYSampleData::getData(void)
 {
     setDataToSample(central);
+    computeVarMat();
     
     return data_;
 }
