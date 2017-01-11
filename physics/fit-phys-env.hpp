@@ -12,12 +12,14 @@ public:
     struct VarInfo
     {
         double       physVal;
+        int          dim;
         Latan::Index index;
     };
     // fitted quantity info
     struct QuInfo
     {
         Latan::DoubleModel model;
+        int                dim;
         Latan::Index       index;
     };
     // ensemble
@@ -47,18 +49,27 @@ public:
     FitEnv(void)          = default;
     virtual ~FitEnv(void) = default;
     void                reset(void);
+    Latan::Index        getVarIndex(const std::string name);
+    std::string         getVarName(const Latan::Index i);
+    Latan::Index        getQuIndex(const std::string name);
+    std::string         getQuName(const Latan::Index i);
+    Latan::DVec         getPhyPt(void);
+    std::vector<const Latan::DoubleModel *> getModels(void);
     void                parseXml(const std::string paramFileName);
     std::string         macroSubst(const std::string str) const;
     void                load(void);
-    Latan::XYSampleData generateData(void);
+    Latan::XYSampleData generateData(const bool phyUnits, const bool corr);
     friend std::ostream & operator<<(std::ostream &out, FitEnv &f);
 private:
     Latan::Index                       nSample_;
+    std::string                        scale_;
     std::vector<unsigned int>          nT_, nL_;
     DataTable                          varData_, quData_;
     IndexTable                         varIndex_, quIndex_;
     std::map<std::string, VarInfo>     variable_;
+    VarInfo                            *scaleVar_{nullptr};
     std::vector<std::string>           varName_;
+    std::vector<double>                varScalePow_;
     std::map<std::string, QuInfo>      quantity_;
     std::vector<std::string>           quName_;
     std::map<std::string, Ensemble>    ensemble_;

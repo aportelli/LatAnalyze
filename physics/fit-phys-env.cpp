@@ -3,6 +3,8 @@
 #include <LatAnalyze/CompiledModel.hpp>
 #include <LatAnalyze/Io.hpp>
 
+#define DRATIO(a,b) static_cast<double>(a)/static_cast<double>(b)
+
 using namespace std;
 using namespace Latan;
 
@@ -13,12 +15,101 @@ void FitEnv::reset(void)
     variable_.clear();
     varData_.clear();
     varName_.clear();
+    varScalePow_.clear();
     quantity_.clear();
     quData_.clear();
     quName_.clear();
     ensemble_.clear();
     point_.clear();
     macro_.clear();
+    scaleVar_ = nullptr;
+}
+
+Index FitEnv::getVarIndex(const string name)
+{
+    if (name == "nT")
+    {
+        return 0;
+    }
+    else if (name == "nL")
+    {
+        return 1;
+    }
+    else
+    {
+        auto it = variable_.find(name);
+        
+        if (it != variable_.end())
+        {
+            return it->second.index;
+        }
+        else
+        {
+            LATAN_ERROR(Range, "no variable with name '" + name + "'");
+        }
+    }
+}
+
+string FitEnv::getVarName(const Index i)
+{
+    if (i < static_cast<Index>(varName_.size()))
+    {
+        return varName_[i];
+    }
+    else
+    {
+        LATAN_ERROR(Range, "no variable with index " + strFrom(i));
+    }
+}
+
+Index FitEnv::getQuIndex(const string name)
+{
+    auto it = quantity_.find(name);
+    
+    if (it != quantity_.end())
+    {
+        return it->second.index;
+    }
+    else
+    {
+        LATAN_ERROR(Range, "no quantity with name '" + name + "'");
+    }
+}
+
+string FitEnv::getQuName(const Index i)
+{
+    if (i < static_cast<Index>(quName_.size()))
+    {
+        return quName_[i];
+    }
+    else
+    {
+        LATAN_ERROR(Range, "no variable with index " + strFrom(i));
+    }
+}
+
+DVec FitEnv::getPhyPt(void)
+{
+    DVec phyPt(varName_.size());
+    
+    for (unsigned int i = 0; i < varName_.size(); ++i)
+    {
+        phyPt(i) = variable_[varName_[i]].physVal;
+    }
+    
+    return phyPt;
+}
+
+vector<const DoubleModel *> FitEnv::getModels(void)
+{
+    vector<const DoubleModel *> m;
+    
+    for (auto &q: quantity_)
+    {
+        m.push_back(&q.second.model);
+    }
+    
+    return m;
 }
 
 #define XGFV(type, ...) XmlReader::getFirstValue<type>(node, __VA_ARGS__)
@@ -32,6 +123,7 @@ void FitEnv::parseXml(const string paramFileName)
     
     reset();
     nSample_ = paramFile.getFirstValue<Index>("nSample");
+    scale_   = paramFile.getFirstValue<string>("scale");
     
     // macros
     if (paramFile.hasNode("macros", "macro"))
@@ -59,28 +151,26 @@ void FitEnv::parseXml(const string paramFileName)
         nTs.insert(ens.nT);
         nLs.insert(ens.nL);
     }
-    varData_.push_back(vector<Data>());
-    for (auto nT: nTs)
-    {
-        Data d;
-        
-        nT_.push_back(nT);
-        d.fileName = "";
-        d.value.fill(nT);
-        varData_.back().push_back(d);
-    }
-    varData_.push_back(vector<Data>());
-    for (auto nL: nLs)
-    {
-        Data d;
-        
-        nL_.push_back(nL);
-        d.fileName = "";
-        d.value.fill(nL);
-        varData_.back().push_back(d);
-    }
     
     // fit variables
+    {
+        string  name;
+        VarInfo var;
+        
+        name            = "T";
+        var.physVal     = HUGE_VAL;
+        var.dim         = -1;
+        variable_[name] = var;
+    }
+    {
+        string  name;
+        VarInfo var;
+        
+        name            = "L";
+        var.physVal     = HUGE_VAL;
+        var.dim         = -1;
+        variable_[name] = var;
+    }
     node = paramFile.getFirstNode("variables", "variable");
     while (node)
     {
@@ -89,34 +179,69 @@ void FitEnv::parseXml(const string paramFileName)
         
         name            = XGFV(string, "name");
         var.physVal     = XGFV(double, "physical");
+        var.dim         = XGFV(int, "dim");
         variable_[name] = var;
-        node            = paramFile.getNextSameNode(node);
+        if (name == scale_)
+        {
+            scaleVar_ = &(variable_[name]);
+        }
+        node = paramFile.getNextSameNode(node);
     }
-    varName_.push_back("nT");
-    varName_.push_back("nL");
+    if (!scaleVar_)
+    {
+        LATAN_ERROR(Definition, "scaling variable '" + scale_
+                    + "' not defined");
+    }
     for (auto &v: variable_)
     {
         v.second.index = varName_.size();
         varName_.push_back(v.first);
+    }
+    for (auto &v: variable_)
+    {
+        varScalePow_.push_back(DRATIO(v.second.dim, scaleVar_->dim));
     }
     
     // fitted quantities
     node = paramFile.getFirstNode("quantities", "quantity");
     while (node)
     {
-        string  name, code = "nT = x_0; nL = x_1; ";
-        Index   nPar;
-        QuInfo  q;
+        string           name, code = "";
+        Index            nPar;
+        QuInfo           q;
+        DoubleModel      m;
+        shared_ptr<DVec> buf(new DVec(varName_.size()));
         
         name            = XGFV(string, "name");
         nPar            = XGFV(Index, "model", "nPar");
+        q.dim           = XGFV(int, "dim");
         for (auto &v: variable_)
         {
             code += v.first + " = x_" + strFrom(v.second.index) + "; ";
             code += v.first + "_phy = " + strFrom(v.second.physVal) + "; ";
         }
         code           += XGFV(string, "model", "code");
-        q.model         = compile(code, variable_.size() + 3, nPar);
+        DEBUG_VAR(code);
+        m               = compile(code, variable_.size(), nPar);
+        auto wrap       = [m, buf, this, q](const double *x, const double *p)
+        {
+            double s = x[scaleVar_->index];
+            
+            for (unsigned int i = 0; i < varScalePow_.size(); ++i)
+            {
+                if (i != scaleVar_->index)
+                {
+                    (*buf)(i) = x[i]*pow(s, varScalePow_[i]);
+                }
+                else
+                {
+                    (*buf)(i) = x[i];
+                }
+            }
+            
+            return pow(s, -DRATIO(q.dim, scaleVar_->dim))*m(buf->data(), p);
+        };
+        q.model.setFunction(wrap, m.getNArg(), m.getNPar());
         quantity_[name] = q;
         node            = paramFile.getNextSameNode(node);
     }
@@ -144,7 +269,18 @@ void FitEnv::parseXml(const string paramFileName)
         point.ensemble       = &(it->second);
         for (auto &v: variable_)
         {
-            fileName                = macroSubst(XGFV(string, v.first));
+            if (v.first == "T")
+            {
+                fileName = strFrom(point.ensemble->nT);
+            }
+            else if (v.first == "L")
+            {
+                fileName = strFrom(point.ensemble->nL);
+            }
+            else
+            {
+                fileName = macroSubst(XGFV(string, v.first));
+            }
             point.fileName[v.first] = fileName;
             varFileNames[v.first].insert(fileName);
         }
@@ -189,9 +325,7 @@ void FitEnv::parseXml(const string paramFileName)
     for (auto &p: point_)
     {
         p.coord.resize(varName_.size());
-        p.coord[0] = find(nT_.begin(), nT_.end(), p.ensemble->nT) - nT_.begin();
-        p.coord[1] = find(nL_.begin(), nL_.end(), p.ensemble->nL) - nL_.begin();
-        for (unsigned int i = 2; i < varName_.size(); ++i)
+        for (unsigned int i = 0; i < varName_.size(); ++i)
         {
             p.coord[i] = varIndex_[varName_[i]][p.fileName[varName_[i]]];
         }
@@ -220,21 +354,33 @@ std::string FitEnv::macroSubst(const std::string str) const
 
 void FitEnv::load(void)
 {
-    for (unsigned int i = 2; i < varName_.size(); ++i)
+    for (unsigned int i = 0; i < varName_.size(); ++i)
     {
         auto &v = varData_[i];
         
-        for (auto &d: v)
+        if ((varName_[i] == "T") or (varName_[i] == "L"))
         {
-            d.value = Io::load<DSample>(d.fileName);
-            if (d.value.size() != nSample_)
+            for (auto &d: v)
             {
-                LATAN_ERROR(Size, "sample loaded from file '" + d.fileName
-                            + "' has a wrong number of element (expected "
-                            + strFrom(nSample_) + ", got "
-                            + strFrom(d.value.size()) + ")");
+                d.value.resize(nSample_);
+                d.value.fill(strTo<double>(d.fileName));
             }
         }
+        else
+        {
+            for (auto &d: v)
+            {
+                d.value = Io::load<DSample>(d.fileName);
+                if (d.value.size() != nSample_)
+                {
+                    LATAN_ERROR(Size, "sample loaded from file '" + d.fileName
+                                + "' has a wrong number of element (expected "
+                                + strFrom(nSample_) + ", got "
+                                + strFrom(d.value.size()) + ")");
+                }
+            }
+        }
+        
     }
     for (auto &q: quData_)
     {
@@ -253,63 +399,86 @@ void FitEnv::load(void)
 
 }
 
-XYSampleData FitEnv::generateData(void)
+XYSampleData FitEnv::generateData(const bool phyUnits, const bool corr)
 {
     XYSampleData  data(nSample_);
-    Index         k, k1, k2;
+    Index         k, k1, k2, ind;
+    const Index   sInd = getVarIndex(scale_);
+    DSample       scale, tmp;
+    int           dim;
+    const int     sDim = scaleVar_->dim;
     
     // add dimensions
-    data.addXDim(nT_.size(), "nT", true);
-    data.addXDim(nL_.size(), "nL", true);
-    for (unsigned int i = 2; i < varName_.size(); ++i)
+    for (unsigned int i = 0; i < varName_.size(); ++i)
     {
-        data.addXDim(varData_[i].size(), varName_[i], false);
+        data.addXDim(varData_[i].size(), varName_[i],
+                     ((varName_[i] == "T") or (varName_[i] == "L")));
     }
     for (auto &q: quName_)
     {
         data.addYDim(q);
     }
-    // add X data
-    for (unsigned int i = 0; i < varName_.size(); ++i)
-    for (unsigned int r = 0; r < varData_[i].size(); ++r)
-    {
-        data.x(r, i) = varData_[i][r].value;
-    }
-    // add Y data
+    // add data
     for (auto &p: point_)
     {
-        k = data.dataIndex(p.coord);
+        k     = data.dataIndex(p.coord);
+        scale = varData_[sInd][varIndex_[scale_][p.fileName[scale_]]].value;
+        for (unsigned int i = 0; i < varName_.size(); ++i)
+        {
+            ind = varIndex_[varName_[i]][p.fileName[varName_[i]]];
+            dim = variable_[varName_[i]].dim;
+            tmp = varData_[i][ind].value;
+            if (phyUnits and (varName_[i] != scale_))
+            {
+                FOR_STAT_ARRAY(tmp, s)
+                {
+                    tmp[s] *= pow(scale[s], DRATIO(dim, sDim));
+                }
+            }
+            data.x(p.coord[i], i) = tmp;
+        }
         for (unsigned int j = 0; j < quName_.size(); ++j)
         {
-            auto &n = quName_[j];
-            
-            data.y(k, j) = quData_[j][quIndex_[n][p.fileName[n]]].value;
+            ind = quIndex_[quName_[j]][p.fileName[quName_[j]]];
+            dim = quantity_[quName_[j]].dim;
+            tmp = quData_[j][ind].value;
+            if (phyUnits)
+            {
+                FOR_STAT_ARRAY(tmp, s)
+                {
+                    tmp[s] *= pow(scale[s], DRATIO(dim, sDim));
+                }
+            }
+            data.y(k, j) = tmp;
         }
     }
     // add correlations
-    for (unsigned int p1 = 0; p1 < point_.size(); ++p1)
-    for (unsigned int p2 = p1; p2 < point_.size(); ++p2)
+    if (corr)
     {
-        if (point_[p1].ensemble == point_[p2].ensemble)
+        for (unsigned int p1 = 0; p1 < point_.size(); ++p1)
+        for (unsigned int p2 = p1; p2 < point_.size(); ++p2)
         {
-            k1 = data.dataIndex(point_[p1].coord);
-            k2 = data.dataIndex(point_[p2].coord);
-            for (unsigned int i1 = 2; i1 < varName_.size(); ++i1)
-            for (unsigned int i2 = i1; i2 < varName_.size(); ++i2)
+            if (point_[p1].ensemble == point_[p2].ensemble)
             {
-                data.assumeXXCorrelated(true, point_[p1].coord[i1], i1,
-                                        point_[p2].coord[i2], i2);
-            }
-            for (unsigned int j1 = 0; j1 < quName_.size(); ++j1)
-            for (unsigned int j2 = j1; j2 < quName_.size(); ++j2)
-            {
-                data.assumeYYCorrelated(true, k1, j1, k2, j2);
-            }
-            for (unsigned int i = 2; i < varName_.size(); ++i)
-            for (unsigned int j = 0; j < quName_.size(); ++j)
-            {
-                data.assumeXYCorrelated(true, point_[p1].coord[i], i, k2, j);
-                data.assumeXYCorrelated(true, point_[p2].coord[i], i, k1, j);
+                k1 = data.dataIndex(point_[p1].coord);
+                k2 = data.dataIndex(point_[p2].coord);
+                for (unsigned int i1 = 0; i1 < varName_.size(); ++i1)
+                for (unsigned int i2 = i1; i2 < varName_.size(); ++i2)
+                {
+                    data.assumeXXCorrelated(true, point_[p1].coord[i1], i1,
+                                            point_[p2].coord[i2], i2);
+                }
+                for (unsigned int j1 = 0; j1 < quName_.size(); ++j1)
+                for (unsigned int j2 = j1; j2 < quName_.size(); ++j2)
+                {
+                    data.assumeYYCorrelated(true, k1, j1, k2, j2);
+                }
+                for (unsigned int i = 0; i < varName_.size(); ++i)
+                for (unsigned int j = 0; j < quName_.size(); ++j)
+                {
+                    data.assumeXYCorrelated(true, point_[p1].coord[i], i, k2, j);
+                    data.assumeXYCorrelated(true, point_[p2].coord[i], i, k1, j);
+                }
             }
         }
     }
@@ -319,17 +488,7 @@ XYSampleData FitEnv::generateData(void)
 
 ostream & operator<<(ostream &out, FitEnv &f)
 {
-    out << "nT:" << endl;
-    for (auto nT: f.nT_)
-    {
-        out << "  * " << nT << endl;
-    }
-    out << "nL:" << endl;
-    for (auto nL: f.nL_)
-    {
-        out << "  * " << nL << endl;
-    }
-    for (unsigned int i = 2; i < f.varName_.size(); ++i)
+    for (unsigned int i = 0; i < f.varName_.size(); ++i)
     {
         out << f.varName_[i] << ":" << endl;
         for (auto &d: f.varData_[i])
