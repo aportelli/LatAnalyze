@@ -3,7 +3,7 @@ build/*
 build_debug/*
 sandbox/*
 
-# Apple stuffs
+# Apple stuff
 *.xcodeproj
 .DS_Store
 
@@ -30,3 +30,8 @@ lib/eigen_files.mk
 
 # CI builds
 ci-scripts/local/*
+
+# CLion stuff
+.idea/*
+CMakeLists.txt
+cmake-build-debug/*

@@ -80,6 +80,8 @@ public:
     const DMatSample & x(const Index k);
     DSample &          y(const Index k, const Index j);
     const DSample &    y(const Index k, const Index j) const;
+    void               setUnidimData(const DMatSample &xData,
+                                     const std::vector<const DMatSample *> &v);
     template <typename... Ts>
     void               setUnidimData(const DMatSample &xData,
                                      const Ts & ...yDatas);
@@ -141,17 +143,9 @@ void XYSampleData::setUnidimData(const DMatSample &xData, const Ts & ...yDatas)
     static_assert(static_or<std::is_assignable<DMatSample, Ts>::value...>::value,
                   "y data arguments are not compatible with DMatSample");
     
-    std::vector<const DMatSample *> yData{&yDatas...};
+    std::vector<const DMatSample *> v{&yDatas...};
     
-    FOR_STAT_ARRAY(xData, s)
-    FOR_VEC(xData[central], r)
-    {
-        x(r, 0)[s] = xData[s](r);
-        for (unsigned int j = 0; j < yData.size(); ++j)
-        {
-            y(r, j)[s] = (*(yData[j]))[s](r);
-        }
-    }
+    setUnidimData(xData, v);
 }
 
 template <typename... Ts>
