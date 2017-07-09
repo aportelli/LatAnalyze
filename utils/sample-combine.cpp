@@ -69,6 +69,7 @@ void loadAndCheck(vector<DMatSample> &sample, const vector<string> &fileName)
             sample[i] = Io::load<DMatSample>(fileName[i]);
             if (!gotSize)
             {
+                nSample = sample[i].size();
                 nRow    = sample[i][central].rows();
                 nCol    = sample[i][central].cols();
                 gotSize = true;
@@ -77,10 +78,6 @@ void loadAndCheck(vector<DMatSample> &sample, const vector<string> &fileName)
         catch (Exceptions::Definition)
         {
             failed.insert(i);
-        }
-        if (i == 0)
-        {
-            nSample = sample[i].size();
         }
     }
     for (unsigned int i: failed)
