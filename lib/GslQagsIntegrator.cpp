@@ -19,6 +19,7 @@
 
 #include <LatAnalyze/GslQagsIntegrator.hpp>
 #include <LatAnalyze/includes.hpp>
+#include <LatAnalyze/Math.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -55,9 +56,26 @@ double GslQagsIntegrator::operator()(const DoubleFunction &f, const double xMin,
     
     gslF.function = fWrap;
     gslF.params   = reinterpret_cast<void *>(&const_cast<DoubleFunction &>(f));
-    
-    gsl_integration_qags(&gslF, xMin, xMax, 0.0, precision_, limit_, workspace_,
-                         &result, &error_);
+    if ((xMin > -Math::inf) and (xMax < Math::inf))
+    {
+        gsl_integration_qags(&gslF, xMin, xMax, 0.0, precision_, limit_,
+                             workspace_, &result, &error_);
+    }
+    else if (xMax < Math::inf)
+    {
+        gsl_integration_qagil(&gslF, xMax, 0.0, precision_, limit_,
+                              workspace_, &result, &error_);
+    }
+    else if (xMin > -Math::inf)
+    {
+        gsl_integration_qagiu(&gslF, xMin, 0.0, precision_, limit_,
+                              workspace_, &result, &error_);
+    }
+    else
+    {
+        gsl_integration_qagi(&gslF, 0.0, precision_, limit_,
+                             workspace_, &result, &error_);
+    }
     
     return result;
 }
