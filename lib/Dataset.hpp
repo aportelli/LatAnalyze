@@ -47,6 +47,8 @@ public:
     // resampling
     Sample<T> bootstrapMean(const Index nSample, const SeedType seed);
     Sample<T> bootstrapMean(const Index nSample);
+    void      dumpBootstrapSeq(std::ostream &out, const Index nSample,
+                               const SeedType seed);
 private:
     // mean from pointer vector for resampling
     void ptVectorMean(T &m, const std::vector<const T *> &v);
@@ -112,6 +114,23 @@ Sample<T> Dataset<T>::bootstrapMean(const Index nSample)
     std::random_device rd;
     
     return bootstrapMean(nSample, rd());
+}
+
+template <typename T>
+void Dataset<T>::dumpBootstrapSeq(std::ostream &out, const Index nSample,
+                                  const SeedType seed)
+{
+    std::mt19937                         gen(seed);
+    std::uniform_int_distribution<Index> dis(0, this->size() - 1);
+
+    for (Index i = 0; i < nSample; ++i)
+    {
+        for (unsigned int j = 0; j < this->size(); ++j)
+        {
+            out << dis(gen) << " " << std::endl;
+        }
+        out << std::endl;
+    }
 }
 
 template <typename T>
