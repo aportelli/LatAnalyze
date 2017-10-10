@@ -10,6 +10,7 @@ bin_PROGRAMS =            \
     latan-sample-combine  \
     latan-sample-element  \
     latan-sample-fake     \
+    latan-sample-ft       \
     latan-sample-plot     \
     latan-sample-plot-corr\
     latan-sample-read     \
@@ -26,6 +27,10 @@ latan_sample_element_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_fake_SOURCES  = sample-fake.cpp
 latan_sample_fake_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_fake_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_ft_SOURCES  = sample-ft.cpp
+latan_sample_ft_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_ft_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_plot_corr_SOURCES  = sample-plot-corr.cpp
 latan_sample_plot_corr_CXXFLAGS = $(COM_CXXFLAGS)

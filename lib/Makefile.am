@@ -31,6 +31,7 @@ libLatAnalyze_la_SOURCES = \
     FitInterface.cpp       \
     Function.cpp           \
     Global.cpp             \
+    GslFFT.cpp             \
     GslHybridRootFinder.cpp\
     GslMinimizer.cpp       \
     GslQagsIntegrator.cpp  \
@@ -59,10 +60,12 @@ libLatAnalyze_la_HEADERS = \
     Dataset.hpp            \
     Derivative.hpp         \
     Exceptions.hpp         \
+    FFT.hpp                \
     Function.hpp           \
     File.hpp               \
     FitInterface.hpp       \
     Global.hpp             \
+    GslFFT.hpp             \
     GslHybridRootFinder.hpp\
     GslMinimizer.hpp       \
     GslQagsIntegrator.hpp  \
