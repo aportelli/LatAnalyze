@@ -55,6 +55,28 @@ in the `ci-scripts` directory where `<prefix>` is where you want LatAnalyze (and
 For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
 
 ## History
+#### v3.3
+Additions:
+* Sample plot CL utility.
+* Infinity as a math constant.
+* Option to dump bootstrap sequence while resampling.
+* FFT through the GSL.
+
+Changes:
+* GSL integrator accepts infinite bounds.
+* `latan-sample-combine` accepts mixes of `DSample` and `DMatSample`.
+* More general `latan-sample-element` command.
+
+#### v3.2.2
+Additions:
+* The math interpreter supports `inf` for infinity.
+
+Changes:
+* Vector version of `setUnidimData`.
+
+Fixes:
+* Variance matrix computation fix.
+
 #### v3.2.1
 Fix:
 * Wrong argument number check in `latan-resample`

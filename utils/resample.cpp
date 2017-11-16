@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     opt.addOption("f", "format"    , OptParser::OptType::value,   true,
                   "output file format", DEF_FMT);
     opt.addOption("d", "dump-boot" , OptParser::OptType::trigger, true,
-                  "dump bootstrap sequence", DEF_FMT);
+                  "dump bootstrap sequence");
     opt.addOption("" , "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
     parsed = opt.parse(argc, argv);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);
-        if (i == 0)
+        if ((i == 0) and dumpBoot)
         {
             ofstream file(outDirName + "/" + manFileName + ".bootseq");
 
