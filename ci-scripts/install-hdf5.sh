@@ -11,7 +11,7 @@ PREFIX=$1
 set -ex
 INITDIR=`pwd`
 cd local/build
-wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/${NAME}/src/${NAME}.tar.bz2
+wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/${NAME}/src/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz
 mkdir ${NAME}/build
 cd ${NAME}/build
