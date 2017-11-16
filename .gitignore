@@ -35,3 +35,7 @@ ci-scripts/local/*
 .idea/*
 CMakeLists.txt
 cmake-build-debug/*
+
+# VS Code Studio stuff
+.vscode
+*.code-workspace

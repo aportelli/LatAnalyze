@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAME='hdf5-1.8.16'
+NAME='hdf5-1.10.1'
 
 if (( $# != 1 )); then
   echo "usage: `basename $0` <prefix> {osx|linux}" 1>&2
@@ -11,7 +11,7 @@ PREFIX=$1
 set -ex
 INITDIR=`pwd`
 cd local/build
-wget http://www.hdfgroup.org/ftp/HDF5/releases/${NAME}/src/${NAME}.tar.gz
+wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/${NAME}/src/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz
 mkdir ${NAME}/build
 cd ${NAME}/build

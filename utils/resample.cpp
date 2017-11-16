@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 {
     // argument parsing ////////////////////////////////////////////////////////
     OptParser     opt;
-    bool          parsed;
+    bool          parsed, dumpBoot;
     random_device rd;
     SeedType      seed = rd();
     string        manFileName, nameFileName, outDirName;
@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
                   "output directory", ".");
     opt.addOption("f", "format"    , OptParser::OptType::value,   true,
                   "output file format", DEF_FMT);
+    opt.addOption("d", "dump-boot" , OptParser::OptType::trigger, true,
+                  "dump bootstrap sequence");
     opt.addOption("" , "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
     parsed = opt.parse(argc, argv);
@@ -75,6 +77,7 @@ int main(int argc, char *argv[])
     }
     ext          = opt.optionValue("f");
     outDirName   = opt.optionValue("o");
+    dumpBoot     = opt.gotOption("d");
     manFileName  = opt.getArgs()[0];
     nameFileName = opt.getArgs()[1];
     
@@ -124,6 +127,15 @@ int main(int argc, char *argv[])
         
         cout << '\r' << ProgressBar(i + 1, name.size());
         data[name[i]].bin(binSize);
+        if ((i == 0) and dumpBoot)
+        {
+            ofstream file(outDirName + "/" + manFileName + ".bootseq");
+
+            file << "# bootstrap sequences" << endl;
+            file << "# manifest file: " << manFileName << endl;
+            file << "#      bin size: " << binSize << endl;
+            data[name[i]].dumpBootstrapSeq(file, nSample, seed);
+        }
         s = data[name[i]].bootstrapMean(nSample, seed);
         Io::save<DMatSample>(s, outDirName + "/" + outFileName,
                              File::Mode::write, outFileName);
