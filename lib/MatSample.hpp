@@ -228,7 +228,7 @@ Index MatSample<T>::BlockTemplate<S>::getNCol(void) const
 // assignement operators ///////////////////////////////////////////////////////
 template <typename T>
 template <class S>
-MatSample<T>::BlockTemplate<S> &
+typename MatSample<T>::template BlockTemplate<S> &
 MatSample<T>::BlockTemplate<S>::operator=(const S &sample)
 {
     FOR_STAT_ARRAY(sample_, s)
@@ -241,7 +241,7 @@ MatSample<T>::BlockTemplate<S>::operator=(const S &sample)
 
 template <typename T>
 template <class S>
-MatSample<T>::BlockTemplate<S> &
+typename MatSample<T>::template BlockTemplate<S> &
 MatSample<T>::BlockTemplate<S>::operator=(const S &&sample)
 {
     *this = sample;
