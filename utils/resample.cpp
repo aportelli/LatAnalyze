@@ -25,12 +25,7 @@
 #ifndef DEF_NSAMPLE
 #define DEF_NSAMPLE "100"
 #endif
-
-#ifdef HAVE_HDF5
 #define DEF_FMT "h5"
-#else
-#define DEF_FMT "sample"
-#endif
 
 using namespace std;
 using namespace Latan;

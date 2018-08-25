@@ -53,9 +53,6 @@ AC_ARG_WITH([latcore],
     [use this option for a non-standard install prefix of the LatCore library])],
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_latcore/include"]
     [AM_LDFLAGS="$AM_LDFLAGS -L$with_latcore/lib"])
-CFLAGS="$AM_CFLAGS $CFLAGS"
-CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
-LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 
 # Get compilers informations
 AX_COMPILER_VENDOR
@@ -78,6 +75,10 @@ AC_DEFINE_UNQUOTED([GXX_VERSION],["$GXX_VERSION"],
 			[version of g++ that will compile the code])
 
 # Checks for libraries.
+CXXFLAGS_CPY=$CXXFLAGS
+LDFLAGS_CPY=$LDFLAGS
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
@@ -90,12 +91,8 @@ AC_CHECK_LIB([nlopt_cxx],[nlopt_create],
     [LIBS="$LIBS -lnlopt_cxx"],[])
 AM_CONDITIONAL([HAVE_NLOPT], [test x$have_nlopt = xtrue])
 AC_CHECK_LIB([hdf5_cpp],[H5Fopen],
-    [AC_DEFINE([HAVE_HDF5],
-    [1],
-    [Define to 1 if you have the `HDF5' library (-lhdf5_cpp).])]
-    [have_hdf5=true]
-    [LIBS="$LIBS -lhdf5_cpp -lhdf5"],[],[-lhdf5])
-AM_CONDITIONAL([HAVE_HDF5], [test x$have_hdf5 = xtrue])
+    [LIBS="$LIBS -lhdf5_cpp -lhdf5"],
+    [AC_MSG_ERROR([HDF5 library not found])], [-lhdf5])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
 AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);
@@ -123,24 +120,44 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([no])]
     [AC_MSG_ERROR([LatCore library not found])])
 LDFLAGS=$SAVED_LDFLAGS
+CXXFLAGS=$CXXFLAGS_CPY
+LDFLAGS=$LDFLAGS_CPY
 
 # Checks for header files.
 AC_HEADER_STDC
 
+cwd=`pwd -P`; cd ${srcdir}; abs_srcdir=`pwd -P`; cd ${cwd}
+LATAN_CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LATAN_LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+LATAN_LIBS=$LIBS
+LATAN_SHORT_SHA=`git rev-parse --short HEAD`
+LATAN_SHA=`git rev-parse HEAD`
+LATAN_BRANCH=`git rev-parse --abbrev-ref HEAD`
+AM_CXXFLAGS="-I${abs_srcdir}/lib $AM_CXXFLAGS"
+AM_CFLAGS="-I${abs_srcdir}/lib $AM_CFLAGS"
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 AC_SUBST([LIBS])
-AC_SUBST([AM_CFLAGS])
+AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_LDFLAGS])
+AC_SUBST([LATAN_CXXFLAGS])
+AC_SUBST([LATAN_LDFLAGS])
+AC_SUBST([LATAN_LIBS])
+AC_SUBST([LATAN_SHA])
+AC_SUBST([LATAN_BRANCH])
 
-AC_CONFIG_FILES([Makefile lib/Makefile utils/Makefile physics/Makefile 
-                 examples/Makefile])
+AC_CONFIG_FILES([latan-config], [chmod +x latan-config])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([lib/Makefile])
+AC_CONFIG_FILES([utils/Makefile])
+AC_CONFIG_FILES([physics/Makefile])
+AC_CONFIG_FILES([examples/Makefile])
 AC_OUTPUT
 
 echo "*********************************************"
 echo "* ${PACKAGE_NAME} v${VERSION}" build options
 echo "*********************************************"
 echo "* C++ compiler     : $CXX"
-echo "* HDF5 support     : `test x$HAVE_HDF5_TRUE = 'x'   && echo yes \
-                                                          || echo no`"
 echo "* Minuit minimizers: `test x$HAVE_MINUIT_TRUE = 'x' && echo yes \
                                                           || echo no`"
 echo "* NLopt minimizers : `test x$HAVE_NLOPT_TRUE = 'x'  && echo yes \
