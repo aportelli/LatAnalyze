@@ -13,6 +13,8 @@ using namespace Latan;
 
 int main(int argc, char *argv[])
 {
+
+    cout << "Version edited by: Andrew Yong, 4/01/19\n" << endl;
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
     bool                 parsed, doPlot, doHeatmap, doCorr, fold;
@@ -30,7 +32,7 @@ int main(int argc, char *argv[])
     opt.addOption("s", "shift"    , OptParser::OptType::value  , true,
                   "time variable shift", "0");
     opt.addOption("m", "model"    , OptParser::OptType::value  , true,
-                  "fit model (exp|exp2|exp3|cosh|cosh2|cosh3|<interpreter code>)", "cosh");
+                  "fit model (exp|exp2|exp3|cosh|cosh2|cosh3|linear|<interpreter code>)", "cosh");
     opt.addOption("" , "nPar"     , OptParser::OptType::value  , true,
                   "number of model parameters for custom models "
                   "(-1 if irrelevant)", "-1");
@@ -118,6 +120,8 @@ int main(int argc, char *argv[])
     // make model //////////////////////////////////////////////////////////////
     DoubleModel mod;
     bool        coshModel = false;
+    bool        linearModel = false;
+
     
     if ((model == "exp") or (model == "exp1"))
     {
@@ -174,6 +178,16 @@ int main(int argc, char *argv[])
                                  + p[5]*(exp(-p[2]*x[0])+exp(-p[4]*(nt-x[0])));
                         }, 1, nPar);
     }
+
+    else if (model == "linear")
+    {
+        linearModel = true;
+        nPar        = 2;
+        mod.setFunction([](const double *x, const double *p)
+                        {
+                            return p[1]-p[0]*x[0];
+                        }, 1, nPar);
+    }
     else
     {
         if (nPar > 0)
@@ -207,23 +221,78 @@ int main(int argc, char *argv[])
     data.setUnidimData(tvec, corr);
     for (Index p = 0; p < nPar; p += 2)
     {
-        mod.parName().setName(p, "E_" + strFrom(p/2));
-        mod.parName().setName(p + 1, "Z_" + strFrom(p/2));
+        if((model == "cosh") or (model =="cosh1") or (model == "cosh2") or (model == "cosh3"))
+        {
+            mod.parName().setName(p, "E_" + strFrom(p/2));
+            mod.parName().setName(p + 1, "Z_" + strFrom(p/2));   
+        }
+
+        else if(model == "linear")
+        {
+            mod.parName().setName(p, "dm");
+            mod.parName().setName(p + 1, "dA/A_0");   
+        }
+        else // to edit when necessary
+        {
+            mod.parName().setName(p, "E_" + strFrom(p/2));
+            mod.parName().setName(p + 1, "Z_" + strFrom(p/2));
+        }
     }
-    init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
-    init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
-    for (Index p = 2; p < nPar; p += 2)
+    // initial values & limits//////////////////////////////////////////////////////////
+    if(model == "linear")
     {
+        init(0) = data.y(nt/4,0)[central] - data.y(nt/4 + 1,0)[central] ;
+        init(1) = data.y(nt/4,0)[central] + init(0)*nt/4; 
+        cout << "init(0) = " << init(0) << "\tinit(1) = " << init(1) << endl;
+        
+        for (Index p = 2; p < nPar; p += 2)
+        {
         init(p)     = 2*init(p - 2);
         init(p + 1) = init(p - 1)/2.;
+        }
+
+        double standard = 10;
+        for (Index p = 0; p < nPar; p += 2)
+        {
+            // allows us to vary the gradient without flipping sign(ie slope direction)
+            if(init(p)>0) // positive gradient
+            {
+                globMin.setLowLimit(p, 0); 
+                globMin.setHighLimit(p, init(p)*standard);
+            }
+            else // negative gradient (or flat)
+            {
+                globMin.setLowLimit(p, init(p)*standard); 
+                globMin.setHighLimit(p, 0);
+            }
+            
+            globMin.setLowLimit(p + 1, init(p + 1)-standard);
+            globMin.setHighLimit(p + 1, init(p + 1)+standard);
+            locMin.setLowLimit(p, init(p)/standard);
+        }
     }
-    for (Index p = 0; p < nPar; p += 2)
+
+    else
     {
-        globMin.setLowLimit(p, 0.);
+        init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
+        init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
+        cout << "init(0) = " << init(0) << "\tinit(1) = " << init(1) << endl;
+
+
+        for (Index p = 2; p < nPar; p += 2)
+        {
+        init(p)     = 2*init(p - 2);
+        init(p + 1) = init(p - 1)/2.;
+        }
+
+        for (Index p = 0; p < nPar; p += 2)
+        {
+        globMin.setLowLimit(p, 0.); 
         globMin.setHighLimit(p, 10.*init(p));
         globMin.setLowLimit(p + 1, -10.*init(p + 1));
         globMin.setHighLimit(p + 1, 10.*init(p + 1));
         locMin.setLowLimit(p, 0.);
+        }
     }
     globMin.setPrecision(0.001);
     globMin.setMaxIteration(100000);
@@ -263,6 +332,7 @@ int main(int argc, char *argv[])
         Index      maxT = (coshModel) ? (nt - 2) : (nt - 1);
         double     e0, e0Err;
         
+        p << Title("Correlated Fit");
         p << PlotRange(Axis::x, 0, nt - 1);
         p << LogScale(Axis::y);
         p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
@@ -296,6 +366,7 @@ int main(int argc, char *argv[])
             }
         }
         p.reset();
+        p << Title("Uncorrelated Fit");
         p << PlotRange(Axis::x, 1, maxT);
         p << PlotRange(Axis::y, e0 - 20.*e0Err, e0 + 20.*e0Err);
         p << Color("rgb 'blue'") << PlotBand(0, maxT, e0 - e0Err, e0 + e0Err);
