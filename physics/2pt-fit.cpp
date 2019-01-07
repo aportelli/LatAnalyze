@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
     data.addXDim(nt, "t/a", true);
     data.addYDim("C(t)");
     data.setUnidimData(tvec, corr);
-    for (Index p = 0; p < nPar; p += 2)
+    for (Index p = 0; p < nPar; p += 2) // naming parameters
     {
         if((model == "cosh") or (model =="cosh1") or (model == "cosh2") or (model == "cosh3"))
         {
@@ -244,31 +244,14 @@ int main(int argc, char *argv[])
         init(0) = data.y(nt/4,0)[central] - data.y(nt/4 + 1,0)[central] ;
         init(1) = data.y(nt/4,0)[central] + init(0)*nt/4; 
         cout << "init(0) = " << init(0) << "\tinit(1) = " << init(1) << endl;
-        
-        for (Index p = 2; p < nPar; p += 2)
-        {
-        init(p)     = 2*init(p - 2);
-        init(p + 1) = init(p - 1)/2.;
-        }
 
-        double standard = 10;
-        for (Index p = 0; p < nPar; p += 2)
+        double bound = 30.;
+        for (Index p = 0; p < nPar; p += 2) // setting appropriate limits for global min
         {
-            // allows us to vary the gradient without flipping sign(ie slope direction)
-            if(init(p)>0) // positive gradient
-            {
-                globMin.setLowLimit(p, 0); 
-                globMin.setHighLimit(p, init(p)*standard);
-            }
-            else // negative gradient (or flat)
-            {
-                globMin.setLowLimit(p, init(p)*standard); 
-                globMin.setHighLimit(p, 0);
-            }
-            
-            globMin.setLowLimit(p + 1, init(p + 1)-standard);
-            globMin.setHighLimit(p + 1, init(p + 1)+standard);
-            locMin.setLowLimit(p, init(p)/standard);
+            globMin.setLowLimit(p, -bound*fabs(init(p))); 
+            globMin.setHighLimit(p, bound*fabs(init(p)));
+            globMin.setLowLimit(p + 1, -bound*fabs(init(p + 1)));
+            globMin.setHighLimit(p + 1, bound*fabs(init(p + 1)));
         }
     }
 
@@ -281,17 +264,18 @@ int main(int argc, char *argv[])
 
         for (Index p = 2; p < nPar; p += 2)
         {
-        init(p)     = 2*init(p - 2);
-        init(p + 1) = init(p - 1)/2.;
+            init(p)     = 2*init(p - 2);
+            init(p + 1) = init(p - 1)/2.;
         }
 
         for (Index p = 0; p < nPar; p += 2)
         {
-        globMin.setLowLimit(p, 0.); 
-        globMin.setHighLimit(p, 10.*init(p));
-        globMin.setLowLimit(p + 1, -10.*init(p + 1));
-        globMin.setHighLimit(p + 1, 10.*init(p + 1));
-        locMin.setLowLimit(p, 0.);
+            cout << "p: " << p << endl;
+            globMin.setLowLimit(p, 0.); 
+            globMin.setHighLimit(p, 10.*init(p));
+            globMin.setLowLimit(p + 1, -10.*init(p + 1));
+            globMin.setHighLimit(p + 1, 10.*init(p + 1));
+            locMin.setLowLimit(p, 0.);
         }
     }
     globMin.setPrecision(0.001);
@@ -309,6 +293,7 @@ int main(int argc, char *argv[])
         cout << "-- uncorrelated fit..." << endl;
     }
     cout << "using model '" << model << "'" << endl;
+    cout << "svdTol: " << svdTol << endl;
     data.setSvdTolerance(svdTol);
     data.assumeYYCorrelated(false, 0, 0);
     fit = data.fit(unCorrMin, init, mod);
@@ -366,7 +351,7 @@ int main(int argc, char *argv[])
             }
         }
         p.reset();
-        p << Title("Uncorrelated Fit");
+        p << Title("Effective Mass");
         p << PlotRange(Axis::x, 1, maxT);
         p << PlotRange(Axis::y, e0 - 20.*e0Err, e0 + 20.*e0Err);
         p << Color("rgb 'blue'") << PlotBand(0, maxT, e0 - e0Err, e0 + e0Err);
