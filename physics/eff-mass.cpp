@@ -80,8 +80,9 @@ int main(int argc, char *argv[])
                 tm = nt-1;
             }
 
-            effmass[s](t) = ( 1./sqrt( ( c0[s](tp) + c0[s](tm) )/2*c0[s](t) + 1 ) )*( (dc[s](tp) + dc[s](tm) )/2*c0[s](t) - ( dc[s](t)/c0[s](t) )*( ( c0[s](tp) + c0[s](tm) )/2*c0[s](t) ) );
+            effmass[s](t) = ( 1./sqrt( (( c0[s](tp) + c0[s](tm) )/(2*c0[s](t)))*(( c0[s](tp) + c0[s](tm) )/(2*c0[s](t))) - 1 ) )*( (dc[s](tp) + dc[s](tm) )/(2*c0[s](t)) - ( dc[s](t)/c0[s](t) )*( ( c0[s](tp) + c0[s](tm) )/(2*c0[s](t)) ) );
         }
+        
     }
     // cout << "\n***********\n***********\n***********\nCheckpoint.\n***********\n***********\n***********\n" << endl;
 
@@ -96,6 +97,7 @@ int main(int argc, char *argv[])
 
         tAxis.setLinSpaced(nt,1,nt);
         p << PlotRange(Axis::x, 1, nt);
+        p << PlotRange(Axis::y, -0.1,0.1);
 
         p << Color("rgb 'red'") << PlotData(tAxis, effmass);
         p.display();
