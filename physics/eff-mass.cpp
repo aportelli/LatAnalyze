@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     parsed = opt.parse(argc, argv);
     if (!parsed or (opt.getArgs().size() < 2) or opt.gotOption("help"))
     {
-        cerr << "usage: " << argv[0] << " <options> <correlator file 1> <correlator file 2>" << endl;
+        cerr << "usage: " << argv[0] << " <options> < QED correlator file> < QCD correlator file 2>" << endl;
         cerr << endl << "Possible options:" << endl << opt << endl;
         
         return EXIT_FAILURE;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     doPlot       = opt.gotOption("p");
     
     // load correlator /////////////////////////////////////////////////////////
-    DMatSample tmp, corr0, dcorr, effmass;
+    DMatSample tmp, c0, dc, effmass;
     Index      nSample, nt;
     float      tp,tm;
     
@@ -50,23 +50,23 @@ int main(int argc, char *argv[])
     nSample = tmp.size();
     nt      = tmp[central].rows();
     tmp     = tmp.block(0, 0, nt, 1);
-    corr0   = tmp;
-    dcorr   = tmp;
+    c0   = tmp;
+    dc   = tmp;
     effmass = tmp; // initialise effmass like this
-    FOR_STAT_ARRAY(corr0, s) // loads the QCD correlator, bootstrap sample by sample
+    FOR_STAT_ARRAY(c0, s) // loads the QCD correlator, bootstrap sample by sample
     {
         for (Index t = 0; t < nt; ++t) 
         {
-            corr0[s]((t - shift + nt)%nt) = tmp[s](t);
+            c0[s]((t - shift + nt)%nt) = tmp[s](t);
         }
     }
     tmp     = Io::load<DMatSample>(corrFileName);
     tmp     = tmp.block(0, 0, nt, 1);
-    FOR_STAT_ARRAY(dcorr, s) // computes the leading order perturbation in corr
+    FOR_STAT_ARRAY(dc, s) // computes the leading order perturbation in corr
     {
         for (Index t = 0; t < nt; ++t) 
         {
-            dcorr[s](t) = tmp[s](t) - corr0[s](t);
+            dc[s](t) = tmp[s](t);
         }
     }
     FOR_STAT_ARRAY(effmass, s) //generate effective mass here
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
                 tm = nt-1;
             }
 
-            effmass[s](t) = (1./sqrt( ( corr0[s](tp) + corr0[s](tm) )/2*corr0[s](t) - 1 ))*( (dcorr[s](tp) + dcorr[s](tm) )/2*corr0[s](t) - ( dcorr[s](t)/corr0[s](t) )*( ( corr0[s](tp) + corr0[s](tm) )/corr0[s](t) ) );
+            effmass[s](t) = ( 1./sqrt( ( c0[s](tp) + c0[s](tm) )/2*c0[s](t) + 1 ) )*( (dc[s](tp) + dc[s](tm) )/2*c0[s](t) - ( dc[s](t)/c0[s](t) )*( ( c0[s](tp) + c0[s](tm) )/2*c0[s](t) ) );
         }
     }
     // cout << "\n***********\n***********\n***********\nCheckpoint.\n***********\n***********\n***********\n" << endl;
@@ -94,99 +94,21 @@ int main(int argc, char *argv[])
         Plot       p;
         DVec       tAxis;
 
-        int ymax = effmass[central](nt/2);
         tAxis.setLinSpaced(nt,1,nt);
-        p << PlotRange(Axis::x, 0, nt - 1);
-        p << PlotRange(Axis::y, 0, ymax);
+        p << PlotRange(Axis::x, 1, nt);
 
         p << Color("rgb 'red'") << PlotData(tAxis, effmass);
         p.display();
 
     }
-    /*if (doPlot)
-    {
-        Plot       p;
-        DMatSample effMass(nSample);
-        DVec       effMassT, fitErr;
-        Index      maxT = (coshModel) ? (nt - 2) : (nt - 1);
-        double     e0, e0Err;
-        
-        p << PlotRange(Axis::x, 0, nt - 1);
-        if (!linearModel)
-        {
-            p << LogScale(Axis::y);
-        }
-        p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
-        p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
-        p << Color("rgb 'red'") << PlotData(data.getData());
-        p.display();
-        effMass.resizeMat(maxT, 1);
-        effMassT.setLinSpaced(maxT, 1, maxT);
-        fitErr = fit.variance().cwiseSqrt();
-        e0     = fit[central](0);
-        e0Err  = fitErr(0);
-        if (coshModel)
-        {
-            FOR_STAT_ARRAY(effMass, s)
-            {
-                for (Index t = 1; t < nt - 1; ++t)
-                {
-                    effMass[s](t - 1) = acosh((corr[s](t-1) + corr[s](t+1))
-                                              /(2.*corr[s](t)));
-                }
-            }
-        }
-        else if (linearModel)
-        {
-            FOR_STAT_ARRAY(effMass, s)
-            {
-                for (Index t = 0; t < nt - 1; ++t)
-                {
-                    effMass[s](t) = corr[s](t) - corr[s](t+1);
-                }
-            }
-        }
-        else
-        {
-            FOR_STAT_ARRAY(effMass, s)
-            {
-                for (Index t = 1; t < nt; ++t)
-                {
-                    effMass[s](t - 1) = log(corr[s](t-1)/corr[s](t));
-                }
-            }
-        }
-        p.reset();
-        p << PlotRange(Axis::x, 1, maxT);
-        p << PlotRange(Axis::y, e0 - 20.*e0Err, e0 + 20.*e0Err);
-        p << Color("rgb 'blue'") << PlotBand(0, maxT, e0 - e0Err, e0 + e0Err);
-        p << Color("rgb 'blue'") << PlotHLine(e0);
-        p << Color("rgb 'red'") << PlotData(effMassT, effMass);
-        p.display();
-    }
-    if (doHeatmap)
-    {
-        Plot  p;
-        Index n  = data.getFitVarMat().rows();
-        DMat  id = DMat::Identity(n, n);
-        
-        p << PlotMatrix(Math::varToCorr(data.getFitVarMat()));
-        p << Caption("correlation matrix");
-        p.display();
-        if (svdTol > 0.)
-        {
-            p.reset();
-            p << PlotMatrix(id - data.getFitVarMat()*data.getFitVarMatPInv());
-            p << Caption("singular space projector");
-            p.display();
-        }
-    }
+ 
     
     // output //////////////////////////////////////////////////////////////////
     if (!outFileName.empty())
     {
-        Io::save(fit, outFileName);
+        Io::save(effmass, outFileName);
+        cout << "File saved as: " << outFileName << endl;
     }
 
-    return EXIT_SUCCESS;*/
+    return EXIT_SUCCESS;
 }
