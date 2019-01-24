@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     parsed = opt.parse(argc, argv);
     if (!parsed or (opt.getArgs().size() < 2) or opt.gotOption("help"))
     {
-        cerr << "usage: " << argv[0] << " <options> < QED correlator file> < QCD correlator file 2>" << endl;
+        cerr << "usage: " << argv[0] << " <options> < QED correlator file> < QCD correlator file>" << endl;
         cerr << endl << "Possible options:" << endl << opt << endl;
         
         return EXIT_FAILURE;
@@ -96,8 +96,7 @@ int main(int argc, char *argv[])
             {
                 tm = nt-1;
             }
-
-            effmass[s](t) = ( 1./sqrt( (( c0[s](tp) + c0[s](tm) )/(2*c0[s](t)))*(( c0[s](tp) + c0[s](tm) )/(2*c0[s](t))) - 1 ) )*( (dc[s](tp) + dc[s](tm) )/(2*c0[s](t)) - ( dc[s](t)/c0[s](t) )*( ( c0[s](tp) + c0[s](tm) )/(2*c0[s](t)) ) );
+            effmass[s](t) = ( 1./sqrt( ( ( c0[s](tp) + c0[s](tm) )/(2*c0[s](t) ) )*(( c0[s](tp) + c0[s](tm) )/(2*c0[s](t))) - 1 ) )*( (dc[s](tp) + dc[s](tm) )/(2*c0[s](t)) - ( dc[s](t)/c0[s](t) )*( ( c0[s](tp) + c0[s](tm) )/(2*c0[s](t)) ) );
         }  
     }
     // plots ///////////////////////////////////////////////////////////////////
