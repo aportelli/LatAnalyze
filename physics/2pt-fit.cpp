@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
     // set parameter name /////////////
     if(constModel)
     {
-        mod.parName().setName(0, "delta_m");
+        mod.parName().setName(0, "const");
     }
     else
     {
@@ -251,12 +251,12 @@ int main(int argc, char *argv[])
         init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
         init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
     }
-
     for (Index p = 2; p < nPar; p += 2)
     {
         init(p)     = 2*init(p - 2);
         init(p + 1) = init(p - 1)/2.;
     }
+    // set limits for minimiser //////////////
     for (Index p = 0; p < nPar; p += 2)
     {
         if (linearModel)
@@ -288,6 +288,7 @@ int main(int argc, char *argv[])
     globMin.setVerbosity(verbosity);
     locMin.setMaxIteration(1000000);
     locMin.setVerbosity(verbosity);
+    // fit /////////////////////////////////
     for (Index t = 0; t < nt; ++t)
     {
         data.fitPoint((t >= ti) and (t <= tf)
@@ -311,34 +312,20 @@ int main(int argc, char *argv[])
         fit = data.fit(locMin, init, mod);
         fit.print();
     }
-
     // plots ///////////////////////////////////////////////////////////////////
     if (doPlot)
     {
         Plot       p;
-        
-        // if (!constModel)
-        // {
-        //     p << PlotRange(Axis::x, 0, nt - 1);
-        //     if (!linearModel)
-        //     {
-        //         p << LogScale(Axis::y);
-        //     }
-        //     p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1); //<<<< problematic line for const fit
-        //     p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
-        //     p << Color("rgb 'red'")  << PlotData(data.getData());
-        //     p.display();
-        // }
+
         p << PlotRange(Axis::x, 0, nt - 1);
         if (!linearModel and !constModel)
         {
             p << LogScale(Axis::y);
         }
         p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
-        p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1); //<<<< problematic line for const fit
+        p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
         p << Color("rgb 'red'")  << PlotData(data.getData());
         p.display();
-
         // effective mass plot //////////////////////////////////////////////////////
         if (!constModel)
         {
