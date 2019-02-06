@@ -1,8 +1,4 @@
 language: cpp
-
-notifications:
-  email: false
-  slack: ukqcd:mQLXCtz8D2cg89xT8j1a4wku
   
 cache:
   directories:
@@ -12,56 +8,56 @@ cache:
 matrix:
   include:
     - os:        osx
-      osx_image: xcode7.2
+      osx_image: xcode10.1
       compiler: clang
     - os:        osx
-      osx_image: xcode7.2
+      osx_image: xcode10.1
       compiler: gcc
-      env: VERSION=-5
+      env: VERSION=-7
     - compiler: gcc
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.9
+            - g++-6
             - libgsl0-dev
             - flex
             - bison
-      env: VERSION=-4.9
+      env: VERSION=-6
     - compiler: gcc
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-5
+            - g++-7
             - libgsl0-dev
             - flex
             - bison
-      env: VERSION=-5
+      env: VERSION=-7
     - compiler: clang
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.8
+            - g++-7
             - libgsl0-dev
             - flex
             - bison
-      env: CLANG_LINK=http://llvm.org/releases/3.6.0/clang+llvm-3.6.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+      env: CLANG_LINK=http://releases.llvm.org/6.0.1/clang+llvm-6.0.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
     - compiler: clang
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.8
+            - g++-7
             - libgsl0-dev
             - flex
             - bison
-      env: CLANG_LINK=http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+      env: CLANG_LINK=http://releases.llvm.org/6.0.1/clang+llvm-6.0.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
 
 before_install:
   - export LATDIR=`pwd`
