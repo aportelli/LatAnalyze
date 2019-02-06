@@ -20,33 +20,11 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
-            - libgsl0-dev
-            - flex
-            - bison
-      env: VERSION=-6
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
             - g++-7
             - libgsl0-dev
             - flex
             - bison
       env: VERSION=-7
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-            - libgsl0-dev
-            - flex
-            - bison
-      env: CLANG_LINK=http://releases.llvm.org/6.0.1/clang+llvm-6.0.1-x86_64-linux-gnu-ubuntu-14.04.tar.xz
     - compiler: clang
       addons:
         apt:
