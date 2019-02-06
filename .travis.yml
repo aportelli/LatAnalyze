@@ -59,7 +59,7 @@ install:
   - ./install-deps.sh `pwd`/local
   - cd ..
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH=${LATDIR}/ci-scripts/local/lib:$LD_LIBRARY_PATH; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "gcc-7" ]]; then export CXXFLAGS='-Wno-int-in-bool-context'
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "gcc-7" ]]; then export CXXFLAGS='-Wno-int-in-bool-context'; fi
 
 script:
   - cd ci-scripts
