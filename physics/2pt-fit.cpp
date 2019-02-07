@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     opt.addOption("s", "shift"    , OptParser::OptType::value  , true,
                   "time variable shift", "0");
     opt.addOption("m", "model"    , OptParser::OptType::value  , true,
-                  "fit model (exp|exp2|exp3|cosh|cosh2|cosh3|<interpreter code>)", "cosh");
+                  "fit model (exp|exp2|exp3|cosh|cosh2|cosh3|explin|<interpreter code>)", "cosh");
     opt.addOption("" , "nPar"     , OptParser::OptType::value  , true,
                   "number of model parameters for custom models "
                   "(-1 if irrelevant)", "-1");
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     
     // make model //////////////////////////////////////////////////////////////
     DoubleModel mod;
-    bool        coshModel = false;
+    bool        coshModel = false, linearModel = false;
     
     if ((model == "exp") or (model == "exp1"))
     {
@@ -174,6 +174,15 @@ int main(int argc, char *argv[])
                                  + p[5]*(exp(-p[2]*x[0])+exp(-p[4]*(nt-x[0])));
                         }, 1, nPar);
     }
+    else if (model == "explin")
+    {
+        linearModel = true;
+        nPar        = 2;
+        mod.setFunction([](const double *x, const double *p)
+                        {
+                            return p[1] - p[0]*x[0];
+                        }, 1, nPar);
+    }
     else
     {
         if (nPar > 0)
@@ -210,8 +219,16 @@ int main(int argc, char *argv[])
         mod.parName().setName(p, "E_" + strFrom(p/2));
         mod.parName().setName(p + 1, "Z_" + strFrom(p/2));
     }
-    init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
-    init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
+    if (linearModel)
+    {
+        init(0) = data.y(nt/4, 0)[central] - data.y(nt/4 + 1, 0)[central];
+        init(1) = data.y(nt/4, 0)[central] + nt/4*init(0);
+    }
+    else
+    {
+        init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
+        init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
+    }
     for (Index p = 2; p < nPar; p += 2)
     {
         init(p)     = 2*init(p - 2);
@@ -219,11 +236,19 @@ int main(int argc, char *argv[])
     }
     for (Index p = 0; p < nPar; p += 2)
     {
-        globMin.setLowLimit(p, 0.);
-        globMin.setHighLimit(p, 10.*init(p));
-        globMin.setLowLimit(p + 1, -10.*init(p + 1));
-        globMin.setHighLimit(p + 1, 10.*init(p + 1));
-        locMin.setLowLimit(p, 0.);
+        if (linearModel)
+        {
+            globMin.setLowLimit(p, -10.*fabs(init(p)));
+            globMin.setHighLimit(p, 10.*fabs(init(p)));
+        }
+        else
+        {
+            globMin.setLowLimit(p, 0.);
+            locMin.setLowLimit(p, 0.);
+            globMin.setHighLimit(p, 10.*init(p));
+        }
+        globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
+        globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
     }
     globMin.setPrecision(0.001);
     globMin.setMaxIteration(100000);
@@ -264,7 +289,10 @@ int main(int argc, char *argv[])
         double     e0, e0Err;
         
         p << PlotRange(Axis::x, 0, nt - 1);
-        p << LogScale(Axis::y);
+        if (!linearModel)
+        {
+            p << LogScale(Axis::y);
+        }
         p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
         p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
         p << Color("rgb 'red'") << PlotData(data.getData());
@@ -285,6 +313,16 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        else if (linearModel)
+        {
+            FOR_STAT_ARRAY(effMass, s)
+            {
+                for (Index t = 0; t < nt - 1; ++t)
+                {
+                    effMass[s](t) = corr[s](t) - corr[s](t+1);
+                }
+            }
+        }
         else
         {
             FOR_STAT_ARRAY(effMass, s)
@@ -302,7 +340,6 @@ int main(int argc, char *argv[])
         p << Color("rgb 'blue'") << PlotHLine(e0);
         p << Color("rgb 'red'") << PlotData(effMassT, effMass);
         p.display();
-        p.save("test");
     }
     if (doHeatmap)
     {

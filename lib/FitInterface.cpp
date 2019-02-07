@@ -200,6 +200,7 @@ double FitInterface::getSvdTolerance(void) const
 void FitInterface::setSvdTolerance(const double &tol)
 {
     svdTol_ = tol;
+    scheduleLayoutInit();
 }
 
 VarName & FitInterface::xName(void)
