@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([lib/Global.cpp])
 AC_CONFIG_SRCDIR([utils/sample_read.cpp])
 AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
-AM_INIT_AUTOMAKE([1.11 -Wall -Werror foreign])
+AM_INIT_AUTOMAKE([1.11 -Wall -Werror foreign subdir-objects])
 AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
 AM_CONDITIONAL([HAVE_AM_MINOR_LE_11],
@@ -48,11 +48,6 @@ AC_ARG_WITH([hdf5],
     [try this for a non-standard install prefix of the HDF5 library])],
     [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_hdf5/include"]
     [AM_LDFLAGS="$AM_LDFLAGS -L$with_hdf5/lib"])
-AC_ARG_WITH([latcore],
-    [AS_HELP_STRING([--with-latcore=prefix],
-    [use this option for a non-standard install prefix of the LatCore library])],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_latcore/include"]
-    [AM_LDFLAGS="$AM_LDFLAGS -L$with_latcore/lib"])
 
 # Get compilers informations
 AX_COMPILER_VENDOR
@@ -108,17 +103,6 @@ AC_LINK_IFELSE(
 	[have_minuit=false]
     [AC_MSG_RESULT([no])])
 AM_CONDITIONAL([HAVE_MINUIT], [test x$have_minuit = xtrue])
-LDFLAGS=$SAVED_LDFLAGS
-SAVED_LDFLAGS=$LDFLAGS
-LDFLAGS="$LDFLAGS -lLatCore"
-AC_MSG_CHECKING([for LatCore::XmlReader in -lLatCore]);
-AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM([#include <LatCore/XmlReader.hpp>],
-    [LatCore::XmlReader dummy()])],
-	[LIBS="$LIBS -lLatCore"]
-	[AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no])]
-    [AC_MSG_ERROR([LatCore library not found])])
 LDFLAGS=$SAVED_LDFLAGS
 CXXFLAGS=$CXXFLAGS_CPY
 LDFLAGS=$LDFLAGS_CPY

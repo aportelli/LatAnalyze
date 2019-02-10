@@ -1,6 +1,6 @@
-#include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/Plot.hpp>
+#include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
 
 using namespace std;
 using namespace Latan;

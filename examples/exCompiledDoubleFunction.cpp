@@ -1,4 +1,4 @@
-#include <LatAnalyze/CompiledFunction.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
 
 using namespace std;
 using namespace Latan;

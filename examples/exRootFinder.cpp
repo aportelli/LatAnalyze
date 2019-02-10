@@ -1,5 +1,5 @@
-#include <LatAnalyze/Function.hpp>
-#include <LatAnalyze/GslHybridRootFinder.hpp>
+#include <LatAnalyze/Functional/Function.hpp>
+#include <LatAnalyze/Numerical/GslHybridRootFinder.hpp>
 
 using namespace std;
 using namespace Latan;

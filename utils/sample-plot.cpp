@@ -17,9 +17,9 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/Math.hpp>
-#include <LatAnalyze/Plot.hpp>
+#include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Core/Math.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
 
 using namespace std;
 using namespace Latan;

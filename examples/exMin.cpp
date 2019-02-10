@@ -1,5 +1,5 @@
-#include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/GslMinimizer.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
+#include <LatAnalyze/Numerical/GslMinimizer.hpp>
 
 using namespace std;
 using namespace Latan;

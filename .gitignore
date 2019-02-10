@@ -31,11 +31,6 @@ lib/eigen_files.mk
 # CI builds
 ci-scripts/local/*
 
-# CLion stuff
-.idea/*
-CMakeLists.txt
-cmake-build-debug/*
-
 # VS Code Studio stuff
 .vscode
 *.code-workspace
