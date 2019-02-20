@@ -17,13 +17,18 @@ int main(int argc, char *argv[])
     OptParser            opt;
     bool                 parsed;
     string               plotFileName, outFileName, xName, yName, title;
+    double               xLow, xHigh, spacing;
     
     opt.addOption("o", "output", OptParser::OptType::value  , true,
                   "output file", "");
     opt.addOption("x", "xAxis", OptParser::OptType::value  , true,
                   "x-axis name", "");
+    opt.addOption("l", "xLow", OptParser::OptType::value  , true,
+                  "x-axis lower bound", "0");
     opt.addOption("y", "yAxis", OptParser::OptType::value  , true,
                   "y-axis name", "");
+    opt.addOption("s", "spacing", OptParser::OptType::value  , true,
+                  "spacing between points", "1");
     opt.addOption("t", "title", OptParser::OptType::value  , true,
                   "plot title", "");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
@@ -38,16 +43,16 @@ int main(int argc, char *argv[])
     }
     plotFileName = opt.getArgs()[0];
     xName        = opt.optionValue("x");
+    xLow         = opt.optionValue<double>("l");
     yName        = opt.optionValue("y");
+    spacing      = opt.optionValue<double>("s");
     title        = opt.optionValue("t");
-    // corrFileName = opt.getArgs()[1];
-    // corr0FileName = opt.getArgs()[2];
     outFileName  = opt.optionValue<string>("o");
     
     // load file /////////////////////////////////////////////////////////
     DMatSample tmp;
     Index      nt;
-    
+   
     tmp     = Io::load<DMatSample>(plotFileName);
     nt      = tmp[central].rows();
     tmp     = tmp.block(0, 0, nt, 1);
@@ -57,11 +62,11 @@ int main(int argc, char *argv[])
     Plot       p;
     DVec       tAxis;
 
-    tAxis.setLinSpaced(nt, 0, nt-1);
+    xHigh= xLow+spacing*(nt-1);
+    tAxis.setLinSpaced(nt, xLow, xHigh);
     p << Label(xName, Axis::x);
     p << Label(yName, Axis::y);
-    p << PlotRange(Axis::x, 0, nt);
-    p << PlotRange(Axis::y, -0.1, 0.1);
+    p << PlotRange(Axis::x, xLow, xHigh);
     p << Color("rgb 'red'") << PlotData(tAxis, tmp);
     p << Caption(title);
     p.display();
