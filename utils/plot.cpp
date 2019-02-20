@@ -17,8 +17,9 @@ int main(int argc, char *argv[])
     OptParser            opt;
     bool                 parsed;
     string               plotFileName, outFileName, xName, yName, title;
+    vector<string>       inFileName;
     double               xLow, xHigh, spacing;
-    
+
     opt.addOption("o", "output", OptParser::OptType::value  , true,
                   "output file", "");
     opt.addOption("x", "xAxis", OptParser::OptType::value  , true,
@@ -34,41 +35,71 @@ int main(int argc, char *argv[])
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
                    "show this help message and exit");
     parsed = opt.parse(argc, argv);
-    if (!parsed or (opt.getArgs().size() < 1) or opt.gotOption("help"))
+    if (!parsed or opt.gotOption("help") or opt.getArgs().size() != 1)
     {
-        cerr << "usage: " << argv[0] << " <options> <.h5 file> " << endl;
+        cerr << "usage: " << argv[0] << " <.h5/manifest file> <options> " << endl;
         cerr << endl << "Possible options:" << endl << opt << endl;
         
         return EXIT_FAILURE;
     }
-    plotFileName = opt.getArgs()[0];
+    
+    plotFileName = opt.getArgs().front();
     xName        = opt.optionValue("x");
     xLow         = opt.optionValue<double>("l");
     yName        = opt.optionValue("y");
     spacing      = opt.optionValue<double>("s");
     title        = opt.optionValue("t");
     outFileName  = opt.optionValue<string>("o");
+
+
+    if(plotFileName.find(".h5") == string::npos)
+    {
+        inFileName = readManifest(plotFileName);
+    }
     
-    // load file /////////////////////////////////////////////////////////
+    // load and plot file(s) /////////////////////////////////////////////////////////
     DMatSample tmp;
     Index      nt;
-   
-    tmp     = Io::load<DMatSample>(plotFileName);
-    nt      = tmp[central].rows();
-    tmp     = tmp.block(0, 0, nt, 1);
-    
-    // plots ///////////////////////////////////////////////////////////////////
-
     Plot       p;
     DVec       tAxis;
 
-    xHigh= xLow+spacing*(nt-1);
-    tAxis.setLinSpaced(nt, xLow, xHigh);
+
+    if(inFileName.size() == 0)
+    {
+        tmp     = Io::load<DMatSample>(plotFileName);
+        nt      = tmp[central].rows();
+        tmp     = tmp.block(0, 0, nt, 1);
+        xHigh= xLow+spacing*(nt-1);
+        tAxis.setLinSpaced(nt, xLow, xHigh);
+        p  << PlotData(tAxis, tmp); 
+    
+    }
+    else
+    {
+        tmp = Io::load<DMatSample>(inFileName[0]);
+        nt      = tmp[central].rows();
+        tmp     = tmp.block(0, 0, nt, 1);
+        xHigh= xLow+spacing*(nt-1);
+        tAxis.setLinSpaced(nt, xLow, xHigh);
+
+        for(unsigned long i = 0; i < inFileName.size(); i++)
+        {
+            plotFileName = inFileName[i];
+            tmp = Io::load<DMatSample>(plotFileName);
+            tmp     = tmp.block(0, 0, nt, 1);
+            
+            p  << PlotData(tAxis, tmp);
+            
+        }
+        
+    }
+
     p << Label(xName, Axis::x);
     p << Label(yName, Axis::y);
     p << PlotRange(Axis::x, xLow, xHigh);
-    p << Color("rgb 'red'") << PlotData(tAxis, tmp);
     p << Caption(title);
+    
+    cout << "Displaying plot..." << endl;
     p.display();
 
     // output //////////////////////////////////////////////////////////////////
