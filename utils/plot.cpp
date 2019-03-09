@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
     title        = opt.optionValue("t");
     outFileName  = opt.optionValue<string>("o");
 
-    cout << "imag: " << imag << endl;
-
 
     if(plotFileName.find(".h5") == string::npos)
     {
