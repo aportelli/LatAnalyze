@@ -52,6 +52,7 @@ public:
     double operator()(void) const;
     template <typename... Ts>
     double operator()(const double arg0, const Ts... args) const;
+    std::map<double, double> operator()(const std::map<double, double> &m) const;
     // bind
     DoubleFunction bind(const Index argIndex, const double val) const;
     DoubleFunction bind(const Index argIndex, const DVec &x) const;
