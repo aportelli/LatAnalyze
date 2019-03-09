@@ -261,6 +261,27 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     setCommand("'" + tmpFileName + "' u 1:2 w steps");
 }
 
+// PlotImpulses constructor ////////////////////////////////////////////////////
+PlotImpulses::PlotImpulses(const DVec &x, const DVec &y)
+{
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat   d(x.rows(), 2);
+    string tmpFileName;
+
+    for (Index i = 0; i < x.rows(); ++i)
+    {
+        d(i, 0) = x(i);
+        d(i, 1) = y(i);
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w impulses");
+}
+
 // PlotMatrixNoRange constructor ///////////////////////////////////////////////
 PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
 {

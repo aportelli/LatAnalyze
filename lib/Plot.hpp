@@ -146,6 +146,15 @@ public:
     virtual ~PlotHistogram(void) = default;
 };
 
+class PlotImpulses: public PlotObject
+{
+public:
+    // constructor
+    PlotImpulses(const DVec &x, const DVec &y);
+    // destructor
+    virtual ~PlotImpulses(void) = default;
+};
+
 class PlotMatrixNoRange: public PlotObject
 {
 public:
