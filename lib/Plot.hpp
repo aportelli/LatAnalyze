@@ -181,14 +181,15 @@ struct Range
 
 struct PlotOptions
 {
-    std::string  terminal;
-    std::string  output;
-    std::string  caption;
-    std::string  title;
-    unsigned int scaleMode[2];
-    Range        scale[2];
-    std::string  label[2];
-    std::string  lineColor;
+    std::string              terminal;
+    std::string              output;
+    std::string              caption;
+    std::string              title;
+    unsigned int             scaleMode[2];
+    Range                    scale[2];
+    std::string              label[2];
+    std::string              lineColor;
+    std::vector<std::string> palette;
 };
 
 class PlotModifier
@@ -293,6 +294,21 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const std::string title_;
+};
+
+class Palette: public PlotModifier
+{
+public:
+    static const std::vector<std::string> category10;
+public:
+    // constructor
+    explicit Palette(const std::vector<std::string> &palette);
+    // destructor
+    virtual ~Palette(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::vector<std::string> palette_;
 };
 
 /******************************************************************************
