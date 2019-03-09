@@ -261,6 +261,27 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     setCommand("'" + tmpFileName + "' u 1:2 w steps");
 }
 
+// PlotImpulses constructor ////////////////////////////////////////////////////
+PlotImpulses::PlotImpulses(const DVec &x, const DVec &y)
+{
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat   d(x.rows(), 2);
+    string tmpFileName;
+
+    for (Index i = 0; i < x.rows(); ++i)
+    {
+        d(i, 0) = x(i);
+        d(i, 1) = y(i);
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w impulses");
+}
+
 // PlotMatrixNoRange constructor ///////////////////////////////////////////////
 PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
 {
@@ -371,6 +392,31 @@ void Title::operator()(PlotOptions &option) const
     option.title = title_;
 }
 
+// Palette constructor /////////////////////////////////////////////////////////
+Palette::Palette(const std::vector<std::string> &palette)
+: palette_(palette)
+{}
+
+// Palette modifier ////////////////////////////////////////////////////////////
+void Palette::operator()(PlotOptions &option) const
+{
+    option.palette = palette_;
+}
+
+// category10 palette //////////////////////////////////////////////////////////
+const std::vector<std::string> Palette::category10 =
+{
+    "rgb '#1f77b4'",
+    "rgb '#ff7f0e'",
+    "rgb '#2ca02c'",
+    "rgb '#d62728'",
+    "rgb '#9467bd'",
+    "rgb '#8c564b'",
+    "rgb '#e377c2'",
+    "rgb '#7f7f7f'",
+    "rgb '#bcbd22'"
+};
+
 /******************************************************************************
  *                          Plot implementation                               *
  ******************************************************************************/
@@ -394,6 +440,7 @@ void Plot::initOptions(void)
     options_.label[0]     = "";
     options_.label[1]     = "";
     options_.lineColor    = "";
+    options_.palette      = Palette::category10;
 }
 
 // plot reset //////////////////////////////////////////////////////////////////
@@ -673,6 +720,11 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     if (!plot.options_.label[y].empty())
     {
         out << "set ylabel '" << plot.options_.label[y] << "'" << endl;
+    }
+    for (unsigned int i = 0; i < plot.options_.palette.size(); ++i)
+    {
+        out << "set linetype " << i + 1 << " lc " 
+            << plot.options_.palette[i] << endl;
     }
     for (unsigned int i = 0; i < plot.headCommand_.size(); ++i)
     {

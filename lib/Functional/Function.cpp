@@ -111,6 +111,20 @@ double DoubleFunction::operator()(void) const
     return (*this)(nullptr);
 }
 
+std::map<double, double> DoubleFunction::operator()(const std::map<double, double> &m) const
+{
+    checkSize(1);
+
+    std::map<double, double> res;
+
+    for (auto &val: m)
+    {
+        res[val.first] = (*this)(val.second);
+    }
+
+    return res;
+}
+
 // bind ////////////////////////////////////////////////////////////////////////
 DoubleFunction DoubleFunction::bind(const Index argIndex,
                                     const double val) const
