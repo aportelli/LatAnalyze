@@ -15,11 +15,13 @@ int main(int argc, char *argv[])
 {
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
-    bool                 parsed;
+    bool                 parsed, imag;
     string               plotFileName, outFileName, xName, yName, title;
     vector<string>       inFileName;
     double               xLow, xHigh, spacing;
 
+    opt.addOption("i" , "imag"   , OptParser::OptType::trigger, true,
+                "plot imaginary");
     opt.addOption("o", "output", OptParser::OptType::value  , true,
                   "output file", "");
     opt.addOption("x", "xAxis", OptParser::OptType::value  , true,
@@ -44,12 +46,15 @@ int main(int argc, char *argv[])
     }
     
     plotFileName = opt.getArgs().front();
+    imag         = opt.gotOption("i");
     xName        = opt.optionValue("x");
     xLow         = opt.optionValue<double>("l");
     yName        = opt.optionValue("y");
     spacing      = opt.optionValue<double>("s");
     title        = opt.optionValue("t");
     outFileName  = opt.optionValue<string>("o");
+
+    cout << "imag: " << imag << endl;
 
 
     if(plotFileName.find(".h5") == string::npos)
@@ -68,7 +73,14 @@ int main(int argc, char *argv[])
     {
         tmp     = Io::load<DMatSample>(plotFileName);
         nt      = tmp[central].rows();
-        tmp     = tmp.block(0, 0, nt, 1);
+        if(imag)
+        {
+            tmp     = tmp.block(0, 1, nt, 1);
+        }
+        else
+        {
+            tmp     = tmp.block(0, 0, nt, 1);
+        }
         xHigh= xLow+spacing*(nt-1);
         tAxis.setLinSpaced(nt, xLow, xHigh);
         p  << PlotData(tAxis, tmp); 
@@ -78,7 +90,6 @@ int main(int argc, char *argv[])
     {
         tmp = Io::load<DMatSample>(inFileName[0]);
         nt      = tmp[central].rows();
-        tmp     = tmp.block(0, 0, nt, 1);
         xHigh= xLow+spacing*(nt-1);
         tAxis.setLinSpaced(nt, xLow, xHigh);
 
@@ -86,8 +97,14 @@ int main(int argc, char *argv[])
         {
             plotFileName = inFileName[i];
             tmp = Io::load<DMatSample>(plotFileName);
+        if(imag)
+        {
+            tmp     = tmp.block(0, 1, nt, 1);
+        }
+        else
+        {
             tmp     = tmp.block(0, 0, nt, 1);
-            
+        }   
             p  << PlotData(tAxis, tmp);
             
         }
