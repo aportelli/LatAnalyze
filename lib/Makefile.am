@@ -63,6 +63,8 @@ libLatAnalyze_la_SOURCES =           \
 libLatAnalyze_ladir = $(pkgincludedir)
 HPPFILES =                           \
     Global.hpp                       \
+    Core/Eigen.hpp                   \
+    Core/EigenPlugin.hpp             \
     Core/Exceptions.hpp              \
     Core/Mat.hpp                     \
     Core/Math.hpp                    \
