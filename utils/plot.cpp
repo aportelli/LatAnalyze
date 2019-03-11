@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
     bool                 parsed, imag;
-    string               plotFileName, outFileName, xName, yName, title;
+    string               plotFileName, outFileName, xName, yName, title, save;
     vector<string>       inFileName;
     double               xLow, xHigh, spacing;
 
@@ -30,8 +30,10 @@ int main(int argc, char *argv[])
                   "x-axis lower bound", "0");
     opt.addOption("y", "yAxis", OptParser::OptType::value  , true,
                   "y-axis name", "");
-    opt.addOption("s", "spacing", OptParser::OptType::value  , true,
+    opt.addOption("", "spacing", OptParser::OptType::value  , true,
                   "spacing between points", "1");
+    opt.addOption("s", "save", OptParser::OptType::value, true,
+                    "saves the source and .pdf", "");
     opt.addOption("t", "title", OptParser::OptType::value  , true,
                   "plot title", "");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
@@ -50,7 +52,8 @@ int main(int argc, char *argv[])
     xName        = opt.optionValue("x");
     xLow         = opt.optionValue<double>("l");
     yName        = opt.optionValue("y");
-    spacing      = opt.optionValue<double>("s");
+    spacing      = opt.optionValue<double>("spacing");
+    save         = opt.optionValue("s");
     title        = opt.optionValue("t");
     outFileName  = opt.optionValue<string>("o");
 
@@ -113,6 +116,12 @@ int main(int argc, char *argv[])
     p << Label(yName, Axis::y);
     p << PlotRange(Axis::x, xLow, xHigh);
     p << Caption(title);
+
+    if(save != "")
+    {
+        cout << "Saving plot and source code to " << save << endl;
+        p.save(save + "/" + title);
+    }
     
     cout << "Displaying plot..." << endl;
     p.display();
