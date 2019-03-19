@@ -189,6 +189,7 @@ struct PlotOptions
     Range                    scale[2];
     std::string              label[2];
     std::string              lineColor;
+    int                      lineWidth;
     std::vector<std::string> palette;
 };
 
@@ -239,6 +240,19 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const std::string color_;
+};
+
+class LineWidth: public PlotModifier
+{
+public:
+    // constructor
+    explicit LineWidth(const unsigned int width);
+    // destructor
+    virtual ~LineWidth(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const unsigned width_;
 };
 
 class LogScale: public PlotModifier
