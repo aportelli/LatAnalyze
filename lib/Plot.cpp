@@ -327,6 +327,17 @@ void Color::operator()(PlotOptions &option) const
     option.lineColor = color_;
 }
 
+// LineWidth constructor ///////////////////////////////////////////////////////
+LineWidth::LineWidth(const unsigned int width)
+: width_(width)
+{}
+
+// LineWidth modifier //////////////////////////////////////////////////////////
+void LineWidth::operator()(PlotOptions &option) const
+{
+    option.lineWidth = static_cast<int>(width_);
+}
+
 // LogScale constructor ////////////////////////////////////////////////////////
 LogScale::LogScale(const Axis axis)
 : axis_(axis)
@@ -440,6 +451,7 @@ void Plot::initOptions(void)
     options_.label[0]     = "";
     options_.label[1]     = "";
     options_.lineColor    = "";
+    options_.lineWidth    = -1;
     options_.palette      = Palette::category10;
 }
 
@@ -469,6 +481,11 @@ Plot & Plot::operator<<(PlotObject &&command)
         {
             commandStr         += " lc " + options_.lineColor;
             options_.lineColor  = "";
+        }
+        if (options_.lineWidth > 0)
+        {
+            commandStr         += " lw " + strFrom(options_.lineWidth);
+            options_.lineWidth  = -1;
         }
         if (options_.title.empty())
         {
