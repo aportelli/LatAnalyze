@@ -177,6 +177,24 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
+// PlotLine constructor ////////////////////////////////////////////////////////
+PlotLine::PlotLine(const DVec &x, const DVec &y)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vector does not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w lines");
+}
+
 // PlotHLine constructor ///////////////////////////////////////////////////////
 PlotHLine::PlotHLine(const double y)
 {
