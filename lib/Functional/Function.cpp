@@ -179,6 +179,26 @@ DoubleFunction DoubleFunction::bind(const Index argIndex,
     return bindFunc;
 }
 
+// sample //////////////////////////////////////////////////////////////////////
+DVec DoubleFunction::sample(const DMat &x)
+{
+    if (x.cols() != getNArg())
+    {
+        LATAN_ERROR(Size, "sampling point matrix and number of arguments "
+                          "mismatch (matrix has " + strFrom(x.cols())
+                          + ", number of arguments is " + strFrom(getNArg()) + ")");
+    }
+    
+    DVec res(x.rows());
+
+    for (Index i = 0; i < res.size(); ++i)
+    {
+        res(i) = (*this)(x.row(i));
+    }
+
+    return res;
+}
+
 // arithmetic operators ////////////////////////////////////////////////////////
 DoubleFunction DoubleFunction::operator-(void) const
 {

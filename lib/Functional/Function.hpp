@@ -56,6 +56,8 @@ public:
     // bind
     DoubleFunction bind(const Index argIndex, const double val) const;
     DoubleFunction bind(const Index argIndex, const DVec &x) const;
+    // sample
+    DVec sample(const DMat &x);
     // arithmetic operators
     DoubleFunction   operator-(void) const;
     DoubleFunction & operator+=(const DoubleFunction &f);
