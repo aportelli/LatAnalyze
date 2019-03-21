@@ -1,7 +1,7 @@
-#include <LatAnalyze/CompiledModel.hpp>
-#include <LatAnalyze/GslMinimizer.hpp>
-#include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/XYSampleData.hpp>
+#include <LatAnalyze/Functional/CompiledModel.hpp>
+#include <LatAnalyze/Numerical/GslMinimizer.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
+#include <LatAnalyze/Statistics/XYSampleData.hpp>
 
 using namespace std;
 using namespace Latan;

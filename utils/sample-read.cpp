@@ -17,7 +17,7 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <LatAnalyze/Io.hpp>
+#include <LatAnalyze/Io/Io.hpp>
 
 using namespace std;
 using namespace Latan;

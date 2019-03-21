@@ -1,6 +1,6 @@
-#include <LatAnalyze/Derivative.hpp>
-#include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/Math.hpp>
+#include <LatAnalyze/Numerical/Derivative.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
+#include <LatAnalyze/Core/Math.hpp>
 
 using namespace std;
 using namespace Latan;

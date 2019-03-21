@@ -13,4 +13,3 @@ for d in nlopt minuit hdf5; do
     ./install-${d}.sh ${PREFIX}
   fi
 done
-./install-latcore.sh ${PREFIX}

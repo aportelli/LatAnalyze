@@ -1,7 +1,7 @@
-#include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/Math.hpp>
-#include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/TabFunction.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
+#include <LatAnalyze/Core/Math.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
+#include <LatAnalyze/Functional/TabFunction.hpp>
 
 using namespace std;
 using namespace Latan;

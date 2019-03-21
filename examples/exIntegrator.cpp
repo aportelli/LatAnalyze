@@ -1,5 +1,5 @@
-#include <LatAnalyze/CompiledFunction.hpp>
-#include <LatAnalyze/GslQagsIntegrator.hpp>
+#include <LatAnalyze/Functional/CompiledFunction.hpp>
+#include <LatAnalyze/Numerical/GslQagsIntegrator.hpp>
 
 using namespace std;
 using namespace Latan;

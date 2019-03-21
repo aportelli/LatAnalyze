@@ -1,4 +1,4 @@
-#include <LatAnalyze/TabFunction.hpp>
+#include <LatAnalyze/Functional/TabFunction.hpp>
 
 int main(void)
 {
