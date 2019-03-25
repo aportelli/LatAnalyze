@@ -356,6 +356,17 @@ void LineWidth::operator()(PlotOptions &option) const
     option.lineWidth = static_cast<int>(width_);
 }
 
+// Dash constructor ///////////////////////////////////////////////////////////
+Dash::Dash(const string &dash)
+: dash_(dash)
+{}
+
+// Dash modifier //////////////////////////////////////////////////////////////
+void Dash::operator()(PlotOptions &option) const
+{
+    option.dashType = dash_;
+}
+
 // LogScale constructor ////////////////////////////////////////////////////////
 LogScale::LogScale(const Axis axis)
 : axis_(axis)
@@ -470,6 +481,7 @@ void Plot::initOptions(void)
     options_.label[1]     = "";
     options_.lineColor    = "";
     options_.lineWidth    = -1;
+    options_.dashType     = "";
     options_.palette      = Palette::category10;
 }
 
@@ -504,6 +516,11 @@ Plot & Plot::operator<<(PlotObject &&command)
         {
             commandStr         += " lw " + strFrom(options_.lineWidth);
             options_.lineWidth  = -1;
+        }
+        if (!options_.dashType.empty())
+        {
+            commandStr        += " dt " + options_.dashType;
+            options_.dashType  = "";
         }
         if (options_.title.empty())
         {

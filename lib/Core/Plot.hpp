@@ -199,6 +199,7 @@ struct PlotOptions
     std::string              label[2];
     std::string              lineColor;
     int                      lineWidth;
+    std::string              dashType;
     std::vector<std::string> palette;
 };
 
@@ -262,6 +263,19 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const unsigned width_;
+};
+
+class Dash: public PlotModifier
+{
+public:
+    // constructor
+    explicit Dash(const std::string &dash);
+    // destructor
+    virtual ~Dash(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string dash_;
 };
 
 class LogScale: public PlotModifier
