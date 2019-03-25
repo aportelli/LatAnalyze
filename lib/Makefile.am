@@ -56,6 +56,7 @@ libLatAnalyze_la_SOURCES =           \
     Numerical/Solver.cpp             \
     Statistics/FitInterface.cpp      \
     Statistics/Histogram.cpp         \
+    Statistics/Random.cpp            \
     Statistics/StatArray.cpp         \
     Statistics/XYSampleData.cpp      \
     Statistics/XYStatData.cpp        \
@@ -100,6 +101,7 @@ HPPFILES =                           \
     Statistics/FitInterface.hpp      \
     Statistics/Histogram.hpp         \
     Statistics/MatSample.hpp         \
+    Statistics/Random.hpp            \
     Statistics/StatArray.hpp         \
     Statistics/XYSampleData.hpp      \
     Statistics/XYStatData.hpp
