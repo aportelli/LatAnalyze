@@ -245,6 +245,7 @@ int main(int argc, char *argv[])
     else if(constModel)
     {
         init(0) = data.y(nt/4, 0)[central];
+
     }
     else
     {
@@ -266,9 +267,10 @@ int main(int argc, char *argv[])
         }
         else if(constModel)
         {
-            globMin.setLowLimit(p, -1.1*fabs(init(0)));
-            locMin.setLowLimit(p, 0.);
-            globMin.setHighLimit(p, 1.1*fabs(init(0)));
+            globMin.setLowLimit(p, -10*fabs(init(0)));
+            locMin.setLowLimit(p, -10*fabs(init(0)));
+            // cout << "Suppressing low limits" << endl;
+            globMin.setHighLimit(p, 10*fabs(init(0)));
         }
         else
         {
