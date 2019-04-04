@@ -180,7 +180,7 @@ DoubleFunction DoubleFunction::bind(const Index argIndex,
 }
 
 // sample //////////////////////////////////////////////////////////////////////
-DVec DoubleFunction::sample(const DMat &x)
+DVec DoubleFunction::sample(const DMat &x) const
 {
     if (x.cols() != getNArg())
     {
