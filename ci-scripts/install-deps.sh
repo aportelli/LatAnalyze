@@ -8,7 +8,7 @@ PREFIX=$1
 
 set -ex
 mkdir -p local/build
-for d in nlopt minuit hdf5; do
+for d in gsl nlopt minuit hdf5; do
   if [ ! -e local/.built.${d} ]; then
     ./install-${d}.sh ${PREFIX}
   fi
