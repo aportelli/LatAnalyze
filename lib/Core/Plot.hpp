@@ -139,11 +139,15 @@ class PlotPredBand: public PlotObject
 {
 public:
     // constructor
+    PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
+                 const double opacity = 0.15);
     PlotPredBand(const DoubleFunctionSample &function, const double xMin,
                  const double xMax, const unsigned int nPoint = 1000,
                  const double opacity = 0.15);
     // destructor
     virtual ~PlotPredBand(void) = default;
+private:
+    void makePredBand(const DMat &low, const DMat &high, const double opacity);
 };
 
 class PlotHistogram: public PlotObject

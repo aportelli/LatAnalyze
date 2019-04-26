@@ -116,7 +116,7 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y)
 {
     if (x[central].rows() != y[central].rows())
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
 
     DMat d(x[central].rows(), 4);
@@ -153,7 +153,7 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
 {
     if (x[central].rows() != y.rows())
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
 
     DMat d(x[central].rows(), 3), xerr, yerr;
@@ -182,7 +182,7 @@ PlotLine::PlotLine(const DVec &x, const DVec &y)
 {
     if (x.size() != y.size())
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
 
     DMat d(x.size(), 2);
@@ -234,6 +234,41 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
 }
 
 // PlotPredBand constructor ////////////////////////////////////////////////////
+void PlotPredBand::makePredBand(const DMat &low, const DMat &high, const double opacity)
+{
+    string lowFileName, highFileName;
+
+    lowFileName  = dumpToTmpFile(low);
+    highFileName = dumpToTmpFile(high);
+    pushTmpFile(lowFileName);
+    pushTmpFile(highFileName);
+    setCommand("'< (cat " + lowFileName + "; tac " + highFileName +
+               "; head -n1 " + lowFileName + ")' u 1:2 w filledcurves closed" +
+               " fs solid " + strFrom(opacity) + " noborder");
+}
+
+PlotPredBand::PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
+                           const double opacity)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+    if (y.size() != yerr.size())
+    {
+        LATAN_ERROR(Size, "y and y error vectors do not have the same size");
+    }
+
+    Index nPoint = x.size();
+    DMat  dLow(nPoint, 2), dHigh(nPoint, 2);
+
+    dLow.col(0)  = x;
+    dLow.col(1)  = y - yerr;
+    dHigh.col(0) = x;
+    dHigh.col(1) = y + yerr;
+    makePredBand(dLow, dHigh, opacity);
+}
+
 PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
                            const double xMin, const double xMax,
                            const unsigned int nPoint, const double opacity)
@@ -254,14 +289,9 @@ PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
         dHigh(i, 0) = x;
         dHigh(i, 1) = pred[central] + err;
     }
-    lowFileName  = dumpToTmpFile(dLow);
-    highFileName = dumpToTmpFile(dHigh);
-    pushTmpFile(lowFileName);
-    pushTmpFile(highFileName);
-    setCommand("'< (cat " + lowFileName + "; tac " + highFileName +
-               "; head -n1 " + lowFileName + ")' u 1:2 w filledcurves closed" +
-               " fs solid " + strFrom(opacity) + " noborder");
+    makePredBand(dLow, dHigh, opacity);
 }
+
 
 // PlotHistogram constructor ///////////////////////////////////////////////////
 PlotHistogram::PlotHistogram(const Histogram &h)
