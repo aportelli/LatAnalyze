@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR([examples/exMathInterpreter.cpp])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
 AM_INIT_AUTOMAKE([1.11 -Wall -Werror foreign subdir-objects])
 AM_SILENT_RULES([yes])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([LatAnalyzeConfig.h])
 AM_CONDITIONAL([HAVE_AM_MINOR_LE_11],
                [test `automake --version | grep automake | awk -F '.' '{print $2}'` -le 11])
 # Checks for programs

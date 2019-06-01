@@ -20,6 +20,6 @@
 #ifndef Latan_includes_hpp_
 #define	Latan_includes_hpp_
 
-#include <config.h>
+#include <LatAnalyzeConfig.h>
 
 #endif // Latan_includes_hpp_
