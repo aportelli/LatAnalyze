@@ -1,12 +1,12 @@
-#include <LatCore/OptParser.hpp>
-#include <LatAnalyze/CompiledModel.hpp>
-#include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/MatSample.hpp>
-#include <LatAnalyze/Math.hpp>
-#include <LatAnalyze/MinuitMinimizer.hpp>
-#include <LatAnalyze/NloptMinimizer.hpp>
-#include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/XYSampleData.hpp>
+#include <LatAnalyze/Core/OptParser.hpp>
+#include <LatAnalyze/Functional/CompiledModel.hpp>
+#include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Statistics/MatSample.hpp>
+#include <LatAnalyze/Core/Math.hpp>
+#include <LatAnalyze/Numerical/MinuitMinimizer.hpp>
+#include <LatAnalyze/Numerical/NloptMinimizer.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
+#include <LatAnalyze/Statistics/XYSampleData.hpp>
 
 using namespace std;
 using namespace Latan;

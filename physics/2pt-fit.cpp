@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     opt.addOption("s", "shift"    , OptParser::OptType::value  , true,
                   "time variable shift", "0");
     opt.addOption("m", "model"    , OptParser::OptType::value  , true,
-                  "fit model (exp|exp2|exp3|sinh|cosh|cosh2|cosh3|cotanh|explin|const|<interpreter code>)", "cosh");
+                  "fit model (exp|exp2|exp3|sinh|cosh|cosh2|cosh3|coth|explin|const|<interpreter code>)", "cosh");
     opt.addOption("" , "nPar"     , OptParser::OptType::value  , true,
                   "number of model parameters for custom models "
                   "(-1 if irrelevant)", "-1");
@@ -186,13 +186,16 @@ int main(int argc, char *argv[])
                                  + p[5]*(exp(-p[2]*x[0])+exp(-p[4]*(nt-x[0])));
                         }, 1, nPar);
     }
-    else if (model == "cotanh")
+    else if (model == "coth")
     {
         cotanhModel = true;
         nPar        = 2;
         mod.setFunction([nt](const double *x, const double *p)
                         {
-                            return p[0] + p[1]/tanh(0.1892*(nt/2-x[0])); // 0.1892 is the meson eff mass in lattice unit from 2pt fit
+                            // cout << "Using effective pion mass, am = 0.1892" << endl;
+                            // kaon physical mass:0.28856
+                            // pion physical mass: 0.08046 
+                            return p[0] + p[1]/tanh(0.28856*(nt/2-x[0])); // 0.1892 is the meson eff mass in lattice unit from 2pt fit; 0.08046 is the meson mass at physical point
                         }, 1, nPar);
     }
     else if (model == "explin")
@@ -270,8 +273,13 @@ int main(int argc, char *argv[])
     }
     else if(cotanhModel)
     {
-        init(0) = 0.5*(data.y(0, 0)[central]+ data.y(nt-1, 0)[central]);
-        init(1) = 0.5*(data.y(0, 0)[central]- data.y(nt-1, 0)[central]);
+            // init(0) = 0.5*(data.y(0, 0)[central]+ data.y(nt-1, 0)[central]);
+            // init(1) = 0.5*(data.y(0, 0)[central]- data.y(nt-1, 0)[central]);
+        init(0) = -0.1677;
+        init(1) = 0.02526;
+        cout << init(0) << endl;
+        
+        
      }
     else
     {
@@ -282,6 +290,7 @@ int main(int argc, char *argv[])
     {
         init(p)     = 2*init(p - 2);
         init(p + 1) = init(p - 1)/2.;
+        
     }
     // set limits for minimiser //////////////
     for (Index p = 0; p < nPar; p += 2)
@@ -299,9 +308,16 @@ int main(int argc, char *argv[])
         }
         else if(cotanhModel)
         {
-            globMin.setLowLimit(p,-0.5);
-            locMin.setLowLimit(p, -0.3);
-            globMin.setHighLimit(p,1);
+                // globMin.setLowLimit(p,-0.5);
+                // locMin.setLowLimit(p, -0.3);
+                // globMin.setHighLimit(p,1);
+                globMin.setLowLimit(p,-1);
+                locMin.setLowLimit(p, -0.3);
+                globMin.setHighLimit(p,0);
+
+                globMin.setLowLimit(p+1,-0.12);
+                locMin.setLowLimit(p+1, -0.1);
+                globMin.setHighLimit(p+1,0.9);
         }
         else
         {
