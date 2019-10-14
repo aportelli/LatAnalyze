@@ -123,8 +123,13 @@ int main(int argc, char *argv[])
         p.save(save + "/" + title);
     }
     
-    cout << "Displaying plot..." << endl;
-    p.display();
+    else
+    {
+        cout << "Displaying plot..." << endl;
+        p.display();    
+    }
+    
+    
 
     // output //////////////////////////////////////////////////////////////////
     if (!outFileName.empty())
