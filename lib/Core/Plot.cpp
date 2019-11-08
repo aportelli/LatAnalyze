@@ -335,6 +335,7 @@ PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
 {
     string tmpFileName = dumpToTmpFile(m);
     
+    pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' matrix w image");
 }
 
