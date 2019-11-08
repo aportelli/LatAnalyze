@@ -10,7 +10,7 @@ endif
 include eigen_files.mk
 
 AM_LFLAGS = -olex.yy.c
-AM_YFLAGS = -d
+AM_YFLAGS = -y -d -Wno-yacc -Wno-deprecated
 
 lib_LTLIBRARIES    = libLatAnalyze.la
 noinst_LTLIBRARIES = libLexers.la

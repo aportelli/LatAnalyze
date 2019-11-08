@@ -78,12 +78,12 @@ AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
 AC_CHECK_LIB([gsl],[gsl_blas_dgemm],[],[AC_MSG_ERROR([GSL library not found])])
-AC_CHECK_LIB([nlopt_cxx],[nlopt_create],
+AC_CHECK_LIB([nlopt],[nlopt_create],
     [AC_DEFINE([HAVE_NLOPT],
     [1],
-    [Define to 1 if you have the `NLopt' library (-lnlopt_cxx).])]
+    [Define to 1 if you have the `NLopt' library (-lnlopt).])]
     [have_nlopt=true]
-    [LIBS="$LIBS -lnlopt_cxx"],[])
+    [LIBS="$LIBS -lnlopt"],[])
 AM_CONDITIONAL([HAVE_NLOPT], [test x$have_nlopt = xtrue])
 AC_CHECK_LIB([hdf5_cpp],[H5Fopen],
     [LIBS="$LIBS -lhdf5_cpp -lhdf5"],
