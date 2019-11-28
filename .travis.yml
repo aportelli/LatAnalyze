@@ -42,7 +42,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "clang" ]]; then export PATH="${LATDIR}/ci-scripts/clang/bin:${PATH}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$CC" == "clang" ]]; then export LD_LIBRARY_PATH="${LATDIR}/ci-scripts/clang/lib:${LD_LIBRARY_PATH}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install bison flex; export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install bison flex cmake; export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$CC" == "gcc" ]]; then brew install gcc@${VERSION#-}; fi
   
 install:

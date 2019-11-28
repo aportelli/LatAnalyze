@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAME='nlopt-2.4.2'
+NAME='2.6.1'
 
 if (( $# != 1 )); then
   echo "usage: `basename $0` <prefix>" 1>&2
@@ -11,11 +11,12 @@ PREFIX=$1
 set -ex
 INITDIR=`pwd`
 cd local/build
-wget http://ab-initio.mit.edu/nlopt/${NAME}.tar.gz
-tar -xzvf ${NAME}.tar.gz
+wget https://github.com/stevengj/nlopt/archive/v${NAME}.tar.gz
+tar -xzvf v${NAME}.tar.gz
+NAME=nlopt-${NAME}
 mkdir -p ${NAME}/build
 cd ${NAME}/build
-../configure --prefix=${PREFIX} --with-cxx --without-guile --without-python --without-octave --without-matlab --with-pic
+cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
 make -j4 
 make install
 cd ${INITDIR}/local
