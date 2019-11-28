@@ -1,5 +1,4 @@
 # LatAnalyze 
-Contributors: Antonin Portelli, Matt Spraggs
 
 License: GNU General Public License v3
 
