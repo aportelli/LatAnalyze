@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         p.display();
         if(savePlot != "")
         {
-            cout << "Saving plot and source code to " << save << endl;
+            cout << "Saving plot and source code to " << savePlot << endl;
             p.save(savePlot);
         }
         // effective mass plot //////////////////////////////////////////////////////
