@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
     bool                 parsed, doPlot, doHeatmap, doCorr, fold;
-    string               corrFileName, model, outFileName, outFmt, save;
+    string               corrFileName, model, outFileName, outFmt, savePlot;
     Index                ti, tf, shift, nPar, thinning;
     double               svdTol;
     Minimizer::Verbosity verbosity;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     opt.addOption("s", "shift"    , OptParser::OptType::value  , true,
                   "time variable shift", "0");
     opt.addOption("m", "model"    , OptParser::OptType::value  , true,
-                  "fit model (exp|exp2|exp3|sinh|cosh|cosh2|cosh3|coth|explin|const|<interpreter code>)", "cosh");
+                  "fit model (exp|exp2|exp3|sinh|cosh|cosh2|cosh3|explin|const|<interpreter code>)", "cosh");
     opt.addOption("" , "nPar"     , OptParser::OptType::value  , true,
                   "number of model parameters for custom models "
                   "(-1 if irrelevant)", "-1");
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
                   "show the fit correlation heatmap");
-    opt.addOption("s", "save", OptParser::OptType::value, true,
+    opt.addOption("s", "save-plot", OptParser::OptType::value, true,
                     "saves the source and .pdf", "");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     fold         = opt.gotOption("fold");
     doPlot       = opt.gotOption("p");
     doHeatmap    = opt.gotOption("h");
-    save         = opt.optionValue("s");
+    savePlot     = opt.optionValue("s");
     switch (opt.optionValue<unsigned int>("v"))
     {
         case 0:
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     
     // make model //////////////////////////////////////////////////////////////
     DoubleModel mod;
-    bool        sinhModel = false, coshModel = false, cotanhModel = false, linearModel = false, constModel = false;
+    bool        sinhModel = false, coshModel = false, linearModel = false, constModel = false;
     
     if ((model == "exp") or (model == "exp1"))
     {
@@ -184,18 +184,6 @@ int main(int argc, char *argv[])
                             return p[1]*(exp(-p[0]*x[0])+exp(-p[0]*(nt-x[0])))
                                  + p[3]*(exp(-p[2]*x[0])+exp(-p[2]*(nt-x[0])))
                                  + p[5]*(exp(-p[2]*x[0])+exp(-p[4]*(nt-x[0])));
-                        }, 1, nPar);
-    }
-    else if (model == "coth")
-    {
-        cotanhModel = true;
-        nPar        = 2;
-        mod.setFunction([nt](const double *x, const double *p)
-                        {
-                            // cout << "Using effective pion mass, am = 0.1892" << endl;
-                            // kaon physical mass:0.28856
-                            // pion physical mass: 0.08046 
-                            return p[0] + p[1]/tanh(0.28856*(nt/2-x[0])); // 0.1892 is the meson eff mass in lattice unit from 2pt fit; 0.08046 is the meson mass at physical point
                         }, 1, nPar);
     }
     else if (model == "explin")
@@ -271,20 +259,11 @@ int main(int argc, char *argv[])
         init(0) = data.y(nt/4, 0)[central];
 
     }
-    else if(cotanhModel)
-    {
-            // init(0) = 0.5*(data.y(0, 0)[central]+ data.y(nt-1, 0)[central]);
-            // init(1) = 0.5*(data.y(0, 0)[central]- data.y(nt-1, 0)[central]);
-        init(0) = -0.1677;
-        init(1) = 0.02526;
-        cout << init(0) << endl;
-        
-        
-     }
     else
     {
         init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
         init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
+        // cout << init(0) << "\t" << init(1) << endl;
     }
     for (Index p = 2; p < nPar; p += 2)
     {
@@ -306,27 +285,15 @@ int main(int argc, char *argv[])
             locMin.setLowLimit(p, -10*fabs(init(0)));
             globMin.setHighLimit(p, 10*fabs(init(0)));
         }
-        else if(cotanhModel)
-        {
-                // globMin.setLowLimit(p,-0.5);
-                // locMin.setLowLimit(p, -0.3);
-                // globMin.setHighLimit(p,1);
-                globMin.setLowLimit(p,-1);
-                locMin.setLowLimit(p, -0.3);
-                globMin.setHighLimit(p,0);
-
-                globMin.setLowLimit(p+1,-0.12);
-                locMin.setLowLimit(p+1, -0.1);
-                globMin.setHighLimit(p+1,0.9);
-        }
         else
         {
             globMin.setLowLimit(p, 0.);
-            locMin.setLowLimit(p, 0.);
+            // locMin.setLowLimit(p, 0.);
             globMin.setHighLimit(p, 10.*init(p));
         }
         if(!constModel)
         {
+            locMin.setLowLimit(p+1, -1);
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
@@ -375,10 +342,10 @@ int main(int argc, char *argv[])
         p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
         p << Color("rgb 'red'")  << PlotData(data.getData());
         p.display();
-        if(save != "")
+        if(savePlot != "")
         {
             cout << "Saving plot and source code to " << save << endl;
-            p.save(save);
+            p.save(savePlot);
         }
         // effective mass plot //////////////////////////////////////////////////////
         if (!constModel)
@@ -393,7 +360,7 @@ int main(int argc, char *argv[])
             fitErr = fit.variance().cwiseSqrt();
             e0     = fit[central](0);
             e0Err  = fitErr(0);
-            if (coshModel)
+            if (coshModel or sinhModel)
             {
                 FOR_STAT_ARRAY(effMass, s)
                 {
@@ -432,6 +399,12 @@ int main(int argc, char *argv[])
             p << Color("rgb 'red'") << PlotData(effMassT, effMass);
             p << Caption("Effective Mass");
             p.display();
+            if(savePlot != "")
+            {
+                string savename = savePlot + "_effMass";
+                cout << "Saving effective mass plot and source code to " << savename << endl;
+            p.save(savename);
+            }
         }
     }         
  
