@@ -41,18 +41,35 @@ The main features are the following:
 The head of the `master` branch always points to the latest stable release. The `develop` branch is the main unstable branch of LatAnalyze.
 
 LatAnalyze is written in C++11 and requires a rather recent C++ compiler to be built. It has been successfully built on various Linux and OS X platforms using clang (from 3.7), GCC (from 4.9) and the Intel C++ compiler (2016).
-The strict dependencies are the [GSL](http://www.gnu.org/software/gsl/) and [LatCore](https://github.com/aportelli/LatCore).
+The only strict dependencies is the [GSL](http://www.gnu.org/software/gsl/).
 Additionally, autoconf, automake (from 1.11), libtool, bison (from 3.0) and flex are necessary to build the library. Unless you use a very exotic system, these tools are standard on any Unix platform and should be already present or easy to install through a package manager.
 Optional dependencies are [HDF5](https://www.hdfgroup.org/HDF5/) (built with C++ support), [Minuit](http://seal.web.cern.ch/seal/snapshot/work-packages/mathlibs/minuit/) and [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt).
 
+Below are instructions for a quick installation. For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
 
+### General quick installation
 For a quick installation with all possible extensions execute: 
 ```
-./install-latan.sh <prefix> {osx|linux}
+./install-latan.sh <prefix>
 ``` 
-in the `ci-scripts` directory where `<prefix>` is where you want LatAnalyze (and its dependencies) to be installed and `{osx|linux}` should be the name of your OS. This script will automatically download, build and install LatCore, HDF5, Minuit and NLopt. It is assumed that the GSL can be found in a standard location (_e.g._ it has been installed through a package manager for Linux and is present in `/usr/local` for OS X).
+in the `ci-scripts` directory where `<prefix>` is where you want LatAnalyze (and its dependencies) to be installed. This script will automatically download, build and install GSL, HDF5, Minuit, and NLopt.
 
-For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
+### Quick installation on macOS with dependencies through Homebrew
+All the dependencies of LatAnalyze can be installed through the [Homebrew](https://brew.sh) package manager.
+```
+brew install automake autoconf libtool bison flex gsl minuit2 nlopt hdf5
+```
+Then generate the build system in LatAnalyze main directory by running the `./bootstrap.sh` script. Finally, build the library
+```
+mkdir build
+cd build
+../configure --prefix=<prefix> --with-minuit=/usr/local --with-nlopt=/usr/local \
+             --with-hdf5=/usr/local --with-gsl=/usr/local                       \
+             CXXFLAGS='-g -O3 -march=native -mtune=native'
+make -j <n>
+make install
+```
+where `<prefix>` should be replaced by the desired prefix for LatAnalyze installation, and `<n>` is the number of parallel build processes (typically twice your number of cores).
 
 ## History
 #### v3.4
