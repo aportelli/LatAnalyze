@@ -108,7 +108,13 @@ DEF_STD_FUNC_1ARG(fabs)
 // p-value
 auto chi2PValueVecFunc = [](const double arg[2])
 {
+    return 2.*min(gsl_cdf_chisq_P(arg[0], arg[1]), gsl_cdf_chisq_Q(arg[0], arg[1]));
+};
+
+auto chi2CcdfVecFunc = [](const double arg[2])
+{
     return gsl_cdf_chisq_Q(arg[0], arg[1]);
 };
 
 DoubleFunction MATH_NAMESPACE::chi2PValue(chi2PValueVecFunc, 2);
+DoubleFunction MATH_NAMESPACE::chi2Ccdf(chi2CcdfVecFunc, 2);

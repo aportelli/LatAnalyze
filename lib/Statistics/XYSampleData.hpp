@@ -49,6 +49,7 @@ public:
     double                       getNDof(void) const;
     Index                        getNPar(void) const;
     double                       getPValue(const Index s = central) const;
+    double                       getCcdf(const Index s = central) const;
     const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
     const DoubleFunctionSample & getModel(const PlaceHolder ph,

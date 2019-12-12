@@ -62,6 +62,11 @@ double SampleFitResult::getPValue(const Index s) const
     return Math::chi2PValue(getChi2(s), getNDof());
 }
 
+double SampleFitResult::getCcdf(const Index s) const
+{
+    return Math::chi2Ccdf(getChi2(s), getNDof());
+}
+
 const DoubleFunction & SampleFitResult::getModel(const Index s,
                                                  const Index j) const
 {
@@ -98,8 +103,9 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
     Index pMax = printXsi ? size() : nPar_;
     DMat  err = this->variance().cwiseSqrt();
     
-    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- p-value= %.2e", getChi2(),
-            static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
+    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
+        getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
+        getPValue());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {

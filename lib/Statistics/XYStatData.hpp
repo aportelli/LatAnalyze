@@ -47,6 +47,7 @@ public:
     double                 getNDof(void) const;
     Index                  getNPar(void) const;
     double                 getPValue(void) const;
+    double                 getCcdf(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
     // IO
     void print(const bool printXsi = false,

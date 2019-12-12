@@ -17,6 +17,7 @@ noinst_PROGRAMS =           \
     exMathInterpreter       \
     exMin                   \
     exPlot                  \
+    exPValue                \
     exRand                  \
     exRootFinder
 
@@ -59,6 +60,10 @@ exMathInterpreter_LDFLAGS         = -L../lib/.libs -lLatAnalyze
 exPlot_SOURCES                    = exPlot.cpp
 exPlot_CXXFLAGS                   = $(COM_CXXFLAGS)
 exPlot_LDFLAGS                    = -L../lib/.libs -lLatAnalyze
+
+exPValue_SOURCES                  = exPValue.cpp
+exPValue_CXXFLAGS                 = $(COM_CXXFLAGS)
+exPValue_LDFLAGS                  = -L../lib/.libs -lLatAnalyze
 
 exRand_SOURCES                    = exRand.cpp
 exRand_CXXFLAGS                   = $(COM_CXXFLAGS)

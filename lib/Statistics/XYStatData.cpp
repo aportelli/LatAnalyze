@@ -55,6 +55,11 @@ double FitResult::getPValue(void) const
     return Math::chi2PValue(getChi2(), getNDof());;
 }
 
+double FitResult::getCcdf(void) const
+{
+    return Math::chi2Ccdf(getChi2(), getNDof());;
+}
+
 const DoubleFunction & FitResult::getModel(const Index j) const
 {
     return model_[j];
@@ -66,8 +71,9 @@ void FitResult::print(const bool printXsi, ostream &out) const
     char  buf[256];
     Index pMax = printXsi ? size() : nPar_;
     
-    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- p-value= %.2e", getChi2(),
-            static_cast<int>(getNDof()), getChi2PerDof(), getPValue());
+    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
+        getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
+        getPValue());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {

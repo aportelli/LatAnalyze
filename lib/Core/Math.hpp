@@ -152,6 +152,7 @@ DECL_STD_FUNC(fabs)
 namespace MATH_NAMESPACE
 {
     extern DoubleFunction chi2PValue;
+    extern DoubleFunction chi2Ccdf;
 }
 
 END_LATAN_NAMESPACE
