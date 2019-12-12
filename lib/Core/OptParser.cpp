@@ -46,6 +46,33 @@ void OptParser::addOption(const std::string shortName,
     par.helpMessage = helpMessage;
     par.type        = type;
     par.optional    = optional;
+    auto it = std::find_if(opt_.begin(), opt_.end(), [&par](const OptPar & p)
+    {
+        bool match = false;
+
+        match |= (par.shortName == p.shortName) and !par.shortName.empty();
+        match |= (par.longName == p.longName) and !par.longName.empty();
+
+        return match;
+    });
+    if (it != opt_.end())
+    {
+        string opt;
+
+        if (!it->shortName.empty())
+        {
+            opt += "-" + it->shortName;
+        }
+        if (!opt.empty())
+        {
+            opt += "/";
+        }
+        if (!it->longName.empty())
+        {
+            opt += "--" + it->longName;
+        }
+        throw(logic_error("duplicate option " + opt + " (in the code, not in the command line)"));
+    }
     opt_.push_back(par);
 }
 
