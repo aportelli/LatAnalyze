@@ -71,6 +71,24 @@ make install
 where `<prefix>` should be replaced by the desired prefix for LatAnalyze installation, and `<n>` is the number of parallel build processes (typically twice your number of cores).
 
 ## History
+#### v3.5
+Additions:
+* 'Impulse' & line type plots
+* Plot line width & dash modifiers
+* Plot palettes (`category10` by default)
+* Multivariate Gaussian RNG
+* 2-pt fitter 'scan' mode over all possible fit ranges
+* Command line utility for plotting data
+
+Changes:
+* Complete overhaul of the header structure
+* Integration of LatCore in LatAnalyze
+* p-value is now a 2-sided chi^2 test, 1-sided value kept as 'chi^2 CCDF'
+
+Fixes:
+* Matrix plot data now saving correctly
+* Many compatibility fixes
+
 #### v3.4
 Additions:
 * `latan-config` utility to easily compile LatAnalyze-based programs
