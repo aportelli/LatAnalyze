@@ -658,7 +658,7 @@ void Plot::display(void)
             LATAN_ERROR(System, "cannot find DISPLAY variable: is it set ?");
         }
         getProgramPath();
-        command     = gnuplotPath_ + "/" + gnuplotBin_;
+        command     = gnuplotPath_ + "/" + gnuplotBin_ + " 2>/dev/null";
         gnuplotPipe = popen(command.c_str(), "w");
         if (!gnuplotPipe)
         {
