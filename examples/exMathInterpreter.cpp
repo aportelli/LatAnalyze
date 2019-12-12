@@ -1,5 +1,5 @@
-#include <LatAnalyze/Math.hpp>
-#include <LatAnalyze/MathInterpreter.hpp>
+#include <LatAnalyze/Core/Math.hpp>
+#include <LatAnalyze/Core/MathInterpreter.hpp>
 
 using namespace std;
 using namespace Latan;

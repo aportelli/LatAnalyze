@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cmath>
-#include <LatAnalyze/CompiledModel.hpp>
-#include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/GslMinimizer.hpp>
-#include <LatAnalyze/Plot.hpp>
-#include <LatAnalyze/XYStatData.hpp>
+#include <LatAnalyze/Functional/CompiledModel.hpp>
+#include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Numerical/GslMinimizer.hpp>
+#include <LatAnalyze/Core/Plot.hpp>
+#include <LatAnalyze/Statistics/XYStatData.hpp>
 
 using namespace std;
 using namespace Latan;

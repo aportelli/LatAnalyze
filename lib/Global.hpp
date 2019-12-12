@@ -20,12 +20,26 @@
 #ifndef Latan_Global_hpp_
 #define	Latan_Global_hpp_
 
-#include <LatCore/LatCore.hpp>
+#include <LatAnalyze/Core/stdincludes.hpp>
 
 #define BEGIN_LATAN_NAMESPACE \
-namespace Latan {\
-using namespace LatCore;
+namespace Latan {
 #define END_LATAN_NAMESPACE }
+
+// macro utilities
+#define unique_arg(...) __VA_ARGS__
+#define DEBUG_VAR(x) std::cout << #x << "= "  << x << std::endl
+#define DEBUG_MAT(m) std::cout << #m << "=\n" << m << std::endl
+
+// attribute to switch off unused warnings with gcc
+#ifdef __GNUC__
+#define __dumb __attribute__((unused))
+#else
+#define __dumb
+#endif
+
+// max length for paths
+#define MAX_PATH_LENGTH 512u
 
 BEGIN_LATAN_NAMESPACE
 
@@ -47,6 +61,8 @@ namespace Env
 
 END_LATAN_NAMESPACE
 
-#include <LatAnalyze/Exceptions.hpp>
+#include <LatAnalyze/Core/Eigen.hpp>
+#include <LatAnalyze/Core/Exceptions.hpp>
+#include <LatAnalyze/Core/Utilities.hpp>
 
 #endif // Latan_Global_hpp_

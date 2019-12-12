@@ -3,7 +3,7 @@
 NAME='Minuit2-5.34.14'
 
 if (( $# != 1 )); then
-  echo "usage: `basename $0` <prefix> {osx|linux}" 1>&2
+  echo "usage: `basename $0` <prefix>" 1>&2
   exit 1
 fi
 PREFIX=$1

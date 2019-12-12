@@ -1,6 +1,6 @@
-#include <LatAnalyze/Io.hpp>
-#include <LatAnalyze/Mat.hpp>
-#include <LatAnalyze/Math.hpp>
+#include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Core/Mat.hpp>
+#include <LatAnalyze/Core/Math.hpp>
 
 using namespace std;
 using namespace Latan;

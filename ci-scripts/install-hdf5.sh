@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-NAME='hdf5-1.10.1'
+NAME='hdf5-1.10.5'
 
 if (( $# != 1 )); then
-  echo "usage: `basename $0` <prefix> {osx|linux}" 1>&2
+  echo "usage: `basename $0` <prefix>" 1>&2
   exit 1
 fi
 PREFIX=$1
