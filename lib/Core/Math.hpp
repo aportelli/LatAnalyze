@@ -75,6 +75,7 @@ namespace MATH_NAMESPACE
     constexpr double pi  = 3.1415926535897932384626433832795028841970;
     constexpr double e   = 2.7182818284590452353602874713526624977572;
     constexpr double inf = std::numeric_limits<double>::infinity();
+    constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 }
 
 
