@@ -11,11 +11,28 @@
 using namespace std;
 using namespace Latan;
 
+struct TwoPtFit
+{
+    SampleFitResult result;
+    Index           tMin, tMax;
+};
+
+void setFitRange(XYSampleData &data, const Index ti, const Index tf,
+                 const Index thinning, const Index nt)
+{
+    for (Index t = 0; t < nt; ++t)
+    {
+        data.fitPoint((t >= ti) and (t <= tf)
+                      and ((t - ti) % thinning == 0), t);
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
-    bool                 parsed, doPlot, doHeatmap, doCorr, fold;
+    bool                 parsed, doPlot, doHeatmap, doCorr, fold, doScan;
     string               corrFileName, model, outFileName, outFmt, savePlot;
     Index                ti, tf, shift, nPar, thinning;
     double               svdTol;
@@ -48,8 +65,10 @@ int main(int argc, char *argv[])
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
                   "show the fit correlation heatmap");
-    opt.addOption("s", "save-plot", OptParser::OptType::value, true,
+    opt.addOption("", "save-plot", OptParser::OptType::value, true,
                     "saves the source and .pdf", "");
+    opt.addOption("", "scan", OptParser::OptType::trigger, true,
+                    "scan all possible fit ranges within [ti,tf]");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
     parsed = opt.parse(argc, argv);
@@ -73,7 +92,8 @@ int main(int argc, char *argv[])
     fold         = opt.gotOption("fold");
     doPlot       = opt.gotOption("p");
     doHeatmap    = opt.gotOption("h");
-    savePlot     = opt.optionValue("s");
+    savePlot     = opt.optionValue("save-plot");
+    doScan       = opt.gotOption("scan");
     switch (opt.optionValue<unsigned int>("v"))
     {
         case 0:
@@ -118,7 +138,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    // make model //////////////////////////////////////////////////////////////
+    // make models /////////////////////////////////////////////////////////////
     DoubleModel mod;
     bool        sinhModel = false, coshModel = false, linearModel = false, constModel = false;
     
@@ -222,7 +242,6 @@ int main(int argc, char *argv[])
     // fit /////////////////////////////////////////////////////////////////////
     DMatSample          tvec(nSample);
     XYSampleData        data(nSample);
-    SampleFitResult     fit;
     DVec                init(nPar);
     NloptMinimizer      globMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
     MinuitMinimizer     locMin;
@@ -235,7 +254,7 @@ int main(int argc, char *argv[])
     data.addXDim(nt, "t/a", true);
     data.addYDim("C(t)");
     data.setUnidimData(tvec, corr);
-    // set parameter name /////////////
+    // set parameter name ******************************************************
     if(constModel)
     {
         mod.parName().setName(0, "const");
@@ -248,7 +267,7 @@ int main(int argc, char *argv[])
             mod.parName().setName(p + 1, "Z_" + strFrom(p/2));   
         }
     }
-    //set initial values ////////////////
+    // set initial values ******************************************************
     if (linearModel)
     {
         init(0) = data.y(nt/4, 0)[central] - data.y(nt/4 + 1, 0)[central];
@@ -263,7 +282,6 @@ int main(int argc, char *argv[])
     {
         init(0) = log(data.y(nt/4, 0)[central]/data.y(nt/4 + 1, 0)[central]);
         init(1) = data.y(nt/4, 0)[central]/(exp(-init(0)*nt/4));
-        // cout << init(0) << "\t" << init(1) << endl;
     }
     for (Index p = 2; p < nPar; p += 2)
     {
@@ -271,7 +289,7 @@ int main(int argc, char *argv[])
         init(p + 1) = init(p - 1)/2.;
         
     }
-    // set limits for minimiser //////////////
+    // set limits for minimisers ***********************************************
     for (Index p = 0; p < nPar; p += 2)
     {
         if (linearModel)
@@ -284,16 +302,15 @@ int main(int argc, char *argv[])
             globMin.setLowLimit(p, -10*fabs(init(0)));
             locMin.setLowLimit(p, -10*fabs(init(0)));
             globMin.setHighLimit(p, 10*fabs(init(0)));
+            locMin.setHighLimit(p, 10*fabs(init(0)));
         }
         else
         {
             globMin.setLowLimit(p, 0.);
-            // locMin.setLowLimit(p, 0.);
             globMin.setHighLimit(p, 10.*init(p));
         }
         if(!constModel)
         {
-            locMin.setLowLimit(p+1, -1);
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
@@ -304,133 +321,254 @@ int main(int argc, char *argv[])
     globMin.setVerbosity(verbosity);
     locMin.setMaxIteration(1000000);
     locMin.setVerbosity(verbosity);
-    // fit /////////////////////////////////
-    for (Index t = 0; t < nt; ++t)
+
+    // fit /////////////////////////////////////////////////////////////////////
+    if (!doScan)
     {
-        data.fitPoint((t >= ti) and (t <= tf)
-                      and ((t - ti) % thinning == 0), t);
-    }
-    if (doCorr)
-    {
-        cout << "-- uncorrelated fit..." << endl;
-    }
-    cout << "using model '" << model << "'" << endl;
-    data.setSvdTolerance(svdTol);
-    data.assumeYYCorrelated(false, 0, 0);
-    fit = data.fit(unCorrMin, init, mod);
-    fit.print();
-    if (doCorr)
-    {
-        cout << "-- correlated fit..." << endl;
+        SampleFitResult fit;
+
+        setFitRange(data, ti, tf, thinning, nt);
+        if (doCorr)
+        {
+            cout << "-- uncorrelated fit..." << endl;
+        }
         cout << "using model '" << model << "'" << endl;
-        init = fit[central];
-        data.assumeYYCorrelated(true, 0, 0);
-        fit = data.fit(locMin, init, mod);
+        data.setSvdTolerance(svdTol);
+        data.assumeYYCorrelated(false, 0, 0);
+        fit = data.fit(unCorrMin, init, mod);
         fit.print();
+        if (doCorr)
+        {
+            cout << "-- correlated fit..." << endl;
+            cout << "using model '" << model << "'" << endl;
+            init = fit[central];
+            data.assumeYYCorrelated(true, 0, 0);
+            fit = data.fit(locMin, init, mod);
+            fit.print();
+        }
+        if (!outFileName.empty())
+        {
+            Io::save(fit, outFileName);
+        }
+        // plots ***************************************************************
+        if (doPlot)
+        {
+            if (!constModel)
+            {
+                Plot p;
+
+                p << PlotRange(Axis::x, 0, nt - 1);
+                if (!linearModel and !constModel)
+                {
+                    p << LogScale(Axis::y);
+                }
+                p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
+                p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
+                p << Color("rgb 'red'")  << PlotData(data.getData());
+                p.display();
+                if(savePlot != "")
+                {
+                    p.save(savePlot + "_corr");
+                }
+            }
+            {
+                Plot       p;
+                DMatSample effMass(nSample);
+                DVec       effMassT, fitErr;
+                Index      maxT = (coshModel) ? (nt - 2) : (nt - 1);
+                double     e0, e0Err;
+
+                effMass.resizeMat(maxT, 1);
+                effMassT.setLinSpaced(maxT, 0, maxT-1);
+                fitErr = fit.variance().cwiseSqrt();
+                e0     = fit[central](0);
+                e0Err  = fitErr(0);
+                if (coshModel or sinhModel)
+                {
+                    FOR_STAT_ARRAY(effMass, s)
+                    {
+                        for (Index t = 1; t < nt - 1; ++t)
+                        {
+                            effMass[s](t - 1) = acosh((corr[s](t-1) + corr[s](t+1))
+                                                    /(2.*corr[s](t)));
+                        }
+                    }
+                }
+                else if (linearModel)
+                {
+                    FOR_STAT_ARRAY(effMass, s)
+                    {
+                        for (Index t = 0; t < nt - 1; ++t)
+                        {
+                            effMass[s](t) = corr[s](t) - corr[s](t+1);
+                        }
+                    }
+                }
+                else if (constModel)
+                {
+                    FOR_STAT_ARRAY(effMass, s)
+                    {
+                        for (Index t = 0; t < nt - 1; ++t)
+                        {
+                            effMass[s](t) = corr[s](t);
+                        }
+                    }
+                }
+                else
+                {
+                    FOR_STAT_ARRAY(effMass, s)
+                    {
+                        for (Index t = 1; t < nt; ++t)
+                        {
+                            effMass[s](t - 1) = log(corr[s](t-1)/corr[s](t));
+                        }
+                    }
+                }
+                p.reset();
+                p << PlotRange(Axis::x, 0, maxT);
+                p << PlotRange(Axis::y, e0 - 20.*e0Err, e0 + 20.*e0Err);
+                p << Color("rgb 'blue'") << PlotBand(0, maxT, e0 - e0Err, e0 + e0Err);
+                p << Color("rgb 'blue'") << PlotHLine(e0);
+                p << Color("rgb 'red'") << PlotData(effMassT, effMass);
+                p << Caption("Effective Mass");
+                p.display();
+                if(savePlot != "")
+                {
+                    p.save(savePlot + "_effMass");
+                }
+            }
+            if (doHeatmap)
+            {
+                Plot  p;
+                Index n  = data.getFitVarMat().rows();
+                DMat  id = DMat::Identity(n, n);
+                
+                p << PlotMatrix(Math::varToCorr(data.getFitVarMat()));
+                p << Caption("correlation matrix");
+                p.display();
+                if (svdTol > 0.)
+                {
+                    p.reset();
+                    p << PlotMatrix(id - data.getFitVarMat()*data.getFitVarMatPInv());
+                    p << Caption("singular space projector");
+                    p.display();
+                }
+            }
+        }
+
     }
-    // plots ///////////////////////////////////////////////////////////////////
-    if (doPlot)
+    // scan fits ///////////////////////////////////////////////////////////////
+    else
     {
-        Plot       p;
+        Index nFit = 0, f = 0, ti0 = ti + (tf - ti)/4, tf0 = tf - (tf - ti)/4,
+              matSize = tf - ti - nPar + 1;
+        DMat  err, pVal(matSize, matSize), relErr(matSize, matSize),
+              ccdf(matSize, matSize), val(matSize, matSize);
+        map<double, TwoPtFit> fit;
+        SampleFitResult       tmpFit;
 
-        p << PlotRange(Axis::x, 0, nt - 1);
-        if (!linearModel and !constModel)
+        cout << "-- initial uncorrelated fit on [" << ti0 << ", " << tf0 << "]..." << endl;
+        if (thinning != 1)
         {
-            p << LogScale(Axis::y);
+            cerr << "warning: thinning different from 1 ignored in scan mode"
+                 << endl;
+            thinning = 1;
         }
-        p << Color("rgb 'blue'") << PlotPredBand(fit.getModel(_), 0, nt - 1);
-        p << Color("rgb 'blue'") << PlotFunction(fit.getModel(), 0, nt - 1);
-        p << Color("rgb 'red'")  << PlotData(data.getData());
-        p.display();
-        if(savePlot != "")
+        setFitRange(data, ti0, tf0, thinning, nt);
+        data.setSvdTolerance(svdTol);
+        data.assumeYYCorrelated(false, 0, 0);
+        tmpFit = data.fit(unCorrMin, init, mod);
+        tmpFit.print();
+        cout << "-- scanning all possible fit ranges..." << endl;
+        init = tmpFit[central];
+        data.assumeYYCorrelated(doCorr, 0, 0);
+        pVal.fill(Math::nan);
+        relErr.fill(Math::nan);
+        val.fill(Math::nan);
+        ccdf.fill(Math::nan);
+        for (Index ta = ti; ta < tf; ++ta)
+        for (Index tb = ta + nPar; tb < tf; ++tb)
         {
-            cout << "Saving plot and source code to " << savePlot << endl;
-            p.save(savePlot);
+            nFit++;
         }
-        // effective mass plot //////////////////////////////////////////////////////
-        if (!constModel)
+        for (Index ta = ti; ta < tf; ++ta)
+        for (Index tb = ta + nPar; tb < tf; ++tb)
         {
-            DMatSample effMass(nSample);
-            DVec       effMassT, fitErr;
-            Index      maxT = (coshModel) ? (nt - 2) : (nt - 1);
-            double     e0, e0Err;
+            Index  i = ta - ti, j = tb - ti;
 
-            effMass.resizeMat(maxT, 1);
-            effMassT.setLinSpaced(maxT, 0, maxT-1);
-            fitErr = fit.variance().cwiseSqrt();
-            e0     = fit[central](0);
-            e0Err  = fitErr(0);
-            if (coshModel or sinhModel)
-            {
-                FOR_STAT_ARRAY(effMass, s)
-                {
-                    for (Index t = 1; t < nt - 1; ++t)
-                    {
-                        effMass[s](t - 1) = acosh((corr[s](t-1) + corr[s](t+1))
-                                                /(2.*corr[s](t)));
-                    }
-                }
-            }
-            else if (linearModel)
-            {
-                FOR_STAT_ARRAY(effMass, s)
-                {
-                    for (Index t = 0; t < nt - 1; ++t)
-                    {
-                        effMass[s](t) = corr[s](t) - corr[s](t+1);
-                    }
-                }
-            }
-            else
-            {
-                FOR_STAT_ARRAY(effMass, s)
-                {
-                    for (Index t = 1; t < nt; ++t)
-                    {
-                        effMass[s](t - 1) = log(corr[s](t-1)/corr[s](t));
-                    }
-                }
-            }
-            p.reset();
-            p << PlotRange(Axis::x, 0, maxT);
-            p << PlotRange(Axis::y, e0 - 20.*e0Err, e0 + 20.*e0Err);
-            p << Color("rgb 'blue'") << PlotBand(0, maxT, e0 - e0Err, e0 + e0Err);
-            p << Color("rgb 'blue'") << PlotHLine(e0);
-            p << Color("rgb 'red'") << PlotData(effMassT, effMass);
-            p << Caption("Effective Mass");
+            setFitRange(data, ta, tb, thinning, nt);
+            tmpFit              = data.fit(locMin, init, mod);
+            err                 = tmpFit.variance().cwiseSqrt();
+            pVal(i, j)          = tmpFit.getPValue();
+            ccdf(i, j)          = tmpFit.getCcdf();
+            val(i, j)           = tmpFit[central](0);
+            relErr(i, j)        = err(0)/fabs(val(i, j));
+            fit[pVal(i, j)].result = tmpFit;
+            fit[pVal(i, j)].tMin   = ta;
+            fit[pVal(i, j)].tMax   = tb;
+            f++;
+            cout << "\r[" << ta << ", " << tb << "] "<< ProgressBar(f, nFit);
+        }
+        cout << endl << endl;
+        cout << "TOP 10 fits" << endl;
+        cout << "-----------" << endl;
+        auto it = fit.rbegin();
+        unsigned int k = 0;
+        while (k < 10)
+        {
+            auto &f = it->second;
+
+            cout << "#" << k + 1 << " -- [" << f.tMin << ", " << f.tMax << "] -- ";
+            f.result.print();
+            cout << endl;
+            k++;
+            it++;
+        }
+        // plots ***************************************************************
+        if (doPlot)
+        {
+            Plot p;
+
+            p << PlotMatrix(pVal);
+            p << Caption("p-value matrix");
+            p << Label("tMin - " + strFrom(ti), Axis::x);
+            p << Label("tMax - " + strFrom(ti), Axis::y);
             p.display();
             if(savePlot != "")
             {
-                string savename = savePlot + "_effMass";
-                cout << "Saving effective mass plot and source code to " << savename << endl;
-            p.save(savename);
+                p.save(savePlot + "_pValMatrix");
+            }
+            p.reset();
+            p << PlotMatrix(relErr);
+            p << Caption("Relative error matrix");
+            p << Label("tMin - " + strFrom(ti), Axis::x);
+            p << Label("tMax - " + strFrom(ti), Axis::y);
+            p.display();
+            if(savePlot != "")
+            {
+                p.save(savePlot + "_relErrMatrix");
+            }
+            p.reset();
+            p << PlotMatrix(val);
+            p << Caption("Fit result matrix");
+            p << Label("tMin - " + strFrom(ti), Axis::x);
+            p << Label("tMax - " + strFrom(ti), Axis::y);
+            p.display();
+            if(savePlot != "")
+            {
+                p.save(savePlot + "_valMatrix");
+            }
+            p.reset();
+            p << PlotMatrix(ccdf);
+            p << Caption("chi^2 CCDF matrix");
+            p << Label("tMin - " + strFrom(ti), Axis::x);
+            p << Label("tMax - " + strFrom(ti), Axis::y);
+            p.display();
+            if(savePlot != "")
+            {
+                p.save(savePlot + "_ccdfMatrix");
             }
         }
-    }         
- 
-    if (doHeatmap)
-    {
-        Plot  p;
-        Index n  = data.getFitVarMat().rows();
-        DMat  id = DMat::Identity(n, n);
-        
-        p << PlotMatrix(Math::varToCorr(data.getFitVarMat()));
-        p << Caption("correlation matrix");
-        p.display();
-        if (svdTol > 0.)
-        {
-            p.reset();
-            p << PlotMatrix(id - data.getFitVarMat()*data.getFitVarMatPInv());
-            p << Caption("singular space projector");
-            p.display();
-        }
-    }
-    
-    
-    // output //////////////////////////////////////////////////////////////////
-    if (!outFileName.empty())
-    {
-        Io::save(fit, outFileName);
     }
 
     return EXIT_SUCCESS;
