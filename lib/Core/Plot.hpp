@@ -377,7 +377,7 @@ public:
     Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
-    void save(std::string dirName);
+    void save(std::string dirName, bool savePdf = true);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);

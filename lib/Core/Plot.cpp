@@ -683,7 +683,7 @@ void Plot::display(void)
     }
 }
 
-void Plot::save(string dirName)
+void Plot::save(string dirName, bool savePdf)
 {
     vector<string> commandBack;
     string         path, terminalBack, outputBack, gpCommand, scriptName;
@@ -691,11 +691,6 @@ void Plot::save(string dirName)
     ofstream       script;
     
     mode755 = S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH;
-    
-    // backup I/O parameters
-    terminalBack = options_.terminal;
-    outputBack   = options_.output;
-    commandBack  = plotCommand_;
 
     // generate directory
     if (mkdir(dirName))
@@ -703,12 +698,20 @@ void Plot::save(string dirName)
         LATAN_ERROR(Io, "impossible to create directory '" + dirName + "'");
     }
     
+    // backup I/O parameters
+    terminalBack = options_.terminal;
+    outputBack   = options_.output;
+    commandBack  = plotCommand_;
+
     // save PDF
-    options_.terminal = "pdf";
-    options_.output   = dirName + "/plot.pdf";
-    display();
-    options_.terminal = terminalBack;
-    options_.output   = outputBack;
+    if (savePdf)
+    {
+        options_.terminal = "pdf";
+        options_.output   = dirName + "/plot.pdf";
+        display();
+        options_.terminal = terminalBack;
+        options_.output   = outputBack;
+    }
     
     // save script and datafiles
     for (unsigned int i = 0; i < tmpFileName_.size(); ++i)
