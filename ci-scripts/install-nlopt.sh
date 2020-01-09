@@ -19,6 +19,9 @@ cd ${NAME}/build
 cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
 make -j4 
 make install
+cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
+make -j4 
+make install
 cd ${INITDIR}/local
 touch .built.nlopt
 cd ${INITDIR}
