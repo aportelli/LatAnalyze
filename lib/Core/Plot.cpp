@@ -779,18 +779,25 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
         out << "yMin = " << plot.options_.scale[y].min << endl;
         out << "yMax = " << plot.options_.scale[y].max << endl;
     }
-    if (!plot.options_.title.empty())
-    {
-        out << "set title '" << plot.options_.title << "'" << endl;
-    }
+    out << "unset xrange" << endl;
     if (plot.options_.scaleMode[x] & Plot::Scale::manual)
     {
         out << "set xrange [xMin:xMax]" << endl;
     }
+    else
+    {
+        out << "set xrange [:]" << endl;
+    }
+    out << "unset yrange" << endl;
     if (plot.options_.scaleMode[y] & Plot::Scale::manual)
     {
         out << "set yrange [yMin:yMax]" << endl;
     }
+    else
+    {
+        out << "set yrange [:]" << endl;
+    }
+    out << "unset log" << endl;
     if (plot.options_.scaleMode[x] & Plot::Scale::log)
     {
         out << "set log x" << endl;
