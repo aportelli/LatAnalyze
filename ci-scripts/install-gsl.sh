@@ -9,7 +9,10 @@ fi
 PREFIX=$1
 
 set -ex
-INITDIR=`pwd`
+INITDIR=$(pwd -P)
+cd ${PREFIX}
+PREFIX=$(pwd -P)
+cd ${INITDIR}
 cd local/build
 wget http://ftpmirror.gnu.org/gsl/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz

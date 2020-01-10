@@ -9,8 +9,10 @@ fi
 PREFIX=$1
 
 set -ex
-INITDIR=`pwd`
-cd local/build
+INITDIR=$(pwd -P)
+cd ${PREFIX}
+PREFIX=$(pwd -P)
+cd ${INITDIR}/local/build
 wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/${NAME}/src/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz
 mkdir ${NAME}/build

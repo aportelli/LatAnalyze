@@ -9,17 +9,19 @@ fi
 PREFIX=$1
 
 set -ex
-INITDIR=`pwd`
-cd local/build
+INITDIR=$(pwd -P)
+cd ${PREFIX}
+PREFIX=$(pwd -P)
+cd ${INITDIR}/local/build
 wget https://github.com/stevengj/nlopt/archive/v${NAME}.tar.gz
 tar -xzvf v${NAME}.tar.gz
 NAME=nlopt-${NAME}
 mkdir -p ${NAME}/build
 cd ${NAME}/build
-cmake -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
+cmake -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
 make -j4 
 make install
-cmake -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
+cmake -DCMAKE_C_COMPILER="${CC}" -DCMAKE_CXX_COMPILER="${CXX}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
 make -j4 
 make install
 cd ${INITDIR}/local
