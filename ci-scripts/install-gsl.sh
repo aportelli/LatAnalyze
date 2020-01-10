@@ -12,8 +12,7 @@ set -ex
 INITDIR=$(pwd -P)
 cd ${PREFIX}
 PREFIX=$(pwd -P)
-cd ${INITDIR}
-cd local/build
+cd ${INITDIR}/local/build
 wget http://ftpmirror.gnu.org/gsl/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz
 mkdir -p ${NAME}/build
