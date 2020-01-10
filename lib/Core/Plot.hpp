@@ -381,9 +381,9 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);
-private:
     // find gnuplot
-    void getProgramPath(void);
+    std::string getProgramPath(void);
+private:
     // default options
     void initOptions(void);
 private:

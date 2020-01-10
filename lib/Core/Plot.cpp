@@ -580,7 +580,7 @@ Plot & Plot::operator<<(PlotModifier &&modifier)
 }
 
 // find gnuplot ////////////////////////////////////////////////////////////////
-void Plot::getProgramPath(void)
+std::string Plot::getProgramPath(void)
 {
     int         i, j, lg;
     char        *path;
@@ -640,6 +640,8 @@ void Plot::getProgramPath(void)
         buf[lg] = 0;
         gnuplotPath_ = buf;
     }
+
+    return gnuplotPath_;
 }
 
 // plot parsing and output /////////////////////////////////////////////////////
