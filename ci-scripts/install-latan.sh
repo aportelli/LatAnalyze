@@ -16,6 +16,6 @@ cd ..
 ./bootstrap.sh
 mkdir -p build
 cd build
-../configure --prefix=${PREFIX} --with-minuit=${PREFIX} --with-nlopt=${PREFIX} --with-hdf5=${PREFIX} --with-gsl=${PREFIX} CXXFLAGS="${CXXFLAGS} -O3 -march=native -mtune=native"
+../configure --prefix=${PREFIX} --with-minuit=${PREFIX} --with-nlopt=${PREFIX} --with-hdf5=${PREFIX} --with-gsl=${PREFIX} CXXFLAGS="${CXXFLAGS} -O3 -march=haswell -mtune=haswell"
 make -j4
 make install
