@@ -584,10 +584,7 @@ Plot & Plot::operator<<(PlotModifier &&modifier)
 sprintf(buf, "%s/%s", dir, gnuplotBin_.c_str());\
 if (access(buf, X_OK) == 0)\
 {\
-    sprintf(buf,".");\
-    gnuplotPath_ = buf;\
-    \
-    return gnuplotPath_;\
+    return dir;\
 }
 
 std::string Plot::getProgramPath(void)
