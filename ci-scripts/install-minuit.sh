@@ -10,6 +10,7 @@ PREFIX=$1
 
 set -ex
 INITDIR=$(pwd -P)
+mkdir -p ${PREFIX}
 cd ${PREFIX}
 PREFIX=$(pwd -P)
 cd ${INITDIR}/local/build
