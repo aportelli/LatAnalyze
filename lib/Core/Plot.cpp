@@ -500,7 +500,7 @@ Plot::Plot(void)
 // default options /////////////////////////////////////////////////////////////
 void Plot::initOptions(void)
 {
-    options_.terminal     = "qt";
+    options_.terminal     = "qt noenhanced font 'Arial,12'";
     options_.output       = "";
     options_.caption      = "";
     options_.title        = "";
