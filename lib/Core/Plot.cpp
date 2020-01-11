@@ -580,57 +580,51 @@ Plot & Plot::operator<<(PlotModifier &&modifier)
 }
 
 // find gnuplot ////////////////////////////////////////////////////////////////
+#define SEARCH_DIR(dir) \
+sprintf(buf, "%s/%s", dir, gnuplotBin_.c_str());\
+if (access(buf, X_OK) == 0)\
+{\
+    sprintf(buf,".");\
+    gnuplotPath_ = buf;\
+    \
+    return gnuplotPath_;\
+}
+
 std::string Plot::getProgramPath(void)
 {
     int         i, j, lg;
     char        *path;
     static char buf[MAX_PATH_LENGTH];
     
-    // trivial case: try in CWD
-    sprintf(buf,"./%s", gnuplotBin_.c_str()) ;
-    if (access(buf, X_OK) == 0)
-    {
-        sprintf(buf,".");
-        gnuplotPath_ = buf;
-    }
     // try out in all paths given in the PATH variable
-    else
+    buf[0] = 0;
+    path = getenv("PATH") ;
+    if (path)
     {
-        buf[0] = 0;
-        path = getenv("PATH") ;
-        if (path)
+        for (i=0;path[i];)
         {
-            for (i=0;path[i];)
+            for (j=i;(path[j]) and (path[j]!=':');j++);
+            lg = j - i;
+            strncpy(buf,path + i,(size_t)(lg));
+            if (lg == 0)
             {
-                for (j=i;(path[j]) and (path[j]!=':');j++);
-                lg = j - i;
-                strncpy(buf,path + i,(size_t)(lg));
-                if (lg == 0)
-                {
-                    buf[lg++] = '.';
-                }
-                buf[lg++] = '/';
-                strcpy(buf + lg, gnuplotBin_.c_str());
-                if (access(buf, X_OK) == 0)
-                {
-                    // found it!
-                    break ;
-                }
-                buf[0] = 0;
-                i = j;
-                if (path[i] == ':') i++ ;
+                buf[lg++] = '.';
             }
+            buf[lg++] = '/';
+            strcpy(buf + lg, gnuplotBin_.c_str());
+            if (access(buf, X_OK) == 0)
+            {
+                // found it!
+                break ;
+            }
+            buf[0] = 0;
+            i = j;
+            if (path[i] == ':') i++ ;
         }
-        else
-        {
-            LATAN_ERROR(System, "PATH variable not set");
-        }
-        // if the buffer is still empty, the command was not found
-        if (buf[0] == 0)
-        {
-            LATAN_ERROR(System, "cannot find gnuplot in $PATH");
-        }
-        // otherwise truncate the command name to yield path only
+    }
+    // if the buffer is still empty, the command was not found
+    if (buf[0] != 0)
+    {
         lg = (int)(strlen(buf) - 1);
         while (buf[lg]!='/')
         {
@@ -639,9 +633,19 @@ std::string Plot::getProgramPath(void)
         }
         buf[lg] = 0;
         gnuplotPath_ = buf;
+
+        return gnuplotPath_;
     }
 
-    return gnuplotPath_;
+    // try in CWD, /usr/bin & /usr/local/bin
+    SEARCH_DIR(".");
+    SEARCH_DIR("/usr/bin");
+    SEARCH_DIR("/usr/local/bin");
+
+    // if this code is reached nothing was found
+    LATAN_ERROR(System, "cannot find gnuplot");
+
+    return "";
 }
 
 // plot parsing and output /////////////////////////////////////////////////////
