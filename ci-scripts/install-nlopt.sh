@@ -19,10 +19,7 @@ tar -xzvf v${NAME}.tar.gz
 NAME=nlopt-${NAME}
 mkdir -p ${NAME}/build
 cd ${NAME}/build
-cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
-make -j4 
-make install
-cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
+cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_WITH_INSTALL_NAME_DIR=TRUE -DCMAKE_INSTALL_NAME_DIR="${PREFIX}/lib" ..
 make -j4 
 make install
 cd ${INITDIR}/local
