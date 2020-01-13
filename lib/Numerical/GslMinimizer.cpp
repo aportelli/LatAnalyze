@@ -1,7 +1,7 @@
 /*
  * GslMinimizer.cpp, part of LatAnalyze
  *
- * Copyright (C) 2013 - 2016 Antonin Portelli
+ * Copyright (C) 2013 - 2020 Antonin Portelli
  *
  * LatAnalyze is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
