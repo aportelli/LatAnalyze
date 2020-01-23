@@ -54,6 +54,8 @@ libLatAnalyze_la_SOURCES =           \
     Numerical/Minimizer.cpp          \
     Numerical/RootFinder.cpp         \
     Numerical/Solver.cpp             \
+    Physics/CorrelatorFitter.cpp     \
+    Physics/EffectiveMass.cpp        \
     Statistics/FitInterface.cpp      \
     Statistics/Histogram.cpp         \
     Statistics/Random.cpp            \
@@ -97,6 +99,8 @@ HPPFILES =                           \
     Numerical/Minimizer.hpp          \
     Numerical/RootFinder.hpp         \
     Numerical/Solver.hpp             \
+    Physics/CorrelatorFitter.hpp     \
+    Physics/EffectiveMass.hpp        \
     Statistics/Dataset.hpp           \
     Statistics/FitInterface.hpp      \
     Statistics/Histogram.hpp         \
