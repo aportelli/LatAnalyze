@@ -106,9 +106,9 @@ DVec EffectiveMass::operator()(const DVec &corr) const
         break;
     case CorrelatorType::linear:
         em.resize(nt - 1);
-        for (Index t = 0; t < nt - 1; ++t)
+        for (Index t = 1; t < nt; ++t)
         {
-            em(t) = corr(t) - corr(t - 1);
+            em(t - 1) = corr(t) - corr(t - 1);
         }
         break;
     case CorrelatorType::cst:
