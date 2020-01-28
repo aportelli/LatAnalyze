@@ -26,6 +26,9 @@
 
 BEGIN_LATAN_NAMESPACE
 
+/******************************************************************************
+ *                         Correlator types & models                          *
+ ******************************************************************************/
 enum class CorrelatorType {undefined, exp, cosh, sinh, linear, cst};
 
 namespace CorrelatorModels
@@ -46,12 +49,18 @@ namespace CorrelatorModels
     DVec        parameterGuess(const DMatSample &corr, const ModelPar par);
 };
 
+/******************************************************************************
+ *                       Correlator fit utility class                         *
+ ******************************************************************************/
 class CorrelatorFitter
 {
 public:
+    // constructors
     CorrelatorFitter(const DMatSample &corr);
     CorrelatorFitter(const std::vector<DMatSample> &corr);
+    // destructor
     virtual ~CorrelatorFitter(void) = default;
+    // access
     XYSampleData & data(void);
     void setCorrelator(const DMatSample &corr);
     void setCorrelators(const std::vector<DMatSample> &corr);
@@ -62,11 +71,13 @@ public:
     void setFitRange(const Index tMin, const Index tMax, const Index i = 0);
     void setCorrelation(const bool isCorrelated, const Index i = 0, 
                         const Index j = 0);
-    DMat getVarianceMatrix(void);
+    DMat getVarianceMatrix(void) const;
     void setThinning(const Index thinning, const Index i = 0);
+    // fit functions
     SampleFitResult fit(Minimizer &minimizer, const DVec &init);
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init);
 private:
+    // internal function to refresh fit ranges
     void refreshRanges(void);
 private:
     Index                                nt_{0};

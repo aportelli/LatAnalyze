@@ -23,6 +23,9 @@
 using namespace std;
 using namespace Latan;
 
+/******************************************************************************
+ *                       EffectiveMass implementation                         *
+ ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
 EffectiveMass::EffectiveMass(const CorrelatorType type)
 {

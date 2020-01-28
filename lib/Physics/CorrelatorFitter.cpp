@@ -23,6 +23,9 @@
 using namespace std;
 using namespace Latan;
 
+/******************************************************************************
+ *                           Correlator models                                *
+ ******************************************************************************/
 DoubleModel CorrelatorModels::makeExpModel(const Index nState)
 {
     DoubleModel mod;
@@ -224,6 +227,10 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
     return init;
 }
 
+/******************************************************************************
+ *                      CorrelatorFitter implementation                       *
+ ******************************************************************************/
+// constructors ////////////////////////////////////////////////////////////////
 CorrelatorFitter::CorrelatorFitter(const DMatSample &corr)
 {
     setCorrelator(corr);
@@ -234,6 +241,7 @@ CorrelatorFitter::CorrelatorFitter(const std::vector<DMatSample> &corr)
     setCorrelators(corr);
 }
 
+// access //////////////////////////////////////////////////////////////////////
 XYSampleData & CorrelatorFitter::data(void)
 {
     return *data_;
@@ -294,7 +302,7 @@ void CorrelatorFitter::setCorrelation(const bool isCorrelated, const Index i,
     data_->assumeYYCorrelated(isCorrelated, i, j);
 }
 
-DMat CorrelatorFitter::getVarianceMatrix(void)
+DMat CorrelatorFitter::getVarianceMatrix(void) const
 {
     return data_->getFitVarMat();
 }
@@ -305,6 +313,7 @@ void CorrelatorFitter::setThinning(const Index thinning, const Index i)
     refreshRanges();
 }
 
+// fit functions ///////////////////////////////////////////////////////////////
 SampleFitResult CorrelatorFitter::fit(Minimizer &minimizer, const DVec &init)
 {
     vector<Minimizer *> vecPt = {&minimizer};
@@ -325,6 +334,7 @@ SampleFitResult CorrelatorFitter::fit(vector<Minimizer *> &minimizer,
     return data_->fit(minimizer, init, vecPt);
 }
 
+// internal function to refresh fit ranges /////////////////////////////////////
 void CorrelatorFitter::refreshRanges(void)
 {
     for (unsigned int i = 0; i < range_.size(); ++i)
