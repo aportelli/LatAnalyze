@@ -236,14 +236,21 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
 // PlotPredBand constructor ////////////////////////////////////////////////////
 void PlotPredBand::makePredBand(const DMat &low, const DMat &high, const double opacity)
 {
-    string lowFileName, highFileName;
+    string lowFileName, highFileName, contFileName;
+    DMat   contour(low.rows() + high.rows() + 1, 2);
 
-    lowFileName  = dumpToTmpFile(low);
-    highFileName = dumpToTmpFile(high);
-    pushTmpFile(lowFileName);
-    pushTmpFile(highFileName);
-    setCommand("'< (cat " + lowFileName + "; tac " + highFileName +
-               "; head -n1 " + lowFileName + ")' u 1:2 w filledcurves closed" +
+    FOR_MAT(low, i, j)
+    {
+        contour(i, j) = low(i, j);
+    }
+    FOR_MAT(high, i, j)
+    {
+        contour(low.rows() + i, j) = high(high.rows() - i - 1, j);
+    }
+    contour.row(low.rows() + high.rows()) = low.row(0);
+    contFileName = dumpToTmpFile(contour);
+    pushTmpFile(contFileName);
+    setCommand("'" + contFileName + "' u 1:2 w filledcurves closed" +
                " fs solid " + strFrom(opacity) + " noborder");
 }
 
