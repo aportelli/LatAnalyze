@@ -25,8 +25,9 @@ using namespace Latan;
 
 // constructors ////////////////////////////////////////////////////////////////
 EffectiveMass::EffectiveMass(const CorrelatorType type)
-: type_(type)
-{}
+{
+    setType(type);
+}
 
 // access //////////////////////////////////////////////////////////////////////
 CorrelatorType EffectiveMass::getType(void) const
@@ -37,6 +38,31 @@ CorrelatorType EffectiveMass::getType(void) const
 void EffectiveMass::setType(const CorrelatorType type)
 {
     type_ = type;
+}
+
+DVec EffectiveMass::getTime(const Index nt) const
+{
+    DVec tvec;
+
+    switch (type_)
+    {
+    case CorrelatorType::undefined:
+        LATAN_ERROR(Argument, "correlator type is undefined");
+        break;
+    case CorrelatorType::exp:
+    case CorrelatorType::linear:
+        tvec = DVec::LinSpaced(nt - 1, 0, nt - 2);
+        break;
+    case CorrelatorType::cosh:
+    case CorrelatorType::sinh:
+        tvec = DVec::LinSpaced(nt - 2, 1, nt - 2);
+        break;
+    case CorrelatorType::cst:
+        tvec = DVec::LinSpaced(nt, 0, nt - 1);
+        break;
+    }
+
+    return tvec;
 }
 
 // compute effective mass //////////////////////////////////////////////////////

@@ -51,6 +51,8 @@ class CorrelatorFitter
 public:
     CorrelatorFitter(const DMatSample &corr);
     CorrelatorFitter(const std::vector<DMatSample> &corr);
+    virtual ~CorrelatorFitter(void) = default;
+    XYSampleData & data(void);
     void setCorrelator(const DMatSample &corr);
     void setCorrelators(const std::vector<DMatSample> &corr);
     const DMatSample & getCorrelator(const Index i = 0) const;

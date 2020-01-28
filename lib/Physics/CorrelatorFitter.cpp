@@ -128,17 +128,17 @@ CorrelatorModels::ModelPar CorrelatorModels::parseModel(const string s)
     if (regex_match(s, sm, regex("exp([0-9]+)")))
     {
         par.type   = CorrelatorType::exp;
-        par.nState = strTo<Index>(sm[0].str());
+        par.nState = strTo<Index>(sm[1].str());
     }
     else if (regex_match(s, sm, regex("cosh([0-9]+)")))
     {
         par.type   = CorrelatorType::cosh;
-        par.nState = strTo<Index>(sm[0].str());
+        par.nState = strTo<Index>(sm[1].str());
     }
     else if (regex_match(s, sm, regex("sinh([0-9]+)")))
     {
         par.type   = CorrelatorType::sinh;
-        par.nState = strTo<Index>(sm[0].str());
+        par.nState = strTo<Index>(sm[1].str());
     }
     else if (s == "linear")
     {
@@ -189,7 +189,7 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
                                       const ModelPar par)
 {
     DVec  init;
-    Index nt = corr.size();
+    Index nt = corr[central].size();
 
     switch (par.type)
     {
@@ -232,6 +232,11 @@ CorrelatorFitter::CorrelatorFitter(const DMatSample &corr)
 CorrelatorFitter::CorrelatorFitter(const std::vector<DMatSample> &corr)
 {
     setCorrelators(corr);
+}
+
+XYSampleData & CorrelatorFitter::data(void)
+{
+    return *data_;
 }
 
 void CorrelatorFitter::setCorrelator(const DMatSample &corr)

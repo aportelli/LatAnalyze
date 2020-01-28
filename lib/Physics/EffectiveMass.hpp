@@ -37,6 +37,7 @@ public:
     // access
     CorrelatorType getType(void) const;
     void           setType(const CorrelatorType type);
+    DVec           getTime(const Index nt) const;
     // compute effective mass
     DVec       operator()(const DVec &corr) const;
     DMatSample operator()(const DMatSample &corr) const;
