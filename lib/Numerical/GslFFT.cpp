@@ -43,6 +43,7 @@ void GslFFT::resize(const Index size)
 {
     if (size_ != size)
     {
+        clear();
         size_      = size;
         wavetable_ = gsl_fft_complex_wavetable_alloc(size_);
         workspace_ = gsl_fft_complex_workspace_alloc(size_);
