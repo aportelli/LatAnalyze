@@ -105,28 +105,14 @@ int main(int argc, char *argv[])
     DMatSample tmp, corr;
     Index      nSample, nt;
     
-    tmp     = Io::load<DMatSample>(corrFileName);
-    nSample = tmp.size();
-    nt      = tmp[central].rows();
-    tmp     = tmp.block(0, 0, nt, 1);
-    corr    = tmp;
-    FOR_STAT_ARRAY(corr, s)
-    {
-        for (Index t = 0; t < nt; ++t)
-        {
-            corr[s]((t - shift + nt)%nt) = tmp[s](t);
-        }
-    }
+    corr    = Io::load<DMatSample>(corrFileName);
+    nSample = corr.size();
+    nt      = corr[central].rows();
+    corr    = corr.block(0, 0, nt, 1);
+    corr    = CorrelatorUtils::shift(corr, shift);
     if (fold)
     {
-        tmp = corr;
-        FOR_STAT_ARRAY(corr, s)
-        {
-            for (Index t = 0; t < nt; ++t)
-            {
-                corr[s](t) = 0.5*(tmp[s](t) + tmp[s]((nt - t) % nt));
-            }
-        }
+        corr = CorrelatorUtils::fold(corr);
     }
     
     // make model //////////////////////////////////////////////////////////////

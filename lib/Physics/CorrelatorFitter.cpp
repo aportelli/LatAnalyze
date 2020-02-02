@@ -228,6 +228,77 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
 }
 
 /******************************************************************************
+ *                         Correlator utilities                               *
+ ******************************************************************************/
+DMatSample CorrelatorUtils::shift(const DMatSample &c, const Index ts)
+{
+    if (ts != 0)
+    {
+        const Index nt  = c[central].rows();
+        DMatSample  buf = c;
+
+        FOR_STAT_ARRAY(buf, s)
+        {
+            for (Index t = 0; t < nt; ++t)
+            {
+                buf[s]((t - ts + nt)%nt) = c[s](t);
+            }
+        }
+
+        return buf;
+    }
+    else
+    {
+        return c;
+    }
+}
+
+DMatSample CorrelatorUtils::fold(const DMatSample &c)
+{
+    const Index nt  = c[central].rows();
+    DMatSample  buf = c;
+
+    FOR_STAT_ARRAY(buf, s)
+    {
+        for (Index t = 0; t < nt; ++t)
+        {
+            buf[s](t) = 0.5*(c[s](t) + c[s]((nt - t) % nt));
+        }
+    }
+
+    return buf;
+}
+
+DMatSample CorrelatorUtils::fourierTransform(const DMatSample &c, FFT &fft, 
+                                             const unsigned int dir)
+{
+    const Index nSample   = c.size();
+    const Index nt        = c[central].rows();
+    bool        isComplex = (c[central].cols() > 1);
+    CMatSample  buf(nSample, nt, 1);
+    DMatSample  out(nSample, nt, 2);
+
+    fft.resize(nt);
+    FOR_STAT_ARRAY(buf, s)
+    {
+        buf[s].real() = c[s].col(0);
+        if (isComplex)
+        {
+            buf[s].imag() = c[s].col(1);
+        }
+        else
+        {
+            buf[s].imag() = DVec::Constant(nt, 0.);
+        }
+        fft(buf[s], dir);
+        out[s].col(0) = buf[s].real();
+        out[s].col(1) = buf[s].imag();
+    }
+
+    return out;    
+}
+
+/******************************************************************************
  *                      CorrelatorFitter implementation                       *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////

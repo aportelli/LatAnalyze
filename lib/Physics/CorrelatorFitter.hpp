@@ -22,6 +22,7 @@
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Functional/Model.hpp>
+#include <LatAnalyze/Numerical/FFT.hpp>
 #include <LatAnalyze/Statistics/XYSampleData.hpp>
 
 BEGIN_LATAN_NAMESPACE
@@ -47,6 +48,17 @@ namespace CorrelatorModels
     ModelPar    parseModel(const std::string s);
     DoubleModel makeModel(const ModelPar par, const Index nt);
     DVec        parameterGuess(const DMatSample &corr, const ModelPar par);
+};
+
+/******************************************************************************
+ *                         Correlator utilities                               *
+ ******************************************************************************/
+namespace CorrelatorUtils
+{
+    DMatSample shift(const DMatSample &c, const Index ts);
+    DMatSample fold(const DMatSample &c);
+    DMatSample fourierTransform(const DMatSample &c, FFT &fft, 
+                                const unsigned int dir = FFT::Forward);
 };
 
 /******************************************************************************
