@@ -104,7 +104,7 @@ DoubleModel CorrelatorModels::makeConstModel(void)
 
     mod.setFunction([](const double *x, const double *p __dumb)
     {
-        return x[0];
+        return p[0];
     }, 1, 1);
     mod.parName().setName(0, "cst");
 
