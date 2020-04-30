@@ -174,6 +174,14 @@ int main(int argc, char *argv[])
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
+        else if(modelPar.type == CorrelatorType::linear)
+        {
+            globMin.setLowLimit(p, -10.*fabs(init(p)));
+            locMin.setLowLimit(p, -10.*fabs(init(p)));
+            globMin.setHighLimit(p, 10.*init(p));
+            globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
+            globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
+        }
         else
         {
             globMin.setLowLimit(p, -10*fabs(init(p)));
