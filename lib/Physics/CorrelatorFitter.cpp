@@ -117,7 +117,7 @@ DoubleModel CorrelatorModels::makeLinearModel(void)
 
     mod.setFunction([](const double *x, const double *p)
     {
-        return p[0] + p[1]*x[0];
+        return p[1] + p[0]*x[0];
     }, 1, 2);
 
     return mod;
