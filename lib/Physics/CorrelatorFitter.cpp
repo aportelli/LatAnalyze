@@ -84,7 +84,7 @@ DoubleModel CorrelatorModels::makeSinhModel(const Index nState, const Index nt)
 
         for (unsigned int i = 0; i < nState; ++i)
         {
-            res += p[2*i + 1]*(exp(-p[2*i]*x[0]) - exp(-p[2*i]*(nt - x[0])));
+            res += p[2*i + 1]*(- exp(-p[2*i]*x[0]) + exp(-p[2*i]*(nt - x[0])));
         }
 
         return res;
@@ -200,11 +200,29 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
         LATAN_ERROR(Argument, "correlator type is undefined");
         break;
     case CorrelatorType::exp:
-    case CorrelatorType::cosh:
-    case CorrelatorType::sinh:
         init.resize(2*par.nState);
         init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
         init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
+        for (Index p = 2; p < init.size(); p += 2)
+        {
+            init(p)     = 2*init(p - 2);
+            init(p + 1) = init(p - 1)/2.;
+        }
+        break;
+    case CorrelatorType::cosh:
+        init.resize(2*par.nState);
+        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
+        init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4) + exp(-init(0)*3*nt/4));
+        for (Index p = 2; p < init.size(); p += 2)
+        {
+            init(p)     = 2*init(p - 2);
+            init(p + 1) = init(p - 1)/2.;
+        }
+        break;
+    case CorrelatorType::sinh:
+        init.resize(2*par.nState);
+        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
+        init(1) = corr[central](nt/4)/( -exp(-init(0)*nt/4) +exp(-init(0)*3*nt/4));
         for (Index p = 2; p < init.size(); p += 2)
         {
             init(p)     = 2*init(p - 2);
@@ -253,16 +271,39 @@ DMatSample CorrelatorUtils::shift(const DMatSample &c, const Index ts)
     }
 }
 
-DMatSample CorrelatorUtils::fold(const DMatSample &c)
+DMatSample CorrelatorUtils::fold(const DMatSample &c, const CorrelatorModels::ModelPar &par)
 {
     const Index nt  = c[central].rows();
     DMatSample  buf = c;
-
-    FOR_STAT_ARRAY(buf, s)
+    int         sign;
+    bool        fold = false;
+    
+    switch (par.type)
     {
-        for (Index t = 0; t < nt; ++t)
+        case CorrelatorType::cosh:
+        case CorrelatorType::cst:
+            sign = 1;
+            fold = true;
+            break;
+        case CorrelatorType::sinh:
+            sign = -1;
+            fold = true;
+            break;
+        case CorrelatorType::linear:
+            cout << "Linear model is asymmetric: will not fold." << endl;
+            break;
+        default:
+            break;
+    }
+
+    if (fold)
+    {
+        FOR_STAT_ARRAY(buf, s)
         {
-            buf[s](t) = 0.5*(c[s](t) + c[s]((nt - t) % nt));
+            for (Index t = 0; t < nt; ++t)
+            {
+                buf[s](t) = 0.5*(c[s](t) + sign*c[s]((nt - t) % nt));
+            }
         }
     }
 
