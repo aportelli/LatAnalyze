@@ -84,7 +84,7 @@ DoubleModel CorrelatorModels::makeSinhModel(const Index nState, const Index nt)
 
         for (unsigned int i = 0; i < nState; ++i)
         {
-            res += p[2*i + 1]*(- exp(-p[2*i]*x[0]) + exp(-p[2*i]*(nt - x[0])));
+            res += p[2*i + 1]*(exp(-p[2*i]*x[0]) - exp(-p[2*i]*(nt - x[0])));
         }
 
         return res;
@@ -200,29 +200,11 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
         LATAN_ERROR(Argument, "correlator type is undefined");
         break;
     case CorrelatorType::exp:
-        init.resize(2*par.nState);
-        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
-        init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
-        for (Index p = 2; p < init.size(); p += 2)
-        {
-            init(p)     = 2*init(p - 2);
-            init(p + 1) = init(p - 1)/2.;
-        }
-        break;
     case CorrelatorType::cosh:
-        init.resize(2*par.nState);
-        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
-        init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4) + exp(-init(0)*3*nt/4));
-        for (Index p = 2; p < init.size(); p += 2)
-        {
-            init(p)     = 2*init(p - 2);
-            init(p + 1) = init(p - 1)/2.;
-        }
-        break;
     case CorrelatorType::sinh:
         init.resize(2*par.nState);
         init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
-        init(1) = corr[central](nt/4)/( -exp(-init(0)*nt/4) +exp(-init(0)*3*nt/4));
+        init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
         for (Index p = 2; p < init.size(); p += 2)
         {
             init(p)     = 2*init(p - 2);
