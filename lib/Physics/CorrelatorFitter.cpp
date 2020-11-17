@@ -102,7 +102,7 @@ DoubleModel CorrelatorModels::makeConstModel(void)
 {
     DoubleModel mod;
 
-    mod.setFunction([](const double *x, const double *p __dumb)
+    mod.setFunction([](const double *x __dumb, const double *p __dumb)
     {
         return p[0];
     }, 1, 1);
