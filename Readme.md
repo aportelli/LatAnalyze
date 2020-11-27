@@ -71,6 +71,9 @@ make install
 where `<prefix>` should be replaced by the desired prefix for LatAnalyze installation, and `<n>` is the number of parallel build processes (typically twice your number of cores).
 
 ## History
+#### v3.5.1
+Various fixes and cleaning of outdated code.
+
 #### v3.5
 Additions:
 * 'Impulse' & line type plots
