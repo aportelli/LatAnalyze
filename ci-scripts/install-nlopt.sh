@@ -9,14 +9,17 @@ fi
 PREFIX=$1
 
 set -ex
-INITDIR=`pwd`
-cd local/build
+INITDIR=$(pwd -P)
+mkdir -p ${PREFIX}
+cd ${PREFIX}
+PREFIX=$(pwd -P)
+cd ${INITDIR}/local/build
 wget https://github.com/stevengj/nlopt/archive/v${NAME}.tar.gz
 tar -xzvf v${NAME}.tar.gz
 NAME=nlopt-${NAME}
 mkdir -p ${NAME}/build
 cd ${NAME}/build
-cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
+cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_WITH_INSTALL_NAME_DIR=TRUE -DCMAKE_INSTALL_NAME_DIR="${PREFIX}/lib" ..
 make -j4 
 make install
 cd ${INITDIR}/local

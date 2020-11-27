@@ -6,7 +6,7 @@ if (( $# != 1 )); then
 fi
 ARC=$1
 
-INITDIR=`pwd`
+INITDIR=$(pwd -P)
 rm -rf lib/Eigen
 ARCDIR=`tar -tf ${ARC} | head -n1 | sed -e 's@/.*@@'`
 tar -xf ${ARC}

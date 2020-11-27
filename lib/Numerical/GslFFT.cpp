@@ -1,7 +1,7 @@
 /*
  * GslFFT.cpp, part of LatAnalyze
  *
- * Copyright (C) 2013 - 2017 Antonin Portelli
+ * Copyright (C) 2013 - 2020 Antonin Portelli
  *
  * LatAnalyze is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ void GslFFT::resize(const Index size)
 {
     if (size_ != size)
     {
+        clear();
         size_      = size;
         wavetable_ = gsl_fft_complex_wavetable_alloc(size_);
         workspace_ = gsl_fft_complex_workspace_alloc(size_);

@@ -1,7 +1,7 @@
 /*
  * Plot.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2016 Antonin Portelli
+ * Copyright (C) 2013 - 2020 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -236,14 +236,21 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
 // PlotPredBand constructor ////////////////////////////////////////////////////
 void PlotPredBand::makePredBand(const DMat &low, const DMat &high, const double opacity)
 {
-    string lowFileName, highFileName;
+    string lowFileName, highFileName, contFileName;
+    DMat   contour(low.rows() + high.rows() + 1, 2);
 
-    lowFileName  = dumpToTmpFile(low);
-    highFileName = dumpToTmpFile(high);
-    pushTmpFile(lowFileName);
-    pushTmpFile(highFileName);
-    setCommand("'< (cat " + lowFileName + "; tac " + highFileName +
-               "; head -n1 " + lowFileName + ")' u 1:2 w filledcurves closed" +
+    FOR_MAT(low, i, j)
+    {
+        contour(i, j) = low(i, j);
+    }
+    FOR_MAT(high, i, j)
+    {
+        contour(low.rows() + i, j) = high(high.rows() - i - 1, j);
+    }
+    contour.row(low.rows() + high.rows()) = low.row(0);
+    contFileName = dumpToTmpFile(contour);
+    pushTmpFile(contFileName);
+    setCommand("'" + contFileName + "' u 1:2 w filledcurves closed" +
                " fs solid " + strFrom(opacity) + " noborder");
 }
 
@@ -500,7 +507,7 @@ Plot::Plot(void)
 // default options /////////////////////////////////////////////////////////////
 void Plot::initOptions(void)
 {
-    options_.terminal     = "qt";
+    options_.terminal     = "qt noenhanced font 'Arial,12'";
     options_.output       = "";
     options_.caption      = "";
     options_.title        = "";
@@ -580,57 +587,48 @@ Plot & Plot::operator<<(PlotModifier &&modifier)
 }
 
 // find gnuplot ////////////////////////////////////////////////////////////////
-void Plot::getProgramPath(void)
+#define SEARCH_DIR(dir) \
+sprintf(buf, "%s/%s", dir, gnuplotBin_.c_str());\
+if (access(buf, X_OK) == 0)\
+{\
+    return dir;\
+}
+
+std::string Plot::getProgramPath(void)
 {
     int         i, j, lg;
     char        *path;
     static char buf[MAX_PATH_LENGTH];
     
-    // trivial case: try in CWD
-    sprintf(buf,"./%s", gnuplotBin_.c_str()) ;
-    if (access(buf, X_OK) == 0)
-    {
-        sprintf(buf,".");
-        gnuplotPath_ = buf;
-    }
     // try out in all paths given in the PATH variable
-    else
+    buf[0] = 0;
+    path = getenv("PATH") ;
+    if (path)
     {
-        buf[0] = 0;
-        path = getenv("PATH") ;
-        if (path)
+        for (i=0;path[i];)
         {
-            for (i=0;path[i];)
+            for (j=i;(path[j]) and (path[j]!=':');j++);
+            lg = j - i;
+            strncpy(buf,path + i,(size_t)(lg));
+            if (lg == 0)
             {
-                for (j=i;(path[j]) and (path[j]!=':');j++);
-                lg = j - i;
-                strncpy(buf,path + i,(size_t)(lg));
-                if (lg == 0)
-                {
-                    buf[lg++] = '.';
-                }
-                buf[lg++] = '/';
-                strcpy(buf + lg, gnuplotBin_.c_str());
-                if (access(buf, X_OK) == 0)
-                {
-                    // found it!
-                    break ;
-                }
-                buf[0] = 0;
-                i = j;
-                if (path[i] == ':') i++ ;
+                buf[lg++] = '.';
             }
+            buf[lg++] = '/';
+            strcpy(buf + lg, gnuplotBin_.c_str());
+            if (access(buf, X_OK) == 0)
+            {
+                // found it!
+                break ;
+            }
+            buf[0] = 0;
+            i = j;
+            if (path[i] == ':') i++ ;
         }
-        else
-        {
-            LATAN_ERROR(System, "PATH variable not set");
-        }
-        // if the buffer is still empty, the command was not found
-        if (buf[0] == 0)
-        {
-            LATAN_ERROR(System, "cannot find gnuplot in $PATH");
-        }
-        // otherwise truncate the command name to yield path only
+    }
+    // if the buffer is still empty, the command was not found
+    if (buf[0] != 0)
+    {
         lg = (int)(strlen(buf) - 1);
         while (buf[lg]!='/')
         {
@@ -639,7 +637,19 @@ void Plot::getProgramPath(void)
         }
         buf[lg] = 0;
         gnuplotPath_ = buf;
+
+        return gnuplotPath_;
     }
+
+    // try in CWD, /usr/bin & /usr/local/bin
+    SEARCH_DIR(".");
+    SEARCH_DIR("/usr/bin");
+    SEARCH_DIR("/usr/local/bin");
+
+    // if this code is reached nothing was found
+    LATAN_ERROR(System, "cannot find gnuplot");
+
+    return "";
 }
 
 // plot parsing and output /////////////////////////////////////////////////////
@@ -653,10 +663,6 @@ void Plot::display(void)
         string        command;
         ostringstream scriptBuf;
 
-        if (!getenv("DISPLAY"))
-        {
-            LATAN_ERROR(System, "cannot find DISPLAY variable: is it set ?");
-        }
         getProgramPath();
         command     = gnuplotPath_ + "/" + gnuplotBin_ + " 2>/dev/null";
         gnuplotPipe = popen(command.c_str(), "w");
@@ -683,7 +689,7 @@ void Plot::display(void)
     }
 }
 
-void Plot::save(string dirName)
+void Plot::save(string dirName, bool savePdf)
 {
     vector<string> commandBack;
     string         path, terminalBack, outputBack, gpCommand, scriptName;
@@ -691,11 +697,6 @@ void Plot::save(string dirName)
     ofstream       script;
     
     mode755 = S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH;
-    
-    // backup I/O parameters
-    terminalBack = options_.terminal;
-    outputBack   = options_.output;
-    commandBack  = plotCommand_;
 
     // generate directory
     if (mkdir(dirName))
@@ -703,12 +704,20 @@ void Plot::save(string dirName)
         LATAN_ERROR(Io, "impossible to create directory '" + dirName + "'");
     }
     
+    // backup I/O parameters
+    terminalBack = options_.terminal;
+    outputBack   = options_.output;
+    commandBack  = plotCommand_;
+
     // save PDF
-    options_.terminal = "pdf";
-    options_.output   = dirName + "/plot.pdf";
-    display();
-    options_.terminal = terminalBack;
-    options_.output   = outputBack;
+    if (savePdf)
+    {
+        options_.terminal = "pdf";
+        options_.output   = dirName + "/plot.pdf";
+        display();
+        options_.terminal = terminalBack;
+        options_.output   = outputBack;
+    }
     
     // save script and datafiles
     for (unsigned int i = 0; i < tmpFileName_.size(); ++i)
@@ -776,18 +785,25 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
         out << "yMin = " << plot.options_.scale[y].min << endl;
         out << "yMax = " << plot.options_.scale[y].max << endl;
     }
-    if (!plot.options_.title.empty())
-    {
-        out << "set title '" << plot.options_.title << "'" << endl;
-    }
+    out << "unset xrange" << endl;
     if (plot.options_.scaleMode[x] & Plot::Scale::manual)
     {
         out << "set xrange [xMin:xMax]" << endl;
     }
+    else
+    {
+        out << "set xrange [:]" << endl;
+    }
+    out << "unset yrange" << endl;
     if (plot.options_.scaleMode[y] & Plot::Scale::manual)
     {
         out << "set yrange [yMin:yMax]" << endl;
     }
+    else
+    {
+        out << "set yrange [:]" << endl;
+    }
+    out << "unset log" << endl;
     if (plot.options_.scaleMode[x] & Plot::Scale::log)
     {
         out << "set log x" << endl;

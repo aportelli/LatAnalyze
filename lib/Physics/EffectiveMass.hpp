@@ -1,5 +1,5 @@
 /*
- * RootFinder.hpp, part of LatAnalyze 3
+ * EffectiveMass.hpp, part of LatAnalyze 3
  *
  * Copyright (C) 2013 - 2020 Antonin Portelli
  *
@@ -17,32 +17,34 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Latan_RootFinder_hpp_
-#define Latan_RootFinder_hpp_
+#ifndef Latan_EffectiveMass_hpp_
+#define Latan_EffectiveMass_hpp_
 
 #include <LatAnalyze/Global.hpp>
-#include <LatAnalyze/Functional/Function.hpp>
-#include <LatAnalyze/Numerical/Solver.hpp>
+#include <LatAnalyze/Statistics/MatSample.hpp>
+#include <LatAnalyze/Physics/CorrelatorFitter.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
 /******************************************************************************
- *                              RootFinder                                    *
+ *                          Effective mass class                              *
  ******************************************************************************/
-
-class RootFinder: public Solver
+class EffectiveMass
 {
 public:
     // constructors
-    RootFinder(void) = default;
-    explicit RootFinder(const Index dim);
-    // destructor
-    virtual ~RootFinder(void) = default;
-    // solver
-    virtual const DVec & operator()(const std::vector<DoubleFunction *> &func)
-        = 0;
+    EffectiveMass(const CorrelatorType type = CorrelatorType::exp);
+    // access
+    CorrelatorType getType(void) const;
+    void           setType(const CorrelatorType type);
+    DVec           getTime(const Index nt) const;
+    // compute effective mass
+    DVec       operator()(const DVec &corr) const;
+    DMatSample operator()(const DMatSample &corr) const;
+private:
+    CorrelatorType type_;
 };
 
 END_LATAN_NAMESPACE
 
-#endif // Latan_RootFinder_hpp_
+#endif // Latan_EffectiveMass_hpp_

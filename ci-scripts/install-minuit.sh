@@ -9,8 +9,11 @@ fi
 PREFIX=$1
 
 set -ex
-INITDIR=`pwd`
-cd local/build
+INITDIR=$(pwd -P)
+mkdir -p ${PREFIX}
+cd ${PREFIX}
+PREFIX=$(pwd -P)
+cd ${INITDIR}/local/build
 wget http://www.cern.ch/mathlibs/sw/5_34_14/Minuit2/${NAME}.tar.gz
 tar -xzvf ${NAME}.tar.gz
 mkdir -p ${NAME}/build

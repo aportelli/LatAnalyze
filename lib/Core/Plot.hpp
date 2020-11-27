@@ -1,7 +1,7 @@
 /*
  * Plot.hpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2016 Antonin Portelli
+ * Copyright (C) 2013 - 2020 Antonin Portelli
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -377,13 +377,13 @@ public:
     Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
-    void save(std::string dirName);
+    void save(std::string dirName, bool savePdf = true);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);
-private:
     // find gnuplot
-    void getProgramPath(void);
+    std::string getProgramPath(void);
+private:
     // default options
     void initOptions(void);
 private:

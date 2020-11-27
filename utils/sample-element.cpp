@@ -1,7 +1,7 @@
 /*
  * sample-element.cpp, part of LatAnalyze 3
  *
- * Copyright (C) 2013 - 2016 Antonin Portelli, Matt Spraggs
+ * Copyright (C) 2013 - 2020 Antonin Portelli, Matt Spraggs
  *
  * LatAnalyze 3 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
