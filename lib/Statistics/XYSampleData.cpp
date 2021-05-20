@@ -244,9 +244,15 @@ void XYSampleData::checkChi2PerDof(double Chi2PerDof)
     if(Chi2PerDof >= 2 or Chi2PerDof < 0 or isnan(Chi2PerDof)) 
     {
         goodFit_ = false;
-        cerr << "chi2PerDof = " << Chi2PerDof << ". Aborting fit now." << endl;
     }
+}
 
+void XYSampleData::checkChi2PerDof(double Chi2PerDof, unsigned int &counter)
+{
+    if(Chi2PerDof >= 2 or Chi2PerDof < 0 or isnan(Chi2PerDof)) 
+    {
+        counter++;
+    }
 }
 
 // get total fit variance matrix and its pseudo-inverse ////////////////////////
@@ -308,6 +314,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.chi2_.resize(nSample_);
     result.model_.resize(v.size());
     double chi2PerDof;
+    unsigned int badSampleFits = 0;
     goodFit_ = true;
     FOR_STAT_ARRAY(result, s)
     {
@@ -325,7 +332,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
             {
                 sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
                 chi2PerDof   = sampleResult.getChi2PerDof();
-                checkChi2PerDof(chi2PerDof);
+                checkChi2PerDof(chi2PerDof, badSampleFits);
             }
             result[s]       = sampleResult;
             result.chi2_[s] = sampleResult.getChi2();
@@ -334,6 +341,11 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                 result.model_[j].resize(nSample_);
                 result.model_[j][s] = sampleResult.getModel(j);
 
+            }
+            if(badSampleFits > 0.25*nSample_) 
+            {
+                goodFit_ = false;
+                cerr << "At least " << 0.25*nSample_ << " of the sample fits have bad chi2/dof. Aborting fit." << endl;
             }
         }
     }
