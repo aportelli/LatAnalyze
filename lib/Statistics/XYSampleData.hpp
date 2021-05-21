@@ -93,7 +93,6 @@ public:
     DVec               getYError(const Index j);
     bool               checkFit(); // check fit candidate based on chi2PerDof
     void               checkChi2PerDof(double Chi2PerDof);
-    void               checkChi2PerDof(double Chi2PerDof, unsigned int &counter);
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
