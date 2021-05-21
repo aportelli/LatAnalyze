@@ -323,7 +323,6 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
             {
                 sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
                 chi2PerDof   = sampleResult.getChi2PerDof();
-                checkChi2PerDof(chi2PerDof, badSampleFits);
             }
             result[s]       = sampleResult;
             result.chi2_[s] = sampleResult.getChi2();
@@ -331,7 +330,6 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
             {
                 result.model_[j].resize(nSample_);
                 result.model_[j][s] = sampleResult.getModel(j);
-
             }
         }
     }
