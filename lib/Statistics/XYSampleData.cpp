@@ -20,6 +20,7 @@
 #include <LatAnalyze/Statistics/XYSampleData.hpp>
 #include <LatAnalyze/includes.hpp>
 #include <LatAnalyze/Core/Math.hpp>
+// #include <LatAnalyze/Core/Exceptions.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -234,22 +235,18 @@ DVec XYSampleData::getYError(const Index j)
     return data_.getYError(j);
 }
 
-void XYSampleData::setChi2PerDofBound(double upper_lim, double lower_lim)
+void XYSampleData::setChi2PerDofBound(double uLim, double lLim)
 {
-    chi2PerDofu_ = upper_lim;
-    chi2PerDofl_ = lower_lim;
-}
-
-bool XYSampleData::checkFit()
-{
-    return goodFit_;
+    chi2PerDofu_ = uLim;
+    chi2PerDofl_ = lLim;
 }
 
 void XYSampleData::checkChi2PerDof(double Chi2PerDof)
 {
     if(Chi2PerDof >= chi2PerDofu_ or Chi2PerDof < chi2PerDofl_ or isnan(Chi2PerDof)) 
     {
-        goodFit_ = false;
+        string msg = "central chi2perDof = " + to_string(Chi2PerDof) + " not within user-set bound of " + to_string(chi2PerDofl_) + " < chi2PerDof < " + to_string(chi2PerDofu_) ;
+        LATAN_ERROR(Runtime, msg);
     }
 }
 
@@ -312,11 +309,8 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.chi2_.resize(nSample_);
     result.model_.resize(v.size());
     double chi2PerDof;
-    goodFit_ = true;
     FOR_STAT_ARRAY(result, s)
     {
-        if(goodFit_)
-        {
             setDataToSample(s);
             if (s == central)
             {
@@ -337,7 +331,6 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                 result.model_[j].resize(nSample_);
                 result.model_[j][s] = sampleResult.getModel(j);
             }
-        }
     }
     result.nPar_    = sampleResult.getNPar();
     result.nDof_    = sampleResult.nDof_;
