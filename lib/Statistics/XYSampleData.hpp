@@ -91,6 +91,8 @@ public:
     const DMat &       getXYVar(const Index i, const Index j);
     DVec               getXError(const Index i);
     DVec               getYError(const Index j);
+    // fit criteria
+    void               setChi2PerDofBound(double upper_lim, double lower_lim);
     bool               checkFit(); // check fit candidate based on chi2PerDof
     void               checkChi2PerDof(double Chi2PerDof);
     // get total fit variance matrix and its pseudo-inverse
@@ -136,6 +138,7 @@ private:
     bool                                  initData_{true}, computeVarMat_{true};
     bool                                  initXMap_{true};
     bool                                  goodFit_{true}; // used to break minimisation if central sample chi2PerDof is bad
+    double                                chi2PerDofu_{1e10}, chi2PerDofl_{0};
 };
 
 /******************************************************************************

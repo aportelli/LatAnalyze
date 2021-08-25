@@ -234,6 +234,12 @@ DVec XYSampleData::getYError(const Index j)
     return data_.getYError(j);
 }
 
+void XYSampleData::setChi2PerDofBound(double upper_lim, double lower_lim)
+{
+    chi2PerDofu_ = upper_lim;
+    chi2PerDofl_ = lower_lim;
+}
+
 bool XYSampleData::checkFit()
 {
     return goodFit_;
@@ -241,7 +247,7 @@ bool XYSampleData::checkFit()
 
 void XYSampleData::checkChi2PerDof(double Chi2PerDof)
 {
-    if(Chi2PerDof >= 2 or Chi2PerDof < 0 or isnan(Chi2PerDof)) 
+    if(Chi2PerDof >= chi2PerDofu_ or Chi2PerDof < chi2PerDofl_ or isnan(Chi2PerDof)) 
     {
         goodFit_ = false;
     }
