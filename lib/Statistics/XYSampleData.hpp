@@ -92,8 +92,8 @@ public:
     DVec               getXError(const Index i);
     DVec               getYError(const Index j);
     // fit criteria
-    void               setChi2PerDofBound(double uLim, double lLim);
-    void               checkChi2PerDof(double Chi2PerDof);
+    void               setPValueBound(double uLim, double lLim);
+    void               checkPValue(double Chi2PerDof);
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
@@ -136,7 +136,7 @@ private:
     Index                                 nSample_, dataSample_{central};
     bool                                  initData_{true}, computeVarMat_{true};
     bool                                  initXMap_{true};
-    double                                chi2PerDofu_{1e10}, chi2PerDofl_{0};
+    double                                pValMax{1}, pValMin{0};
 };
 
 /******************************************************************************

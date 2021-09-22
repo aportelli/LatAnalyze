@@ -20,7 +20,6 @@
 #include <LatAnalyze/Statistics/XYSampleData.hpp>
 #include <LatAnalyze/includes.hpp>
 #include <LatAnalyze/Core/Math.hpp>
-// #include <LatAnalyze/Core/Exceptions.hpp>
 
 using namespace std;
 using namespace Latan;
@@ -235,17 +234,17 @@ DVec XYSampleData::getYError(const Index j)
     return data_.getYError(j);
 }
 
-void XYSampleData::setChi2PerDofBound(double uLim, double lLim)
+void XYSampleData::setPValueBound(double uLim, double lLim)
 {
-    chi2PerDofu_ = uLim;
-    chi2PerDofl_ = lLim;
+    pValMax = uLim;
+    pValMin = lLim;
 }
 
-void XYSampleData::checkChi2PerDof(double Chi2PerDof)
+void XYSampleData::checkPValue(double pValue)
 {
-    if(Chi2PerDof >= chi2PerDofu_ or Chi2PerDof < chi2PerDofl_ or isnan(Chi2PerDof)) 
+    if(pValue >= pValMax or pValue <= pValMin or isnan(pValue)) 
     {
-        string msg = "central chi2perDof = " + to_string(Chi2PerDof) + " not within user-set bound of " + to_string(chi2PerDofl_) + " < chi2PerDof < " + to_string(chi2PerDofu_) ;
+        string msg = "central pValue = " + to_string(pValue) + " not within user-set bound of " + to_string(pValMin) + " < pValue < " + to_string(pValMax) ;
         LATAN_ERROR(Runtime, msg);
     }
 }
