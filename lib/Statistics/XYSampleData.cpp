@@ -294,9 +294,40 @@ const XYStatData & XYSampleData::getData(void)
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
+
+void XYSampleData::fitSample(std::vector<Minimizer *> &minimizer,
+                             const std::vector<const DoubleModel *> &v,
+                             SampleFitResult &result,
+                             FitResult &sampleResult,
+                             DVec &init,
+                             Index s)
+{
+    double pValue = 0;
+    setDataToSample(s);
+    if (s == central)
+    {
+        sampleResult = data_.fit(minimizer, init, v);
+        init         = sampleResult.segment(0, init.size());
+        pValue       = sampleResult.getPValue();
+        checkPValue(pValue);
+    }
+    else
+    {
+        sampleResult = data_.fit(*(minimizer.back()), init, v);
+    }
+    result[s]       = sampleResult;
+    result.chi2_[s] = sampleResult.getChi2();
+    for (unsigned int j = 0; j < v.size(); ++j)
+    {
+        result.model_[j].resize(nSample_);
+        result.model_[j][s] = sampleResult.getModel(j);
+    }
+}
+
 SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v)
+                                  const std::vector<const DoubleModel *> &v,
+                                  bool centralSample)
 {
     computeVarMat();
     
@@ -307,29 +338,16 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
     result.model_.resize(v.size());
-    double chi2PerDof;
-    FOR_STAT_ARRAY(result, s)
+    if(centralSample)
     {
-            setDataToSample(s);
-            if (s == central)
-            {
-                sampleResult = data_.fit(minimizer, initCopy, v);
-                initCopy     = sampleResult.segment(0, initCopy.size());
-                chi2PerDof   = sampleResult.getChi2PerDof();
-                checkChi2PerDof(chi2PerDof);
-            }
-            else
-            {
-                sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
-                chi2PerDof   = sampleResult.getChi2PerDof();
-            }
-            result[s]       = sampleResult;
-            result.chi2_[s] = sampleResult.getChi2();
-            for (unsigned int j = 0; j < v.size(); ++j)
-            {
-                result.model_[j].resize(nSample_);
-                result.model_[j][s] = sampleResult.getModel(j);
-            }
+        fitSample(minimizer, v, result, sampleResult, initCopy, central);
+    }
+    else
+    {
+        FOR_STAT_ARRAY(result, s)
+        {
+            fitSample(minimizer, v, result, sampleResult, initCopy, s);
+        }
     }
     result.nPar_    = sampleResult.getNPar();
     result.nDof_    = sampleResult.nDof_;
@@ -340,11 +358,12 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
 
 SampleFitResult XYSampleData::fit(Minimizer &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v)
+                                  const std::vector<const DoubleModel *> &v,
+                                  bool centralSample)
 {
     vector<Minimizer *> mv{&minimizer};
     
-    return fit(mv, init, v);
+    return fit(mv, init, v, centralSample);
 }
 
 // residuals ///////////////////////////////////////////////////////////////////

@@ -102,10 +102,12 @@ public:
     // get internal XYStatData
     const XYStatData & getData(void);
     // fit
+    void fitSample(std::vector<Minimizer *> &minimizer, const std::vector<const DoubleModel *> &v, 
+                   SampleFitResult &result, FitResult &sampleResult, DVec &init, Index s);
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v);
+                        const std::vector<const DoubleModel *> &v, bool centralSample = false);
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v);
+                        const std::vector<const DoubleModel *> &v, bool centralSample = false);
     template <typename... Ts>
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
                         const DoubleModel &model, const Ts... models);
