@@ -16,6 +16,7 @@ autom4te.cache/*
 *.in~
 config.h*
 configure
+configure~
 .buildutils/*
 aclocal.m4
 
