@@ -1,0 +1,25 @@
+name: Build macOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-11
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install basic dependencies
+      run: brew install automake autoconf libtool bison flex
+    - name: Build dependencies
+      shell: bash
+      run: |
+        export PATH=/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:${PATH}
+        cd ci-scripts
+        ./install-deps.sh prefix 6
+    - name: Build LatAnalyze
+      shell: bash
+      run: |
+        cd ci-scripts
+        ./install-latan.sh prefix 6
