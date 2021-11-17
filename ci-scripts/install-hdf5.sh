@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAME='hdf5-1.10.5'
+NAME='hdf5-1.10.8'
 
 if (( $# != 2 )); then
   echo "usage: `basename $0` <prefix> <ntasks>" 1>&2
