@@ -21,5 +21,6 @@ jobs:
     - name: Build LatAnalyze
       shell: bash
       run: |
+        export PATH=/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:${PATH}
         cd ci-scripts
         ./install-latan.sh prefix 6
