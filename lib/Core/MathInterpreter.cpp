@@ -217,145 +217,24 @@ void RunContext::reset(void)
 #define CODE_WIDTH 6
 #define CODE_MOD   setw(CODE_WIDTH) << left
 
-// Instruction operator ////////////////////////////////////////////////////////
-ostream &Latan::operator<<(ostream& out, const Instruction& ins)
+auto readConstant(Program::const_iterator ip)
+    -> std::tuple<double, Program::const_iterator>
 {
-    ins.print(out);
-    
-    return out;
+    double value = 0.0;
+    std::copy(ip, ip + sizeof(double), reinterpret_cast<std::uint8_t*>(&value));
+
+    return std::make_tuple(value, ip + sizeof(double));
 }
 
-// Push constructors ///////////////////////////////////////////////////////////
-Push::Push(const double val)
-: type_(ArgType::Constant)
-, val_(val)
-, address_(0)
-, name_("")
-{}
-
-Push::Push(const unsigned int address, const string &name)
-: type_(ArgType::Variable)
-, val_(0.0)
-, address_(address)
-, name_(name)
-{}
-
-// Push execution //////////////////////////////////////////////////////////////
-void Push::operator()(RunContext &context) const
+auto readAddress(Program::const_iterator ip)
+    -> std::tuple<unsigned int, Program::const_iterator>
 {
-    if (type_ == ArgType::Constant)
-    {
-        context.stack().push(val_);
-    }
-    else
-    {
-        context.stack().push(context.getVariable(address_));
-    }
-    context.incrementInsIndex();
+    unsigned int address = 0.0;
+    const auto end = ip + sizeof(unsigned int);
+    std::copy(ip, end, reinterpret_cast<std::uint8_t*>(&address));
+
+    return std::make_tuple(address, end);
 }
-
-// Push print //////////////////////////////////////////////////////////////////
-void Push::print(ostream &out) const
-{
-    out << CODE_MOD << "push";
-    if (type_ == ArgType::Constant)
-    {
-        out << CODE_MOD << val_;
-    }
-    else
-    {
-        out << CODE_MOD << name_ << " @v" << address_;
-    }
-}
-
-// Pop constructor /////////////////////////////////////////////////////////////
-Pop::Pop(const unsigned int address, const string &name)
-: address_(address)
-, name_(name)
-{}
-
-// Pop execution ///////////////////////////////////////////////////////////////
-void Pop::operator()(RunContext &context) const
-{
-    if (!name_.empty())
-    {
-        context.setVariable(address_, context.stack().top());
-    }
-    context.stack().pop();
-    context.incrementInsIndex();
-}
-
-// Pop print ///////////////////////////////////////////////////////////////////
-void Pop::print(ostream &out) const
-{
-    out << CODE_MOD << "pop" << CODE_MOD << name_ << " @v" << address_;
-}
-
-// Store constructor ///////////////////////////////////////////////////////////
-Store::Store(const unsigned int address, const string &name)
-: address_(address)
-, name_(name)
-{}
-
-// Store execution /////////////////////////////////////////////////////////////
-void Store::operator()(RunContext &context) const
-{
-    if (!name_.empty())
-    {
-        context.setVariable(address_, context.stack().top());
-    }
-    context.incrementInsIndex();
-}
-
-// Store print /////////////////////////////////////////////////////////////////
-void Store::print(ostream &out) const
-{
-    out << CODE_MOD << "store" << CODE_MOD << name_ << " @v" << address_;
-}
-
-// Call constructor ////////////////////////////////////////////////////////////
-Call::Call(const unsigned int address, const string &name)
-: address_(address)
-, name_(name)
-{}
-
-// Call execution //////////////////////////////////////////////////////////////
-void Call::operator()(RunContext &context) const
-{
-    context.stack().push((*context.getFunction(address_))(context.stack()));
-    context.incrementInsIndex();
-}
-
-// Call print //////////////////////////////////////////////////////////////////
-void Call::print(ostream &out) const
-{
-    out << CODE_MOD << "call" << CODE_MOD << name_ << " @f" << address_;
-}
-
-// Math operations /////////////////////////////////////////////////////////////
-#define DEF_OP(name, nArg, exp, insName)\
-void name::operator()(RunContext &context) const\
-{\
-    double x[nArg];\
-    for (int i = 0; i < nArg; ++i)\
-    {\
-        x[nArg-1-i] = context.stack().top();\
-        context.stack().pop();\
-    }\
-    context.stack().push(exp);\
-    context.incrementInsIndex();\
-}\
-void name::print(ostream &out) const\
-{\
-    out << CODE_MOD << insName;\
-}
-
-DEF_OP(Neg, 1, -x[0],          "neg")
-DEF_OP(Add, 2, x[0] + x[1],    "add")
-DEF_OP(Sub, 2, x[0] - x[1],    "sub")
-DEF_OP(Mul, 2, x[0]*x[1],      "mul")
-DEF_OP(Div, 2, x[0]/x[1],      "div")
-DEF_OP(Pow, 2, pow(x[0],x[1]), "pow")
 
 /******************************************************************************
  *                        ExprNode implementation                             *
@@ -442,29 +321,35 @@ ostream &Latan::operator<<(ostream &out, const ExprNode &n)
     return out;
 }
 
-#define PUSH_INS(program, type, ...)\
-program.push_back(unique_ptr<type>(new type(__VA_ARGS__)))
-#define GET_ADDRESS(address, table, name)\
-try\
-{\
-    address = (table).at(name);\
-}\
-catch (out_of_range)\
-{\
-    address         = (table).size();\
-    (table)[(name)] = address;\
-}\
+// Bytecode helper functions ///////////////////////////////////////////////////
+void pushInstruction(Program &program, const Instruction instruction) {
+    program.push_back(static_cast<std::uint8_t>(instruction));
+}
+
+void pushAddress(Program &program, const unsigned int address) {
+    const auto address_ptr = reinterpret_cast<const std::uint8_t*>(&address);
+    const auto size = sizeof(unsigned int);
+    program.insert(program.end(), address_ptr, address_ptr + size);
+}
+
+void pushConstant(Program &program, const double value) {
+    const auto value_ptr = reinterpret_cast<const std::uint8_t*>(&value);
+    const auto size = sizeof(double);
+    program.insert(program.end(), value_ptr, value_ptr + size);
+}
 
 // VarNode compile /////////////////////////////////////////////////////////////
 void VarNode::compile(Program &program, RunContext &context) const
 {
-    PUSH_INS(program, Push, context.getVariableAddress(getName()), getName());
+    pushInstruction(program, Instruction::LOAD);
+    pushAddress(program, context.getVariableAddress(getName()));
 }
 
 // CstNode compile /////////////////////////////////////////////////////////////
 void CstNode::compile(Program &program, RunContext &context __dumb) const
 {
-    PUSH_INS(program, Push, strTo<double>(getName()));
+    pushInstruction(program, Instruction::CONST);
+    pushConstant(program, strTo<double>(getName()));
 }
 
 // SemicolonNode compile ///////////////////////////////////////////////////////
@@ -482,6 +367,10 @@ void SemicolonNode::compile(Program &program, RunContext &context) const
         {
             n[i].compile(program, context);
         }
+        // Where a variable has just been assigned, pop it off the stack.
+        if (isAssign) {
+            pushInstruction(program, Instruction::POP);
+        }
     }
 }
 
@@ -492,19 +381,10 @@ void AssignNode::compile(Program &program, RunContext &context) const
     
     if (isDerivedFrom<VarNode>(&n[0]))
     {
-        bool hasSemicolonParent = isDerivedFrom<SemicolonNode>(getParent());
-        unsigned int address;
-        
         n[1].compile(program, context);
-        address = context.addVariable(n[0].getName());
-        if (hasSemicolonParent)
-        {
-            PUSH_INS(program, Pop, address, n[0].getName());
-        }
-        else
-        {
-            PUSH_INS(program, Store, address, n[0].getName());
-        }
+        const unsigned int address = context.addVariable(n[0].getName());
+        pushInstruction(program, Instruction::STORE);
+        pushAddress(program, address);
     }
     else
     {
@@ -519,19 +399,37 @@ void AssignNode::compile(Program &program, RunContext &context) const
 
 void MathOpNode::compile(Program &program, RunContext &context) const
 {
+#define PUSH_BINARY_OP(op, instruction) \
+    case op: \
+        pushInstruction(program, Instruction::instruction); \
+        break;
+
     auto &n = *this;
     
     for (Index i = 0; i < n.getNArg(); ++i)
     {
         n[i].compile(program, context);
     }
-    IFNODE("-", 1)   PUSH_INS(program, Neg,);
-    ELIFNODE("+", 2) PUSH_INS(program, Add,);
-    ELIFNODE("-", 2) PUSH_INS(program, Sub,);
-    ELIFNODE("*", 2) PUSH_INS(program, Mul,);
-    ELIFNODE("/", 2) PUSH_INS(program, Div,);
-    ELIFNODE("^", 2) PUSH_INS(program, Pow,);
-    ELSE LATAN_ERROR(Compilation, "unknown operator '" + getName() + "'");
+    if (n.getName() == "-" and n.getNArg() == 1) {
+        pushInstruction(program, Instruction::NEG);
+        return;
+    }
+
+    if (getNArg() != 2) {
+        LATAN_ERROR(Compilation, "unknown operator '" + getName() + "'");
+    }
+
+    switch (getName()[0]) {
+    PUSH_BINARY_OP('+', ADD)
+    PUSH_BINARY_OP('-', SUB)
+    PUSH_BINARY_OP('*', MUL)
+    PUSH_BINARY_OP('/', DIV)
+    PUSH_BINARY_OP('^', POW)
+    default:
+        LATAN_ERROR(Compilation, "unknown operator '" + getName() + "'");
+    }
+
+#undef PUSH_BINARY_OP
 }
 
 // FuncNode compile ////////////////////////////////////////////////////////////
@@ -543,7 +441,8 @@ void FuncNode::compile(Program &program, RunContext &context) const
     {
         n[i].compile(program, context);
     }
-    PUSH_INS(program, Call, context.getFunctionAddress(getName()), getName());
+    pushInstruction(program, Instruction::CALL);
+    pushAddress(program, context.getFunctionAddress(getName()));
 }
 
 // ReturnNode compile ////////////////////////////////////////////////////////////
@@ -552,7 +451,7 @@ void ReturnNode::compile(Program &program, RunContext &context) const
     auto &n = *this;
     
     n[0].compile(program, context);
-    program.push_back(nullptr);
+    pushInstruction(program, Instruction::RET);
 }
 
 /******************************************************************************
@@ -582,7 +481,7 @@ MathInterpreter::MathInterpreter(const std::string &code)
 // access //////////////////////////////////////////////////////////////////////
 const Instruction * MathInterpreter::operator[](const Index i) const
 {
-    return program_[i].get();
+    return reinterpret_cast<const Instruction*>(&program_[i]);
 }
 
 const ExprNode * MathInterpreter::getAST(void) const
@@ -592,7 +491,7 @@ const ExprNode * MathInterpreter::getAST(void) const
 
 void MathInterpreter::push(const Instruction *i)
 {
-    program_.push_back(unique_ptr<const Instruction>(i));
+    pushInstruction(program_, *i);
 }
 
 // initialization //////////////////////////////////////////////////////////////
@@ -695,7 +594,7 @@ void MathInterpreter::compile(RunContext &context)
             root_->compile(program_, context);
             for (unsigned int i = 0; i < program_.size(); ++i)
             {
-                if (!program_[i])
+                if (static_cast<Instruction>(program_[i]) == Instruction::RET)
                 {
                     gotReturn = true;
                     program_.resize(i);
@@ -726,20 +625,145 @@ void MathInterpreter::operator()(RunContext &context)
 
 void MathInterpreter::execute(RunContext &context) const
 {
-    context.setInsIndex(0);
-    while (context.getInsIndex() != program_.size())
-    {
-        (*(program_[context.getInsIndex()]))(context);
+#define BINARY_OP_CASE(instruction, expr) \
+        case Instruction::instruction: { \
+            const auto second = context.stack().top(); \
+            context.stack().pop(); \
+            const auto first = context.stack().top(); \
+            context.stack().pop(); \
+            context.stack().push(expr); \
+            break; \
+        }
+    auto ip = program_.begin();
+
+    while (ip != program_.end()) {
+        const auto instruction = static_cast<Instruction>(*ip);
+        ip++;
+
+        switch (instruction) {
+        BINARY_OP_CASE(ADD, first + second)
+        BINARY_OP_CASE(SUB, first - second)
+        BINARY_OP_CASE(MUL, first * second)
+        BINARY_OP_CASE(DIV, first / second)
+        BINARY_OP_CASE(POW, std::pow(first, second))
+        case Instruction::NEG: {
+            const auto operand = context.stack().top();
+            context.stack().pop();
+            context.stack().push(-operand);
+            break;
+        }
+        case Instruction::CONST: {
+            double value = 0.0;
+            std::tie(value, ip) = readConstant(ip);
+            context.stack().push(value);
+            break;
+        }
+        case Instruction::POP:
+            context.stack().pop();
+            break;
+        case Instruction::LOAD: {
+            unsigned int address = 0;
+            std::tie(address, ip) = readAddress(ip);
+            context.stack().push(context.getVariable(address));
+            break;
+        }
+        case Instruction::STORE: {
+            unsigned int address = 0;
+            std::tie(address, ip) = readAddress(ip);
+            context.setVariable(address, context.stack().top());
+            break;
+        }
+        case Instruction::CALL: {
+            unsigned int address = 0;
+            std::tie(address, ip) = readAddress(ip);
+            auto& stack = context.stack();
+            stack.push((*context.getFunction(address))(stack));
+            break;
+        }
+        case Instruction::RET:
+            break;
+        }
     }
+
+#undef BINARY_OP_CASE
+}
+
+Program::const_iterator instructionToStream(
+    ostream &out, Program::const_iterator ip)
+{
+    const auto instruction = static_cast<Instruction>(*ip);
+    ip++;
+
+    switch (instruction) {
+    case Instruction::ADD:
+        out << "ADD";
+        break;
+    case Instruction::SUB:
+        out << "SUB";
+        break;
+    case Instruction::MUL:
+        out << "MUL";
+        break;
+    case Instruction::DIV:
+        out << "DIV";
+        break;
+    case Instruction::POW:
+        out << "POW";
+        break;
+    case Instruction::NEG:
+        out << "NEG";
+        break;
+    case Instruction::CONST: {
+        double value = 0.0;
+        std::tie(value, ip) = readConstant(ip);
+        out << CODE_MOD << setfill(' ') << "CONST" << value;
+        break;
+    }
+    case Instruction::POP:
+        out << "POP";
+        break;
+    case Instruction::LOAD: {
+        unsigned int address = 0;
+        std::tie(address, ip) = readAddress(ip);
+        out << CODE_MOD << setfill(' ') << "LOAD" << address;
+        break;
+    }
+    case Instruction::STORE: {
+        unsigned int address = 0;
+        std::tie(address, ip) = readAddress(ip);
+        out << CODE_MOD << setfill(' ') << "STORE" << address;
+        break;
+    }
+    case Instruction::CALL: {
+        unsigned int address = 0;
+        std::tie(address, ip) = readAddress(ip);
+        out << CODE_MOD << setfill(' ') << "CALL" << address;
+        break;
+    }
+    case Instruction::RET:
+        out << "RET";
+        break;
+    }
+
+    return ip;
+}
+
+ostream &programToStream(ostream &out, const Program &program)
+{
+    auto ip = program.begin();
+
+    while (ip != program.end()) {
+        const auto i = std::distance(program.begin(), ip);
+        cout << setw(4) << setfill('0') << right << i << "  ";
+        ip = instructionToStream(out, ip);
+        out << '\n';
+    }
+
+    return out;
 }
 
 // IO //////////////////////////////////////////////////////////////////////////
 ostream &Latan::operator<<(ostream &out, const MathInterpreter &program)
 {
-    for (unsigned int i = 0; i < program.program_.size(); ++i)
-    {
-        out << *(program.program_[i]) << endl;
-    }
-    
-    return out;
+    return programToStream(out, program.program_);
 }
