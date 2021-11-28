@@ -12,15 +12,15 @@ int main(void)
     {
         pool.addJob([i, &pool](void)
         {
+            pool.critical([i](void)
             {
-                unique_lock<mutex> lock(pool.getMutex());
                 cout << "job " << i << " wait for " << i*100 << " ms" << endl;
-            }
+            });
             this_thread::sleep_for(chrono::milliseconds(i*100));
+            pool.critical([i](void)
             {
-                unique_lock<mutex> lock(pool.getMutex());
                 cout << "job " << i << " done" << endl;
-            }
+            });
         });
     }
     pool.terminate();

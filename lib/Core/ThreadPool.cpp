@@ -92,6 +92,14 @@ void ThreadPool::addJob(Job newJob)
     condition_.notify_one();
 }
 
+// critical section ////////////////////////////////////////////////////////////
+void ThreadPool::critical(Job fn)
+{
+    unique_lock<mutex> lock(mutex_);
+
+    fn();
+}
+
 // wait for completion /////////////////////////////////////////////////////////
 void ThreadPool::terminate(void)
 {

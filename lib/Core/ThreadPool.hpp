@@ -37,6 +37,8 @@ public:
     std::mutex & getMutex(void);
     // add jobs
     void addJob(Job newJob);
+    // critical section
+    void critical(Job fn);
     // wait for completion and terminate
     void terminate(void);
 private:
