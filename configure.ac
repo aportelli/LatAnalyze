@@ -74,6 +74,7 @@ CXXFLAGS_CPY=$CXXFLAGS
 LDFLAGS_CPY=$LDFLAGS
 CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
 LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+AC_CHECK_LIB([pthread],[pthread_create],[],[AC_MSG_ERROR([pthread library not found])])
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
