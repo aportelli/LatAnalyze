@@ -89,10 +89,11 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
-    PlotData(const DMatSample &x, const DMatSample &y);
-    PlotData(const DVec       &x, const DMatSample &y);
-    PlotData(const DMatSample &x, const DVec       &y);
-    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
+    PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
+    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0, 
+             const bool abs = false);
     // destructor
     virtual ~PlotData(void) = default;
 };
@@ -130,7 +131,8 @@ class PlotFunction: public PlotObject
 public:
     // constructor
     PlotFunction(const DoubleFunction &function, const double xMin,
-                 const double xMax, const unsigned int nPoint = 1000);
+                 const double xMax, const unsigned int nPoint = 1000, 
+                 const bool abs = false);
     // destructor
     virtual ~PlotFunction(void) = default;
 };

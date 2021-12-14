@@ -112,7 +112,7 @@ PlotHeadCommand::PlotHeadCommand(const string &command)
 }
 
 // PlotData constructor ////////////////////////////////////////////////////////
-PlotData::PlotData(const DMatSample &x, const DMatSample &y)
+PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
 {
     if (x[central].rows() != y[central].rows())
     {
@@ -128,10 +128,17 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y)
     d.col(3)    = y.variance().cwiseSqrt();
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($3)):2:4 w xyerr");
+    }
 }
 
-PlotData::PlotData(const DVec &x, const DMatSample &y)
+PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
 {
     if (x.rows() != y[central].rows())
     {
@@ -146,10 +153,17 @@ PlotData::PlotData(const DVec &x, const DMatSample &y)
     d.col(2)    = y.variance().cwiseSqrt();
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+    }
 }
 
-PlotData::PlotData(const DMatSample &x, const DVec &y)
+PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
 {
     if (x[central].rows() != y.rows())
     {
@@ -164,14 +178,29 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
     d.col(1)    = x.variance().cwiseSqrt();
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:($3):2 w xerr");
+    }
 }
 
-PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
+PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
 {
     string usingCmd, tmpFileName;
     
-    usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    if (!abs)
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    }
+    else
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:(abs($3)):4 w yerr" : "u 1:(abs($3)):2:4 w xyerr";
+    }
+   
     tmpFileName = dumpToTmpFile(data.getTable(i, j));
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);
@@ -217,7 +246,8 @@ PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
 
 // PlotFunction constructor ////////////////////////////////////////////////////
 PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
-                           const double xMax, const unsigned int nPoint)
+                           const double xMax, const unsigned int nPoint,
+                           const bool abs)
 {
     DMat   d(nPoint, 2);
     string tmpFileName;
@@ -230,7 +260,14 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($2)) w lines");
+    }
 }
 
 // PlotPredBand constructor ////////////////////////////////////////////////////
