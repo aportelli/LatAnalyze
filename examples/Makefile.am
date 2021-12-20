@@ -20,7 +20,8 @@ noinst_PROGRAMS =           \
     exPValue                \
     exRand                  \
     exRootFinder            \
-    exThreadPool
+    exThreadPool            \
+    exVarBenchmark
 
 exCompiledDoubleFunction_SOURCES  = exCompiledDoubleFunction.cpp
 exCompiledDoubleFunction_CXXFLAGS = $(COM_CXXFLAGS)
@@ -77,5 +78,9 @@ exRootFinder_LDFLAGS              = -L../lib/.libs -lLatAnalyze
 exThreadPool_SOURCES              = exThreadPool.cpp
 exThreadPool_CXXFLAGS             = $(COM_CXXFLAGS)
 exThreadPool_LDFLAGS              = -L../lib/.libs -lLatAnalyze
+
+exVarBenchmark_SOURCES            = exVarBenchmark.cpp
+exVarBenchmark_CXXFLAGS           = $(COM_CXXFLAGS)
+exVarBenchmark_LDFLAGS            = -L../lib/.libs -lLatAnalyze
 
 ACLOCAL_AMFLAGS = -I .buildutils/m4

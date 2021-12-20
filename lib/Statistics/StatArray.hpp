@@ -51,14 +51,17 @@ public:
     const T & operator[](const Index s) const;
     // statistics
     void bin(Index binSize);
+    T    sum(const Index pos = 0, const Index n = -1) const;
+    T    meanOld(const Index pos = 0, const Index n = -1) const;
     T    mean(const Index pos = 0, const Index n = -1) const;
-    T    covariance(const StatArray<T, os> &array, const Index pos = 0,
-                    const Index n = -1) const;
-    T    covarianceMatrix(const StatArray<T, os> &array, const Index pos = 0,
+    T    covarianceOld(const StatArray<T, os> &array) const;
+    T    covariance(const StatArray<T, os> &array) const;
+    T    covarianceMatrixOld(const StatArray<T, os> &array, const Index pos = 0,
                           const Index n = -1) const;
-    T    variance(const Index pos = 0, const Index n = -1) const;
-    T    varianceMatrix(const Index pos = 0, const Index n = -1) const;
-    T    correlationMatrix(const Index pos = 0, const Index n = -1) const;
+    T    varianceOld(void) const;
+    T    variance(void) const;
+    T    varianceMatrixOld(const Index pos = 0, const Index n = -1) const;
+    T    correlationMatrixOld(const Index pos = 0, const Index n = -1) const;
     // IO type
     virtual IoType getType(void) const;
 public:
@@ -66,7 +69,7 @@ public:
 };
 
 // reduction operations
-namespace ReducOp
+namespace StatOp
 {
     // general templates
     template <typename T>
@@ -149,42 +152,82 @@ void StatArray<T, os>::bin(Index binSize)
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::mean(const Index pos, const Index n) const
+T StatArray<T, os>::meanOld(const Index pos, const Index n) const
 {
     T           result = T();
     const Index m = (n >= 0) ? n : size();
 
     if (m)
     {
-        result = this->segment(pos+os, m).redux(&ReducOp::sum<T>);
+        result = this->segment(pos+os, m).redux(&StatOp::sum<T>);
     }
     return result/static_cast<double>(m);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::covariance(const StatArray<T, os> &array, const Index pos,
-                               const Index n) const
+T StatArray<T, os>::sum(const Index pos, const Index n) const
+{
+    T           result;
+    const Index m = (n >= 0) ? n : size();
+
+    result = (*this)[pos];
+    for (Index i = pos + 1; i < pos + m; ++i)
+    {
+        result += (*this)[i];
+    }
+
+    return result;
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::mean(const Index pos, const Index n) const
+{
+    const Index m = (n >= 0) ? n : size();
+
+    return sum(pos, n)/static_cast<double>(m);
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::covarianceOld(const StatArray<T, os> &array) const
 {
     T           s1, s2, prs, res = T();
-    const Index m = (n >= 0) ? n : size();
+    const Index m = size();
     
     if (m)
     {
-        auto arraySeg = array.segment(pos+os, m);
-        auto thisSeg  = this->segment(pos+os, m);
+        auto arraySeg = array.segment(os, m);
+        auto thisSeg  = this->segment(os, m);
         
-        s1  = thisSeg.redux(&ReducOp::sum<T>);
-        s2  = arraySeg.redux(&ReducOp::sum<T>);
-        prs = thisSeg.binaryExpr(arraySeg, &ReducOp::prod<T>)
-                     .redux(&ReducOp::sum<T>);
-        res = prs - ReducOp::prod(s1, s2)/static_cast<double>(m);
+        s1  = thisSeg.redux(&StatOp::sum<T>);
+        s2  = arraySeg.redux(&StatOp::sum<T>);
+        prs = thisSeg.binaryExpr(arraySeg, &StatOp::prod<T>)
+                     .redux(&StatOp::sum<T>);
+        res = prs - StatOp::prod(s1, s2)/static_cast<double>(m);
     }
     
     return res/static_cast<double>(m - 1);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::covarianceMatrix(const StatArray<T, os> &array,
+T StatArray<T, os>::covariance(const StatArray<T, os> &array) const
+{
+    T s1, s2, res;
+
+    s1  = array.sum();
+    s2  = this->sum();
+    res = StatOp::prod<T>(array[0], (*this)[0]);
+    for (Index i = 1; i < size(); ++i)
+    {
+        res += StatOp::prod<T>(array[i], (*this)[i]);
+    }
+    res -= StatOp::prod<T>(s1, s2)/static_cast<double>(size());
+    res /= static_cast<double>(size() - 1);
+
+    return res;
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::covarianceMatrixOld(const StatArray<T, os> &array,
                                      const Index pos, const Index n) const
 {
     T           s1, s2, prs, res = T();
@@ -195,32 +238,38 @@ T StatArray<T, os>::covarianceMatrix(const StatArray<T, os> &array,
         auto arraySeg = array.segment(pos+os, m);
         auto thisSeg  = this->segment(pos+os, m);
 
-        s1  = thisSeg.redux(&ReducOp::sum<T>);
-        s2  = arraySeg.redux(&ReducOp::sum<T>);
-        prs = thisSeg.binaryExpr(arraySeg, &ReducOp::tensProd<T>)
-                     .redux(&ReducOp::sum<T>);
-        res = prs - ReducOp::tensProd(s1, s2)/static_cast<double>(m);
+        s1  = thisSeg.redux(&StatOp::sum<T>);
+        s2  = arraySeg.redux(&StatOp::sum<T>);
+        prs = thisSeg.binaryExpr(arraySeg, &StatOp::tensProd<T>)
+                     .redux(&StatOp::sum<T>);
+        res = prs - StatOp::tensProd(s1, s2)/static_cast<double>(m);
     }
     
     return res/static_cast<double>(m - 1);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::variance(const Index pos, const Index n) const
+T StatArray<T, os>::variance(void) const
 {
-    return covariance(*this, pos, n);
+    return covariance(*this);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::varianceMatrix(const Index pos, const Index n) const
+T StatArray<T, os>::varianceOld(void) const
 {
-    return covarianceMatrix(*this, pos, n);
+    return covarianceOld(*this);
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::correlationMatrix(const Index pos, const Index n) const
+T StatArray<T, os>::varianceMatrixOld(const Index pos, const Index n) const
 {
-    T res = varianceMatrix(pos, n);
+    return covarianceMatrixOld(*this, pos, n);
+}
+
+template <typename T, Index os>
+T StatArray<T, os>::correlationMatrixOld(const Index pos, const Index n) const
+{
+    T res = varianceMatrixOld(pos, n);
     T invDiag(res.rows(), 1);
 
     invDiag = res.diagonal();
@@ -231,8 +280,14 @@ T StatArray<T, os>::correlationMatrix(const Index pos, const Index n) const
 }
 
 // reduction operations ////////////////////////////////////////////////////////
-namespace ReducOp
+namespace StatOp
 {
+    template <typename T>
+    inline void zero(T &a)
+    {
+        a = 0.;
+    }
+
     template <typename T>
     inline T sum(const T &a, const T &b)
     {
