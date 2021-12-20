@@ -116,6 +116,15 @@ public:
     virtual ~PlotLine(void) = default;
 };
 
+class PlotPoints: public PlotObject
+{
+public:
+    // constructor
+    PlotPoints(const DVec &x, const DVec &y);
+    // destructor
+    virtual ~PlotPoints(void) = default;
+};
+
 class PlotBand: public PlotObject
 {
 public:

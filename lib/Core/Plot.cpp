@@ -224,6 +224,24 @@ PlotLine::PlotLine(const DVec &x, const DVec &y)
     setCommand("'" + tmpFileName + "' u 1:2 w lines");
 }
 
+// PlotPoints constructor ////////////////////////////////////////////////////////
+PlotPoints::PlotPoints(const DVec &x, const DVec &y)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2");
+}
+
 // PlotHLine constructor ///////////////////////////////////////////////////////
 PlotHLine::PlotHLine(const double y)
 {
