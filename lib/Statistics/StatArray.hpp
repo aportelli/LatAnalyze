@@ -54,14 +54,8 @@ public:
     T    sum(const Index pos = 0, const Index n = -1) const;
     T    meanOld(const Index pos = 0, const Index n = -1) const;
     T    mean(const Index pos = 0, const Index n = -1) const;
-    T    covarianceOld(const StatArray<T, os> &array) const;
     T    covariance(const StatArray<T, os> &array) const;
-    T    covarianceMatrixOld(const StatArray<T, os> &array, const Index pos = 0,
-                          const Index n = -1) const;
-    T    varianceOld(void) const;
     T    variance(void) const;
-    T    varianceMatrixOld(const Index pos = 0, const Index n = -1) const;
-    T    correlationMatrixOld(const Index pos = 0, const Index n = -1) const;
     // IO type
     virtual IoType getType(void) const;
 public:
@@ -152,19 +146,6 @@ void StatArray<T, os>::bin(Index binSize)
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::meanOld(const Index pos, const Index n) const
-{
-    T           result = T();
-    const Index m = (n >= 0) ? n : size();
-
-    if (m)
-    {
-        result = this->segment(pos+os, m).redux(&StatOp::sum<T>);
-    }
-    return result/static_cast<double>(m);
-}
-
-template <typename T, Index os>
 T StatArray<T, os>::sum(const Index pos, const Index n) const
 {
     T           result;
@@ -188,27 +169,6 @@ T StatArray<T, os>::mean(const Index pos, const Index n) const
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::covarianceOld(const StatArray<T, os> &array) const
-{
-    T           s1, s2, prs, res = T();
-    const Index m = size();
-    
-    if (m)
-    {
-        auto arraySeg = array.segment(os, m);
-        auto thisSeg  = this->segment(os, m);
-        
-        s1  = thisSeg.redux(&StatOp::sum<T>);
-        s2  = arraySeg.redux(&StatOp::sum<T>);
-        prs = thisSeg.binaryExpr(arraySeg, &StatOp::prod<T>)
-                     .redux(&StatOp::sum<T>);
-        res = prs - StatOp::prod(s1, s2)/static_cast<double>(m);
-    }
-    
-    return res/static_cast<double>(m - 1);
-}
-
-template <typename T, Index os>
 T StatArray<T, os>::covariance(const StatArray<T, os> &array) const
 {
     T s1, s2, res;
@@ -227,103 +187,24 @@ T StatArray<T, os>::covariance(const StatArray<T, os> &array) const
 }
 
 template <typename T, Index os>
-T StatArray<T, os>::covarianceMatrixOld(const StatArray<T, os> &array,
-                                     const Index pos, const Index n) const
-{
-    T           s1, s2, prs, res = T();
-    const Index m = (n >= 0) ? n : size();
-    
-    if (m)
-    {
-        auto arraySeg = array.segment(pos+os, m);
-        auto thisSeg  = this->segment(pos+os, m);
-
-        s1  = thisSeg.redux(&StatOp::sum<T>);
-        s2  = arraySeg.redux(&StatOp::sum<T>);
-        prs = thisSeg.binaryExpr(arraySeg, &StatOp::tensProd<T>)
-                     .redux(&StatOp::sum<T>);
-        res = prs - StatOp::tensProd(s1, s2)/static_cast<double>(m);
-    }
-    
-    return res/static_cast<double>(m - 1);
-}
-
-template <typename T, Index os>
 T StatArray<T, os>::variance(void) const
 {
     return covariance(*this);
-}
-
-template <typename T, Index os>
-T StatArray<T, os>::varianceOld(void) const
-{
-    return covarianceOld(*this);
-}
-
-template <typename T, Index os>
-T StatArray<T, os>::varianceMatrixOld(const Index pos, const Index n) const
-{
-    return covarianceMatrixOld(*this, pos, n);
-}
-
-template <typename T, Index os>
-T StatArray<T, os>::correlationMatrixOld(const Index pos, const Index n) const
-{
-    T res = varianceMatrixOld(pos, n);
-    T invDiag(res.rows(), 1);
-
-    invDiag = res.diagonal();
-    invDiag = invDiag.cwiseInverse().cwiseSqrt();
-    res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
-
-    return res;
 }
 
 // reduction operations ////////////////////////////////////////////////////////
 namespace StatOp
 {
     template <typename T>
-    inline void zero(T &a)
-    {
-        a = 0.;
-    }
-
-    template <typename T>
-    inline T sum(const T &a, const T &b)
-    {
-        return a + b;
-    }
-
-    template <typename T>
     inline T prod(const T &a, const T &b)
     {
         return a*b;
-    }
-
-    template <typename T>
-    inline T tensProd(const T &v1 __dumb, const T &v2 __dumb)
-    {
-        LATAN_ERROR(Implementation,
-                    "tensorial product not implemented for this type");
     }
 
     template <>
     inline Mat<double> prod(const Mat<double>  &a, const Mat<double>  &b)
     {
         return a.cwiseProduct(b);
-    }
-
-    template <>
-    inline Mat<double> tensProd(const Mat<double>  &v1,
-                                const Mat<double>  &v2)
-    {
-        if ((v1.cols() != 1) or (v2.cols() != 1))
-        {
-            LATAN_ERROR(Size,
-                        "tensorial product is only valid with column vectors");
-        }
-        
-        return v1*v2.transpose();
     }
 }
 
