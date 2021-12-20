@@ -111,6 +111,7 @@ public:
                         const DoubleModel &model, const Ts... models);
     // residuals
     XYSampleData getResiduals(const SampleFitResult &fit);
+    XYSampleData getNormalisedResiduals(const SampleFitResult &fit);
     XYSampleData getPartialResiduals(const SampleFitResult &fit, const DVec &x,
                                      const Index i);
 private:

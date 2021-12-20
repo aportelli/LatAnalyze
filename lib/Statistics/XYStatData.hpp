@@ -104,6 +104,7 @@ public:
                   const DoubleModel &model, const Ts... models);
     // residuals
     XYStatData getResiduals(const FitResult &fit);
+    XYStatData getNormalisedResiduals(const FitResult &fit);
     XYStatData getPartialResiduals(const FitResult &fit, const DVec &ref,
                                    const Index i);
 protected:

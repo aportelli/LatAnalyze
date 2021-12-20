@@ -379,6 +379,24 @@ XYStatData XYStatData::getResiduals(const FitResult &fit)
     return res;
 }
 
+XYStatData XYStatData::getNormalisedResiduals(const FitResult &fit)
+{
+    XYStatData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunction &f = fit.getModel(j);
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+            res.y(p.first, j) /= sqrt(getYYVar(j, j)(p.first, p.first));
+        }
+    }
+    
+    return res;
+}
+
 XYStatData XYStatData::getPartialResiduals(const FitResult &fit,
                                            const DVec &ref, const Index i)
 {

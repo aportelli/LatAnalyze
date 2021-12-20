@@ -346,6 +346,29 @@ XYSampleData XYSampleData::getResiduals(const SampleFitResult &fit)
     return res;
 }
 
+XYSampleData XYSampleData::getNormalisedResiduals(const SampleFitResult &fit)
+{
+    XYSampleData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunctionSample &f   = fit.getModel(_, j);
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+        }
+
+        const DMat &var = res.getYYVar(j, j);
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) /= sqrt(var(p.first, p.first));
+        }
+    }
+    
+    return res;
+}
+
 XYSampleData XYSampleData::getPartialResiduals(const SampleFitResult &fit,
                                                const DVec &ref, const Index i)
 {
