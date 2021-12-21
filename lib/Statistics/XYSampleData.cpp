@@ -285,9 +285,10 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
 {
     computeVarMat();
     
-    SampleFitResult result;
-    FitResult       sampleResult;
-    DVec            initCopy = init;
+    SampleFitResult      result;
+    FitResult            sampleResult;
+    DVec                 initCopy = init;
+    Minimizer::Verbosity verbCopy = minimizer.back()->getVerbosity();
     
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
@@ -299,9 +300,14 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         {
             sampleResult = data_.fit(minimizer, initCopy, v);
             initCopy     = sampleResult.segment(0, initCopy.size());
+            if (verbCopy != Minimizer::Verbosity::Debug)
+            {
+                minimizer.back()->setVerbosity(Minimizer::Verbosity::Silent);
+            }
         }
         else
         {
+            
             sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
         }
         result[s]       = sampleResult;
@@ -312,6 +318,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
             result.model_[j][s] = sampleResult.getModel(j);
         }
     }
+    minimizer.back()->setVerbosity(verbCopy);
     result.nPar_    = sampleResult.getNPar();
     result.nDof_    = sampleResult.nDof_;
     result.parName_ = sampleResult.parName_;
