@@ -216,7 +216,7 @@ DVec XYStatData::getXError(const Index i) const
 
 DVec XYStatData::getYError(const Index j) const
 {
-    checkXDim(j);
+    checkYDim(j);
     
     return yyVar_(j, j).diagonal().cwiseSqrt();
 }
@@ -385,12 +385,15 @@ XYStatData XYStatData::getNormalisedResiduals(const FitResult &fit)
     
     for (Index j = 0; j < getNYDim(); ++j)
     {
-        const DoubleFunction &f = fit.getModel(j);
+        const DoubleFunction &f  = fit.getModel(j);
+        const DVec           err = getYError(j);
+        Index                row = 0;
         
         for (auto &p: yData_[j])
         {
             res.y(p.first, j) -= f(x(p.first));
-            res.y(p.first, j) /= sqrt(getYYVar(j, j)(p.first, p.first));
+            res.y(p.first, j) /= err(row);
+            row++;
         }
     }
     
