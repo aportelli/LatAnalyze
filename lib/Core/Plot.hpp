@@ -193,6 +193,11 @@ PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
 PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
 PlotMatrixNoRange(m)
 
+#define PlotCorrMatrix(m)\
+PlotHeadCommand("set cbrange [-1:1]") <<\
+PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
+PlotMatrix(m)
+
 /******************************************************************************
  *                             Plot modifiers                                 *
  ******************************************************************************/
