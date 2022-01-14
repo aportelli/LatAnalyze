@@ -140,7 +140,6 @@ private:
     Index                                 nSample_, dataSample_{central};
     bool                                  initData_{true}, computeVarMat_{true};
     bool                                  initXMap_{true};
-    double                                pValMax{1}, pValMin{0};
 };
 
 /******************************************************************************
