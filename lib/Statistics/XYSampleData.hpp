@@ -91,9 +91,6 @@ public:
     const DMat &       getXYVar(const Index i, const Index j);
     DVec               getXError(const Index i);
     DVec               getYError(const Index j);
-    // fit criteria
-    void               setPValueBound(double uLim, double lLim);
-    void               checkPValue(double Chi2PerDof);
     // get total fit variance matrix and its pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
@@ -102,12 +99,17 @@ public:
     // get internal XYStatData
     const XYStatData & getData(void);
     // fit
-    void fitSample(std::vector<Minimizer *> &minimizer, const std::vector<const DoubleModel *> &v, 
-                   SampleFitResult &result, FitResult &sampleResult, DVec &init, Index s);
-    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v, bool centralSample = false);
-    SampleFitResult fit(Minimizer &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v, bool centralSample = false);
+    void            fitSample(std::vector<Minimizer *> &minimizer, 
+                              const std::vector<const DoubleModel *> &v, 
+                              FitResult &sampleResult, DVec &init, Index s);
+    FitResult       fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
+                        const std::vector<const DoubleModel *> &v, Index s);
+    FitResult       fit(Minimizer &minimizer, const DVec &init, 
+                        const std::vector<const DoubleModel *> &v, Index s);
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
+                        const std::vector<const DoubleModel *> &v);
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init, 
+                        const std::vector<const DoubleModel *> &v);
     template <typename... Ts>
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
                         const DoubleModel &model, const Ts... models);

@@ -234,21 +234,6 @@ DVec XYSampleData::getYError(const Index j)
     return data_.getYError(j);
 }
 
-void XYSampleData::setPValueBound(double uLim, double lLim)
-{
-    pValMax = uLim;
-    pValMin = lLim;
-}
-
-void XYSampleData::checkPValue(double pValue)
-{
-    if(pValue >= pValMax or pValue <= pValMin or isnan(pValue)) 
-    {
-        string msg = "central pValue = " + to_string(pValue) + " not within user-set bound of " + to_string(pValMin) + " < pValue < " + to_string(pValMax) ;
-        LATAN_ERROR(Runtime, msg);
-    }
-}
-
 // get total fit variance matrix and its pseudo-inverse ////////////////////////
 const DMat & XYSampleData::getFitVarMat(void)
 {
@@ -297,37 +282,51 @@ const XYStatData & XYSampleData::getData(void)
 
 void XYSampleData::fitSample(std::vector<Minimizer *> &minimizer,
                              const std::vector<const DoubleModel *> &v,
-                             SampleFitResult &result,
                              FitResult &sampleResult,
                              DVec &init,
                              Index s)
 {
-    double pValue = 0;
     setDataToSample(s);
     if (s == central)
     {
         sampleResult = data_.fit(minimizer, init, v);
         init         = sampleResult.segment(0, init.size());
-        pValue       = sampleResult.getPValue();
-        checkPValue(pValue);
     }
     else
     {
         sampleResult = data_.fit(*(minimizer.back()), init, v);
     }
-    result[s]       = sampleResult;
-    result.chi2_[s] = sampleResult.getChi2();
-    for (unsigned int j = 0; j < v.size(); ++j)
-    {
-        result.model_[j].resize(nSample_);
-        result.model_[j][s] = sampleResult.getModel(j);
-    }
+    
+}
+
+FitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
+                            const DVec &init,
+                            const std::vector<const DoubleModel *> &v,
+                            Index s)
+{
+    computeVarMat();
+    
+    FitResult       sampleResult;
+    DVec            initCopy = init;
+
+    fitSample(minimizer, v, sampleResult, initCopy, s);
+    
+    return sampleResult;
+}
+
+FitResult XYSampleData::fit(Minimizer &minimizer,
+                            const DVec &init,
+                            const std::vector<const DoubleModel *> &v,
+                            Index s)
+{
+    vector<Minimizer *> mv{&minimizer};
+    
+    return fit(mv, init, v, s);
 }
 
 SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v,
-                                  bool centralSample)
+                                  const std::vector<const DoubleModel *> &v)
 {
     computeVarMat();
     
@@ -338,15 +337,15 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
     result.model_.resize(v.size());
-    if(centralSample)
+    FOR_STAT_ARRAY(result, s)
     {
-        fitSample(minimizer, v, result, sampleResult, initCopy, central);
-    }
-    else
-    {
-        FOR_STAT_ARRAY(result, s)
+        fitSample(minimizer, v, sampleResult, initCopy, s);
+        result[s]       = sampleResult;
+        result.chi2_[s] = sampleResult.getChi2();
+        for (unsigned int j = 0; j < v.size(); ++j)
         {
-            fitSample(minimizer, v, result, sampleResult, initCopy, s);
+            result.model_[j].resize(nSample_);
+            result.model_[j][s] = sampleResult.getModel(j);
         }
     }
     result.nPar_    = sampleResult.getNPar();
@@ -358,12 +357,11 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
 
 SampleFitResult XYSampleData::fit(Minimizer &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v,
-                                  bool centralSample)
+                                  const std::vector<const DoubleModel *> &v)
 {
     vector<Minimizer *> mv{&minimizer};
     
-    return fit(mv, init, v, centralSample);
+    return fit(mv, init, v);
 }
 
 // residuals ///////////////////////////////////////////////////////////////////
