@@ -119,7 +119,7 @@ inline std::vector<Index> strTo<std::vector<Index>>(const std::string &str)
     while (!stream.eof())
     {
         stream >> buf;
-        vbuf.push_back(buf);
+        res.push_back(buf);
     }
     
     return res;
