@@ -60,9 +60,9 @@ double FitResult::getCcdf(void) const
     return Math::chi2Ccdf(getChi2(), getNDof());;
 }
 
-double FitResult::getSvdRangeDb(void) const
+double FitResult::getCorrRangeDb(void) const
 {
-    return svdRangeDb_;
+    return corrRangeDb_;
 }
 
 const DoubleFunction & FitResult::getModel(const Index j) const
@@ -80,7 +80,7 @@ void FitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
-    sprintf(buf, "correlation dynamic range= %.1f dB", getSvdRangeDb());
+    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
@@ -358,7 +358,7 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
         result    = (*m)(chi2);
         totalInit = result;
     }
-    result.svdRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     result.chi2_       = chi2(result);
     result.nPar_       = nPar;
     result.nDof_       = layout.totalYSize - nPar;

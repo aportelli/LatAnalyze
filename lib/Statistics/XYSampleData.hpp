@@ -49,7 +49,7 @@ public:
     double                       getNDof(void) const;
     Index                        getNPar(void) const;
     double                       getPValue(const Index s = central) const;
-    double                       getSvdRangeDb(void) const;
+    double                       getCorrRangeDb(void) const;
     double                       getCcdf(const Index s = central) const;
     const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
@@ -61,7 +61,7 @@ public:
                std::ostream &out = std::cout) const;
 private:
     DSample                           chi2_;
-    double                            svdRangeDb_{0.};
+    double                            corrRangeDb_{0.};
     Index                             nDof_{0}, nPar_{0};
     std::vector<DoubleFunctionSample> model_;
     std::vector<std::string>          parName_;

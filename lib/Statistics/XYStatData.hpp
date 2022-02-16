@@ -48,13 +48,13 @@ public:
     Index                  getNPar(void) const;
     double                 getPValue(void) const;
     double                 getCcdf(void) const;
-    double                 getSvdRangeDb(void) const;
+    double                 getCorrRangeDb(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
     // IO
     void print(const bool printXsi = false,
                std::ostream &out = std::cout) const;
 private:
-    double                      chi2_{0.}, svdRangeDb_{0.};
+    double                      chi2_{0.}, corrRangeDb_{0.};
     Index                       nDof_{0}, nPar_{0};
     std::vector<DoubleFunction> model_;
     std::vector<std::string>    parName_;

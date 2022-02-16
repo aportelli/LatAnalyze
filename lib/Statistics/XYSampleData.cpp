@@ -62,9 +62,9 @@ double SampleFitResult::getPValue(const Index s) const
     return Math::chi2PValue(getChi2(s), getNDof());
 }
 
-double SampleFitResult::getSvdRangeDb(void) const
+double SampleFitResult::getCorrRangeDb(void) const
 {
-    return svdRangeDb_;
+    return corrRangeDb_;
 }
 
 double SampleFitResult::getCcdf(const Index s) const
@@ -112,7 +112,7 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
-    sprintf(buf, "correlation dynamic range= %.1f dB", getSvdRangeDb());
+    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
@@ -343,7 +343,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.nPar_       = sampleResult.getNPar();
     result.nDof_       = sampleResult.nDof_;
     result.parName_    = sampleResult.parName_;
-    result.svdRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     
     return result;
 }
