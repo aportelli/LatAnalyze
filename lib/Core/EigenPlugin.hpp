@@ -17,7 +17,7 @@
  * along with LatAnalyze.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Derived pInverse(const double tolerance = 1.0e-10)
+Derived pInverse(const double tolerance = 1.0e-10) const
 {
     auto         svd   = jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV);
     const auto   u     = svd.matrixU();
@@ -52,7 +52,7 @@ Derived pInverse(const double tolerance = 1.0e-10)
     return v*s.asDiagonal()*u.transpose();
 }
 
-Derived singularValues(void)
+Derived singularValues(void) const
 {
     auto svd = jacobiSvd();
     
