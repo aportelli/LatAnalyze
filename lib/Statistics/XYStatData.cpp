@@ -60,6 +60,11 @@ double FitResult::getCcdf(void) const
     return Math::chi2Ccdf(getChi2(), getNDof());;
 }
 
+double FitResult::getSvdRangeDb(void) const
+{
+    return svdRangeDb_;
+}
+
 const DoubleFunction & FitResult::getModel(const Index j) const
 {
     return model_[j];
@@ -75,9 +80,11 @@ void FitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
+    sprintf(buf, "correlation dynamic range= %.1f dB", getSvdRangeDb());
+    out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%8s= %e", parName_[p].c_str(), (*this)(p));
+        sprintf(buf, "%12s= %e", parName_[p].c_str(), (*this)(p));
         out << buf << endl;
     }
 }
@@ -259,6 +266,20 @@ const DMat & XYStatData::getFitVarMatPInv(void)
     return fitVarInv_;
 }
 
+const DMat & XYStatData::getFitCorrMat(void)
+{
+    updateFitVarMat();
+    
+    return fitCorr_;
+}
+
+const DMat & XYStatData::getFitCorrMatPInv(void)
+{
+    updateFitVarMat();
+    
+    return fitCorrInv_;
+}
+
 // fit /////////////////////////////////////////////////////////////////////////
 FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
                           const vector<const DoubleModel *> &v)
@@ -337,9 +358,10 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
         result    = (*m)(chi2);
         totalInit = result;
     }
-    result.chi2_ = chi2(result);
-    result.nPar_ = nPar;
-    result.nDof_ = layout.totalYSize - nPar;
+    result.svdRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.chi2_       = chi2(result);
+    result.nPar_       = nPar;
+    result.nDof_       = layout.totalYSize - nPar;
     result.model_.resize(v.size());
     for (unsigned int j = 0; j < v.size(); ++j)
     {
@@ -551,8 +573,11 @@ void XYStatData::updateFitVarMat(void)
         chi2DataVec_.resize(layout.totalSize);
         chi2ModVec_.resize(layout.totalSize);
         chi2Vec_.resize(layout.totalSize);
-        fitVar_    = fitVar_.cwiseProduct(makeCorrFilter());
-        fitVarInv_ = fitVar_.pInverse(getSvdTolerance());
+        fitVar_     = fitVar_.cwiseProduct(makeCorrFilter());
+        fitCorr_    = Math::varToCorr(fitVar_);
+        fitCorrInv_ = fitCorr_.pInverse(getSvdTolerance());
+        fitVarInv_  = Math::corrToVar(fitCorrInv_, fitVar_.diagonal().cwiseInverse());
+
         scheduleFitVarMatInit(false);
     }
 }

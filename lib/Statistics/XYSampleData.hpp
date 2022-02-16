@@ -49,6 +49,7 @@ public:
     double                       getNDof(void) const;
     Index                        getNPar(void) const;
     double                       getPValue(const Index s = central) const;
+    double                       getSvdRangeDb(void) const;
     double                       getCcdf(const Index s = central) const;
     const DoubleFunction &       getModel(const Index s = central,
                                           const Index j = 0) const;
@@ -60,6 +61,7 @@ public:
                std::ostream &out = std::cout) const;
 private:
     DSample                           chi2_;
+    double                            svdRangeDb_{0.};
     Index                             nDof_{0}, nPar_{0};
     std::vector<DoubleFunctionSample> model_;
     std::vector<std::string>          parName_;
@@ -91,9 +93,11 @@ public:
     const DMat &       getXYVar(const Index i, const Index j);
     DVec               getXError(const Index i);
     DVec               getYError(const Index j);
-    // get total fit variance matrix and its pseudo-inverse
+    // get total fit variance & correlation matrices and their pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
+    const DMat & getFitCorrMat(void);
+    const DMat & getFitCorrMatPInv(void);
     // set data to a particular sample
     void setDataToSample(const Index s);
     // get internal XYStatData

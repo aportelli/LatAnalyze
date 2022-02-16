@@ -48,12 +48,13 @@ public:
     Index                  getNPar(void) const;
     double                 getPValue(void) const;
     double                 getCcdf(void) const;
+    double                 getSvdRangeDb(void) const;
     const DoubleFunction & getModel(const Index j = 0) const;
     // IO
     void print(const bool printXsi = false,
                std::ostream &out = std::cout) const;
 private:
-    double                      chi2_{0.};
+    double                      chi2_{0.}, svdRangeDb_{0.};
     Index                       nDof_{0}, nPar_{0};
     std::vector<DoubleFunction> model_;
     std::vector<std::string>    parName_;
@@ -88,9 +89,11 @@ public:
     DVec           getXError(const Index i) const;
     DVec           getYError(const Index j) const;
     DMat           getTable(const Index i, const Index j) const;
-    // get total fit variance matrix and its pseudo-inverse
+    // get total fit variance & correlation matrices and their pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);
+    const DMat & getFitCorrMat(void);
+    const DMat & getFitCorrMatPInv(void);
     // fit
     FitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
                   const std::vector<const DoubleModel *> &v);
@@ -131,7 +134,7 @@ private:
     std::vector<DVec>                    xData_;
     std::vector<DVec>                    xMap_;
     Mat<DMat>                            xxVar_, yyVar_, xyVar_;
-    DMat                                 fitVar_, fitVarInv_;
+    DMat                                 fitVar_, fitVarInv_, fitCorr_, fitCorrInv_;
     DVec                                 chi2DataVec_, chi2ModVec_, chi2Vec_;
     DVec                                 xBuf_;
     bool                                 initXMap_{true};

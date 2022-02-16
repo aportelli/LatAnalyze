@@ -62,6 +62,11 @@ double SampleFitResult::getPValue(const Index s) const
     return Math::chi2PValue(getChi2(s), getNDof());
 }
 
+double SampleFitResult::getSvdRangeDb(void) const
+{
+    return svdRangeDb_;
+}
+
 double SampleFitResult::getCcdf(const Index s) const
 {
     return Math::chi2Ccdf(getChi2(s), getNDof());
@@ -107,9 +112,11 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
+    sprintf(buf, "correlation dynamic range= %.1f dB", getSvdRangeDb());
+    out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%8s= % e +/- %e", parName_[p].c_str(),
+        sprintf(buf, "%12s= % e +/- %e", parName_[p].c_str(),
                 (*this)[central](p), err(p));
         out << buf << endl;
     }
@@ -249,6 +256,20 @@ const DMat & XYSampleData::getFitVarMatPInv(void)
     return data_.getFitVarMatPInv();
 }
 
+const DMat & XYSampleData::getFitCorrMat(void)
+{
+    computeVarMat();
+    
+    return data_.getFitCorrMat();
+}
+
+const DMat & XYSampleData::getFitCorrMatPInv(void)
+{
+    computeVarMat();
+    
+    return data_.getFitCorrMatPInv();
+}
+
 // set data to a particular sample /////////////////////////////////////////////
 void XYSampleData::setDataToSample(const Index s)
 {
@@ -319,9 +340,10 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         }
     }
     minimizer.back()->setVerbosity(verbCopy);
-    result.nPar_    = sampleResult.getNPar();
-    result.nDof_    = sampleResult.nDof_;
-    result.parName_ = sampleResult.parName_;
+    result.nPar_       = sampleResult.getNPar();
+    result.nDof_       = sampleResult.nDof_;
+    result.parName_    = sampleResult.parName_;
+    result.svdRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     
     return result;
 }
