@@ -38,8 +38,11 @@ public:
     // destructor
     virtual ~DWT(void) = default;
     // convolution primitive
-    static DVec filterConvolution(const DVec &data, const DWTFilter &filter,
-                                  const Index offset);
+    static void filterConvolution(DVec &out, const DVec &data, 
+                                  const std::vector<double> &filter, const Index offset);
+    // downsampling/upsampling primitives
+    static void downsample(DVec &out, const DVec &in);
+    static void upsample(DVec &out, const DVec &in);
     // DWT
     std::vector<DWTLevel> forward(const DVec &data, const unsigned int level) const;
     DVec                  backward(const std::vector<DWTLevel>& dwt) const;
