@@ -9,6 +9,7 @@ endif
 noinst_PROGRAMS =           \
     exCompiledDoubleFunction\
     exDerivative            \
+    exDWT                   \
     exFit                   \
     exFitSample             \
     exIntegrator            \
@@ -29,6 +30,10 @@ exCompiledDoubleFunction_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 exDerivative_SOURCES              = exDerivative.cpp
 exDerivative_CXXFLAGS             = $(COM_CXXFLAGS)
 exDerivative_LDFLAGS              = -L../lib/.libs -lLatAnalyze
+
+exDWT_SOURCES                     = exDWT.cpp
+exDWT_CXXFLAGS                    = $(COM_CXXFLAGS)
+exDWT_LDFLAGS                     = -L../lib/.libs -lLatAnalyze
 
 exFit_SOURCES                     = exFit.cpp
 exFit_CXXFLAGS                    = $(COM_CXXFLAGS)
