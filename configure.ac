@@ -36,7 +36,7 @@ AC_ARG_WITH([gsl],
 AC_ARG_WITH([minuit],
     [AS_HELP_STRING([--with-minuit=prefix],
 		[try this for a non-standard install prefix of the Minuit2 library])],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_minuit/include"]
+    [AM_CXXFLAGS="$AM_CXXFLAGS -I$with_minuit/include -I$with_minuit/include/Minuit2 -I$with_minuit/include/Fit"]
 	[AM_LDFLAGS="$AM_LDFLAGS -L$with_minuit/lib"])
 AC_ARG_WITH([nlopt],
     [AS_HELP_STRING([--with-nlopt=prefix],
@@ -74,6 +74,7 @@ CXXFLAGS_CPY=$CXXFLAGS
 LDFLAGS_CPY=$LDFLAGS
 CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
 LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+AC_CHECK_LIB([pthread],[pthread_create],[],[AC_MSG_ERROR([pthread library not found])])
 AC_CHECK_LIB([m],[cos],[],[AC_MSG_ERROR([libm library not found])])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm],[],
              [AC_MSG_ERROR([GSL CBLAS library not found])])
@@ -90,10 +91,10 @@ AC_CHECK_LIB([hdf5_cpp],[H5Fopen],
     [AC_MSG_ERROR([HDF5 library not found])], [-lhdf5])
 SAVED_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS -lMinuit2"
-AC_MSG_CHECKING([for ROOT::Minuit2::BasicMinimumError in -lMinuit2]);
+AC_MSG_CHECKING([for ROOT::Minuit2::VariableMetricMinimizer in -lMinuit2]);
 AC_LINK_IFELSE(
-	[AC_LANG_PROGRAM([#include <Minuit2/BasicMinimumError.h>],
-	[ROOT::Minuit2::BasicMinimumError dummy(0)])],
+	[AC_LANG_PROGRAM([#include <Minuit2/VariableMetricMinimizer.h>],
+	[ROOT::Minuit2::VariableMetricMinimizer dummy()])],
 	[LIBS="$LIBS -lMinuit2"]
 	[AC_DEFINE([HAVE_MINUIT2],
 				[1],
@@ -103,6 +104,20 @@ AC_LINK_IFELSE(
 	[have_minuit=false]
     [AC_MSG_RESULT([no])])
 AM_CONDITIONAL([HAVE_MINUIT], [test x$have_minuit = xtrue])
+LDFLAGS="$LDFLAGS -lMinuit2Math"
+AC_MSG_CHECKING([for ROOT::Math::MinimizerOptions in -lMinuit2Math]);
+AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM([#include <Minuit2/Math/MinimizerOptions.h>],
+	[ROOT::Math::MinimizerOptions dummy()])],
+	[LIBS="$LIBS -lMinuit2Math"]
+	[AC_DEFINE([HAVE_MINUIT2MATH],
+				[1],
+				[Define to 1 if you have the `Minuit2Math' library (-lMinuit2Math).])]
+    [have_minuitmath=true]
+	[AC_MSG_RESULT([yes])],
+	[have_minuitmath=false]
+    [AC_MSG_RESULT([no])])
+AM_CONDITIONAL([HAVE_MINUITMATH], [test x$have_minuit = xtrue])
 LDFLAGS=$SAVED_LDFLAGS
 CXXFLAGS=$CXXFLAGS_CPY
 LDFLAGS=$LDFLAGS_CPY

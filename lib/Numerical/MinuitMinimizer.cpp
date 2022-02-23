@@ -19,6 +19,20 @@
 
 #include <LatAnalyze/Numerical/MinuitMinimizer.hpp>
 #include <LatAnalyze/includes.hpp>
+
+// forward declaration necessary in the ROOT-based version of Minuit2
+namespace ROOT
+{
+    namespace Fit
+    {
+        class ParameterSettings;
+    };
+};
+
+// macros necessary in the ROOT-based version of Minuit2
+#define ROOT_Math_VecTypes
+#define MATHCORE_STANDALONE
+
 #include <Minuit2/Minuit2Minimizer.h>
 #include <Math/Functor.h>
 

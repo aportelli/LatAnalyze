@@ -89,10 +89,11 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
-    PlotData(const DMatSample &x, const DMatSample &y);
-    PlotData(const DVec       &x, const DMatSample &y);
-    PlotData(const DMatSample &x, const DVec       &y);
-    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
+    PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
+    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0, 
+             const bool abs = false);
     // destructor
     virtual ~PlotData(void) = default;
 };
@@ -115,6 +116,15 @@ public:
     virtual ~PlotLine(void) = default;
 };
 
+class PlotPoints: public PlotObject
+{
+public:
+    // constructor
+    PlotPoints(const DVec &x, const DVec &y);
+    // destructor
+    virtual ~PlotPoints(void) = default;
+};
+
 class PlotBand: public PlotObject
 {
 public:
@@ -130,7 +140,8 @@ class PlotFunction: public PlotObject
 public:
     // constructor
     PlotFunction(const DoubleFunction &function, const double xMin,
-                 const double xMax, const unsigned int nPoint = 1000);
+                 const double xMax, const unsigned int nPoint = 1000, 
+                 const bool abs = false);
     // destructor
     virtual ~PlotFunction(void) = default;
 };
@@ -181,6 +192,11 @@ public:
 PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
 PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
 PlotMatrixNoRange(m)
+
+#define PlotCorrMatrix(m)\
+PlotHeadCommand("set cbrange [-1:1]") <<\
+PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
+PlotMatrix(m)
 
 /******************************************************************************
  *                             Plot modifiers                                 *

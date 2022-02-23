@@ -1,21 +1,6 @@
 # LatAnalyze 
 
-License: GNU General Public License v3
-
-<table>
-<tr>
-    <td>Last stable release</td>
-    <td><a href="https://travis-ci.org/aportelli/LatAnalyze">
-    <img src="https://travis-ci.org/aportelli/LatAnalyze.svg?branch=master"></a>
-    </td>
-</tr>
-<tr>
-    <td>Development branch</td>
-    <td><a href="https://travis-ci.org/aportelli/LatAnalyze">
-    <img src="https://travis-ci.org/aportelli/LatAnalyze.svg?branch=develop"></a>
-    </td>
-</tr>
-</table>
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/10201777.svg)](https://zenodo.org/badge/latestdoi/10201777)
 
 ## Description
 LatAnalyze is a C++11 library for statistical data analysis based on bootstrap

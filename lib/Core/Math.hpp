@@ -70,6 +70,11 @@ namespace MATH_NAMESPACE
     
     // convert variance matrix to correlation matrix
     DMat varToCorr(const DMat &var);
+    DMat corrToVar(const DMat &corr, const DVec &varDiag);
+
+    // matrix SVD dynamic range
+    double svdDynamicRange(const DMat &mat);
+    double svdDynamicRangeDb(const DMat &mat);
     
     // Constants
     constexpr double pi  = 3.1415926535897932384626433832795028841970;

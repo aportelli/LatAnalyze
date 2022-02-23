@@ -60,6 +60,11 @@ double FitResult::getCcdf(void) const
     return Math::chi2Ccdf(getChi2(), getNDof());;
 }
 
+double FitResult::getCorrRangeDb(void) const
+{
+    return corrRangeDb_;
+}
+
 const DoubleFunction & FitResult::getModel(const Index j) const
 {
     return model_[j];
@@ -75,9 +80,11 @@ void FitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
+    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
+    out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%8s= %e", parName_[p].c_str(), (*this)(p));
+        sprintf(buf, "%12s= %e", parName_[p].c_str(), (*this)(p));
         out << buf << endl;
     }
 }
@@ -216,7 +223,7 @@ DVec XYStatData::getXError(const Index i) const
 
 DVec XYStatData::getYError(const Index j) const
 {
-    checkXDim(j);
+    checkYDim(j);
     
     return yyVar_(j, j).diagonal().cwiseSqrt();
 }
@@ -257,6 +264,20 @@ const DMat & XYStatData::getFitVarMatPInv(void)
     updateFitVarMat();
     
     return fitVarInv_;
+}
+
+const DMat & XYStatData::getFitCorrMat(void)
+{
+    updateFitVarMat();
+    
+    return fitCorr_;
+}
+
+const DMat & XYStatData::getFitCorrMatPInv(void)
+{
+    updateFitVarMat();
+    
+    return fitCorrInv_;
 }
 
 // fit /////////////////////////////////////////////////////////////////////////
@@ -337,9 +358,10 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
         result    = (*m)(chi2);
         totalInit = result;
     }
-    result.chi2_ = chi2(result);
-    result.nPar_ = nPar;
-    result.nDof_ = layout.totalYSize - nPar;
+    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.chi2_       = chi2(result);
+    result.nPar_       = nPar;
+    result.nDof_       = layout.totalYSize - nPar;
     result.model_.resize(v.size());
     for (unsigned int j = 0; j < v.size(); ++j)
     {
@@ -373,6 +395,27 @@ XYStatData XYStatData::getResiduals(const FitResult &fit)
         for (auto &p: yData_[j])
         {
             res.y(p.first, j) -= f(x(p.first));
+        }
+    }
+    
+    return res;
+}
+
+XYStatData XYStatData::getNormalisedResiduals(const FitResult &fit)
+{
+    XYStatData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunction &f  = fit.getModel(j);
+        const DVec           err = getYError(j);
+        Index                row = 0;
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+            res.y(p.first, j) /= err(row);
+            row++;
         }
     }
     
@@ -530,8 +573,11 @@ void XYStatData::updateFitVarMat(void)
         chi2DataVec_.resize(layout.totalSize);
         chi2ModVec_.resize(layout.totalSize);
         chi2Vec_.resize(layout.totalSize);
-        fitVar_    = fitVar_.cwiseProduct(makeCorrFilter());
-        fitVarInv_ = fitVar_.pInverse(getSvdTolerance());
+        fitVar_     = fitVar_.cwiseProduct(makeCorrFilter());
+        fitCorr_    = Math::varToCorr(fitVar_);
+        fitCorrInv_ = fitCorr_.pInverse(getSvdTolerance());
+        fitVarInv_  = Math::corrToVar(fitCorrInv_, fitVar_.diagonal().cwiseInverse());
+
         scheduleFitVarMatInit(false);
     }
 }

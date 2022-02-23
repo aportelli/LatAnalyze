@@ -32,6 +32,7 @@ libLatAnalyze_la_SOURCES =           \
     Core/MathParser.ypp              \
     Core/OptParser.cpp               \
     Core/Plot.cpp                    \
+    Core/ThreadPool.cpp              \
     Core/Utilities.cpp               \
     Functional/CompiledFunction.cpp  \
     Functional/CompiledModel.cpp     \
@@ -75,6 +76,7 @@ HPPFILES =                           \
     Core/OptParser.hpp               \
     Core/ParserState.hpp             \
     Core/Plot.hpp                    \
+    Core/ThreadPool.hpp              \
     Core/stdincludes.hpp             \
     Core/Utilities.hpp               \
     Functional/CompiledFunction.hpp  \

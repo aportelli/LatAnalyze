@@ -62,6 +62,11 @@ double SampleFitResult::getPValue(const Index s) const
     return Math::chi2PValue(getChi2(s), getNDof());
 }
 
+double SampleFitResult::getCorrRangeDb(void) const
+{
+    return corrRangeDb_;
+}
+
 double SampleFitResult::getCcdf(const Index s) const
 {
     return Math::chi2Ccdf(getChi2(s), getNDof());
@@ -107,9 +112,11 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
+    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
+    out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%8s= % e +/- %e", parName_[p].c_str(),
+        sprintf(buf, "%12s= % e +/- %e", parName_[p].c_str(),
                 (*this)[central](p), err(p));
         out << buf << endl;
     }
@@ -249,6 +256,20 @@ const DMat & XYSampleData::getFitVarMatPInv(void)
     return data_.getFitVarMatPInv();
 }
 
+const DMat & XYSampleData::getFitCorrMat(void)
+{
+    computeVarMat();
+    
+    return data_.getFitCorrMat();
+}
+
+const DMat & XYSampleData::getFitCorrMatPInv(void)
+{
+    computeVarMat();
+    
+    return data_.getFitCorrMatPInv();
+}
+
 // set data to a particular sample /////////////////////////////////////////////
 void XYSampleData::setDataToSample(const Index s)
 {
@@ -330,9 +351,10 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
 {
     computeVarMat();
     
-    SampleFitResult result;
-    FitResult       sampleResult;
-    DVec            initCopy = init;
+    SampleFitResult      result;
+    FitResult            sampleResult;
+    DVec                 initCopy = init;
+    Minimizer::Verbosity verbCopy = minimizer.back()->getVerbosity();
     
     result.resize(nSample_);
     result.chi2_.resize(nSample_);
@@ -348,9 +370,11 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
             result.model_[j][s] = sampleResult.getModel(j);
         }
     }
-    result.nPar_    = sampleResult.getNPar();
-    result.nDof_    = sampleResult.nDof_;
-    result.parName_ = sampleResult.parName_;
+    minimizer.back()->setVerbosity(verbCopy);
+    result.nPar_       = sampleResult.getNPar();
+    result.nDof_       = sampleResult.nDof_;
+    result.parName_    = sampleResult.parName_;
+    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     
     return result;
 }
@@ -376,6 +400,29 @@ XYSampleData XYSampleData::getResiduals(const SampleFitResult &fit)
         for (auto &p: yData_[j])
         {
             res.y(p.first, j) -= f(x(p.first));
+        }
+    }
+    
+    return res;
+}
+
+XYSampleData XYSampleData::getNormalisedResiduals(const SampleFitResult &fit)
+{
+    XYSampleData res(*this);
+    
+    for (Index j = 0; j < getNYDim(); ++j)
+    {
+        const DoubleFunctionSample &f   = fit.getModel(_, j);
+        
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) -= f(x(p.first));
+        }
+
+        const DMat &var = res.getYYVar(j, j);
+        for (auto &p: yData_[j])
+        {
+            res.y(p.first, j) /= sqrt(var(p.first, p.first));
         }
     }
     
