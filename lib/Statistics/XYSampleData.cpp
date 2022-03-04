@@ -303,42 +303,58 @@ const XYStatData & XYSampleData::getData(void)
 
 void XYSampleData::fitSample(std::vector<Minimizer *> &minimizer,
                              const std::vector<const DoubleModel *> &v,
-                             FitResult &sampleResult,
+                             SampleFitResult &result,
                              DVec &init,
                              Index s)
 {
+    result.resize(nSample_);
+    result.chi2_.resize(nSample_);
+    result.model_.resize(v.size());
+    FitResult sampleResult;
     setDataToSample(s);
     if (s == central)
     {
-        sampleResult = data_.fit(minimizer, init, v);
-        init         = sampleResult.segment(0, init.size());
+        sampleResult        = data_.fit(minimizer, init, v);
+        init                = sampleResult.segment(0, init.size());
+        result.nPar_        = sampleResult.getNPar();
+        result.nDof_        = sampleResult.nDof_;
+        result.parName_     = sampleResult.parName_;
+        result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     }
     else
     {
         sampleResult = data_.fit(*(minimizer.back()), init, v);
     }
+    result[s]       = sampleResult;
+    result.chi2_[s] = sampleResult.getChi2();
+    for (unsigned int j = 0; j < v.size(); ++j)
+    {
+        result.model_[j].resize(nSample_);
+        result.model_[j][s] = sampleResult.getModel(j);
+    }
+
     
 }
 
-FitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
-                            const DVec &init,
-                            const std::vector<const DoubleModel *> &v,
-                            Index s)
+SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
+                                  const DVec &init,
+                                  const std::vector<const DoubleModel *> &v,
+                                  Index s)
 {
     computeVarMat();
     
-    FitResult       sampleResult;
-    DVec            initCopy = init;
+    SampleFitResult result;
+    DVec      initCopy = init;
 
-    fitSample(minimizer, v, sampleResult, initCopy, s);
+    fitSample(minimizer, v, result, initCopy, s);
     
-    return sampleResult;
+    return result;
 }
 
-FitResult XYSampleData::fit(Minimizer &minimizer,
-                            const DVec &init,
-                            const std::vector<const DoubleModel *> &v,
-                            Index s)
+SampleFitResult XYSampleData::fit(Minimizer &minimizer,
+                                  const DVec &init,
+                                  const std::vector<const DoubleModel *> &v,
+                                  Index s)
 {
     vector<Minimizer *> mv{&minimizer};
     
@@ -352,29 +368,14 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     computeVarMat();
     
     SampleFitResult      result;
-    FitResult            sampleResult;
     DVec                 initCopy = init;
     Minimizer::Verbosity verbCopy = minimizer.back()->getVerbosity();
     
-    result.resize(nSample_);
-    result.chi2_.resize(nSample_);
-    result.model_.resize(v.size());
     FOR_STAT_ARRAY(result, s)
     {
-        fitSample(minimizer, v, sampleResult, initCopy, s);
-        result[s]       = sampleResult;
-        result.chi2_[s] = sampleResult.getChi2();
-        for (unsigned int j = 0; j < v.size(); ++j)
-        {
-            result.model_[j].resize(nSample_);
-            result.model_[j][s] = sampleResult.getModel(j);
-        }
+        fitSample(minimizer, v, result, initCopy, s);
     }
     minimizer.back()->setVerbosity(verbCopy);
-    result.nPar_       = sampleResult.getNPar();
-    result.nDof_       = sampleResult.nDof_;
-    result.parName_    = sampleResult.parName_;
-    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
     
     return result;
 }

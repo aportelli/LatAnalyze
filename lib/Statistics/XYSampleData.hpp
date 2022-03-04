@@ -105,10 +105,10 @@ public:
     // fit
     void            fitSample(std::vector<Minimizer *> &minimizer, 
                               const std::vector<const DoubleModel *> &v, 
-                              FitResult &sampleResult, DVec &init, Index s);
-    FitResult       fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
+                              SampleFitResult &sampleResult, DVec &init, Index s);
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
                         const std::vector<const DoubleModel *> &v, Index s);
-    FitResult       fit(Minimizer &minimizer, const DVec &init, 
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init, 
                         const std::vector<const DoubleModel *> &v, Index s);
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
                         const std::vector<const DoubleModel *> &v);
