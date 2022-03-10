@@ -48,6 +48,8 @@ libLatAnalyze_la_SOURCES =           \
     Io/XmlReader.cpp                 \
     Io/Xml/tinyxml2.cpp              \
     Numerical/Derivative.cpp         \
+    Numerical/DWT.cpp                \
+    Numerical/DWTFilters.cpp         \
     Numerical/GslFFT.cpp             \
     Numerical/GslHybridRootFinder.cpp\
     Numerical/GslMinimizer.cpp       \
@@ -92,6 +94,8 @@ HPPFILES =                           \
     Io/IoObject.hpp                  \
     Io/XmlReader.hpp                 \
     Numerical/Derivative.hpp         \
+    Numerical/DWT.hpp                \
+    Numerical/DWTFilters.hpp         \
     Numerical/FFT.hpp                \
     Numerical/GslFFT.hpp             \
     Numerical/GslHybridRootFinder.hpp\
