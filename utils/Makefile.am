@@ -9,6 +9,7 @@ endif
 bin_PROGRAMS =            \
     latan-plot            \
     latan-sample-combine  \
+    latan-sample-dwt      \
     latan-sample-element  \
     latan-sample-fake     \
     latan-sample-ft       \
@@ -25,6 +26,10 @@ latan_plot_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_combine_SOURCES  = sample-combine.cpp
 latan_sample_combine_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_combine_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_dwt_SOURCES  = sample-dwt.cpp
+latan_sample_dwt_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_dwt_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_element_SOURCES  = sample-element.cpp
 latan_sample_element_CXXFLAGS = $(COM_CXXFLAGS)
