@@ -122,10 +122,10 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
     DMat d(x[central].rows(), 4);
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central];
-    d.col(2)    = y[central];
-    d.col(1)    = x.variance().cwiseSqrt();
-    d.col(3)    = y.variance().cwiseSqrt();
+    d.col(0)    = x[central].col(0);
+    d.col(2)    = y[central].col(0);
+    d.col(1)    = x.variance().cwiseSqrt().col(0);
+    d.col(3)    = y.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
@@ -149,8 +149,8 @@ PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
     string usingCmd, tmpFileName;
 
     d.col(0)    = x;
-    d.col(1)    = y[central];
-    d.col(2)    = y.variance().cwiseSqrt();
+    d.col(1)    = y[central].col(0);
+    d.col(2)    = y.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
@@ -173,9 +173,9 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     DMat d(x[central].rows(), 3), xerr, yerr;
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central];
+    d.col(0)    = x[central].col(0);
     d.col(2)    = y;
-    d.col(1)    = x.variance().cwiseSqrt();
+    d.col(1)    = x.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
