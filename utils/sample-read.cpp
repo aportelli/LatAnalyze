@@ -38,9 +38,23 @@ int main(int argc, char *argv[])
     {
         DMatSample s    = Io::load<DMatSample>(fileName);
         string     name = Io::getFirstName(fileName);
+        Index nRows     = s[central].rows();
+        Index nCols     = s[central].cols();
         cout << scientific;
-        cout << "central value:\n"      << s[central]               << endl;
-        cout << "standard deviation:\n" << s.variance().cwiseSqrt() << endl;
+        cout << "central value +/-  standard deviation\n" << endl;
+        cout << "Re:" << endl;
+        for(Index i = 0; i < nRows; i++)
+        {
+            cout << s[central](i,0) << " +/- " << s.variance().cwiseSqrt()(i,0) << endl;
+        }
+        if(nCols == 2)
+        {
+            cout << "\nIm:" << endl;
+            for(Index i = 0; i < nRows; i++)
+            {
+                cout << s[central](i,1) << " +/- " << s.variance().cwiseSqrt()(i,1) << endl;
+            }   
+        }
         if (!copy.empty())
         {
             Io::save(s, copy, File::Mode::write, name);
@@ -51,8 +65,8 @@ int main(int argc, char *argv[])
         DSample s    = Io::load<DSample>(fileName);
         string  name = Io::getFirstName(fileName);
         cout << scientific;
-        cout << "central value:\n"      << s[central]         << endl;
-        cout << "standard deviation:\n" << sqrt(s.variance()) << endl;
+        cout << "central value +/-  standard deviation\n" << endl;
+        cout << s[central] << " +/- " << sqrt(s.variance()) << endl;
         if (!copy.empty())
         {
             Io::save(s, copy, File::Mode::write, name);
