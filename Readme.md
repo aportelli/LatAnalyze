@@ -1,6 +1,6 @@
 # LatAnalyze 
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/10201777.svg)](https://zenodo.org/badge/latestdoi/10201777)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/10201777.svg)](https://zenodo.org/badge/latestdoi/10201777) [![Build Ubuntu](https://github.com/aportelli/LatAnalyze/actions/workflows/build-ubuntu.yml/badge.svg)](https://github.com/aportelli/LatAnalyze/actions/workflows/build-ubuntu.yml) [![Build macOS](https://github.com/aportelli/LatAnalyze/actions/workflows/build-macos.yml/badge.svg)](https://github.com/aportelli/LatAnalyze/actions/workflows/build-macos.yml)
 
 ## Description
 LatAnalyze is a C++11 library for statistical data analysis based on bootstrap
