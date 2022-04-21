@@ -52,6 +52,8 @@ public:
     const StatArray<double> & getData(void) const;
     const StatArray<double> & getWeight(void) const;
     double                    getX(const Index i) const;
+    double                    getXMin(void) const;
+    double                    getXMax(void) const;
     double                    operator[](const Index i) const;
     double                    operator()(const double x) const;
     // percentiles & confidence interval

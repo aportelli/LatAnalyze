@@ -146,6 +146,16 @@ double Histogram::getX(const Index i) const
     return x_(i);
 }
 
+double Histogram::getXMin(void) const
+{
+    return xMin_;
+}
+
+double Histogram::getXMax(void) const
+{
+    return xMax_;
+}
+
 double Histogram::operator[](const Index i) const
 {
     return bin_(i)*(isNormalized() ? norm_ : 1.);
