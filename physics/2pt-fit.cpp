@@ -3,6 +3,7 @@
 #include <LatAnalyze/Core/Plot.hpp>
 #include <LatAnalyze/Functional/CompiledModel.hpp>
 #include <LatAnalyze/Io/Io.hpp>
+#include <LatAnalyze/Numerical/DWT.hpp>
 #include <LatAnalyze/Numerical/MinuitMinimizer.hpp>
 #include <LatAnalyze/Numerical/NloptMinimizer.hpp>
 #include <LatAnalyze/Physics/CorrelatorFitter.hpp>
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
 {
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
-    bool                 parsed, doPlot, doHeatmap, doCorr, fold, doScan;
+    bool                 parsed, doLaplace, doPlot, doHeatmap, doCorr, fold, doScan;
     string               corrFileName, model, outFileName, outFmt, savePlot;
     Index                ti, tf, shift, nPar, thinning;
     double               svdTol;
@@ -52,6 +53,8 @@ int main(int argc, char *argv[])
                   "only do the uncorrelated fit");
     opt.addOption("" , "fold"   , OptParser::OptType::trigger, true,
                   "fold the correlator");
+    opt.addOption("l" , "laplace"   , OptParser::OptType::trigger, true,
+                  "apply Laplace filter to the correlator");
     opt.addOption("p", "plot"     , OptParser::OptType::trigger, true,
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
@@ -74,6 +77,7 @@ int main(int argc, char *argv[])
     ti           = opt.optionValue<Index>("ti");
     tf           = opt.optionValue<Index>("tf");
     thinning     = opt.optionValue<Index>("t");
+    doLaplace    = opt.gotOption("l");
     shift        = opt.optionValue<Index>("s");
     model        = opt.optionValue("m");
     nPar         = opt.optionValue<Index>("nPar");
@@ -110,6 +114,17 @@ int main(int argc, char *argv[])
     nt      = corr[central].rows();
     corr    = corr.block(0, 0, nt, 1);
     corr    = CorrelatorUtils::shift(corr, shift);
+    if (doLaplace)
+    {
+        vector<double> filter = {1., -2., 1.};
+        DVec           buf;
+
+        FOR_STAT_ARRAY(corr, s)
+        {
+            DWT::filterConvolution(buf, corr[s], filter, 1);
+            corr[s] = buf;
+        }
+    }
     if (fold)
     {
         corr = CorrelatorUtils::fold(corr);
@@ -282,7 +297,7 @@ int main(int argc, char *argv[])
                 DMat  id = DMat::Identity(n, n),
                       var = fitter.data().getFitVarMat();
                 
-                p << PlotMatrix(Math::varToCorr(var));
+                p << PlotCorrMatrix(Math::varToCorr(var));
                 p << Caption("correlation matrix");
                 p.display();
                 if (svdTol > 0.)
