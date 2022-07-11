@@ -112,7 +112,7 @@ PlotHeadCommand::PlotHeadCommand(const string &command)
 }
 
 // PlotData constructor ////////////////////////////////////////////////////////
-PlotData::PlotData(const DMatSample &x, const DMatSample &y)
+PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
 {
     if (x[central].rows() != y[central].rows())
     {
@@ -122,16 +122,23 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y)
     DMat d(x[central].rows(), 4);
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central];
-    d.col(2)    = y[central];
-    d.col(1)    = x.variance().cwiseSqrt();
-    d.col(3)    = y.variance().cwiseSqrt();
+    d.col(0)    = x[central].col(0);
+    d.col(2)    = y[central].col(0);
+    d.col(1)    = x.variance().cwiseSqrt().col(0);
+    d.col(3)    = y.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($3)):2:4 w xyerr");
+    }
 }
 
-PlotData::PlotData(const DVec &x, const DMatSample &y)
+PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
 {
     if (x.rows() != y[central].rows())
     {
@@ -142,14 +149,21 @@ PlotData::PlotData(const DVec &x, const DMatSample &y)
     string usingCmd, tmpFileName;
 
     d.col(0)    = x;
-    d.col(1)    = y[central];
-    d.col(2)    = y.variance().cwiseSqrt();
+    d.col(1)    = y[central].col(0);
+    d.col(2)    = y.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+    }
 }
 
-PlotData::PlotData(const DMatSample &x, const DVec &y)
+PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
 {
     if (x[central].rows() != y.rows())
     {
@@ -159,12 +173,19 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
     DMat d(x[central].rows(), 3), xerr, yerr;
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central];
+    d.col(0)    = x[central].col(0);
     d.col(2)    = y;
-    d.col(1)    = x.variance().cwiseSqrt();
+    d.col(1)    = x.variance().cwiseSqrt().col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:($3):2 w xerr");
+    }
 }
 
 PlotData::PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacity)
@@ -199,11 +220,19 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacit
     setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 3");
 }
 
-PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
+PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
 {
     string usingCmd, tmpFileName;
     
-    usingCmd    = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    if (!abs)
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    }
+    else
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:(abs($3)):4 w yerr" : "u 1:(abs($3)):2:4 w xyerr";
+    }
+   
     tmpFileName = dumpToTmpFile(data.getTable(i, j));
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);
@@ -225,6 +254,24 @@ PlotLine::PlotLine(const DVec &x, const DVec &y)
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' u 1:2 w lines");
+}
+
+// PlotPoints constructor ////////////////////////////////////////////////////////
+PlotPoints::PlotPoints(const DVec &x, const DVec &y)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2");
 }
 
 // PlotHLine constructor ///////////////////////////////////////////////////////
@@ -249,7 +296,8 @@ PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
 
 // PlotFunction constructor ////////////////////////////////////////////////////
 PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
-                           const double xMax, const unsigned int nPoint)
+                           const double xMax, const unsigned int nPoint,
+                           const bool abs)
 {
     DMat   d(nPoint, 2);
     string tmpFileName;
@@ -262,7 +310,14 @@ PlotFunction::PlotFunction(const DoubleFunction &function, const double xMin,
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    if (!abs)
+    {
+        setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    }
+    else
+    {
+        setCommand("'" + tmpFileName + "' u 1:(abs($2)) w lines");
+    }
 }
 
 // PlotPredBand constructor ////////////////////////////////////////////////////

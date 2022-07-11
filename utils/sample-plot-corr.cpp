@@ -67,7 +67,9 @@ int main(int argc, char *argv[])
     sample = sample.block(0, 0, sample[central].rows(), 1);
     var    = sample.varianceMatrix();
     corr   = sample.correlationMatrix();
-    p << PlotMatrix(corr);
+
+    cout << "dynamic range " << Math::svdDynamicRangeDb(corr) << " dB" << endl;
+    p << PlotCorrMatrix(corr);
     p.display();
     if (!outVarName.empty())
     {

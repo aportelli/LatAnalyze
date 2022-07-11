@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-NAME='hdf5-1.10.5'
+NAME='hdf5-1.10.8'
 
-if (( $# != 1 )); then
-  echo "usage: `basename $0` <prefix>" 1>&2
+if (( $# != 2 )); then
+  echo "usage: `basename $0` <prefix> <ntasks>" 1>&2
   exit 1
 fi
 PREFIX=$1
+NTASKS=$2
 
 set -ex
 INITDIR=$(pwd -P)
@@ -19,7 +20,7 @@ tar -xzvf ${NAME}.tar.gz
 mkdir ${NAME}/build
 cd ${NAME}/build
 ../configure --prefix=${PREFIX} --enable-cxx
-make -j4 
+make -j${NTASKS}
 make install
 cd ${INITDIR}/local
 touch .built.hdf5

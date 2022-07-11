@@ -29,12 +29,35 @@ using namespace Latan;
  ******************************************************************************/
 DMat MATH_NAMESPACE::varToCorr(const DMat &var)
 {
-    DMat res = var, invDiag = res.diagonal();
+    DMat res = var;
+    DVec invDiag = res.diagonal();
     
     invDiag = invDiag.cwiseInverse().cwiseSqrt();
     res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
     
     return res;
+}
+
+DMat MATH_NAMESPACE::corrToVar(const DMat &corr, const DVec &varDiag)
+{
+    DMat res = corr;
+    DVec varSqrtDiag = varDiag.cwiseSqrt();
+    
+    res = (varSqrtDiag*varSqrtDiag.transpose()).cwiseProduct(res);
+
+    return res;
+}
+
+double MATH_NAMESPACE::svdDynamicRange(const DMat &mat)
+{
+    DVec s = mat.singularValues();
+
+    return s.maxCoeff()/s.minCoeff();
+}
+
+double MATH_NAMESPACE::svdDynamicRangeDb(const DMat &mat)
+{
+    return 10.*log10(svdDynamicRange(mat));
 }
 
 /******************************************************************************

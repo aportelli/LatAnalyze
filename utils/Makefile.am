@@ -6,15 +6,18 @@ if CXX_INTEL
 endif
 endif
 
-bin_PROGRAMS =            \
-    latan-plot            \
-    latan-sample-combine  \
-    latan-sample-element  \
-    latan-sample-fake     \
-    latan-sample-ft       \
-    latan-sample-plot     \
-    latan-sample-plot-corr\
-    latan-sample-read     \
+bin_PROGRAMS =                 \
+    latan-plot                 \
+    latan-sample-combine       \
+    latan-sample-dwt           \
+    latan-sample-element       \
+    latan-sample-fake          \
+    latan-sample-ft            \
+    latan-sample-merge         \
+    latan-sample-noise-analysis\
+    latan-sample-plot          \
+    latan-sample-plot-corr     \
+    latan-sample-read          \
     latan-resample        
 
 latan_plot_SOURCES  = plot.cpp
@@ -24,6 +27,10 @@ latan_plot_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_combine_SOURCES  = sample-combine.cpp
 latan_sample_combine_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_combine_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_dwt_SOURCES  = sample-dwt.cpp
+latan_sample_dwt_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_dwt_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_element_SOURCES  = sample-element.cpp
 latan_sample_element_CXXFLAGS = $(COM_CXXFLAGS)
@@ -36,6 +43,14 @@ latan_sample_fake_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 latan_sample_ft_SOURCES  = sample-ft.cpp
 latan_sample_ft_CXXFLAGS = $(COM_CXXFLAGS)
 latan_sample_ft_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_merge_SOURCES  = sample-merge.cpp
+latan_sample_merge_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_merge_LDFLAGS  = -L../lib/.libs -lLatAnalyze
+
+latan_sample_noise_analysis_SOURCES  = sample-noise-analysis.cpp
+latan_sample_noise_analysis_CXXFLAGS = $(COM_CXXFLAGS)
+latan_sample_noise_analysis_LDFLAGS  = -L../lib/.libs -lLatAnalyze
 
 latan_sample_plot_corr_SOURCES  = sample-plot-corr.cpp
 latan_sample_plot_corr_CXXFLAGS = $(COM_CXXFLAGS)

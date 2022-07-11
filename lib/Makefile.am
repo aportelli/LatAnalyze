@@ -32,6 +32,7 @@ libLatAnalyze_la_SOURCES =           \
     Core/MathParser.ypp              \
     Core/OptParser.cpp               \
     Core/Plot.cpp                    \
+    Core/ThreadPool.cpp              \
     Core/Utilities.cpp               \
     Functional/CompiledFunction.cpp  \
     Functional/CompiledModel.cpp     \
@@ -47,6 +48,8 @@ libLatAnalyze_la_SOURCES =           \
     Io/XmlReader.cpp                 \
     Io/Xml/tinyxml2.cpp              \
     Numerical/Derivative.cpp         \
+    Numerical/DWT.cpp                \
+    Numerical/DWTFilters.cpp         \
     Numerical/GslFFT.cpp             \
     Numerical/GslHybridRootFinder.cpp\
     Numerical/GslMinimizer.cpp       \
@@ -75,6 +78,7 @@ HPPFILES =                           \
     Core/OptParser.hpp               \
     Core/ParserState.hpp             \
     Core/Plot.hpp                    \
+    Core/ThreadPool.hpp              \
     Core/stdincludes.hpp             \
     Core/Utilities.hpp               \
     Functional/CompiledFunction.hpp  \
@@ -90,6 +94,8 @@ HPPFILES =                           \
     Io/IoObject.hpp                  \
     Io/XmlReader.hpp                 \
     Numerical/Derivative.hpp         \
+    Numerical/DWT.hpp                \
+    Numerical/DWTFilters.hpp         \
     Numerical/FFT.hpp                \
     Numerical/GslFFT.hpp             \
     Numerical/GslHybridRootFinder.hpp\
