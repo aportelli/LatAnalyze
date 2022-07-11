@@ -92,6 +92,8 @@ public:
     PlotData(const DMatSample &x, const DMatSample &y);
     PlotData(const DVec       &x, const DMatSample &y);
     PlotData(const DMatSample &x, const DVec       &y);
+    PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacity=nullptr);
+
     PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
     // destructor
     virtual ~PlotData(void) = default;
@@ -178,9 +180,9 @@ public:
 };
 
 #define PlotMatrix(m)\
-PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
-PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
-PlotMatrixNoRange(m)
+Latan::PlotRange(Latan::Axis::x, -.5, (m).cols() - .5) <<\
+Latan::PlotRange(Latan::Axis::y, (m).rows() - .5, -.5) <<\
+Latan::PlotMatrixNoRange(m)
 
 /******************************************************************************
  *                             Plot modifiers                                 *

@@ -167,6 +167,38 @@ PlotData::PlotData(const DMatSample &x, const DVec &y)
     setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
 }
 
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacity)
+{
+    // DVec opac(x.rows());
+    // opac.setConstant(1);
+    if(opacity==nullptr)
+    {
+        opacity->resize(x.rows());
+        opacity->setConstant(1.0);
+    }
+
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x, y, yerr and opacity vectors do not have the same size");
+    }
+
+    DMat d(x.rows(), 4);
+    // DMat xerr, yerr;
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = yerr;
+
+    *opacity *= -1;
+    opacity->array() += 2;
+    d.col(3)    = *opacity; // 0: full opacity, 1: transparent
+
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 3");
+}
+
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j)
 {
     string usingCmd, tmpFileName;
