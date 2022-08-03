@@ -184,7 +184,7 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     }
     else
     {
-        setCommand("'" + tmpFileName + "' u 1:($3):2 w xerr");
+        setCommand("'" + tmpFileName + "' u 1:(abs($3)):2 w xerr");
     }
 }
 
