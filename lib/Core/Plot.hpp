@@ -98,6 +98,18 @@ public:
     virtual ~PlotData(void) = default;
 };
 
+class PlotPoint: public PlotObject
+{
+public:
+    // constructor
+    PlotPoint(const double  x,  const double  y);
+    PlotPoint(const DSample &x, const double  y);
+    PlotPoint(const double  x,  const DSample &y);
+    PlotPoint(const DSample &x, const DSample &y);
+    // destructor
+    virtual ~PlotPoint(void) = default;
+};
+
 class PlotHLine: public PlotObject
 {
 public:

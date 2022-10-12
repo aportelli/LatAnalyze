@@ -184,7 +184,7 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     }
     else
     {
-        setCommand("'" + tmpFileName + "' u 1:($3):2 w xerr");
+        setCommand("'" + tmpFileName + "' u 1:(abs($3)):2 w xerr");
     }
 }
 
@@ -205,6 +205,60 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const b
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
+
+// PlotPoint constructor ///////////////////////////////////////////////////////
+PlotPoint::PlotPoint(const double x, const double y)
+{
+    DMat d(1, 2);
+    string usingCmd, tmpFileName;
+
+    d(0, 0)     = x;
+    d(0, 1)     = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2");
+}
+
+PlotPoint::PlotPoint(const DSample &x, const double y)
+{
+    DMat d(1, 3);
+    string usingCmd, tmpFileName;
+
+    d(0, 0)     = x[central];
+    d(0, 2)     = y;
+    d(0, 1)     = sqrt(x.variance());
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:3:2 w xerr");
+}
+
+PlotPoint::PlotPoint(const double x, const DSample &y)
+{
+    DMat d(1, 3);
+    string usingCmd, tmpFileName;
+
+    d(0, 0)     = x;
+    d(0, 1)     = y[central];
+    d(0, 2)     = sqrt(y.variance());
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+}
+
+PlotPoint::PlotPoint(const DSample &x, const DSample &y)
+{
+    DMat d(1, 4);
+    string usingCmd, tmpFileName;
+
+    d(0, 0)     = x[central];
+    d(0, 2)     = y[central];
+    d(0, 1)     = sqrt(x.variance());
+    d(0, 3)     = sqrt(y.variance());
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:3:2:4 w xyerr");
+}
+
 
 // PlotLine constructor ////////////////////////////////////////////////////////
 PlotLine::PlotLine(const DVec &x, const DVec &y)
