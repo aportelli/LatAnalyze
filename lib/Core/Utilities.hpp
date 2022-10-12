@@ -109,6 +109,23 @@ inline std::string strFrom(const T x)
 
 // specialization for vectors
 template<>
+inline std::vector<Index> strTo<std::vector<Index>>(const std::string &str)
+{
+    std::vector<Index>  res;
+    std::vector<double> vbuf;
+    double              buf;
+    std::istringstream  stream(str);
+    
+    while (!stream.eof())
+    {
+        stream >> buf;
+        res.push_back(buf);
+    }
+    
+    return res;
+}
+
+template<>
 inline DVec strTo<DVec>(const std::string &str)
 {
     DVec                res;
