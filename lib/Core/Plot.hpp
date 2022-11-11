@@ -89,12 +89,7 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
-    // PlotData(const DMatSample &x, const DMatSample &y);
-    // PlotData(const DVec       &x, const DMatSample &y);
-    // PlotData(const DMatSample &x, const DVec       &y);
-    PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacity=nullptr);
-
-    PlotData(const XYStatData &data, const Index i = 0, const Index j = 0);
+    PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity=nullptr);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
@@ -117,7 +112,7 @@ class PlotLine: public PlotObject
 {
 public:
     // constructor
-    PlotLine(const DVec &x, const DVec &y);
+    PlotLine(const DVec &x, const DVec &y, bool scatter=false);
     // destructor
     virtual ~PlotLine(void) = default;
 };
@@ -161,6 +156,8 @@ public:
     PlotPredBand(const DoubleFunctionSample &function, const double xMin,
                  const double xMax, const unsigned int nPoint = 1000,
                  const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DVec &ylower, const DVec &yhigher,
+                           const double opacity = 0.15);
     // destructor
     virtual ~PlotPredBand(void) = default;
 private:

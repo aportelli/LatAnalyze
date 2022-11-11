@@ -188,10 +188,8 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacity)
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity)
 {
-    // DVec opac(x.rows());
-    // opac.setConstant(1);
     if(opacity==nullptr)
     {
         opacity->resize(x.rows());
@@ -203,21 +201,29 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec &yerr, DVec * opacit
         LATAN_ERROR(Size, "x, y, yerr and opacity vectors do not have the same size");
     }
 
-    DMat d(x.rows(), 4);
-    // DMat xerr, yerr;
+    DMat d(x.rows(), 3);
+    if(opacity!=nullptr)
+    {
+        d.resize(x.rows(), 4);
+    }
+
     string usingCmd, tmpFileName;
 
     d.col(0)    = x;
     d.col(1)    = y;
     d.col(2)    = yerr;
 
-    *opacity *= -1;
-    opacity->array() += 2;
-    d.col(3)    = *opacity; // 0: full opacity, 1: transparent
+    if(opacity!=nullptr)
+    {
+        *opacity *= -1;
+        opacity->array() += 2;
+        d.col(3)    = *opacity; // 0: full opacity, 1: transparent
+    }
 
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 3");
+
+    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 2");
 }
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
@@ -239,7 +245,7 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const b
 }
 
 // PlotLine constructor ////////////////////////////////////////////////////////
-PlotLine::PlotLine(const DVec &x, const DVec &y)
+PlotLine::PlotLine(const DVec &x, const DVec &y, bool scatter)
 {
     if (x.size() != y.size())
     {
@@ -253,7 +259,10 @@ PlotLine::PlotLine(const DVec &x, const DVec &y)
     d.col(1)    = y;
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    if(!scatter)
+        setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    else
+        setCommand("'" + tmpFileName + "' u 1:2");
 }
 
 // PlotPoints constructor ////////////////////////////////////////////////////////
