@@ -104,15 +104,17 @@ public:
     const XYStatData & getData(void);
     // fit
     SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v);
+                        const std::vector<const DoubleModel *> &v, const bool onlyCentral=false);
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
-                        const std::vector<const DoubleModel *> &v);
+                        const std::vector<const DoubleModel *> &v, const bool onlyCentral=false);
     template <typename... Ts>
-    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
-                        const DoubleModel &model, const Ts... models);
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init, 
+                        const DoubleModel &model, const Ts... models,
+                                  const bool onlyCentral=false);
     template <typename... Ts>
     SampleFitResult fit(Minimizer &minimizer, const DVec &init,
-                        const DoubleModel &model, const Ts... models);
+                        const DoubleModel &model, const Ts... models,
+                                  const bool onlyCentral=false);
     // residuals
     XYSampleData getResiduals(const SampleFitResult &fit);
     XYSampleData getNormalisedResiduals(const SampleFitResult &fit);
@@ -157,26 +159,28 @@ void XYSampleData::setUnidimData(const DMatSample &xData, const Ts & ...yDatas)
 template <typename... Ts>
 SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                                   const DVec &init,
-                                  const DoubleModel &model, const Ts... models)
+                                  const DoubleModel &model, const Ts... models,
+                                  const bool onlyCentral)
 {
     static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
                   "model arguments are not compatible with DoubleModel");
     
     std::vector<const DoubleModel *> modelVector{&model, &models...};
     
-    return fit(minimizer, init, modelVector);
+    return fit(minimizer, init, modelVector, onlyCentral);
 }
 
 template <typename... Ts>
 SampleFitResult XYSampleData::fit(Minimizer &minimizer, const DVec &init,
-                                  const DoubleModel &model, const Ts... models)
+                                  const DoubleModel &model, const Ts... models,
+                                  const bool onlyCentral)
 {
     static_assert(static_or<std::is_assignable<DoubleModel &, Ts>::value...>::value,
                   "model arguments are not compatible with DoubleModel");
     
     std::vector<Minimizer *> mv{&minimizer};
     
-    return fit(mv, init, model, models...);
+    return fit(mv, init, model, models..., onlyCentral);
 }
 
 END_LATAN_NAMESPACE

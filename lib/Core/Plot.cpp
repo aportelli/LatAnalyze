@@ -138,6 +138,24 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
     }
 }
 
+PlotData::PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size()+1, 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+
+    setCommand("'" + tmpFileName + "' u 1:2 ps " + pointSize + " pt " + pointType);
+}
+
 PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
 {
     if (x.rows() != y[central].rows())
@@ -556,14 +574,16 @@ void Terminal::operator()(PlotOptions &option) const
 }
 
 // Title constructor ///////////////////////////////////////////////////////////
-Title::Title(const string &title)
-: title_(title)
+Title::Title(const string &title, const bool atEnd, const std::string rMargin)
+: title_(title), atEnd_(atEnd), rMargin_(rMargin)
 {}
 
 // Title modifier //////////////////////////////////////////////////////////////
 void Title::operator()(PlotOptions &option) const
 {
     option.title = title_;
+    option.titleAtEnd = atEnd_;
+    option.rMargin = rMargin_;
 }
 
 // Palette constructor /////////////////////////////////////////////////////////
@@ -663,7 +683,12 @@ Plot & Plot::operator<<(PlotObject &&command)
         else
         {
             commandStr     += " t '" + options_.title + "'";
+            if(options_.titleAtEnd)
+            {
+                commandStr     +=  " at end";
+            }
             options_.title  = "";
+            options_.titleAtEnd = false;
         }
         plotCommand_.push_back(commandStr);
     }
@@ -915,6 +940,10 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     if (!plot.options_.label[y].empty())
     {
         out << "set ylabel '" << plot.options_.label[y] << "'" << endl;
+    }
+    if (!plot.options_.rMargin.empty())
+    {
+        out << "set rmargin " << plot.options_.rMargin << endl;
     }
     for (unsigned int i = 0; i < plot.options_.palette.size(); ++i)
     {

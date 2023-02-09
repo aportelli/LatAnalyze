@@ -385,15 +385,17 @@ void CorrelatorFitter::setThinning(const Index thinning, const Index i)
 }
 
 // fit functions ///////////////////////////////////////////////////////////////
-SampleFitResult CorrelatorFitter::fit(Minimizer &minimizer, const DVec &init)
+SampleFitResult CorrelatorFitter::fit(Minimizer &minimizer, const DVec &init,
+                                  const bool onlyCentral)
 {
     vector<Minimizer *> vecPt = {&minimizer};
 
-    return fit(vecPt, init);
+    return fit(vecPt, init, onlyCentral);
 }
 
 SampleFitResult CorrelatorFitter::fit(vector<Minimizer *> &minimizer,
-                                      const DVec &init)
+                                        const DVec &init,
+                                        const bool onlyCentral)
 {
     vector<const DoubleModel *> vecPt(model_.size());
     
@@ -402,7 +404,7 @@ SampleFitResult CorrelatorFitter::fit(vector<Minimizer *> &minimizer,
         vecPt[i] = &(model_[i]);
     }
 
-    return data_->fit(minimizer, init, vecPt);
+    return data_->fit(minimizer, init, vecPt, onlyCentral);
 }
 
 // internal function to refresh fit ranges /////////////////////////////////////

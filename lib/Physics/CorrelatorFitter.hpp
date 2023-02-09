@@ -86,8 +86,10 @@ public:
     DMat getVarianceMatrix(void) const;
     void setThinning(const Index thinning, const Index i = 0);
     // fit functions
-    SampleFitResult fit(Minimizer &minimizer, const DVec &init);
-    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init);
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init,
+                                  const bool onlyCentral=false);
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                                  const bool onlyCentral=false);
 private:
     // internal function to refresh fit ranges
     void refreshRanges(void);

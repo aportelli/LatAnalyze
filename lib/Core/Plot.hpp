@@ -90,6 +90,7 @@ class PlotData: public PlotObject
 public:
     // constructor
     PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity=nullptr);
+    PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
@@ -224,6 +225,8 @@ struct PlotOptions
     int                      lineWidth;
     std::string              dashType;
     std::vector<std::string> palette;
+    bool                     titleAtEnd;
+    std::string              rMargin;
 };
 
 class PlotModifier
@@ -347,13 +350,15 @@ class Title: public PlotModifier
 {
 public:
     // constructor
-    explicit Title(const std::string &title);
+    explicit Title(const std::string &title, const bool atEnd=false, const std::string rMargin="");
     // destructor
     virtual ~Title(void) = default;
     // modifier
     virtual void operator()(PlotOptions &option) const;
 private:
     const std::string title_;
+    const bool atEnd_;
+    const std::string rMargin_;
 };
 
 class Palette: public PlotModifier
