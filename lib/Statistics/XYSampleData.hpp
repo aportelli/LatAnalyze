@@ -56,6 +56,7 @@ public:
     const DoubleFunctionSample & getModel(const PlaceHolder ph,
                                           const Index j = 0) const;
     FitResult                    getFitResult(const Index s = central) const;
+    std::string                  getParName(const Index i);
     // IO
     void print(const bool printXsi = false,
                std::ostream &out = std::cout) const;

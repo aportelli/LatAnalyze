@@ -58,6 +58,7 @@ public:
     double                    percentile(const double p) const;
     double                    median(void) const;
     std::pair<double, double> confidenceInterval(const double nSigma) const;
+    double                    getMax(void) const;
 private:
     // resize
     void resize(const Index nBin);

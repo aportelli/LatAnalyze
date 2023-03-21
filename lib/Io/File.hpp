@@ -57,6 +57,7 @@ public:
     unsigned int        getMode(void) const;
     template <typename IoT>
     const IoT &  read(const std::string &name = "");
+    virtual void save(const std::string &m, const std::string &name)      = 0;
     virtual void save(const DMat &m, const std::string &name)             = 0;
     virtual void save(const DSample &ds, const std::string &name)         = 0;
     virtual void save(const DMatSample &ms, const std::string &name)      = 0;

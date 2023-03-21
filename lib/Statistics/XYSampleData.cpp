@@ -101,6 +101,12 @@ FitResult SampleFitResult::getFitResult(const Index s) const
     return fit;
 }
 
+std::string SampleFitResult::getParName(const Index i)
+{
+    return parName_[i];
+}
+
+
 // IO //////////////////////////////////////////////////////////////////////////
 void SampleFitResult::print(const bool printXsi, ostream &out) const
 {

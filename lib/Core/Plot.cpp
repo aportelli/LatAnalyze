@@ -138,7 +138,7 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType)
+PlotData::PlotData(const DSample &x, const DSample &y)
 {
     if (x.size() != y.size())
     {
@@ -153,7 +153,7 @@ PlotData::PlotData(const DSample &x, const DSample &y, const std::string pointSi
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
 
-    setCommand("'" + tmpFileName + "' u 1:2 ps " + pointSize + " pt " + pointType);
+    setCommand("'" + tmpFileName + "' u 1:2 ");
 }
 
 PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
@@ -213,6 +213,12 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacit
         opacity->resize(x.rows());
         opacity->setConstant(1.0);
     }
+    else
+    {
+        for(int r=0; r<x.rows(); r++)
+            if( std::isnan((*opacity)(r)) )
+                (*opacity)(r) = 1.0;
+    }
 
     if (x.rows() != y.rows())
     {
@@ -241,7 +247,7 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacit
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
 
-    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 2");
+    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 2"); //hex code adds transparency to rgb colour
 }
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
@@ -317,7 +323,7 @@ PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
                + strFrom(xMax) + " " + strFrom(yMax) + " "
                + strFrom(xMin) + " " + strFrom(yMax) + " "
                + strFrom(xMin) + " " + strFrom(yMin)
-               + "' u 1:2 w filledcurves closed fs solid " + strFrom(opacity)
+               + "' u 1:2 w filledcurves closed fs transparent solid " + strFrom(opacity)
                + " noborder");
 }
 
@@ -365,7 +371,25 @@ void PlotPredBand::makePredBand(const DMat &low, const DMat &high, const double 
     contFileName = dumpToTmpFile(contour);
     pushTmpFile(contFileName);
     setCommand("'" + contFileName + "' u 1:2 w filledcurves closed" +
-               " fs solid " + strFrom(opacity) + " noborder");
+               " fs transparent solid " + strFrom(opacity) + " noborder");
+}
+
+PlotPredBand::PlotPredBand(const DVec &x,  const DMatSample &y,
+                           const double opacity)
+{
+    if (x.size() != y[central].size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    Index nPoint = x.size();
+    DMat  dLow(nPoint, 2), dHigh(nPoint, 2);
+
+    dLow.col(0)  = x;
+    dLow.col(1)  = y[central] - y.variance().cwiseSqrt();
+    dHigh.col(0) = x;
+    dHigh.col(1) = y[central] + y.variance().cwiseSqrt();
+    makePredBand(dLow, dHigh, opacity);
 }
 
 PlotPredBand::PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
@@ -508,6 +532,17 @@ void LineWidth::operator()(PlotOptions &option) const
     option.lineWidth = static_cast<int>(width_);
 }
 
+// PointSize constructor ///////////////////////////////////////////////////////
+PointSize::PointSize(const double point_size)
+: pointSize_(point_size)
+{}
+
+// PointSize modifier //////////////////////////////////////////////////////////
+void PointSize::operator()(PlotOptions &option) const
+{
+    option.pointSize = pointSize_;
+}
+
 // Dash constructor ///////////////////////////////////////////////////////////
 Dash::Dash(const string &dash)
 : dash_(dash)
@@ -635,6 +670,7 @@ void Plot::initOptions(void)
     options_.label[1]     = "";
     options_.lineColor    = "";
     options_.lineWidth    = -1;
+    options_.pointSize    = -1;
     options_.dashType     = "";
     options_.palette      = Palette::category10;
 }
@@ -670,6 +706,11 @@ Plot & Plot::operator<<(PlotObject &&command)
         {
             commandStr         += " lw " + strFrom(options_.lineWidth);
             options_.lineWidth  = -1;
+        }
+        if (options_.pointSize > 0)
+        {
+            commandStr         += " ps " + strFrom(options_.pointSize);
+            options_.pointSize  = -1;
         }
         if (!options_.dashType.empty())
         {

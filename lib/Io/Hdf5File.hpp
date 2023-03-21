@@ -44,6 +44,7 @@ public:
     // destructor
     virtual ~Hdf5File(void);
     // access
+    virtual void save(const std::string &str, const std::string &name);
     virtual void save(const DMat &m, const std::string &name);
     virtual void save(const DSample &ds, const std::string &name);
     virtual void save(const DMatSample &ms, const std::string &name);

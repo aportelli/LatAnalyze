@@ -90,7 +90,8 @@ class PlotData: public PlotObject
 public:
     // constructor
     PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity=nullptr);
-    PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType);
+    PlotData(const DSample &x, const DSample &y);
+    // PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType, const std::string opacity);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
@@ -152,13 +153,14 @@ class PlotPredBand: public PlotObject
 {
 public:
     // constructor
-    // PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
-    //              const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
+                 const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DMatSample &y, const double opacity = 0.15);
     PlotPredBand(const DoubleFunctionSample &function, const double xMin,
                  const double xMax, const unsigned int nPoint = 1000,
                  const double opacity = 0.15);
-    PlotPredBand(const DVec &x, const DVec &ylower, const DVec &yhigher,
-                           const double opacity = 0.15);
+    // PlotPredBand(const DVec &x, const DVec &ylower, const DVec &yhigher,
+    //                        const double opacity = 0.15);
     // destructor
     virtual ~PlotPredBand(void) = default;
 private:
@@ -223,6 +225,7 @@ struct PlotOptions
     std::string              label[2];
     std::string              lineColor;
     int                      lineWidth;
+    double                   pointSize;
     std::string              dashType;
     std::vector<std::string> palette;
     bool                     titleAtEnd;
@@ -289,6 +292,19 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const unsigned width_;
+};
+
+class PointSize: public PlotModifier
+{
+public:
+    // constructor
+    explicit PointSize(const double point_size);
+    // destructor
+    virtual ~PointSize(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const double pointSize_;
 };
 
 class Dash: public PlotModifier

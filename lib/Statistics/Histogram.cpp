@@ -162,6 +162,12 @@ double Histogram::operator()(const double x) const
     return (*this)[static_cast<Index>(i)];
 }
 
+double Histogram::getMax(void) const
+{
+    return bin_.maxCoeff()*(isNormalized() ? norm_ : 1.);
+}
+
+
 // percentiles & confidence interval ///////////////////////////////////////////
 double Histogram::percentile(const double p) const
 {
