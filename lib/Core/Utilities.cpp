@@ -135,3 +135,9 @@ bool VarName::hasName(const Index i) const
 {
     return (name_.find(i) != name_.end());
 }
+
+unsigned int VarName::size(void) const
+{
+    return name_.size();
+}
+

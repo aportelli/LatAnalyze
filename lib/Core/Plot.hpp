@@ -200,8 +200,8 @@ Latan::PlotRange(Latan::Axis::y, (m).rows() - .5, -.5) <<\
 Latan::PlotMatrixNoRange(m)
 
 #define PlotCorrMatrix(m)\
-PlotHeadCommand("set cbrange [-1:1]") <<\
-PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
+Latan::PlotHeadCommand("set cbrange [-1:1]") <<\
+Latan::PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
 PlotMatrix(m)
 
 /******************************************************************************

@@ -238,6 +238,7 @@ public:
     // access
     std::string getName(const Index i) const;
     void        setName(const Index i, const std::string name);
+    unsigned int size(void) const;
     // test
     bool hasName(const Index i) const;
 private:

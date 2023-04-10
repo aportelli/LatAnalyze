@@ -635,15 +635,20 @@ void Palette::operator()(PlotOptions &option) const
 // category10 palette //////////////////////////////////////////////////////////
 const std::vector<std::string> Palette::category10 =
 {
-    "rgb '#1f77b4'",
-    "rgb '#ff7f0e'",
-    "rgb '#2ca02c'",
-    "rgb '#d62728'",
-    "rgb '#9467bd'",
-    "rgb '#8c564b'",
-    "rgb '#e377c2'",
-    "rgb '#7f7f7f'",
-    "rgb '#bcbd22'"
+    "rgb '#004949'",
+    "rgb '#009292'",
+    "rgb '#ff6db6'",
+    "rgb '#ffb6db'",
+    "rgb '#490092'",
+    "rgb '#006ddb'",
+    "rgb '#b66dff'",
+    "rgb '#6db6ff'",
+    "rgb '#b6dbff'",
+    "rgb '#920000'",
+    "rgb '#924900'",
+    "rgb '#db6d00'",
+    "rgb '#24ff24'",
+    "rgb '#ffff6d'"
 };
 
 /******************************************************************************
