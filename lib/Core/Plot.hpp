@@ -89,7 +89,7 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
-    PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity=nullptr);
+    PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
     PlotData(const DSample &x, const DSample &y);
     // PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType, const std::string opacity);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);

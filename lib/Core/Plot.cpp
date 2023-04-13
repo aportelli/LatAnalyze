@@ -206,48 +206,46 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, DVec * opacity)
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity)
 {
-    if(opacity==nullptr)
-    {
-        opacity->resize(x.rows());
-        opacity->setConstant(1.0);
-    }
-    else
-    {
-        for(int r=0; r<x.rows(); r++)
-            if( std::isnan((*opacity)(r)) )
-                (*opacity)(r) = 1.0;
-    }
-
     if (x.rows() != y.rows())
     {
         LATAN_ERROR(Size, "x, y, yerr and opacity vectors do not have the same size");
     }
 
-    DMat d(x.rows(), 3);
-    if(opacity!=nullptr)
+    Latan::DVec op;
+    if(opacity.size()!=0)
     {
-        d.resize(x.rows(), 4);
-    }
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;     // 0: full opacity, 1: transparent
+            }
+        }
+    } 
 
-    string usingCmd, tmpFileName;
-
+    DMat d(x.rows(), 3);
     d.col(0)    = x;
     d.col(1)    = y;
     d.col(2)    = yerr;
 
-    if(opacity!=nullptr)
-    {
-        *opacity *= -1;
-        opacity->array() += 2;
-        d.col(3)    = *opacity; // 0: full opacity, 1: transparent
-    }
+    string usingCmd, tmpFileName;
 
+    if(opacity.size()!=0)
+    {
+        d.conservativeResize(x.rows(), 4);
+        d.col(3)    = op;
+        usingCmd = "u 1:2:3:(0xFF0000+(int(0xFF*$4)<<24)) w yerr lc rgb var";   //hex code adds transparency to rgb colour
+    }
+    else
+    {
+        usingCmd = "u 1:2:3 w yerr";
+    }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-
-    setCommand("'" + tmpFileName + "' u 1:2:3:(0x00AAFF+(int(0xFF*$4)<<24)) w yerr lc rgb var pt 7 lw 2"); //hex code adds transparency to rgb colour
+    setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
