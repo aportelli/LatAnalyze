@@ -220,6 +220,7 @@ struct PlotOptions
     std::string              output;
     std::string              caption;
     std::string              title;
+    std::string              size;
     unsigned int             scaleMode[2];
     Range                    scale[2];
     std::string              label[2];
@@ -349,6 +350,19 @@ private:
     const double min_, max_;
 };
 
+class Size: public PlotModifier
+{
+public:
+    // constructor
+    Size(const std::string &options);
+    // destructor
+    virtual ~Size(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string terminalCmd_;
+};
+
 class Terminal: public PlotModifier
 {
 public:
@@ -417,7 +431,7 @@ public:
     Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
-    void save(std::string dirName, bool savePdf = true);
+    void save(std::string dirName, bool savePdf = true, bool savePng = false);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);

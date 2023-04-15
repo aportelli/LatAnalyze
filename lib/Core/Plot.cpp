@@ -606,6 +606,15 @@ void Terminal::operator()(PlotOptions &option) const
     option.terminal = terminalCmd_;
 }
 
+Size::Size(const string &options)
+: terminalCmd_(" " +  options + " ")
+{}
+
+void Size::operator()(PlotOptions &option) const
+{
+    option.size = terminalCmd_;
+}
+
 // Title constructor ///////////////////////////////////////////////////////////
 Title::Title(const string &title, const bool atEnd, const std::string rMargin)
 : title_(title), atEnd_(atEnd), rMargin_(rMargin)
@@ -665,6 +674,7 @@ void Plot::initOptions(void)
     options_.output       = "";
     options_.caption      = "";
     options_.title        = "";
+    options_.size         = "";
     options_.scaleMode[0] = Plot::Scale::reset;
     options_.scaleMode[1] = Plot::Scale::reset;
     options_.scale[0]     = {0.0, 0.0};
@@ -854,7 +864,7 @@ void Plot::display(void)
     }
 }
 
-void Plot::save(string dirName, bool savePdf)
+void Plot::save(string dirName, bool savePdf, bool savePng)
 {
     vector<string> commandBack;
     string         path, terminalBack, outputBack, gpCommand, scriptName;
@@ -877,8 +887,21 @@ void Plot::save(string dirName, bool savePdf)
     // save PDF
     if (savePdf)
     {
-        options_.terminal = "pdf";
+        options_.terminal = "pdfcairo";
         options_.output   = dirName + "/plot.pdf";
+        display();
+        options_.terminal = terminalBack;
+        options_.output   = outputBack;
+    }
+
+    if (savePng)
+    {
+        options_.terminal = "png enhanced";
+        if(!options_.size.empty())
+        {
+            options_.terminal += " size " + options_.size;
+        }
+        options_.output   = dirName + "/plot.png";
         display();
         options_.terminal = terminalBack;
         options_.output   = outputBack;
@@ -930,7 +953,12 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     
     if (!plot.options_.terminal.empty())
     {
-        out << "set term " << plot.options_.terminal << endl;
+        out << "set term " << plot.options_.terminal;
+        if (!plot.options_.size.empty())
+        {
+            out << " size " + plot.options_.size;
+        }
+        out << endl;
     }
     if (!plot.options_.output.empty())
     {
