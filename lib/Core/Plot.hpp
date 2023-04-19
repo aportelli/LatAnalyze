@@ -90,8 +90,8 @@ class PlotData: public PlotObject
 public:
     // constructor
     PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
+    PlotData(const DVec &x, const DVec &y, const DVec& xerr, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
     PlotData(const DSample &x, const DSample &y);
-    // PlotData(const DSample &x, const DSample &y, const std::string pointSize, const std::string pointType, const std::string opacity);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
@@ -227,6 +227,7 @@ struct PlotOptions
     std::string              lineColor;
     int                      lineWidth;
     double                   pointSize;
+    int                      pointType;
     std::string              dashType;
     std::vector<std::string> palette;
     bool                     titleAtEnd;
@@ -306,6 +307,19 @@ public:
     virtual void operator()(PlotOptions &option) const;
 private:
     const double pointSize_;
+};
+
+class PointType: public PlotModifier
+{
+public:
+    // constructor
+    explicit PointType(const int point_type);
+    // destructor
+    virtual ~PointType(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const int pointType_;
 };
 
 class Dash: public PlotModifier

@@ -210,7 +210,7 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& o
 {
     if (x.rows() != y.rows())
     {
-        LATAN_ERROR(Size, "x, y, yerr and opacity vectors do not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
 
     Latan::DVec op;
@@ -242,6 +242,49 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& o
     else
     {
         usingCmd = "u 1:2:3 w yerr";
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& xerr, const DVec& yerr, const DVec& opacity)
+{
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y do not have the same size");
+    }
+
+    Latan::DVec op;
+    if(opacity.size()!=0)
+    {
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;     // 0: full opacity, 1: transparent
+            }
+        }
+    } 
+
+    DMat d(x.rows(), 4);
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = xerr;
+    d.col(3)    = yerr;
+
+    string usingCmd, tmpFileName;
+
+    if(opacity.size()!=0)
+    {
+        d.conservativeResize(x.rows(), 5);
+        d.col(4)    = op;
+        usingCmd = "u 1:2:3:4:(0xFF0000+(int(0xFF*$5)<<24)) w yerr lc rgb var";   //hex code adds transparency to rgb colour
+    }
+    else
+    {
+        usingCmd = "u 1:2:3:4 w xyerr";
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
@@ -541,6 +584,17 @@ void PointSize::operator()(PlotOptions &option) const
     option.pointSize = pointSize_;
 }
 
+// PointType constructor ///////////////////////////////////////////////////////
+PointType::PointType(const int point_type)
+: pointType_(point_type)
+{}
+
+// PointType modifier //////////////////////////////////////////////////////////
+void PointType::operator()(PlotOptions &option) const
+{
+    option.pointType = pointType_;
+}
+
 // Dash constructor ///////////////////////////////////////////////////////////
 Dash::Dash(const string &dash)
 : dash_(dash)
@@ -684,6 +738,7 @@ void Plot::initOptions(void)
     options_.lineColor    = "";
     options_.lineWidth    = -1;
     options_.pointSize    = -1;
+    options_.pointType    = -1;
     options_.dashType     = "";
     options_.palette      = Palette::category10;
 }
@@ -724,6 +779,11 @@ Plot & Plot::operator<<(PlotObject &&command)
         {
             commandStr         += " ps " + strFrom(options_.pointSize);
             options_.pointSize  = -1;
+        }
+        if (options_.pointType > 0)
+        {
+            commandStr         += " pt " + strFrom(options_.pointType);
+            options_.pointType  = -1;
         }
         if (!options_.dashType.empty())
         {
