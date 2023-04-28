@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
                   "show the fit correlation heatmap");
     opt.addOption("", "save-plot", OptParser::OptType::value, true,
                     "saves the source and .pdf", "");
+    opt.addOption("", "gevp-to", OptParser::OptType::value, true,
+                    "fixed gevp t0", "-1");
     opt.addOption("", "scan", OptParser::OptType::trigger, true,
                     "scan all possible fit ranges within [ti,tf]");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
@@ -137,7 +139,7 @@ int main(int argc, char *argv[])
     
     if (modelPar.type != CorrelatorType::undefined)
     {
-        mod  = CorrelatorModels::makeModel(modelPar, nt);
+        mod  = CorrelatorModels::makeModel(modelPar, nt, opt.optionValue<int>("gevp-to"));
         nPar = mod.getNPar();
     }
     else
@@ -167,21 +169,24 @@ int main(int argc, char *argv[])
     fitter.setThinning(thinning);
 
     // set initial values ******************************************************
-    if (modelPar.type != CorrelatorType::undefined)
-    {
-        init = CorrelatorModels::parameterGuess(corr, modelPar);
-    }
-    else
-    {
+    // if (modelPar.type != CorrelatorType::undefined)
+    // {
+    //     init = CorrelatorModels::parameterGuess(corr, modelPar);
+    // }
+    // else
+    // {
         init.fill(0.1);
-    }
+    // }
 
     // set limits for minimisers ***********************************************
     for (Index p = 0; p < nPar; p += 2)
     {
         if ((modelPar.type == CorrelatorType::exp) or
             (modelPar.type == CorrelatorType::cosh) or
-            (modelPar.type == CorrelatorType::sinh))
+            (modelPar.type == CorrelatorType::sinh) or
+            (modelPar.type == CorrelatorType::exp_gevp) or
+            (modelPar.type == CorrelatorType::exp_geometric) or
+            (modelPar.type == CorrelatorType::cosh_gevp))
         {
             globMin.setLowLimit(p, 0.);
             locMin.setLowLimit(p, 0.);
@@ -197,12 +202,32 @@ int main(int argc, char *argv[])
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
-        else
-        {
-            globMin.setLowLimit(p, -10*fabs(init(p)));
-            globMin.setHighLimit(p, 10*fabs(init(p)));
-        }
     }
+    if(modelPar.type == CorrelatorType::exp_const_gevp)    //odd nPar
+    {
+        for (Index p = 0; p < nPar-1; p += 2)
+        {
+            globMin.setLowLimit(p, 0.);
+            locMin.setLowLimit(p, 0.);
+            globMin.setHighLimit(p, 10.*init(p));
+            globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
+            globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
+        }
+        globMin.setLowLimit(nPar-1, -10.*fabs(init(nPar-1)));
+        globMin.setHighLimit(nPar-1, 10.*fabs(init(nPar-1)));
+    }
+    else if (modelPar.type == CorrelatorType::exp2_restricted_gevp)
+    {
+        for (Index p = 0; p < 2; p += 1)
+        {
+            globMin.setLowLimit(p, 0.);
+            locMin.setLowLimit(p, 0.);
+            globMin.setHighLimit(p, 10.*init(p));
+        }
+        globMin.setLowLimit(2, -10.*fabs(init(2))); // Z_1
+        globMin.setHighLimit(2, 10.*fabs(init(2)));
+    }
+
     globMin.setPrecision(0.001);
     globMin.setMaxIteration(100000);
     globMin.setVerbosity(verbosity);

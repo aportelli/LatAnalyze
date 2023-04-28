@@ -30,7 +30,8 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                         Correlator types & models                          *
  ******************************************************************************/
-enum class CorrelatorType {undefined, exp, cosh, sinh, linear, cst};
+enum class CorrelatorType {undefined, exp, cosh, sinh, linear, cst,
+                            exp_gevp, exp_const_gevp, exp2_restricted_gevp, exp_geometric, cosh_gevp};
 
 namespace CorrelatorModels
 {
@@ -45,8 +46,14 @@ namespace CorrelatorModels
     DoubleModel makeSinhModel(const Index nState, const Index nt);
     DoubleModel makeConstModel(void);
     DoubleModel makeLinearModel(void);
+    DoubleModel makeExpGevpModel(const Index nState, const int t0);
+    DoubleModel makeExpConstGevpModel(const Index nState, const int t0);  //for constant thermal effects
+    DoubleModel makeExp2RestrictedGevpModel(const int t0);
+    DoubleModel makeExpGeometricModel(const int t0);   // summed excited states
+    DoubleModel makeCoshGevpModel(const Index nState, const Index nt, const int t0);
+
     ModelPar    parseModel(const std::string s);
-    DoubleModel makeModel(const ModelPar par, const Index nt);
+    DoubleModel makeModel(const ModelPar par, const Index nt, const int t0=-1);
     DVec        parameterGuess(const DMatSample &corr, const ModelPar par);
 };
 
@@ -68,6 +75,7 @@ class CorrelatorFitter
 {
 public:
     // constructors
+    CorrelatorFitter(void);
     CorrelatorFitter(const DMatSample &corr);
     CorrelatorFitter(const std::vector<DMatSample> &corr);
     // destructor

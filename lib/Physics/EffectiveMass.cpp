@@ -53,6 +53,10 @@ DVec EffectiveMass::getTime(const Index nt) const
         LATAN_ERROR(Argument, "correlator type is undefined");
         break;
     case CorrelatorType::exp:
+    case CorrelatorType::exp_gevp:
+    case CorrelatorType::exp_const_gevp:
+    case CorrelatorType::exp2_restricted_gevp:
+    case CorrelatorType::exp_geometric:
     case CorrelatorType::linear:
         tvec = DVec::LinSpaced(nt - 1, 0, nt - 2);
         break;
@@ -84,6 +88,10 @@ DVec EffectiveMass::operator()(const DVec &corr) const
         LATAN_ERROR(Argument, "correlator type is undefined");
         break;
     case CorrelatorType::exp:
+    case CorrelatorType::exp_gevp:
+    case CorrelatorType::exp_const_gevp:
+    case CorrelatorType::exp2_restricted_gevp:
+    case CorrelatorType::exp_geometric:
         em.resize(nt - 1);
         for (Index t = 1; t < nt; ++t)
         {
