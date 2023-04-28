@@ -68,6 +68,7 @@ class CorrelatorFitter
 {
 public:
     // constructors
+    CorrelatorFitter(void);
     CorrelatorFitter(const DMatSample &corr);
     CorrelatorFitter(const std::vector<DMatSample> &corr);
     // destructor

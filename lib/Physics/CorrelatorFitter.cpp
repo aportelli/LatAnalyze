@@ -302,6 +302,8 @@ DMatSample CorrelatorUtils::fourierTransform(const DMatSample &c, FFT &fft,
  *                      CorrelatorFitter implementation                       *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
+CorrelatorFitter::CorrelatorFitter(void){}
+
 CorrelatorFitter::CorrelatorFitter(const DMatSample &corr)
 {
     setCorrelator(corr);
