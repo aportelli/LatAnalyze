@@ -480,7 +480,7 @@ PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
 
 
 // PlotHistogram constructor ///////////////////////////////////////////////////
-PlotHistogram::PlotHistogram(const Histogram &h)
+PlotHistogram::PlotHistogram(const Histogram &h, const std::string transparency)
 {
     DMat   d(h.size(), 2);
     string tmpFileName;
@@ -492,7 +492,17 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w steps");
+    string usingCmd = "'" + tmpFileName + "' u 1:2";
+    if(transparency.empty())
+    {
+        usingCmd += " w steps";
+    }
+    else
+    {
+        usingCmd += " w fillsteps fs transparent solid " + transparency;
+
+    }
+    setCommand(usingCmd);
 }
 
 // PlotImpulses constructor ////////////////////////////////////////////////////
@@ -697,16 +707,17 @@ void Palette::operator()(PlotOptions &option) const
 const std::vector<std::string> Palette::category10 =
 {
     "rgb '#004949'",
-    "rgb '#009292'",
     "rgb '#ff6db6'",
+    "rgb '#b66dff'",
+    "rgb '#924900'",
+    
+    "rgb '#009292'",
     "rgb '#ffb6db'",
     "rgb '#490092'",
     "rgb '#006ddb'",
-    "rgb '#b66dff'",
     "rgb '#6db6ff'",
     "rgb '#b6dbff'",
     "rgb '#920000'",
-    "rgb '#924900'",
     "rgb '#db6d00'",
     "rgb '#24ff24'",
     "rgb '#ffff6d'"
@@ -956,7 +967,7 @@ void Plot::save(string dirName, bool savePdf, bool savePng)
 
     if (savePng)
     {
-        options_.terminal = "png enhanced";
+        options_.terminal = "pngcairo enhanced";
         if(!options_.size.empty())
         {
             options_.terminal += " size " + options_.size;

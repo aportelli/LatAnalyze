@@ -171,7 +171,7 @@ class PlotHistogram: public PlotObject
 {
 public:
     // constructor
-    PlotHistogram(const Histogram &h);
+    PlotHistogram(const Histogram &h, const std::string transparency="");
     // destructor
     virtual ~PlotHistogram(void) = default;
 };
