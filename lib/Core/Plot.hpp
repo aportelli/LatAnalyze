@@ -90,7 +90,7 @@ class PlotData: public PlotObject
 public:
     // constructor
     PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
-    PlotData(const DVec &x, const DVec &y, const DVec& xerr, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
+    PlotData(const DVec &x, const DVec &y, const DVec& xlow, const DVec& xhigh, const DVec& ylow, const DVec& yhigh, const DVec& opacity=Latan::DVec(0));
     PlotData(const DSample &x, const DSample &y);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
@@ -124,6 +124,7 @@ class PlotPoints: public PlotObject
 public:
     // constructor
     PlotPoints(const DVec &x, const DVec &y);
+    PlotPoints(const DVec &x, const DVec &y, const DVec& opacity);
     // destructor
     virtual ~PlotPoints(void) = default;
 };

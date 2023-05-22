@@ -221,9 +221,12 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& o
         {
             if( std::isnan(op(i)) )
             {
-                op(i) = 1.0;     // 0: full opacity, 1: transparent
+                op(i) = 1.0;
             }
         }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
     } 
 
     DMat d(x.rows(), 3);
@@ -248,7 +251,8 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& o
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
-PlotData::PlotData(const DVec &x, const DVec &y, const DVec& xerr, const DVec& yerr, const DVec& opacity)
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& xlow, const DVec& xhigh,
+                     const DVec& ylow, const DVec& yhigh, const DVec& opacity)
 {
     if (x.rows() != y.rows())
     {
@@ -263,28 +267,33 @@ PlotData::PlotData(const DVec &x, const DVec &y, const DVec& xerr, const DVec& y
         {
             if( std::isnan(op(i)) )
             {
-                op(i) = 1.0;     // 0: full opacity, 1: transparent
+                op(i) = 1.0;
             }
         }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
     } 
 
-    DMat d(x.rows(), 4);
+    DMat d(x.rows(), 6);
     d.col(0)    = x;
     d.col(1)    = y;
-    d.col(2)    = xerr;
-    d.col(3)    = yerr;
+    d.col(2)    = xlow;
+    d.col(3)    = xhigh;
+    d.col(4)    = ylow;
+    d.col(5)    = yhigh;
 
     string usingCmd, tmpFileName;
 
     if(opacity.size()!=0)
     {
-        d.conservativeResize(x.rows(), 5);
-        d.col(4)    = op;
-        usingCmd = "u 1:2:3:4:(0xFF0000+(int(0xFF*$5)<<24)) w yerr lc rgb var";   //hex code adds transparency to rgb colour
+        d.conservativeResize(x.rows(), 7);
+        d.col(6)    = op;
+        usingCmd = "u 1:2:3:4:5:6:(0xFF0000+(int(0xFF*$7)<<24)) w xyerr lc rgb var";   //hex code adds transparency to rgb colour
     }
     else
     {
-        usingCmd = "u 1:2:3:4 w xyerr";
+        usingCmd = "u 1:2:3:4:5:6 w xyerr";
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
@@ -346,6 +355,41 @@ PlotPoints::PlotPoints(const DVec &x, const DVec &y)
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' u 1:2");
+}
+
+PlotPoints::PlotPoints(const DVec &x, const DVec &y, const DVec& opacity)
+{
+    if (x.rows() != y.rows() or x.rows() != opacity.rows())
+    {
+        LATAN_ERROR(Size, "x and y or opacity vectors do not have the same size");
+    }
+
+    Latan::DVec op;
+    if(opacity.size()!=0)
+    {
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;
+            }
+        }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
+    } 
+
+    DMat d(x.rows(), 3);
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = op;
+
+    string usingCmd, tmpFileName;
+    usingCmd = "u 1:2:(0xFF0000+(int(0xFF*$3)<<24)) lc rgb var";   //hex code adds transparency to rgb colour
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
 // PlotHLine constructor ///////////////////////////////////////////////////////
