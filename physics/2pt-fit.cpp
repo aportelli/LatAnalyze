@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
-    bool                 parsed, doLaplace, doPlot, doHeatmap, doCorr, fold, doScan;
+    bool                 parsed, doLaplace, doPlot, doHeatmap, doCorr, fold, doScan, noGuess;
     string               corrFileName, model, outFileName, outFmt, savePlot;
     Index                ti, tf, shift, nPar, thinning;
     double               svdTol;
@@ -59,6 +59,8 @@ int main(int argc, char *argv[])
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
                   "show the fit correlation heatmap");
+    opt.addOption("", "no-guess"  , OptParser::OptType::trigger, true,
+                  "do not try to guess fit parameters");
     opt.addOption("", "save-plot", OptParser::OptType::value, true,
                     "saves the source and .pdf", "");
     opt.addOption("", "scan", OptParser::OptType::trigger, true,
@@ -87,6 +89,7 @@ int main(int argc, char *argv[])
     fold         = opt.gotOption("fold");
     doPlot       = opt.gotOption("p");
     doHeatmap    = opt.gotOption("h");
+    noGuess      = opt.gotOption("no-guess");
     savePlot     = opt.optionValue("save-plot");
     doScan       = opt.gotOption("scan");
     switch (opt.optionValue<unsigned int>("v"))
@@ -167,13 +170,14 @@ int main(int argc, char *argv[])
     fitter.setThinning(thinning);
 
     // set initial values ******************************************************
-    if (modelPar.type != CorrelatorType::undefined)
+    if ((modelPar.type != CorrelatorType::undefined) and !noGuess)
     {
         init = CorrelatorModels::parameterGuess(corr, modelPar);
     }
     else
     {
-        init.fill(0.1);
+        init.fill(1.);
+        init(0) = 0.2;
     }
 
     // set limits for minimisers ***********************************************
