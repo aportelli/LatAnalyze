@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     // parse arguments /////////////////////////////////////////////////////////
     OptParser            opt;
-    bool                 parsed, doLaplace, doPlot, doHeatmap, doCorr, fold, doScan;
+    bool                 parsed, doLaplace, doPlot, doHeatmap, doCorr, fold, doScan, doGlobal;
     string               corrFileName, model, outFileName, outFmt, savePlot;
     Index                ti, tf, shift, nPar, thinning;
     double               svdTol;
@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
                   "fold the correlator");
     opt.addOption("l" , "laplace"   , OptParser::OptType::trigger, true,
                   "apply Laplace filter to the correlator");
+    opt.addOption("" , "subtract"   , OptParser::OptType::value, true,
+                  "subtract correlator backwards", "");
     opt.addOption("p", "plot"     , OptParser::OptType::trigger, true,
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
@@ -65,6 +67,8 @@ int main(int argc, char *argv[])
                     "fixed gevp t0", "-1");
     opt.addOption("", "scan", OptParser::OptType::trigger, true,
                     "scan all possible fit ranges within [ti,tf]");
+    opt.addOption("", "no-global", OptParser::OptType::trigger, true,
+                    "do not use global minimizer");
     opt.addOption("", "help"      , OptParser::OptType::trigger, true,
                   "show this help message and exit");
     parsed = opt.parse(argc, argv);
@@ -91,6 +95,8 @@ int main(int argc, char *argv[])
     doHeatmap    = opt.gotOption("h");
     savePlot     = opt.optionValue("save-plot");
     doScan       = opt.gotOption("scan");
+    doGlobal     = !opt.gotOption("no-global");
+
     switch (opt.optionValue<unsigned int>("v"))
     {
         case 0:
@@ -131,6 +137,18 @@ int main(int argc, char *argv[])
     {
         corr = CorrelatorUtils::fold(corr);
     }
+    if(!opt.optionValue<string>("subtract").empty())
+    {
+        cout << "Redefining (backwards) C(t) -> C(t-" << opt.optionValue<string>("subtract") << ") - C(t) " << endl;
+        Latan::DMatSample tmp = corr;
+        for(uint t=opt.optionValue<uint>("subtract") ; t<nt ; t++)
+        {
+            FOR_STAT_ARRAY(corr,s)
+            {
+                corr[s](t-opt.optionValue<uint>("subtract"),0) = tmp[s](t-opt.optionValue<uint>("subtract"),0) - tmp[s](t,0);
+            }
+        }
+    }
     
     // make model //////////////////////////////////////////////////////////////
     CorrelatorFitter fitter(corr);
@@ -161,7 +179,12 @@ int main(int argc, char *argv[])
     DVec                init(nPar);
     NloptMinimizer      globMin(NloptMinimizer::Algorithm::GN_CRS2_LM);
     MinuitMinimizer     locMin;
-    vector<Minimizer *> unCorrMin{&globMin, &locMin};
+    vector<Minimizer *> unCorrMin;
+    if(doGlobal)
+    {
+        unCorrMin.push_back(&globMin);
+    }
+    unCorrMin.push_back(&locMin);
 
     // set fitter **************************************************************
     fitter.setModel(mod);
@@ -176,6 +199,10 @@ int main(int argc, char *argv[])
     // else
     // {
         init.fill(0.1);
+        if(model=="exp2" or model=="cosh2")
+        {
+            init(2) = 1;
+        }
     // }
 
     // set limits for minimisers ***********************************************
@@ -305,8 +332,43 @@ int main(int argc, char *argv[])
                 p.reset();
                 p << PlotRange(Axis::x, 0, nt - 1);
                 p << PlotRange(Axis::y, e0 - 30.*e0Err, e0 + 30.*e0Err);
-                p << Color("rgb 'blue'") << PlotBand(0, nt - 1, e0 - e0Err, e0 + e0Err);
-                p << Color("rgb 'blue'") << PlotHLine(e0);
+
+                if(model=="exp2" or model=="cosh2")
+                {
+                    Latan::DoubleFunction twoStateEffmass([&fit](const double *x)
+                    {
+                        const double t = x[0];
+                        const Latan::Index s = (int)x[1];
+                        const double E0= fit[s](0);
+                        const double Z0= fit[s](1);
+                        const double E1= fit[s](2);
+                        const double Z1= fit[s](3);
+
+                        return ( E0 + (Z1/Z0) * E1 * exp(-(E1-E0) * t) ) / (1 + (Z1/Z0) * exp(-(E1-E0) * t) );
+                    },2);
+                    auto twoStateEffmassBand = [&twoStateEffmass](const Latan::Index nSample, const Latan::DVec& tfine)
+                    {
+                        Latan::DMatSample res(nSample, tfine.size(), 1);
+                        FOR_STAT_ARRAY(res, s)
+                        {
+                            FOR_VEC(tfine, t)
+                            {
+                                res[s](t,0) = twoStateEffmass(t, s);
+                            }
+                        }
+                        return res;
+                    };
+                    // Latan::DVec tfine = Latan::DVec::LinSpaced(1000, 0, nt - 1);
+                    Latan::DMatSample twoStateModel = twoStateEffmassBand(fit.size(), emtvec);
+                    p << Color("rgb 'blue'") << PlotPredBand(emtvec, twoStateModel[Latan::central], twoStateModel.variance().cwiseSqrt());
+                    p << Color("rgb 'blue'") << PlotFunction(twoStateEffmass.bind(1, Latan::central), 0, nt - 1);
+                }
+                else
+                {
+                    p << Color("rgb 'blue'") << PlotBand(0, nt - 1, e0 - e0Err, e0 + e0Err);
+                    p << Color("rgb 'blue'") << PlotHLine(e0);
+                }
+
                 p << Color("rgb 'red'") << PlotData(emtvec, em);
                 p << Label("t/a", Axis::x) << Caption("Effective Mass");
                 p.display();
