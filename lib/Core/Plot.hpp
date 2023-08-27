@@ -93,7 +93,7 @@ public:
     PlotData(const DVec &x, const DVec &y, const DVec& xlow, const DVec& xhigh, const DVec& ylow, const DVec& yhigh, const DVec& opacity=Latan::DVec(0));
     PlotData(const DSample &x, const DSample &y);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
-    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false, const DVec& opacity=Latan::DVec(0));
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
     PlotData(const XYStatData &data, const Index i = 0, const Index j = 0, 
              const bool abs = false);
@@ -115,6 +115,7 @@ class PlotLine: public PlotObject
 public:
     // constructor
     PlotLine(const DVec &x, const DVec &y, bool scatter=false);
+    PlotLine(const DVec &x, const DVec &y, const double opacity);
     // destructor
     virtual ~PlotLine(void) = default;
 };
@@ -160,8 +161,8 @@ public:
     PlotPredBand(const DoubleFunctionSample &function, const double xMin,
                  const double xMax, const unsigned int nPoint = 1000,
                  const double opacity = 0.15);
-    // PlotPredBand(const DVec &x, const DVec &ylower, const DVec &yhigher,
-    //                        const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DMat &yband, const double opacity=0.15);
+
     // destructor
     virtual ~PlotPredBand(void) = default;
 private:
@@ -173,6 +174,7 @@ class PlotHistogram: public PlotObject
 public:
     // constructor
     PlotHistogram(const Histogram &h, const std::string transparency="");
+    PlotHistogram(const Histogram &h, const double boxShift);
     // destructor
     virtual ~PlotHistogram(void) = default;
 };

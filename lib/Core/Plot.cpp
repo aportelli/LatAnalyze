@@ -156,28 +156,35 @@ PlotData::PlotData(const DSample &x, const DSample &y)
     setCommand("'" + tmpFileName + "' u 1:2 ");
 }
 
-PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
+PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs, const DVec& opacity)
 {
-    if (x.rows() != y[central].rows())
+    if(opacity.size() == 0)
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
-    }
+        if (x.rows() != y[central].rows())
+        {
+            LATAN_ERROR(Size, "x and y vector does not have the same size");
+        }
 
-    DMat d(x.rows(), 3);
-    string usingCmd, tmpFileName;
+        DMat d(x.rows(), 3);
+        string usingCmd, tmpFileName;
 
-    d.col(0)    = x;
-    d.col(1)    = y[central].col(0);
-    d.col(2)    = y.variance().cwiseSqrt().col(0);
-    tmpFileName = dumpToTmpFile(d);
-    pushTmpFile(tmpFileName);
-    if (!abs)
-    {
-        setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+        d.col(0)    = x;
+        d.col(1)    = y[central].col(0);
+        d.col(2)    = y.variance().cwiseSqrt().col(0);
+        tmpFileName = dumpToTmpFile(d);
+        pushTmpFile(tmpFileName);
+        if (!abs)
+        {
+            setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+        }
+        else
+        {
+            setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+        }
     }
     else
     {
-        setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+        PlotData(x, y[central].col(0), y.variance().cwiseSqrt().col(0), opacity);
     }
 }
 
@@ -337,6 +344,23 @@ PlotLine::PlotLine(const DVec &x, const DVec &y, bool scatter)
         setCommand("'" + tmpFileName + "' u 1:2 w lines");
     else
         setCommand("'" + tmpFileName + "' u 1:2");
+}
+
+PlotLine::PlotLine(const DVec &x, const DVec &y, const double opacity)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w lines");
 }
 
 // PlotPoints constructor ////////////////////////////////////////////////////////
@@ -499,6 +523,25 @@ PlotPredBand::PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
     makePredBand(dLow, dHigh, opacity);
 }
 
+PlotPredBand::PlotPredBand(const DVec &x, const DMat &yband, const double opacity)
+{
+    Latan::DVec ylow = yband.col(0);
+    Latan::DVec yhigh = yband.col(1);
+    if (x.size() != ylow.size() or x.size() != yhigh.size())
+    {
+        LATAN_ERROR(Size, "x and yband vectors do not have the same size");
+    }
+
+    Index nPoint = x.size();
+    DMat  dLow(nPoint, 2), dHigh(nPoint, 2);
+
+    dLow.col(0)  = x;
+    dLow.col(1)  = ylow;
+    dHigh.col(0) = x;
+    dHigh.col(1) = yhigh;
+    makePredBand(dLow, dHigh, opacity);
+}
+
 PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
                            const double xMin, const double xMax,
                            const unsigned int nPoint, const double opacity)
@@ -547,6 +590,21 @@ PlotHistogram::PlotHistogram(const Histogram &h, const std::string transparency)
 
     }
     setCommand(usingCmd);
+}
+
+PlotHistogram::PlotHistogram(const Histogram &h, const double boxShift)
+{
+    DMat   d(h.size(), 2);
+    string tmpFileName;
+
+    for (Index i = 0; i < h.size(); ++i)
+    {
+        d(i, 0) = h.getX(i);
+        d(i, 1) = h[i];
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u ($1+" + to_string(boxShift) + "):2 w boxes ");
 }
 
 // PlotImpulses constructor ////////////////////////////////////////////////////
@@ -750,19 +808,19 @@ void Palette::operator()(PlotOptions &option) const
 // category10 palette //////////////////////////////////////////////////////////
 const std::vector<std::string> Palette::category10 =
 {
-    "rgb '#004949'",
+    "rgb '#006ddb'",
     "rgb '#ff6db6'",
     "rgb '#b66dff'",
-    "rgb '#924900'",
+    "rgb '#db6d00'",
+    "rgb '#004949'",
     
     "rgb '#009292'",
     "rgb '#ffb6db'",
     "rgb '#490092'",
-    "rgb '#006ddb'",
+    "rgb '#924900'",
     "rgb '#6db6ff'",
     "rgb '#b6dbff'",
     "rgb '#920000'",
-    "rgb '#db6d00'",
     "rgb '#24ff24'",
     "rgb '#ffff6d'"
 };
