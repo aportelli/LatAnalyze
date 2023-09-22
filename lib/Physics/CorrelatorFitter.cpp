@@ -123,60 +123,19 @@ DoubleModel CorrelatorModels::makeLinearModel(void)
     return mod;
 }
 
-
-DoubleModel CorrelatorModels::makeExpGevpModel(const Index nState, const int t0)
+DoubleModel CorrelatorModels::makeExpConstModel(const Index nState)  //for constant thermal effects
 {
     DoubleModel mod;
 
-    mod.setFunction([nState, t0](const double *x, const double *p)
+    mod.setFunction([nState](const double *x, const double *p)
     {
-        if(x[0]==t0)
+        double res = 0.;
+        for (unsigned int i = 0; i < nState; ++i)
         {
-            return 1.; //correlator at t0 is fixed to 1
+            res += p[2*i + 1]*exp(-p[2*i]*x[0]);
         }
-        else
-        {
-            double res = 0.;
-
-            for (unsigned int i = 0; i < nState; ++i)
-            {
-                res += p[2*i + 1]*exp(-p[2*i]*x[0]);
-            }
-            return res;
-        }
-    }, 1, 2*nState);
-    for (unsigned int i = 0; i < nState; ++i)
-    {
-        mod.parName().setName(2*i, "E_" + strFrom(i));
-        mod.parName().setName(2*i + 1, "Z_" + strFrom(i));
-    }
-
-    return mod;
-}
-
-DoubleModel CorrelatorModels::makeExpConstGevpModel(const Index nState, const int t0)  //for constant thermal effects
-{
-    DoubleModel mod;
-
-    mod.setFunction([nState, t0](const double *x, const double *p)
-    {
-        if(x[0]==t0)
-        {
-            return 1.; //correlator at t0 is fixed to 1
-        }
-        else
-        {
-            double res = 0.;
-
-            for (unsigned int i = 0; i < nState; ++i)
-            {
-                res += p[2*i + 1]*exp(-p[2*i]*x[0]);
-            }
-
-            res += p[2*nState]; //constant thermal effect
-
-            return res;
-        }
+        res += p[2*nState]; //constant thermal effect
+        return res;
     }, 1, 2*nState+1);
     for (unsigned int i = 0; i < nState; ++i)
     {
@@ -188,81 +147,33 @@ DoubleModel CorrelatorModels::makeExpConstGevpModel(const Index nState, const in
     return mod;
 }
 
-DoubleModel CorrelatorModels::makeCoshGevpModel(const Index nState, const Index nt, const int t0)
-{
-    DoubleModel mod;
-
-    mod.setFunction([nState, nt, t0](const double *x, const double *p)
-    {
-        if(t0==x[0] or t0==nt-x[0])
-        {
-            return 1.;
-        }
-        else
-        {
-            double res = 0.;
-
-            for (unsigned int i = 0; i < nState; ++i)
-            {
-                res += p[2*i + 1]*(exp(-p[2*i]*x[0]) + exp(-p[2*i]*(nt - x[0])));
-            }
-
-            return res;
-        }
-    }, 1, 2*nState);
-    for (unsigned int i = 0; i < nState; ++i)
-    {
-        mod.parName().setName(2*i, "E_" + strFrom(i));
-        mod.parName().setName(2*i + 1, "Z_" + strFrom(i));
-    }
-
-    return mod;
-}
-
-DoubleModel CorrelatorModels::makeExp2RestrictedGevpModel(const int t0)
+DoubleModel CorrelatorModels::makeExp2ComplementaryModel(const int t0)
 {
     DoubleModel mod;
 
     mod.setFunction([t0](const double *x, const double *p)
     {
-        if(t0==x[0])
-        {
-            return 1.;
-        }
-        else
-        {
-            double res = (1.-p[2]) * exp(-p[0]*(x[0]-t0)) + p[2] * exp(-p[1]*(x[0]-t0));
+        double res = (1.-p[1]) * exp(-p[0]*(x[0]-t0)) + p[1] * exp(-p[2]*(x[0]-t0));
 
-            return res;
-        }
+        return res;
     }, 1, 3);
-    for (unsigned int i = 0; i < 2; ++i)
-    {
-        mod.parName().setName(i, "E_" + strFrom(i));
-    }
-    mod.parName().setName(2, "Z_1");
+
+    mod.parName().setName(0, "E_0");
+    mod.parName().setName(1, "Z_1");
+    mod.parName().setName(2, "E_1");
 
     return mod;
 }
 
-DoubleModel CorrelatorModels::makeExpGeometricModel(const int t0)    // summed excited states
+DoubleModel CorrelatorModels::makeExpGeometricModel(void)    // crazy summed excited states (Brett's thesis)
 {
     DoubleModel mod;
 
-    mod.setFunction([t0](const double *x, const double *p)
+    mod.setFunction([](const double *x, const double *p)
     {
-        if(t0==x[0])
-        {
-            return 1.;
-        }
-        else
-        {
-            double res = 0.;
-
-            res += p[1]*exp(-p[0]*x[0]) / ( 1. - p[3]*exp(-p[2]*x[0]) );
-
-            return res;
-        }
+        double res = 0.;
+        res += p[1]*exp(-p[0]*x[0]) / ( 1. - p[3]*exp(-p[2]*x[0]) );
+        return res;
     }, 1, 4);
 
     mod.parName().setName(0, "E_0");
@@ -303,28 +214,20 @@ CorrelatorModels::ModelPar CorrelatorModels::parseModel(const string s)
         par.type   = CorrelatorType::cst;
         par.nState = 1;
     }
-    else if (regex_match(s, sm, regex("exp([0-9]+)_gevp")))
+    else if (regex_match(s, sm, regex("exp([0-9]+)const")))
     {
-        par.type   = CorrelatorType::exp_gevp;
+        par.type   = CorrelatorType::exp_const;
         par.nState = strTo<Index>(sm[1].str());
     }
-    else if (regex_match(s, sm, regex("exp([0-9]+)_const_gevp")))
+    else if (s== "exp2complement")
     {
-        par.type   = CorrelatorType::exp_const_gevp;
-        par.nState = strTo<Index>(sm[1].str());
+        par.type   = CorrelatorType::exp2_complementary;
+        par.nState = 1; // only one complete pair (E,Z)
     }
-    else if (s== "exp2_restricted_gevp")
-    {
-        par.type   = CorrelatorType::exp2_restricted_gevp;
-    }
-    else if (s== "exp_geometric")
+    else if (s== "summedexp")
     {
         par.type   = CorrelatorType::exp_geometric;
-    }
-    else if (regex_match(s, sm, regex("cosh([0-9]+)_gevp")))
-    {
-        par.type   = CorrelatorType::cosh_gevp;
-        par.nState = strTo<Index>(sm[1].str());
+        par.nState = 2;
     }
     else
     {
@@ -358,20 +261,14 @@ DoubleModel CorrelatorModels::makeModel(const CorrelatorModels::ModelPar par,
     case CorrelatorType::cst:
         return makeConstModel();
         break;
-    case CorrelatorType::exp_gevp:
-        return makeExpGevpModel(par.nState, t0);
+    case CorrelatorType::exp_const:
+        return makeExpConstModel(par.nState);
         break;
-    case CorrelatorType::exp_const_gevp:
-        return makeExpConstGevpModel(par.nState, t0);
-        break;
-    case CorrelatorType::exp2_restricted_gevp:
-        return makeExp2RestrictedGevpModel(t0);
+    case CorrelatorType::exp2_complementary:
+        return makeExp2ComplementaryModel(t0);
         break;
     case CorrelatorType::exp_geometric:
-        return makeExpGeometricModel(t0);
-        break;
-    case CorrelatorType::cosh_gevp:
-        return makeCoshGevpModel(par.nState, nt, t0);
+        return makeExpGeometricModel();
         break;
     }
 }
@@ -390,18 +287,27 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
     case CorrelatorType::exp:
     case CorrelatorType::cosh:
     case CorrelatorType::sinh:
-    case CorrelatorType::exp_gevp:
-    case CorrelatorType::exp_const_gevp:
-    case CorrelatorType::exp2_restricted_gevp:
+    case CorrelatorType::exp2_complementary:
     case CorrelatorType::exp_geometric:
-    case CorrelatorType::cosh_gevp:
+    case CorrelatorType::exp_const:
         init.resize(2*par.nState);
-        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
+        init(0) = abs(log(corr[central](nt/4)/corr[central](nt/4 + 1)));
         init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
         for (Index p = 2; p < init.size(); p += 2)
         {
             init(p)     = 2*init(p - 2);
             init(p + 1) = init(p - 1)/2.;
+        }
+        
+        if(par.type == CorrelatorType::exp2_complementary)
+        {
+            init.conservativeResize(3);    
+            init(2) = init(0)/2.;
+        }
+        else if(par.type == CorrelatorType::exp_const)
+        {
+            init.conservativeResize(init.size()+1);
+            init(init.size()-1) = init(0)/(par.nState+1.);
         }
         break;
     case CorrelatorType::linear:
@@ -411,7 +317,7 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
         break;
     case CorrelatorType::cst:
         init.resize(1);
-        init(0) = corr[central](nt/4);
+        init(0) = corr[central](nt/8);
         break;
     default:
         break;

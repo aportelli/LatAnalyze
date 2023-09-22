@@ -192,18 +192,14 @@ int main(int argc, char *argv[])
     fitter.setThinning(thinning);
 
     // set initial values ******************************************************
-    // if (modelPar.type != CorrelatorType::undefined)
-    // {
-    //     init = CorrelatorModels::parameterGuess(corr, modelPar);
-    // }
-    // else
-    // {
+    if (modelPar.type != CorrelatorType::undefined)
+    {
+        init = CorrelatorModels::parameterGuess(corr, modelPar);
+    }
+    else if(isnan(init.sum()))
+    {
         init.fill(0.1);
-        if(model=="exp2" or model=="cosh2")
-        {
-            init(2) = 1;
-        }
-    // }
+    }
 
     // set limits for minimisers ***********************************************
     for (Index p = 0; p < nPar; p += 2)
@@ -211,9 +207,7 @@ int main(int argc, char *argv[])
         if ((modelPar.type == CorrelatorType::exp) or
             (modelPar.type == CorrelatorType::cosh) or
             (modelPar.type == CorrelatorType::sinh) or
-            (modelPar.type == CorrelatorType::exp_gevp) or
-            (modelPar.type == CorrelatorType::exp_geometric) or
-            (modelPar.type == CorrelatorType::cosh_gevp))
+            (modelPar.type == CorrelatorType::exp_geometric))
         {
             globMin.setLowLimit(p, 0.);
             locMin.setLowLimit(p, 0.);
@@ -229,8 +223,13 @@ int main(int argc, char *argv[])
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
+        else
+        {
+            globMin.setLowLimit(p, -10*fabs(init(p)));
+            globMin.setHighLimit(p, 10*fabs(init(p)));
+        }
     }
-    if(modelPar.type == CorrelatorType::exp_const_gevp)    //odd nPar
+    if(modelPar.type == CorrelatorType::exp_const)    //odd nPar
     {
         for (Index p = 0; p < nPar-1; p += 2)
         {
@@ -240,19 +239,19 @@ int main(int argc, char *argv[])
             globMin.setLowLimit(p + 1, -10.*fabs(init(p + 1)));
             globMin.setHighLimit(p + 1, 10.*fabs(init(p + 1)));
         }
-        globMin.setLowLimit(nPar-1, -10.*fabs(init(nPar-1)));
+        globMin.setLowLimit(nPar-1, 0);
         globMin.setHighLimit(nPar-1, 10.*fabs(init(nPar-1)));
     }
-    else if (modelPar.type == CorrelatorType::exp2_restricted_gevp)
+    else if (modelPar.type == CorrelatorType::exp2_complementary) //odd nPar
     {
-        for (Index p = 0; p < 2; p += 1)
+        for (Index p = 0; p <= 2; p += 2)
         {
             globMin.setLowLimit(p, 0.);
             locMin.setLowLimit(p, 0.);
             globMin.setHighLimit(p, 10.*init(p));
         }
-        globMin.setLowLimit(2, -10.*fabs(init(2))); // Z_1
-        globMin.setHighLimit(2, 10.*fabs(init(2)));
+        globMin.setLowLimit(1, -10.*fabs(init(1))); // Z_1
+        globMin.setHighLimit(1, 10.*fabs(init(1)));
     }
 
     globMin.setPrecision(0.001);
