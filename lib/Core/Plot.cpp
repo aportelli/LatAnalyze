@@ -346,23 +346,6 @@ PlotLine::PlotLine(const DVec &x, const DVec &y, bool scatter)
         setCommand("'" + tmpFileName + "' u 1:2");
 }
 
-PlotLine::PlotLine(const DVec &x, const DVec &y, const double opacity)
-{
-    if (x.size() != y.size())
-    {
-        LATAN_ERROR(Size, "x and y vectors do not have the same size");
-    }
-
-    DMat d(x.size(), 2);
-    string usingCmd, tmpFileName;
-
-    d.col(0)    = x;
-    d.col(1)    = y;
-    tmpFileName = dumpToTmpFile(d);
-    pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w lines");
-}
-
 // PlotPoints constructor ////////////////////////////////////////////////////////
 PlotPoints::PlotPoints(const DVec &x, const DVec &y)
 {
@@ -434,6 +417,24 @@ PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
                + strFrom(xMin) + " " + strFrom(yMin)
                + "' u 1:2 w filledcurves closed fs transparent solid " + strFrom(opacity)
                + " noborder");
+}
+
+PlotBand::PlotBand(const DVec &x, const DVec &y, const double opacity)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w filledcurves closed fs transparent solid " 
+                + std::to_string(opacity) + " ");
 }
 
 // PlotFunction constructor ////////////////////////////////////////////////////

@@ -115,7 +115,6 @@ class PlotLine: public PlotObject
 public:
     // constructor
     PlotLine(const DVec &x, const DVec &y, bool scatter=false);
-    PlotLine(const DVec &x, const DVec &y, const double opacity);
     // destructor
     virtual ~PlotLine(void) = default;
 };
@@ -136,6 +135,7 @@ public:
     // constructor
     PlotBand(const double xMin, const double xMax, const double yMin,
              const double yMax, const double opacity = 0.15);
+    PlotBand(const DVec &x, const DVec &y, const double opacity = 0.15);
     // destructor
     virtual ~PlotBand(void) = default;
 };
