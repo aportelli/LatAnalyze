@@ -56,6 +56,11 @@ MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
     return algorithm_;
 }
 
+int MinuitMinimizer::getStatus(void) const
+{
+    return status_;
+}
+
 void MinuitMinimizer::setAlgorithm(const Algorithm algorithm)
 {
     algorithm_ = algorithm;
@@ -153,7 +158,6 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // minimize
-    int          status;
     unsigned int n = 0;
     
     do
@@ -164,14 +168,14 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             cout << " =========" << endl;
         }
         min.Minimize();
-        status = min.Status();
+        status_ = min.Status();
         n++;
-    } while ((status >= 2) and (n < getMaxPass()));
+    } while ((status_ >= 2) and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
     {
         cout << "=================================================" << endl;
     }
-    switch (status)
+    switch (status_)
     {
         case 1:
             // covariance matrix was made positive, the minimum is still good
