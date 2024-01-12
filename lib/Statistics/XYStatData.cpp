@@ -358,7 +358,7 @@ FitResult XYStatData::fit(vector<Minimizer *> &minimizer, const DVec &init,
         result    = (*m)(chi2);
         totalInit = result;
     }
-    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.corrRangeDb_ = Math::cdr(getFitCorrMat());
     result.chi2_       = chi2(result);
     result.nPar_       = nPar;
     result.nDof_       = layout.totalYSize - nPar;

@@ -73,8 +73,9 @@ namespace MATH_NAMESPACE
     DMat corrToVar(const DMat &corr, const DVec &varDiag);
 
     // matrix SVD dynamic range
-    double svdDynamicRange(const DMat &mat);
-    double svdDynamicRangeDb(const DMat &mat);
+    double conditionNumber(const DMat &mat);
+    double cdr(const DMat &mat);
+    double nsdr(const DMat &mat);
     
     // Constants
     constexpr double pi  = 3.1415926535897932384626433832795028841970;
