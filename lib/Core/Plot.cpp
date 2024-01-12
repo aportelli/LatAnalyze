@@ -515,14 +515,16 @@ void Dash::operator()(PlotOptions &option) const
 }
 
 // LogScale constructor ////////////////////////////////////////////////////////
-LogScale::LogScale(const Axis axis)
+LogScale::LogScale(const Axis axis, const double basis)
 : axis_(axis)
+, basis_(basis)
 {}
 
 // Logscale modifier ///////////////////////////////////////////////////////////
 void LogScale::operator()(PlotOptions &option) const
 {
-    option.scaleMode[static_cast<int>(axis_)] |= Plot::Scale::log;
+    option.scaleMode[static_cast<int>(axis_)]     |= Plot::Scale::log;
+    option.logScaleBasis[static_cast<int>(axis_)]  = basis_;
 }
 
 // PlotRange constructors //////////////////////////////////////////////////////
@@ -915,11 +917,11 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     out << "unset log" << endl;
     if (plot.options_.scaleMode[x] & Plot::Scale::log)
     {
-        out << "set log x" << endl;
+        out << "set log x " << plot.options_.logScaleBasis[x] << endl;;
     }
     if (plot.options_.scaleMode[y] & Plot::Scale::log)
     {
-        out << "set log y" << endl;
+        out << "set log y " << plot.options_.logScaleBasis[y] << endl;
     }
     if (!plot.options_.label[x].empty())
     {
