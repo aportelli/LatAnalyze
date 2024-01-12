@@ -46,6 +46,8 @@ public:
     // DWT
     std::vector<DWTLevel> forward(const DVec &data, const unsigned int level) const;
     DVec                  backward(const std::vector<DWTLevel>& dwt) const;
+    // concatenate levels
+    static DVec concat(const std::vector<DWTLevel>& dwt, const int maxLevel = -1, const bool dropLow = false);
 private:
     DWTFilter filter_;
 };

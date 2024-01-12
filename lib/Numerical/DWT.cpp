@@ -135,3 +135,26 @@ DVec DWT::backward(const std::vector<DWTLevel>& dwt) const
 
     return res;
 }
+
+// concatenate levels //////////////////////////////////////////////////////////
+DVec DWT::concat(const std::vector<DWTLevel> &dwt, const int maxLevel, const bool dropLow)
+{
+    unsigned int level = ((maxLevel >= 0) ? (maxLevel + 1) : dwt.size());
+    Index nlast = dwt[level - 1].first.size();
+    Index n = 2*dwt.front().first.size() - ((dropLow) ? nlast : 0);
+    Index pt = n, nl;
+    DVec  res(n);
+
+    for (unsigned int l = 0; l < level; ++l)
+    {
+        nl  = dwt[l].second.size();
+        pt -= nl;
+        res.segment(pt, nl) = dwt[l].second;
+    }
+    if (!dropLow)
+    {
+        res.segment(0, nl) = dwt[level-1].first;
+    }
+
+    return res;
+}
