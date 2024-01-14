@@ -32,46 +32,91 @@ DWT::DWT(const DWTFilter &filter)
 {}
 
 // convolution primitive ///////////////////////////////////////////////////////
-void DWT::filterConvolution(DVec &out, const DVec &data, 
-                            const std::vector<double> &filter, const Index offset)
+template <typename MatType>
+void filterConvolution(MatType &out, const MatType &data, 
+                       const std::vector<double> &filter, const Index offset)
 {
-    Index n = data.size(), nf = n*filter.size();
+    Index n = data.rows(), nf = n*filter.size();
 
-    out.resize(n);
+    out.resizeLike(data);
     out.fill(0.);
     for (unsigned int i = 0; i < filter.size(); ++i)
     {
-        FOR_VEC(out, j)
+        FOR_MAT(out, j, k)
         {
-            out(j) += filter[i]*data((j + i + nf - offset) % n);
+            out(j, k) += filter[i]*data((j + i + nf - offset) % n, k);
         }
     }
 }
 
+void DWT::filterConvolution(DVec &out, const DVec &data, 
+                            const std::vector<double> &filter, const Index offset)
+{
+    ::filterConvolution(out, data, filter, offset);
+}
+
+void DWT::filterConvolution(DMat &out, const DMat &data, 
+                            const std::vector<double> &filter, const Index offset)
+{
+    ::filterConvolution(out, data, filter, offset);
+}
+
 // downsampling/upsampling primitives //////////////////////////////////////////
+template <typename MatType>
+void downsample(MatType &out, const MatType &in)
+{
+    if (out.rows() < in.rows()/2)
+    {
+        LATAN_ERROR(Size, "output rows smaller than half the input vector rows");
+    }
+    if (out.cols() != in.cols())
+    {
+        LATAN_ERROR(Size, "output and input number of columns mismatch");
+    }
+    for (Index j = 0; j < in.cols(); j++)
+    for (Index i = 0; i < in.rows(); i += 2)
+    {
+        out(i/2, j) = in(i, j);
+    }
+}
+
 void DWT::downsample(DVec &out, const DVec &in)
 {
-    if (out.size() < in.size()/2)
+    ::downsample(out, in);
+}
+
+void DWT::downsample(DMat &out, const DMat &in)
+{
+    ::downsample(out, in);
+}
+
+template <typename MatType>
+void upsample(MatType &out, const MatType &in)
+{
+    if (out.size() < 2*in.size())
     {
-        LATAN_ERROR(Size, "output vector smaller than half the input vector size");
+        LATAN_ERROR(Size, "output rows smaller than twice the input rows");
     }
-    for (Index i = 0; i < in.size(); i += 2)
+    if (out.cols() != in.cols())
     {
-        out(i/2) = in(i);
+        LATAN_ERROR(Size, "output and input number of columns mismatch");
+    }
+    out.block(0, 0, 2*in.size(), out.cols()).fill(0.);
+    for (Index j = 0; j < in.cols(); j++)
+    for (Index i = 0; i < in.size(); i ++)
+    {
+        out(2*i, j) = in(i, j);
     }
 }
 
 void DWT::upsample(DVec &out, const DVec &in)
 {
-    if (out.size() < 2*in.size())
-    {
-        LATAN_ERROR(Size, "output vector smaller than twice the input vector size");
-    }
-    out.segment(0, 2*in.size()).fill(0.);
-    for (Index i = 0; i < in.size(); i ++)
-    {
-        out(2*i) = in(i);
-    }
+    upsample(out, in);
+}
+
+void DWT::upsample(DMat &out, const DMat &in)
+{
+    upsample(out, in);
 }
 
 // DWT /////////////////////////////////////////////////////////////////////////

@@ -22,6 +22,7 @@
 
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Numerical/DWTFilters.hpp>
+#include <LatAnalyze/Core/Mat.hpp>
 
 BEGIN_LATAN_NAMESPACE
 
@@ -40,9 +41,13 @@ public:
     // convolution primitive
     static void filterConvolution(DVec &out, const DVec &data, 
                                   const std::vector<double> &filter, const Index offset);
+    static void filterConvolution(DMat &out, const DMat &data, 
+                                  const std::vector<double> &filter, const Index offset);
     // downsampling/upsampling primitives
     static void downsample(DVec &out, const DVec &in);
+    static void downsample(DMat &out, const DMat &in);
     static void upsample(DVec &out, const DVec &in);
+    static void upsample(DMat &out, const DMat &in);
     // DWT
     std::vector<DWTLevel> forward(const DVec &data, const unsigned int level) const;
     DVec                  backward(const std::vector<DWTLevel>& dwt) const;
