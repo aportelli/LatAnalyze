@@ -105,8 +105,6 @@ public:
     void resizeMat(const Index nRow, const Index nCol);
     // covariance matrix
     Mat<T> covarianceMatrix(const MatSample<T> &sample) const;
-    Mat<T> varianceMatrix(void) const;
-    Mat<T> correlationMatrix(void) const;
 };
 
 // non-member operators
@@ -413,45 +411,6 @@ Mat<T> MatSample<T>::covarianceMatrix(const MatSample<T> &sample) const
     }
     tmp2 -= s2*one.transpose()/static_cast<double>(nSample);
     res   = tmp1*tmp2.transpose()/static_cast<double>(nSample - 1);
-
-    return res;
-}
-
-template <typename T>
-Mat<T> MatSample<T>::varianceMatrix(void) const
-{
-    if ((*this)[central].cols() != 1)
-    {
-        LATAN_ERROR(Size, "samples have more than one column");
-    }
-
-    Index  n1 = (*this)[central].rows();
-    Index  nSample = this->size();
-    Mat<T> tmp1(n1, nSample), res(n1, n1);
-    Mat<T> s1(n1, 1), one(nSample, 1);
-
-    one.fill(1.);
-    s1.fill(0.);
-    for (unsigned int s = 0; s < nSample; ++s)
-    {
-        s1          += (*this)[s];
-        tmp1.col(s)  = (*this)[s];
-    }
-    tmp1 -= s1*one.transpose()/static_cast<double>(nSample);
-    res   = tmp1*tmp1.transpose()/static_cast<double>(nSample - 1);
-
-    return res;
-}
-
-template <typename T>
-Mat<T> MatSample<T>::correlationMatrix(void) const
-{
-    Mat<T> res = varianceMatrix();
-    Mat<T> invDiag(res.rows(), 1);
-
-    invDiag = res.diagonal();
-    invDiag = invDiag.cwiseInverse().cwiseSqrt();
-    res     = (invDiag*invDiag.transpose()).cwiseProduct(res);
 
     return res;
 }
