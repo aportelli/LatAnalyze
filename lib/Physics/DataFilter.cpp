@@ -24,10 +24,15 @@
 using namespace std;
 using namespace Latan;
 
+/******************************************************************************
+ *                        DataFilter implementation                           *
+ ******************************************************************************/
+// constructor ////////////////////////////////////////////////////////////////
 DataFilter::DataFilter(const vector<double> &filter, const bool downsample)
 : filter_(filter), downsample_(downsample)
 {}
 
+// filtering //////////////////////////////////////////////////////////////////
 template <typename MatType>
 void filter(MatType &out, const MatType &in, const vector<double> &filter, 
             const bool downsample, MatType &buf)
@@ -56,18 +61,15 @@ void DataFilter::operator()(DMat &out, const DMat &in)
     filter(out, in, filter_, downsample_, mBuf_);
 }
 
-void DataFilter::operator()(DMatSample &out, const DMatSample &in)
-{
-    FOR_STAT_ARRAY(in, s)
-    {
-        (*this)(out[s], in[s]);
-    }
-}
-
+/******************************************************************************
+ *                     LaplaceDataFilter implementation                       *
+ ******************************************************************************/
+// constructor ////////////////////////////////////////////////////////////////
 LaplaceDataFilter::LaplaceDataFilter(const bool downsample)
 : DataFilter({1., -2. , 1.}, downsample)
 {}
 
+// filtering //////////////////////////////////////////////////////////////////
 void LaplaceDataFilter::operator()(DVec &out, const DVec &in, const double lambda)
 {
     filter_[1] = -2. - lambda;
@@ -75,12 +77,6 @@ void LaplaceDataFilter::operator()(DVec &out, const DVec &in, const double lambd
 }
 
 void LaplaceDataFilter::operator()(DMat &out, const DMat &in, const double lambda)
-{
-    filter_[1] = -2. - lambda;
-    DataFilter::operator()(out, in);
-}
-
-void LaplaceDataFilter::operator()(DMatSample &out, const DMatSample &in, const double lambda)
 {
     filter_[1] = -2. - lambda;
     DataFilter::operator()(out, in);
