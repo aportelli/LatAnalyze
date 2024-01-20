@@ -103,8 +103,6 @@ public:
                      const Index nCol);
     // resize all matrices
     void resizeMat(const Index nRow, const Index nCol);
-    // covariance matrix
-    Mat<T> covarianceMatrix(const MatSample<T> &sample) const;
 };
 
 // non-member operators
@@ -379,40 +377,6 @@ void MatSample<T>::resizeMat(const Index nRow, const Index nCol)
     {
         (*this)[s].resize(nRow, nCol);
     }
-}
-
-// covariance matrix ///////////////////////////////////////////////////////////
-template <typename T>
-Mat<T> MatSample<T>::covarianceMatrix(const MatSample<T> &sample) const
-{
-    if (((*this)[central].cols() != 1) or (sample[central].cols() != 1))
-    {
-        LATAN_ERROR(Size, "samples have more than one column");
-    }
-
-    Index  n1 = (*this)[central].rows(), n2 = sample[central].rows();
-    Index  nSample = this->size();
-    Mat<T> tmp1(n1, nSample), tmp2(n2, nSample), res(n1, n2);
-    Mat<T> s1(n1, 1), s2(n2, 1), one(nSample, 1);
-
-    one.fill(1.);
-    s1.fill(0.);
-    s2.fill(0.);
-    for (unsigned int s = 0; s < nSample; ++s)
-    {
-        s1          += (*this)[s];
-        tmp1.col(s)  = (*this)[s];
-    }
-    tmp1 -= s1*one.transpose()/static_cast<double>(nSample);
-    for (unsigned int s = 0; s < nSample; ++s)
-    {
-        s2          += sample[s];
-        tmp2.col(s)  = sample[s];
-    }
-    tmp2 -= s2*one.transpose()/static_cast<double>(nSample);
-    res   = tmp1*tmp2.transpose()/static_cast<double>(nSample - 1);
-
-    return res;
 }
 
 END_LATAN_NAMESPACE

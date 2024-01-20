@@ -52,10 +52,10 @@ public:
     // statistics
     void bin(Index binSize);
     T    sum(const Index pos = 0, const Index n = -1) const;
-    T    meanOld(const Index pos = 0, const Index n = -1) const;
     T    mean(const Index pos = 0, const Index n = -1) const;
     T    covariance(const StatArray<T, os> &array) const;
     T    variance(void) const;
+    T    covarianceMatrix(const StatArray<T, os> &data) const;
     T    varianceMatrix(void) const;
     T    correlationMatrix(void) const;
 
@@ -196,6 +196,40 @@ T StatArray<T, os>::variance(void) const
 }
 
 template <typename MatType, Index os>
+MatType StatArray<MatType, os>::covarianceMatrix(
+    const StatArray<MatType, os> &data) const
+{
+    if (((*this)[central].cols() != 1) or (data[central].cols() != 1))
+    {
+        LATAN_ERROR(Size, "samples have more than one column");
+    }
+
+    Index   n1 = (*this)[central].rows(), n2 = data[central].rows();
+    Index   nSample = this->size();
+    MatType tmp1(n1, nSample), tmp2(n2, nSample), res(n1, n2);
+    MatType s1(n1, 1), s2(n2, 1), one(nSample, 1);
+
+    one.fill(1.);
+    s1.fill(0.);
+    s2.fill(0.);
+    for (unsigned int s = 0; s < nSample; ++s)
+    {
+        s1          += (*this)[s];
+        tmp1.col(s)  = (*this)[s];
+    }
+    tmp1 -= s1*one.transpose()/static_cast<double>(nSample);
+    for (unsigned int s = 0; s < nSample; ++s)
+    {
+        s2          += data[s];
+        tmp2.col(s)  = data[s];
+    }
+    tmp2 -= s2*one.transpose()/static_cast<double>(nSample);
+    res   = tmp1*tmp2.transpose()/static_cast<double>(nSample - 1);
+
+    return res;
+}
+
+template <typename MatType, Index os>
 MatType StatArray<MatType, os>::varianceMatrix(void) const
 {
     if ((*this)[0].cols() != 1)
@@ -203,8 +237,8 @@ MatType StatArray<MatType, os>::varianceMatrix(void) const
         LATAN_ERROR(Size, "samples have more than one column");
     }
 
-    Index  n1 = (*this)[0].rows();
-    Index  nSample = this->size();
+    Index   n1 = (*this)[0].rows();
+    Index   nSample = this->size();
     MatType tmp1(n1, nSample), res(n1, n1);
     MatType s1(n1, 1), one(nSample, 1);
 
