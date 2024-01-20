@@ -20,6 +20,8 @@
 #ifndef Latan_MathInterpreter_hpp_
 #define	Latan_MathInterpreter_hpp_
 
+#include <cstdint>
+
 #include <LatAnalyze/Functional/Function.hpp>
 #include <LatAnalyze/Global.hpp>
 #include <LatAnalyze/Core/ParserState.hpp>
@@ -79,108 +81,26 @@ private:
  *                         Instruction classes                                *
  ******************************************************************************/
 // Abstract base
-class Instruction
-{
-public:
-    // destructor
-    virtual ~Instruction(void) = default;
-    // instruction execution
-    virtual void operator()(RunContext &context) const = 0;
-    friend std::ostream & operator<<(std::ostream &out, const Instruction &ins);
-private:
-    virtual void print(std::ostream &out) const = 0;
+
+enum class Instruction : std::uint8_t {
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    POW,
+    NEG,
+    CONST,
+    POP,
+    LOAD,
+    STORE,
+    CALL,
+    RET,
 };
 
 std::ostream & operator<<(std::ostream &out, const Instruction &ins);
 
 // Instruction container
-typedef std::vector<std::unique_ptr<const Instruction>> Program;
-
-// Push
-class Push: public Instruction
-{
-private:
-    enum class ArgType
-    {
-        Constant = 0,
-        Variable = 1
-    };
-public:
-    //constructors
-    explicit Push(const double val);
-    explicit Push(const unsigned int address, const std::string &name);
-    // instruction execution
-    virtual void operator()(RunContext &context) const;
-private:
-    virtual void print(std::ostream& out) const;
-private:
-    ArgType      type_;
-    double       val_;
-    unsigned int address_;
-    std::string  name_;
-};
-
-// Pop
-class Pop: public Instruction
-{
-public:
-    //constructor
-    explicit Pop(const unsigned int address, const std::string &name);
-    // instruction execution
-    virtual void operator()(RunContext &context) const;
-private:
-    virtual void print(std::ostream& out) const;
-private:
-    unsigned int address_;
-    std::string name_;
-};
-
-// Store
-class Store: public Instruction
-{
-public:
-    //constructor
-    explicit Store(const unsigned int address, const std::string &name);
-    // instruction execution
-    virtual void operator()(RunContext &context) const;
-private:
-    virtual void print(std::ostream& out) const;
-private:
-    unsigned int address_;
-    std::string name_;
-};
-
-// Call function
-class Call: public Instruction
-{
-public:
-    //constructor
-    explicit Call(const unsigned int address, const std::string &name);
-    // instruction execution
-    virtual void operator()(RunContext &context) const;
-private:
-    virtual void print(std::ostream& out) const;
-private:
-    unsigned int address_;
-    std::string name_;
-};
-
-// Floating point operations
-#define DECL_OP(name)\
-class name: public Instruction\
-{\
-public:\
-    virtual void operator()(RunContext &context) const;\
-private:\
-    virtual void print(std::ostream &out) const;\
-}
-
-DECL_OP(Neg);
-DECL_OP(Add);
-DECL_OP(Sub);
-DECL_OP(Mul);
-DECL_OP(Div);
-DECL_OP(Pow);
+typedef std::vector<std::uint8_t> Program;
 
 /******************************************************************************
  *                            Expression node classes                         *
