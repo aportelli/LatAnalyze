@@ -25,9 +25,10 @@ lib/*Lexer.cpp
 lib/*Parser.cpp
 lib/*Parser.hpp
 
-# Eigen headers
-lib/Eigen/*
+# Eigen headers and archives
+lib/Eigen
 lib/eigen_files.mk
+eigen-*.tar.bz2
 
 # CI builds
 ci-scripts/local/*
