@@ -111,12 +111,12 @@ void upsample(MatType &out, const MatType &in)
 
 void DWT::upsample(DVec &out, const DVec &in)
 {
-    upsample(out, in);
+    ::upsample(out, in);
 }
 
 void DWT::upsample(DMat &out, const DMat &in)
 {
-    upsample(out, in);
+    ::upsample(out, in);
 }
 
 // DWT /////////////////////////////////////////////////////////////////////////
