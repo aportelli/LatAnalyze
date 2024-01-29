@@ -108,15 +108,15 @@ void SampleFitResult::print(const bool printXsi, ostream &out) const
     Index pMax = printXsi ? size() : nPar_;
     DMat  err = this->variance().cwiseSqrt();
     
-    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
+    snprintf(buf, sizeof(buf), "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
-    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
+    snprintf(buf, sizeof(buf), "correlation dynamic range= %.1f dB", getCorrRangeDb());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%12s= % e +/- %e", parName_[p].c_str(),
+        snprintf(buf, sizeof(buf), "%12s= % e +/- %e", parName_[p].c_str(),
                 (*this)[central](p), err(p));
         out << buf << endl;
     }

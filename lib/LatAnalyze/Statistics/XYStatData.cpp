@@ -76,15 +76,15 @@ void FitResult::print(const bool printXsi, ostream &out) const
     char  buf[256];
     Index pMax = printXsi ? size() : nPar_;
     
-    sprintf(buf, "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
+    snprintf(buf, sizeof(buf), "chi^2/dof= %.1e/%d= %.2e -- chi^2 CCDF= %.2e -- p-value= %.2e",
         getChi2(), static_cast<int>(getNDof()), getChi2PerDof(), getCcdf(), 
         getPValue());
     out << buf << endl;
-    sprintf(buf, "correlation dynamic range= %.1f dB", getCorrRangeDb());
+    snprintf(buf, sizeof(buf), "correlation dynamic range= %.1f dB", getCorrRangeDb());
     out << buf << endl;
     for (Index p = 0; p < pMax; ++p)
     {
-        sprintf(buf, "%12s= %e", parName_[p].c_str(), (*this)(p));
+        snprintf(buf, sizeof(buf), "%12s= %e", parName_[p].c_str(), (*this)(p));
         out << buf << endl;
     }
 }

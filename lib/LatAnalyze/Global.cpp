@@ -25,11 +25,10 @@ using namespace Latan;
 
 PlaceHolder Latan::_;
 
-const string Env::fullName  = PACKAGE_STRING;
-const string Env::name      = PACKAGE_NAME;
-const string Env::version   = PACKAGE_VERSION;
-const string Env::msgPrefix = "[" + strFrom(PACKAGE_NAME) + " v"
-                              + strFrom(PACKAGE_VERSION) + "] ";
+const string Env::fullName  = strFrom(PROJECT_NAME) + " v" + strFrom(PROJECT_VERSION);
+const string Env::name      = PROJECT_NAME;
+const string Env::version   = PROJECT_VERSION;
+const string Env::msgPrefix = "[" + Env::fullName + "] ";
 
 void Env::function(void)
 {}

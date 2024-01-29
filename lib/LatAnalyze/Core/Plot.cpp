@@ -72,7 +72,7 @@ string PlotObject::dumpToTmpFile(const DMat &m)
     for (Index j = 0; j < m.cols(); ++j)
     {
     }
-    sprintf(tmpFileName, "%s/latan_plot_tmp.XXXXXX.dat", P_tmpdir);
+    snprintf(tmpFileName, sizeof(tmpFileName), "%s/latan_plot_tmp.XXXXXX.dat", P_tmpdir);
     fd = mkstemps(tmpFileName, 4);
     if (fd == -1)
     {
@@ -699,7 +699,7 @@ Plot & Plot::operator<<(PlotModifier &&modifier)
 
 // find gnuplot ////////////////////////////////////////////////////////////////
 #define SEARCH_DIR(dir) \
-sprintf(buf, "%s/%s", dir, gnuplotBin_.c_str());\
+snprintf(buf, sizeof(buf), "%s/%s", dir, gnuplotBin_.c_str());\
 if (access(buf, X_OK) == 0)\
 {\
     return dir;\

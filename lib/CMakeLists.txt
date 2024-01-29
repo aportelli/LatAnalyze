@@ -1,33 +1,37 @@
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
 
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
+
 include(FindBISON)
 include(FindFLEX)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
-bison_target(AsciiParser LatAnalyze/Io/AsciiParser.ypp
-             ${CMAKE_CURRENT_BINARY_DIR}/AsciiParser.cpp
-             COMPILE_FLAGS "-Wno-deprecated")
+bison_target(
+  AsciiParser LatAnalyze/Io/AsciiParser.ypp
+  ${CMAKE_CURRENT_BINARY_DIR}/AsciiParser.cpp COMPILE_FLAGS "-Wno-deprecated")
 flex_target(AsciiLexer LatAnalyze/Io/AsciiLexer.lpp
             ${CMAKE_CURRENT_BINARY_DIR}/AsciiLexer.cpp)
 add_flex_bison_dependency(AsciiLexer AsciiParser)
 
-bison_target(MathParser LatAnalyze/Core/MathParser.ypp
-             ${CMAKE_CURRENT_BINARY_DIR}/MathParser.cpp
-             COMPILE_FLAGS "-Wno-deprecated")
+bison_target(
+  MathParser LatAnalyze/Core/MathParser.ypp
+  ${CMAKE_CURRENT_BINARY_DIR}/MathParser.cpp COMPILE_FLAGS "-Wno-deprecated")
 flex_target(MathLexer LatAnalyze/Core/MathLexer.lpp
             ${CMAKE_CURRENT_BINARY_DIR}/MathLexer.cpp)
 add_flex_bison_dependency(MathLexer MathParser)
 
 add_library(LatAnalyze SHARED)
 file(GLOB_RECURSE EIGEN_HEADERS Eigen/*)
+target_include_directories(LatAnalyze PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_sources(
   LatAnalyze
   PRIVATE ${BISON_AsciiParser_OUTPUTS}
           ${FLEX_AsciiLexer_OUTPUTS}
           ${BISON_MathParser_OUTPUTS}
           ${FLEX_MathLexer_OUTPUTS}
+          ${CMAKE_CURRENT_BINARY_DIR}/config.h
           LatAnalyze/Core/Exceptions.cpp
           LatAnalyze/Core/Mat.cpp
           LatAnalyze/Core/Math.cpp
@@ -128,4 +132,5 @@ target_sources(
          LatAnalyze/Statistics/XYSampleData.hpp
          LatAnalyze/Statistics/XYStatData.hpp
          LatAnalyze/includes.hpp)
-target_link_libraries(LatAnalyze PUBLIC GSL::gsl HDF5 Minuit2 NLopt)
+target_link_libraries(LatAnalyze PUBLIC GSL::gsl hdf5::hdf5 hdf5::hdf5_cpp
+                                        Minuit2::Minuit2 NLopt::nlopt)

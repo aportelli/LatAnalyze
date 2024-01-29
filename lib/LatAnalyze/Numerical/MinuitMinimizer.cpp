@@ -30,8 +30,12 @@ namespace ROOT
 };
 
 // macros necessary in the ROOT-based version of Minuit2
+#ifndef ROOT_Math_VecTypes
 #define ROOT_Math_VecTypes
+#endif
+#ifndef MATHCORE_STANDALONE
 #define MATHCORE_STANDALONE
+#endif
 
 #include <Minuit2/Minuit2Minimizer.h>
 #include <Math/Functor.h>

@@ -3,7 +3,7 @@ project(
   LatAnalyze
   VERSION 3.6
   LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 include(FetchContent)
 include(FindPackageMessage)
