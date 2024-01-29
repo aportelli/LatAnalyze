@@ -40,9 +40,11 @@ public:
     virtual ~GslHybridRootFinder(void) = default;
     // solver
     virtual const DVec & operator()(const std::vector<DoubleFunction *> &func);
+    int getStatus(void) const;
 private:
     // output
     void printState(void);
+    int status_;
 private:
     gsl_multiroot_fsolver *solver_{nullptr};
 };

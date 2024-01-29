@@ -126,11 +126,11 @@ GslHybridRootFinder::operator()(const vector<DoubleFunction *> &func)
     if (verbosity >= Verbosity::Debug)
     {
         cout << "--- done" << endl;
-        cout << "end status: " << gsl_strerror(status) << endl;
+        cout << "end status (" << status << ") : " << gsl_strerror(status) << endl;
     }
     if (status)
     {
-        LATAN_WARNING("GSL hybrid root finder ended with status '" +
+        LATAN_WARNING("GSL hybrid root finder ended with status (" + std::to_string(status) + ") '" +
                       strFrom(gsl_strerror(status)) + "'");
     }
     FOR_VEC(res, i)
@@ -140,6 +140,14 @@ GslHybridRootFinder::operator()(const vector<DoubleFunction *> &func)
     gsl_vector_free(x);
     gsl_multiroot_fsolver_free(solver_);
     solver_ = nullptr;
+
+    status_=status;
     
     return res;
 }
+
+int GslHybridRootFinder::getStatus(void) const
+{
+    return status_;
+}
+
