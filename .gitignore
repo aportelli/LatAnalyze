@@ -12,22 +12,18 @@ sandbox/*
 
 # autotools
 autom4te.cache/*
-*.in
-*.in~
-config.h*
 configure
 configure~
 .buildutils/*
 aclocal.m4
 
 # bison/flex generated sources
-lib/*Lexer.cpp
-lib/*Parser.cpp
-lib/*Parser.hpp
+lib/LatAnalyze/*Lexer.cpp
+lib/LatAnalyze/*Parser.cpp
+lib/LatAnalyze/*Parser.hpp
 
 # Eigen headers and archives
-lib/Eigen
-lib/eigen_files.mk
+lib/LatAnalyze/Eigen
 eigen-*.tar.bz2
 
 # CI builds
