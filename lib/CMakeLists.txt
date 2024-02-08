@@ -1,11 +1,15 @@
+# rpath config
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
 
+# config.h header for package version and name
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
+# find bison & flex
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
+# ASCII parser
 bison_target(
   AsciiParser LatAnalyze/Io/AsciiParser.ypp
   ${CMAKE_CURRENT_BINARY_DIR}/AsciiParser.cpp COMPILE_FLAGS "-Wno-deprecated")
@@ -13,6 +17,7 @@ flex_target(AsciiLexer LatAnalyze/Io/AsciiLexer.lpp
             ${CMAKE_CURRENT_BINARY_DIR}/AsciiLexer.cpp)
 add_flex_bison_dependency(AsciiLexer AsciiParser)
 
+# math parser
 bison_target(
   MathParser LatAnalyze/Core/MathParser.ypp
   ${CMAKE_CURRENT_BINARY_DIR}/MathParser.cpp COMPILE_FLAGS "-Wno-deprecated")
@@ -20,6 +25,7 @@ flex_target(MathLexer LatAnalyze/Core/MathLexer.lpp
             ${CMAKE_CURRENT_BINARY_DIR}/MathLexer.cpp)
 add_flex_bison_dependency(MathLexer MathParser)
 
+# library target
 add_library(LatAnalyze SHARED)
 file(GLOB_RECURSE EIGEN_HEADERS LatAnalyze/Eigen/*)
 target_include_directories(LatAnalyze PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

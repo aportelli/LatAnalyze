@@ -1,14 +1,19 @@
+# package config
 cmake_minimum_required(VERSION 3.11.0)
 project(
   LatAnalyze
   VERSION 3.6
   LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 14)
 
+# includes
 include(FetchContent)
 include(FindPackageMessage)
 include(GNUInstallDirs)
 
+# C++ standard
+set(CMAKE_CXX_STANDARD 14)
+
+# fetch and create symbolic link to Eigen headers
 set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/deps)
 FetchContent_Declare(
   Eigen3
@@ -22,6 +27,7 @@ endif()
 file(CREATE_LINK ${eigen3_SOURCE_DIR}/Eigen ${CMAKE_SOURCE_DIR}/lib/LatAnalyze/Eigen
      SYMBOLIC)
 
+# dependencies
 find_package(GSL REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 find_package(Minuit2)
@@ -44,8 +50,10 @@ else()
   message(STATUS "NLopt not found")
 endif()
 
+# subdirectories
 add_subdirectory(lib)
 
+# summary
 message(STATUS "---------------------------")
 message(STATUS "LatAnalyze v${PROJECT_VERSION} configured")
 message(STATUS "---------------------------")
