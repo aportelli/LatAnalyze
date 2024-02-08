@@ -35,7 +35,6 @@ set(LATAN_HEADERS
     LatAnalyze/Numerical/GslQagsIntegrator.hpp
     LatAnalyze/Numerical/Integrator.hpp
     LatAnalyze/Numerical/Minimizer.hpp
-    LatAnalyze/Numerical/NloptMinimizer.hpp
     LatAnalyze/Numerical/RootFinder.hpp
     LatAnalyze/Numerical/Solver.hpp
     LatAnalyze/Physics/CorrelatorFitter.hpp
