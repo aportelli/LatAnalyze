@@ -6,6 +6,7 @@ project(
   LANGUAGES C CXX)
 
 # includes
+include(CMakePackageConfigHelpers)
 include(FetchContent)
 include(FindPackageMessage)
 include(GNUInstallDirs)
@@ -30,7 +31,7 @@ file(CREATE_LINK ${eigen3_SOURCE_DIR}/Eigen ${CMAKE_SOURCE_DIR}/lib/LatAnalyze/E
 # dependencies
 find_package(GSL REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
-find_package(Minuit2)
+find_package(Minuit2 QUIET)
 if(Minuit2_FOUND)
   set(Minuit2_MSG "yes")
   find_package_message(
@@ -40,7 +41,7 @@ else()
   set(Minuit2_MSG "no")
   message(STATUS "Minuit2 not found")
 endif()
-find_package(NLopt)
+find_package(NLopt QUIET)
 if(NLopt_FOUND)
   set(NLopt_MSG "yes")
   find_package_message(

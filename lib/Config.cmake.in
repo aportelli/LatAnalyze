@@ -1,0 +1,28 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(GSL REQUIRED)
+find_dependency(HDF5 REQUIRED COMPONENTS C CXX)
+set(HAVE_Minuit2 @Minuit2_FOUND@)
+set(HAVE_NLopt @NLopt_FOUND@)
+if(HAVE_Minuit2)
+  find_dependency(Minuit2 REQUIRED)
+  list(APPEND _LatAnalyze_supported_components MINUIT2)
+  set(LatAnalyze_MINUIT2_FOUND True)
+endif()
+if(HAVE_NLopt)
+  find_dependency(NLopt REQUIRED)
+  list(APPEND _LatAnalyze_supported_components NLOPT)
+  set(LatAnalyze_NLOPT_FOUND True)
+endif()
+foreach(_comp ${LatAnalyze_FIND_COMPONENTS})
+  if (NOT ";${_LatAnalyze_supported_components};" MATCHES ";${_comp};")
+    set(LatAnalyze_FOUND False)
+    set(LatAnalyze_NOT_FOUND_MESSAGE "Unsupported LatAnalyze component: ${_comp}")
+  endif()
+endforeach()
+
+include("${CMAKE_CURRENT_LIST_DIR}/LatAnalyzeTargets.cmake")
+
+check_required_components(LatAnalyze)
