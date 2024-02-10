@@ -55,6 +55,7 @@ file(CREATE_LINK ${eigen3_SOURCE_DIR}/Eigen
      ${CMAKE_SOURCE_DIR}/lib/LatAnalyze/Eigen SYMBOLIC)
 
 # dependencies
+find_package(Threads REQUIRED)
 find_package(GSL REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 find_package(Minuit2 QUIET)

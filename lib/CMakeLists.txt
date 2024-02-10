@@ -61,7 +61,8 @@ target_sources(
          ${EIGEN_HEADERS}
          ${LATAN_HEADERS})
 target_link_libraries(LatAnalyze PRIVATE compiler_flags parsers tinyxml2)
-target_link_libraries(LatAnalyze PUBLIC GSL::gsl hdf5::hdf5 hdf5::hdf5_cpp)
+target_link_libraries(LatAnalyze PUBLIC GSL::gsl hdf5::hdf5 hdf5::hdf5_cpp
+                                        ${CMAKE_THREAD_LIBS_INIT})
 if(Minuit2_FOUND)
   target_link_libraries(LatAnalyze PUBLIC Minuit2::Minuit2)
 endif()
