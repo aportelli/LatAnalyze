@@ -25,9 +25,12 @@ using namespace Latan;
 
 PlaceHolder Latan::_;
 
-const string Env::fullName  = strFrom(PROJECT_NAME) + " v" + strFrom(PROJECT_VERSION);
+const string Env::fullName  = strFrom(PROJECT_NAME) + " " + strFrom(LATAN_SHORT_SHA) + " (v" + strFrom(PROJECT_VERSION) + ")";
 const string Env::name      = PROJECT_NAME;
 const string Env::version   = PROJECT_VERSION;
+const string Env::gitShortSha = LATAN_SHORT_SHA;
+const string Env::gitSha = LATAN_SHA;
+const string Env::gitBranch = LATAN_BRANCH;
 const string Env::msgPrefix = "[" + Env::fullName + "] ";
 
 void Env::function(void)

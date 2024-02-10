@@ -1,2 +1,5 @@
 #cmakedefine PROJECT_NAME "@PROJECT_NAME@"
 #cmakedefine PROJECT_VERSION "@PROJECT_VERSION@"
+#cmakedefine LATAN_SHORT_SHA "@LATAN_SHORT_SHA@"
+#cmakedefine LATAN_SHA "@LATAN_SHA@"
+#cmakedefine LATAN_BRANCH "@LATAN_BRANCH@"

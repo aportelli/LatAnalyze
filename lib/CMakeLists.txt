@@ -1,8 +1,16 @@
-# rpath config
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
-
 # config.h header for package version and name
+execute_process(
+  COMMAND git rev-parse --short HEAD
+  OUTPUT_VARIABLE LATAN_SHORT_SHA
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+  COMMAND git rev-parse HEAD
+  OUTPUT_VARIABLE LATAN_SHA
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+  COMMAND git rev-parse --abbrev-ref HEAD
+  OUTPUT_VARIABLE LATAN_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 # find bison & flex

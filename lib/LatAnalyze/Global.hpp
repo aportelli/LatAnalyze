@@ -54,6 +54,9 @@ namespace Env
     extern const std::string fullName;
     extern const std::string name;
     extern const std::string version;
+    extern const std::string gitShortSha;
+    extern const std::string gitSha;
+    extern const std::string gitBranch;
     extern const std::string msgPrefix;
     // empty function for library test
     void function(void);
