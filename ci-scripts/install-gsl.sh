@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 
-NAME='gsl-2.6'
+name='gsl-2.6'
 
-if (( $# != 2 )); then
-  echo "usage: `basename $0` <prefix> <ntasks>" 1>&2
+if (($# != 2)); then
+  echo "usage: $(basename "$0") <prefix> <ntasks>" 1>&2
   exit 1
 fi
-PREFIX=$1
-NTASKS=$2
+prefix=$1
+ntasks=$2
 
 set -ex
-INITDIR=$(pwd -P)
-mkdir -p ${PREFIX}
-cd ${PREFIX}
-PREFIX=$(pwd -P)
-cd ${INITDIR}/local/build
-wget http://ftpmirror.gnu.org/gsl/${NAME}.tar.gz
-tar -xzvf ${NAME}.tar.gz
-mkdir -p ${NAME}/build
-cd ${NAME}/build
-../configure --prefix=${PREFIX}
-make -j${NTASKS}
+init_dir=$(pwd -P)
+mkdir -p "${prefix}"
+cd "${prefix}"
+prefix=$(pwd -P)
+cd "${init_dir}/local/build"
+wget http://ftpmirror.gnu.org/gsl/${name}.tar.gz
+tar -xzvf ${name}.tar.gz
+mkdir -p ${name}/build
+cd ${name}/build
+../configure --prefix="${prefix}"
+make -j"${ntasks}"
 make install
-cd ${INITDIR}/local
+cd "${init_dir}/local"
 touch .built.gsl
-cd ${INITDIR}
+cd "${init_dir}"

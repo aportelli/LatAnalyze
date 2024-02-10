@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 
-NAME='hdf5-1.10.8'
+name='hdf5-1.14.3'
 
-if (( $# != 2 )); then
-  echo "usage: `basename $0` <prefix> <ntasks>" 1>&2
+if (($# != 2)); then
+  echo "usage: $(basename "$0") <prefix> <ntasks>" 1>&2
   exit 1
 fi
-PREFIX=$1
-NTASKS=$2
+prefix=$1
+ntasks=$2
 
 set -ex
-INITDIR=$(pwd -P)
-mkdir -p ${PREFIX}
-cd ${PREFIX}
-PREFIX=$(pwd -P)
-cd ${INITDIR}/local/build
-wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/${NAME}/src/${NAME}.tar.gz
-tar -xzvf ${NAME}.tar.gz
-mkdir ${NAME}/build
-cd ${NAME}/build
-../configure --prefix=${PREFIX} --enable-cxx
-make -j${NTASKS}
+init_dir=$(pwd -P)
+mkdir -p "${prefix}"
+cd "${prefix}"
+prefix=$(pwd -P)
+cd "${init_dir}/local/build"
+wget "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.14/${name}/src/${name}.tar.gz"
+tar -xzvf ${name}.tar.gz
+mkdir ${name}/build
+cd ${name}/build
+../configure --prefix="${prefix}" --enable-cxx
+make -j "${ntasks}"
 make install
-cd ${INITDIR}/local
+cd "${init_dir}/local"
 touch .built.hdf5
-cd ${INITDIR}
+cd "${init_dir}"
