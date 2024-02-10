@@ -20,7 +20,6 @@
 #include <LatAnalyze/Core/OptParser.hpp>
 #include <LatAnalyze/Statistics/Dataset.hpp>
 #include <LatAnalyze/Io/Io.hpp>
-#include <LatAnalyze/includes.hpp>
 
 #ifndef DEF_NSAMPLE
 #define DEF_NSAMPLE "100"
