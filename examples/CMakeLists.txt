@@ -17,5 +17,5 @@ set(EXAMPLES_STEM
 
 foreach(_stem ${EXAMPLES_STEM})
   add_executable(${_stem} ${_stem}.cpp)
-  target_link_libraries(${_stem} LatAnalyze)
+  target_link_libraries(${_stem} LatAnalyze compiler_flags)
 endforeach()

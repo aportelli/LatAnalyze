@@ -13,6 +13,6 @@ set(UTILS_STEM
 
 foreach(_stem ${UTILS_STEM})
   add_executable(latan-${_stem} ${_stem}.cpp)
-  target_link_libraries(latan-${_stem} LatAnalyze)
+  target_link_libraries(latan-${_stem} LatAnalyze compiler_flags)
   install(TARGETS latan-${_stem} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endforeach()

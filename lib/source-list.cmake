@@ -76,7 +76,6 @@ set(LATAN_SOURCES
     LatAnalyze/Io/File.cpp
     LatAnalyze/Io/Hdf5File.cpp
     LatAnalyze/Io/Io.cpp
-    LatAnalyze/Io/Xml/tinyxml2.cpp
     LatAnalyze/Io/XmlReader.cpp
     LatAnalyze/Numerical/DWT.cpp
     LatAnalyze/Numerical/DWTFilters.cpp

@@ -33,6 +33,18 @@ flex_target(MathLexer LatAnalyze/Core/MathLexer.lpp
             ${CMAKE_CURRENT_BINARY_DIR}/MathLexer.cpp)
 add_flex_bison_dependency(MathLexer MathParser)
 
+# intermediate libraries
+add_library(parsers STATIC)
+target_include_directories(parsers PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_sources(
+  parsers PRIVATE ${BISON_AsciiParser_OUTPUTS} ${FLEX_AsciiLexer_OUTPUTS}
+                  ${BISON_MathParser_OUTPUTS} ${FLEX_MathLexer_OUTPUTS})
+
+add_library(tinyxml2 STATIC)
+target_include_directories(parsers PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_sources(tinyxml2 PRIVATE LatAnalyze/Io/Xml/tinyxml2.hpp
+                                LatAnalyze/Io/Xml/tinyxml2.cpp)
+
 # library target
 add_library(LatAnalyze SHARED)
 file(GLOB_RECURSE EIGEN_HEADERS LatAnalyze/Eigen/*)
@@ -40,9 +52,7 @@ target_include_directories(LatAnalyze PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 include(source-list.cmake)
 target_sources(
   LatAnalyze
-  PRIVATE ${BISON_AsciiParser_OUTPUTS} ${FLEX_AsciiLexer_OUTPUTS}
-          ${BISON_MathParser_OUTPUTS} ${FLEX_MathLexer_OUTPUTS}
-          ${CMAKE_CURRENT_BINARY_DIR}/config.h ${LATAN_SOURCES}
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/config.h ${LATAN_SOURCES}
   PUBLIC FILE_SET
          public_headers
          TYPE
@@ -50,6 +60,7 @@ target_sources(
          FILES
          ${EIGEN_HEADERS}
          ${LATAN_HEADERS})
+target_link_libraries(LatAnalyze PRIVATE compiler_flags parsers tinyxml2)
 target_link_libraries(LatAnalyze PUBLIC GSL::gsl hdf5::hdf5 hdf5::hdf5_cpp)
 if(Minuit2_FOUND)
   target_link_libraries(LatAnalyze PUBLIC Minuit2::Minuit2)

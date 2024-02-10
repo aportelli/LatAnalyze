@@ -376,10 +376,10 @@ int main(int argc, char *argv[])
         unsigned int k = 0;
         while (k < 10)
         {
-            auto &f = it->second;
+            auto &itFit = it->second;
 
-            cout << "#" << k + 1 << " -- [" << f.tMin << ", " << f.tMax << "] -- ";
-            f.result.print();
+            cout << "#" << k + 1 << " -- [" << itFit.tMin << ", " << itFit.tMax << "] -- ";
+            itFit.result.print();
             cout << endl;
             k++;
             it++;
