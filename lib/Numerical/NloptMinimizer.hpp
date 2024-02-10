@@ -52,9 +52,10 @@ public:
     // destructor
     virtual ~NloptMinimizer(void) = default;
     // access
-    Algorithm    getAlgorithm(void) const;
-    void         setAlgorithm(const Algorithm algorithm);
-    virtual bool supportLimits(void) const;
+    Algorithm     getAlgorithm(void) const;
+    void          setAlgorithm(const Algorithm algorithm);
+    virtual bool  supportLimits(void) const;
+    nlopt::result getStatus(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
 private:
@@ -63,12 +64,14 @@ private:
     // NLopt function wrapper
     static double funcWrapper(unsigned int n, const double *arg,
                               double *grad , void *vdata);
+public:
     // NLopt return status parser
     static bool minSuccess(const nlopt::result status);
 private:
     Algorithm                  algorithm_;
     static constexpr Algorithm defaultAlg_ = Algorithm::LN_NELDERMEAD;
     CentralDerivative          der_;
+    nlopt::result              status_;
 };
 
 END_LATAN_NAMESPACE
