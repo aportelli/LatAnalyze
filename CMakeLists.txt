@@ -13,6 +13,11 @@ include(GNUInstallDirs)
 
 # C++ standard
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# installation rpath setup
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 # fetch and create symbolic link to Eigen headers
 set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/deps)
@@ -53,6 +58,9 @@ endif()
 
 # subdirectories
 add_subdirectory(lib)
+add_subdirectory(examples)
+add_subdirectory(physics)
+add_subdirectory(utils)
 
 # summary
 message(STATUS "---------------------------")
