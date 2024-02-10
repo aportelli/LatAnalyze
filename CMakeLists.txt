@@ -25,13 +25,17 @@ if(COMPILER_SUPPORTS_MTUNE_NATIVE)
   set(MTUNE_FLAG "-mtune=native")
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${MARCH_FLAG} ${MTUNE_FLAG}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -DNDEBUG ${MARCH_FLAG} ${MTUNE_FLAG}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    "-O3 -g -DNDEBUG ${MARCH_FLAG} ${MTUNE_FLAG}")
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 add_library(compiler_flags INTERFACE)
 target_compile_features(compiler_flags INTERFACE cxx_std_14)
 target_compile_options(
   compiler_flags
   INTERFACE "$<${gcc_like_cxx}:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>")
+
+# position idependent code
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # installation rpath setup
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
