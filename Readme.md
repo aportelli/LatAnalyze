@@ -3,19 +3,19 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/10201777.svg)](https://zenodo.org/badge/latestdoi/10201777) [![Build Ubuntu](https://github.com/aportelli/LatAnalyze/actions/workflows/build-ubuntu.yml/badge.svg)](https://github.com/aportelli/LatAnalyze/actions/workflows/build-ubuntu.yml) [![Build macOS](https://github.com/aportelli/LatAnalyze/actions/workflows/build-macos.yml/badge.svg)](https://github.com/aportelli/LatAnalyze/actions/workflows/build-macos.yml)
 
 ## Description
-LatAnalyze is a C++11 library for statistical data analysis based on bootstrap
+LatAnalyze is a C++14 library for statistical data analysis based on bootstrap
 resampling. It has been written with lattice QCD data analysis in mind (hence
 the name), but its features are not lattice specific and can be used more general statistical context.
 
-Sadly a proper documentation was never written, but some comprehensive examples covering most features can be found in the `examples` directory.
+Sadly a proper documentation was never written, but some comprehensive examples covering several key features can be found in the `examples` directory.
 
 The main features are the following:
 
 * Array and matrix types with fast arithmetic operations based on [Eigen](http://eigen.tuxfamily.org).
 * High-level types for bootstrap sample manipulation (including various statistical estimators and histogramming).
 * Mathematical expression parser for runtime defined functions.
-* Data I/O in ASCII and HDF5 (optional).
-* High-level wrappers to minimisation routines from the [GSL](http://www.gnu.org/software/gsl/), [Minuit](http://seal.web.cern.ch/seal/snapshot/work-packages/mathlibs/minuit/) (optional) and [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt).
+* Data I/O in ASCII, XML, and HDF5.
+* High-level wrappers to minimisation routines from the [GSL](http://www.gnu.org/software/gsl/), [Minuit 2](https://github.com/root-project/root/tree/master/math/minuit2) (optional) and [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt).
 * Non-linear regression with error on independent variables (through total least squares).
 * High-level wrappers to numerical integrator and non-linear solver from the [GSL](http://www.gnu.org/software/gsl/).
 * High-level functional types for function of model. General functions can be defined from C pointers, C++ objects, strings of mathematical expressions or tabulated data.
@@ -24,14 +24,14 @@ The main features are the following:
 ## Installation
 The head of the `master` branch always points to the latest stable release. The `develop` branch is the main unstable branch of LatAnalyze.
 
-LatAnalyze is written in C++11 and requires a rather recent C++ compiler to be built. It has been successfully built on various Linux and OS X platforms using clang (from 3.7), GCC (from 4.9) and the Intel C++ compiler (2016).
-The only strict dependencies is the [GSL](http://www.gnu.org/software/gsl/).
-Additionally, autoconf, automake (from 1.11), libtool, bison (from 3.0) and flex are necessary to build the library. Unless you use a very exotic system, these tools are standard on any Unix platform and should be already present or easy to install through a package manager.
-Optional dependencies are [HDF5](https://www.hdfgroup.org/HDF5/) (built with C++ support), [Minuit](http://seal.web.cern.ch/seal/snapshot/work-packages/mathlibs/minuit/) and [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt).
+LatAnalyze is written in C++14. It has been successfully built on various Unix platform using reasonably recent versions of Clang or GCC.
+The only strict dependencies are the [GSL](http://www.gnu.org/software/gsl/) and [HDF5](https://www.hdfgroup.org/HDF5/) (built with C++ support).
+Additionally, cmake (from 3.11), bison (from 3.0) and flex are necessary to build the library. Unless you use a very exotic system, these tools are standard on any Unix platform and should be already present or easy to install through a package manager.
+Optional dependencies are [Minuit 2](https://github.com/root-project/root/tree/master/math/minuit2) and [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt).
 
-Below are instructions for a quick installation. For a more customised installation, one first needs to generate the build system by running `./bootstrap.sh` in the root directory. Then the library can be built and installed through the usual GNU mantra `./configure <options> && make && make install`. Use `./configure --help` to obtain a list of possible options for `./configure`. Because Eigen expressions rely a lot on inlining and compiler optimisations it is strongly recommended to set the `CXXFLAGS` variable to `-O3 -march=native -mtune=native`.
+LatAnalyze is built through CMake. Below are example instructions for compiling and installing LatAnalyze. 
 
-### General quick installation
+### Portable quick installation
 For a quick installation with all possible extensions execute: 
 ```
 ./install-latan.sh <prefix>
@@ -43,19 +43,53 @@ All the dependencies of LatAnalyze can be installed through the [Homebrew](https
 ```
 brew install automake autoconf libtool bison flex gsl minuit2 nlopt hdf5
 ```
-Then generate the build system in LatAnalyze main directory by running the `./bootstrap.sh` script. Finally, build the library
+Then build the library with `cmake`
 ```
 mkdir build
 cd build
-../configure --prefix=<prefix> --with-minuit=/usr/local --with-nlopt=/usr/local \
-             --with-hdf5=/usr/local --with-gsl=/usr/local                       \
-             CXXFLAGS='-g -O3 -march=native -mtune=native'
+cmake -DCMAKE_INSTALL_PREFIX=<prefix> -DCMAKE_BUILD_TYPE=Release ..
 make -j <n>
 make install
 ```
-where `<prefix>` should be replaced by the desired prefix for LatAnalyze installation, and `<n>` is the number of parallel build processes (typically twice your number of cores).
+where `<prefix>` should be replaced by the desired prefix for LatAnalyze installation, and `<n>` is the number of parallel build processes.
+
+### Dependencies through Homebrew/Linuxbrew
+If you use Homebrew/Linuxbrew to manage packages, the following command can install all the dependencies of LatAnalyze (including optional ones)
+
+## Using LatAnalyze in CMake projects
+When LatAnalyze is installed, the necessary CMake module configuration files to link against the library are available in the installation prefix.
+
+To link against LatAnalyze in a downstream CMake project, simply use
+```cmake
+find_package(LatAnalyze)
+target_link_libraries(<my_app> LatAnalyze::LatAnalyze)
+```
+where `<my_app>` is a CMake target. If LatAnalyze was installed in a non-standard prefix, you might have to set `CMAKE_PREFIX_PATH` accordingly for `find_package` to be successful.
+
+You can additionally modify the `find_package` to ensure specific components are supported
+```cmake
+find_package(LatAnalyze REQUIRED COMPONENTS <...>)
+```
+where `<...>` is a space separated list of components. Currently available components are
+- `MINUIT2`: Minuit 2 minimisers
+- `NLOPT`: NLopt minimisers
 
 ## History
+#### v3.6
+Build system:
+* automake build discontinued, now using CMake
+* CI through GitHub Actions
+
+Additions:
+* Discrete wavelet transform
+* Thread pools
+* Correlation dynamic range (CDR) calculation
+* Data filtering and CDR optimisation
+
+Changes:
+* Significant optimisation of covariance matrix calculation
+* Covariance matrix available for any `StatArray` (not only resampled arrays)
+
 #### v3.5.1
 Various fixes and cleaning of outdated code.
 
