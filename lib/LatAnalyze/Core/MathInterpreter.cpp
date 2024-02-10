@@ -36,7 +36,7 @@ unsigned int RunContext::addFunction(const string &name, DoubleFunction *init)
         
         return getFunctionAddress(name);
     }
-    catch (Exceptions::Definition)
+    catch (Exceptions::Definition &)
     {
         unsigned int address = fTable_.size();
         
@@ -55,7 +55,7 @@ unsigned int RunContext::addVariable(const string &name, double init)
         
         return getVariableAddress(name);
     }
-    catch (Exceptions::Definition)
+    catch (Exceptions::Definition &)
     {
         unsigned int address = vTable_.size();
         
@@ -92,7 +92,7 @@ unsigned int RunContext::getFunctionAddress(const string &name) const
     {
         return fTable_.at(name);
     }
-    catch (out_of_range)
+    catch (out_of_range &)
     {
         LATAN_ERROR(Definition, "undefined function '" + name + "'");
     }
@@ -139,7 +139,7 @@ unsigned int RunContext::getVariableAddress(const string &name) const
     {
         return vTable_.at(name);
     }
-    catch (out_of_range)
+    catch (out_of_range &)
     {
         LATAN_ERROR(Definition, "undefined variable '" + name + "'");
     }
@@ -449,7 +449,7 @@ try\
 {\
     address = (table).at(name);\
 }\
-catch (out_of_range)\
+catch (out_of_range &)\
 {\
     address         = (table).size();\
     (table)[(name)] = address;\

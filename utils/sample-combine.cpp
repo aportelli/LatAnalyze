@@ -75,7 +75,7 @@ void loadAndCheck(vector<DMatSample> &sample, const vector<string> &fileName)
                 gotSize = true;
             }
         }
-        catch (Exceptions::Definition)
+        catch (Exceptions::Definition &)
         {
             failed.insert(i);
         }
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     {
         process<DSample>(outFileName, fileName, code);
     }
-    catch (Exceptions::Definition)
+    catch (Exceptions::Definition &)
     {
         process<DMatSample>(outFileName, fileName, code);
     }

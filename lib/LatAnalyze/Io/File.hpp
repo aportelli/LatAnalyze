@@ -105,12 +105,12 @@ const IoT& File::getData(const std::string &name) const
     {
         return dynamic_cast<const IoT &>(*(data_.at(name)));
     }
-    catch(std::out_of_range)
+    catch (std::out_of_range &)
     {
         LATAN_ERROR(Definition, "no data with name '" + name + "' in file "
                     + name_);
     }
-    catch(std::bad_cast)
+    catch (std::bad_cast &)
     {
         LATAN_ERROR(Definition, "data with name '" + name + "' in file "
                     + name_ + " does not have type '" + typeid(IoT).name()
