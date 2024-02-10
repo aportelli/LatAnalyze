@@ -1,5 +1,5 @@
 # builds
-build/*
+build
 
 # Apple stuff
 *.xcodeproj
@@ -9,11 +9,11 @@ build/*
 *.swp
 
 # Eigen headers and archives
-lib/LatAnalyze/Eigen
+/lib/LatAnalyze/Eigen
 eigen-*.tar.bz2
 
 # CI builds
-/ci-scripts/local/*
+/ci-scripts/local
 
 # VS Code Studio stuff
 .vscode
