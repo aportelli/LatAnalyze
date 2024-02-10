@@ -1,7 +1,5 @@
 # builds
 build/*
-build_debug/*
-sandbox/*
 
 # Apple stuff
 *.xcodeproj
@@ -10,24 +8,12 @@ sandbox/*
 # VIM
 *.swp
 
-# autotools
-autom4te.cache/*
-configure
-configure~
-.buildutils/*
-aclocal.m4
-
-# bison/flex generated sources
-lib/LatAnalyze/*Lexer.cpp
-lib/LatAnalyze/*Parser.cpp
-lib/LatAnalyze/*Parser.hpp
-
 # Eigen headers and archives
 lib/LatAnalyze/Eigen
 eigen-*.tar.bz2
 
 # CI builds
-ci-scripts/local/*
+/ci-scripts/local/*
 
 # VS Code Studio stuff
 .vscode
