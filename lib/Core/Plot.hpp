@@ -101,6 +101,18 @@ public:
     virtual ~PlotData(void) = default;
 };
 
+class PlotPoint: public PlotObject
+{
+public:
+    // constructor
+    PlotPoint(const double  x,  const double  y);
+    PlotPoint(const DSample &x, const double  y);
+    PlotPoint(const double  x,  const DSample &y);
+    PlotPoint(const DSample &x, const DSample &y);
+    // destructor
+    virtual ~PlotPoint(void) = default;
+};
+
 class PlotHLine: public PlotObject
 {
 public:
@@ -225,6 +237,7 @@ struct PlotOptions
     std::string              title;
     std::string              size;
     unsigned int             scaleMode[2];
+    double                   logScaleBasis[2];
     Range                    scale[2];
     std::string              label[2];
     std::string              lineColor;
@@ -342,13 +355,14 @@ class LogScale: public PlotModifier
 {
 public:
     // constructor
-    explicit LogScale(const Axis axis);
+    explicit LogScale(const Axis axis, const double basis = 10);
     // destructor
     virtual ~LogScale(void) = default;
     // modifier
     virtual void operator()(PlotOptions &option) const;
 private:
     const Axis axis_;
+    const double basis_;
 };
 
 class PlotRange: public PlotModifier

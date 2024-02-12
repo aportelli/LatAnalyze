@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Latan;
 
-constexpr Index  size          = 8;
+constexpr Index  n             = 8;
 constexpr Index  nDraw         = 20000;
 constexpr Index  nSample       = 2000;
 const     string stateFileName = "exRand.seed";
@@ -40,14 +40,14 @@ int main(void)
     p << PlotFunction(compile("return exp(-x_0^2/2)/sqrt(2*pi);", 1), -5., 5.);
     p.display();
 
-    DMat       var(size, size);
-    DVec       mean(size);
-    DMatSample sample(nSample, size, 1);
+    DMat       var(n, n);
+    DVec       mean(n);
+    DMatSample sample(nSample, n, 1);
 
     cout << "-- generating " << nSample << " Gaussian random vectors..." << endl;
-    var   = DMat::Random(size, size);
+    var   = DMat::Random(n, n);
     var  *= var.adjoint();
-    mean  = DVec::Random(size); 
+    mean  = DVec::Random(n); 
     RandomNormal mgauss(mean, var, rd());
     sample[central] = mgauss();
     FOR_STAT_ARRAY(sample, s)

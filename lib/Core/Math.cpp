@@ -18,6 +18,7 @@
  */
 
 #include <LatAnalyze/Core/Math.hpp>
+#include <LatAnalyze/Numerical/GslFFT.hpp>
 #include <LatAnalyze/includes.hpp>
 #include <gsl/gsl_cdf.h>
 
@@ -48,16 +49,42 @@ DMat MATH_NAMESPACE::corrToVar(const DMat &corr, const DVec &varDiag)
     return res;
 }
 
-double MATH_NAMESPACE::svdDynamicRange(const DMat &mat)
+double MATH_NAMESPACE::conditionNumber(const DMat &mat)
 {
     DVec s = mat.singularValues();
 
     return s.maxCoeff()/s.minCoeff();
 }
 
-double MATH_NAMESPACE::svdDynamicRangeDb(const DMat &mat)
+double MATH_NAMESPACE::cdr(const DMat &mat)
 {
-    return 10.*log10(svdDynamicRange(mat));
+    return 10.*log10(conditionNumber(mat));
+}
+
+template <typename FFT>
+double nsdr(const DMat &m)
+{
+    Index  n = m.rows();
+    FFT    fft(n);
+    CMat   buf(n, 1);
+
+    FOR_VEC(buf, i)
+    {
+        buf(i) = 0.;
+        for (Index j = 0; j < n; ++j)
+        {
+            buf(i) += m(j, (i+j) % n);
+        }
+        buf(i) /= n;
+    }
+    fft(buf, FFT::Forward);
+
+    return 10.*log10(buf.real().maxCoeff()/buf.real().minCoeff());
+}
+
+double MATH_NAMESPACE::nsdr(const DMat &mat)
+{
+    return ::nsdr<GslFFT>(mat);
 }
 
 /******************************************************************************

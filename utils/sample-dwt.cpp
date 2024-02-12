@@ -17,6 +17,7 @@
  * along with LatAnalyze 3.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <LatAnalyze/Core/Math.hpp>
 #include <LatAnalyze/Core/OptParser.hpp>
 #include <LatAnalyze/Core/Plot.hpp>
 #include <LatAnalyze/Io/Io.hpp>
@@ -53,7 +54,13 @@ int main(int argc, char *argv[])
         cerr << "usage: " << argv[0];
         cerr << " <options> <input file>" << endl;
         cerr << endl << "Possible options:" << endl << opt << endl;
-        
+        cerr << "Available DWT filters:" << endl;
+        for (auto &fv: DWTFilters::fromName)
+        {
+            cerr << fv.first << " ";
+        }
+        cerr << endl << endl;
+
         return EXIT_FAILURE;
     }
     inFilename  = opt.getArgs()[0];
@@ -68,22 +75,45 @@ int main(int argc, char *argv[])
     DMatSample            in = Io::load<DMatSample>(inFilename), res;
     Index                 nSample = in.size(), n = in[central].rows();
     vector<DMatSample>    out(ss ? 1 : level, DMatSample(nSample)), 
-                          outh(ss ? 0 : level, DMatSample(nSample));
+                          outh(ss ? 0 : level, DMatSample(nSample)),
+                          concath(ss ? 0 : level, DMatSample(nSample));
+    DMatSample            concat(nSample, n, 1);
     DWT                   dwt(*DWTFilters::fromName.at(filterName));
     vector<DWT::DWTLevel> dataDWT(level);
 
+    FOR_STAT_ARRAY(in, s)
+    {
+        in[s].conservativeResize(n, 1);
+    }
     if (!ss)
     {
+        DMatSample buf(nSample);
+
         cout << "-- compute discrete wavelet transform" << endl;
         cout << "filter '" << filterName << "' / " << level << " level(s)" << endl;
         FOR_STAT_ARRAY(in, s)
         {
-            dataDWT = dwt.forward(in[s].col(0), level);
+            dataDWT = dwt.forward(in[s], level);
             for (unsigned int l = 0; l < level; ++l)
             {
-                out[l][s]  = dataDWT[l].first;
-                outh[l][s] = dataDWT[l].second;
+                out[l][s]     = dataDWT[l].first;
+                outh[l][s]    = dataDWT[l].second;
+                concath[l][s] = DWT::concat(dataDWT, l, true);
             }
+            concat[s] = DWT::concat(dataDWT);
+        }
+        cout << "Data CDR " << Math::cdr(in.correlationMatrix()) << " dB" << endl;
+        cout << "DWT CDR " << Math::cdr(concat.correlationMatrix()) << " dB" << endl;
+        for (unsigned int l = 0; l < level; ++l)
+        {
+            cout << "DWT level " << l << " CDR: L= ";
+            cout << Math::cdr(out[l].correlationMatrix()) << " dB / H= ";
+            cout << Math::cdr(outh[l].correlationMatrix()) << " dB" << endl;
+        }
+        for (unsigned int l = 0; l < level; ++l)
+        {
+            cout << "DWT detail level " << l << " CDR: ";
+            cout << Math::cdr(concath[l].correlationMatrix()) << " dB" << endl;
         }
     }
     else
@@ -102,7 +132,7 @@ int main(int argc, char *argv[])
         }
         FOR_STAT_ARRAY(in, s)
         {
-            dataDWT.back().first = in[s].col(0);
+            dataDWT.back().first = in[s];
             out[0][s] = dwt.backward(dataDWT);
         }
     }
@@ -115,7 +145,9 @@ int main(int argc, char *argv[])
             {
                 Io::save<DMatSample>(out[l], outFilename + "/L" + strFrom(l) + ".h5");
                 Io::save<DMatSample>(outh[l], outFilename + "/H" + strFrom(l) + ".h5");
+                Io::save<DMatSample>(concath[l], outFilename + "/concatH" + strFrom(l) + ".h5");
             }
+            Io::save<DMatSample>(concat, outFilename + "/concat.h5");
         }
         else
         {

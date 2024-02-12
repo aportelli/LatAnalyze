@@ -352,7 +352,7 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
     result.nPar_       = sampleResult.getNPar();
     result.nDof_       = sampleResult.nDof_;
     result.parName_    = sampleResult.parName_;
-    result.corrRangeDb_ = Math::svdDynamicRangeDb(getFitCorrMat());
+    result.corrRangeDb_ = Math::cdr(getFitCorrMat());
     
     return result;
 }
