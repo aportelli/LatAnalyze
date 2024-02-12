@@ -46,15 +46,14 @@ public:
     virtual ~MinuitMinimizer(void) = default;
     // access
     Algorithm    getAlgorithm(void) const;
-    int          getStatus(void) const;
     void         setAlgorithm(const Algorithm algorithm);
     virtual bool supportLimits(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
+    bool          isMinStatusSuccess(void) const;
 private:
     Algorithm                  algorithm_;
     static constexpr Algorithm defaultAlg_ = Algorithm::combined;
-    int status_;
 };
 
 END_LATAN_NAMESPACE

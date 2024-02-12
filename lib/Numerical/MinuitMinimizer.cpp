@@ -48,17 +48,13 @@ static constexpr double initErr = 0.1;
 MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
 {
     setAlgorithm(algorithm);
+    updateStatus(0);
 }
 
 // access //////////////////////////////////////////////////////////////////////
 MinuitMinimizer::Algorithm MinuitMinimizer::getAlgorithm(void) const
 {
     return algorithm_;
-}
-
-int MinuitMinimizer::getStatus(void) const
-{
-    return status_;
 }
 
 void MinuitMinimizer::setAlgorithm(const Algorithm algorithm)
@@ -81,7 +77,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     int            printLevel = 0;
     EMinimizerType minuitAlg  = kCombined;
     double         prec = getPrecision();
-    
+    int            status;
+
     // convert Latan parameters to Minuit parameters
     switch (getVerbosity())
     {
@@ -168,14 +165,14 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             cout << " =========" << endl;
         }
         min.Minimize();
-        status_ = min.Status();
+        status = min.Status();
         n++;
-    } while ((status_ >= 2) and (n < getMaxPass()));
+    } while ((status >= 2) and (n < getMaxPass()));
     if (getVerbosity() >= Verbosity::Normal)
     {
         cout << "=================================================" << endl;
     }
-    switch (status_)
+    switch (status)
     {
         case 1:
             // covariance matrix was made positive, the minimum is still good
@@ -191,6 +188,11 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             LATAN_WARNING("invalid minimum: iteration limit reached");
             break;
     }
+
+    if(status>getStatus())
+    {
+        updateStatus(status);  //only update status if it's worse
+    }
     
     // save and return result
     for (Index i = 0; i < x.size(); ++i)
@@ -200,3 +202,17 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     return x;
 }
+
+bool MinuitMinimizer::isMinStatusSuccess(void) const
+{
+    // assuming we do not completely trust status=1 
+    if(getStatus()==0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
