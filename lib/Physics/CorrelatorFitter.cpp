@@ -123,67 +123,6 @@ DoubleModel CorrelatorModels::makeLinearModel(void)
     return mod;
 }
 
-DoubleModel CorrelatorModels::makeExpConstModel(const Index nState)  //for constant thermal effects
-{
-    DoubleModel mod;
-
-    mod.setFunction([nState](const double *x, const double *p)
-    {
-        double res = 0.;
-        for (unsigned int i = 0; i < nState; ++i)
-        {
-            res += p[2*i + 1]*exp(-p[2*i]*x[0]);
-        }
-        res += p[2*nState]; //constant thermal effect
-        return res;
-    }, 1, 2*nState+1);
-    for (unsigned int i = 0; i < nState; ++i)
-    {
-        mod.parName().setName(2*i, "E_" + strFrom(i));
-        mod.parName().setName(2*i + 1, "Z_" + strFrom(i));
-    }
-    mod.parName().setName(2*nState, "B");
-
-    return mod;
-}
-
-DoubleModel CorrelatorModels::makeExp2ComplementaryModel(const int t0)
-{
-    DoubleModel mod;
-
-    mod.setFunction([t0](const double *x, const double *p)
-    {
-        double res = (1.-p[1]) * exp(-p[0]*(x[0]-t0)) + p[1] * exp(-p[2]*(x[0]-t0));
-
-        return res;
-    }, 1, 3);
-
-    mod.parName().setName(0, "E_0");
-    mod.parName().setName(1, "Z_1");
-    mod.parName().setName(2, "E_1");
-
-    return mod;
-}
-
-DoubleModel CorrelatorModels::makeExpGeometricModel(void)    // crazy summed excited states (Brett's thesis)
-{
-    DoubleModel mod;
-
-    mod.setFunction([](const double *x, const double *p)
-    {
-        double res = 0.;
-        res += p[1]*exp(-p[0]*x[0]) / ( 1. - p[3]*exp(-p[2]*x[0]) );
-        return res;
-    }, 1, 4);
-
-    mod.parName().setName(0, "E_0");
-    mod.parName().setName(1, "Z_1");
-    mod.parName().setName(2, "delta^2");
-    mod.parName().setName(3, "Z_delta");
-
-    return mod;
-}
-
 CorrelatorModels::ModelPar CorrelatorModels::parseModel(const string s)
 {
     smatch   sm;
@@ -213,21 +152,6 @@ CorrelatorModels::ModelPar CorrelatorModels::parseModel(const string s)
     {
         par.type   = CorrelatorType::cst;
         par.nState = 1;
-    }
-    else if (regex_match(s, sm, regex("exp([0-9]+)const")))
-    {
-        par.type   = CorrelatorType::exp_const;
-        par.nState = strTo<Index>(sm[1].str());
-    }
-    else if (s== "exp2complement")
-    {
-        par.type   = CorrelatorType::exp2_complementary;
-        par.nState = 1; // only one complete pair (E,Z)
-    }
-    else if (s== "summedexp")
-    {
-        par.type   = CorrelatorType::exp_geometric;
-        par.nState = 2;
     }
     else
     {
@@ -261,15 +185,6 @@ DoubleModel CorrelatorModels::makeModel(const CorrelatorModels::ModelPar par,
     case CorrelatorType::cst:
         return makeConstModel();
         break;
-    case CorrelatorType::exp_const:
-        return makeExpConstModel(par.nState);
-        break;
-    case CorrelatorType::exp2_complementary:
-        return makeExp2ComplementaryModel(t0);
-        break;
-    case CorrelatorType::exp_geometric:
-        return makeExpGeometricModel();
-        break;
     }
 }
 
@@ -287,9 +202,6 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
     case CorrelatorType::exp:
     case CorrelatorType::cosh:
     case CorrelatorType::sinh:
-    case CorrelatorType::exp2_complementary:
-    case CorrelatorType::exp_geometric:
-    case CorrelatorType::exp_const:
         init.resize(2*par.nState);
         init(0) = abs(log(corr[central](nt/4)/corr[central](nt/4 + 1)));
         init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
@@ -297,17 +209,6 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
         {
             init(p)     = 2*init(p - 2);
             init(p + 1) = init(p - 1)/2.;
-        }
-        
-        if(par.type == CorrelatorType::exp2_complementary)
-        {
-            init.conservativeResize(3);    
-            init(2) = init(0)/2.;
-        }
-        else if(par.type == CorrelatorType::exp_const)
-        {
-            init.conservativeResize(init.size()+1);
-            init(init.size()-1) = init(0)/(par.nState+1.);
         }
         break;
     case CorrelatorType::linear:

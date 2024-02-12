@@ -48,7 +48,6 @@ static constexpr double initErr = 0.1;
 MinuitMinimizer::MinuitMinimizer(const Algorithm algorithm)
 {
     setAlgorithm(algorithm);
-    updateStatus(0);
 }
 
 // access //////////////////////////////////////////////////////////////////////
@@ -189,7 +188,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             break;
     }
 
-    if(status>getStatus())
+    if(status>getStatus() or !this->isStatusDefined_)
     {
         updateStatus(status);  //only update status if it's worse
     }

@@ -139,7 +139,7 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
         LATAN_WARNING("invalid minimum: " + returnMessage(status));
     }
 
-    if(!minSuccess(status))
+    if(!minSuccess(status) or !this->isStatusDefined_)
     {
         updateStatus(status); //only update if status is non-success
     }

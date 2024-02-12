@@ -30,8 +30,7 @@ BEGIN_LATAN_NAMESPACE
 /******************************************************************************
  *                         Correlator types & models                          *
  ******************************************************************************/
-enum class CorrelatorType {undefined, exp, cosh, sinh, linear, cst,
-                            exp_const, exp2_complementary, exp_geometric};
+enum class CorrelatorType {undefined, exp, cosh, sinh, linear, cst};
 
 namespace CorrelatorModels
 {
@@ -46,9 +45,6 @@ namespace CorrelatorModels
     DoubleModel makeSinhModel(const Index nState, const Index nt);
     DoubleModel makeConstModel(void);
     DoubleModel makeLinearModel(void);
-    DoubleModel makeExpConstModel(const Index nState);  //for constant thermal effects
-    DoubleModel makeExp2ComplementaryModel(const int t0);
-    DoubleModel makeExpGeometricModel(void);   // crazy summed excited states
 
     ModelPar    parseModel(const std::string s);
     DoubleModel makeModel(const ModelPar par, const Index nt, const int t0=-1);

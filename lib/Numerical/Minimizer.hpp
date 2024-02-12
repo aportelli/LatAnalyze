@@ -63,6 +63,8 @@ public:
     void                 updateStatus(const int status);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f) = 0;
+protected:
+    bool                 isStatusDefined_=false;
 private:
     DVec         highLimit_, lowLimit_;
     Vec<bool>    hasHighLimit_, hasLowLimit_;

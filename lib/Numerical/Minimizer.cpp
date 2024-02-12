@@ -201,4 +201,5 @@ int Minimizer::getStatus(void) const
 void Minimizer::updateStatus(const int status)
 {
     status_=status;
+    isStatusDefined_=true;
 }
