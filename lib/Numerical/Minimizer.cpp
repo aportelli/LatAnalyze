@@ -192,3 +192,14 @@ void Minimizer::setMaxPass(const unsigned int maxPass)
 {
     maxPass_ = maxPass;
 }
+
+int Minimizer::getStatus(void) const
+{
+    return status_;
+}
+
+void Minimizer::updateStatus(const int status)
+{
+    status_=status;
+    isStatusDefined_=true;
+}

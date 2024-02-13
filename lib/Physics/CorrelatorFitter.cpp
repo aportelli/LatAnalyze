@@ -203,7 +203,7 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
     case CorrelatorType::cosh:
     case CorrelatorType::sinh:
         init.resize(2*par.nState);
-        init(0) = log(corr[central](nt/4)/corr[central](nt/4 + 1));
+        init(0) = abs(log(corr[central](nt/4)/corr[central](nt/4 + 1)));
         init(1) = corr[central](nt/4)/(exp(-init(0)*nt/4));
         for (Index p = 2; p < init.size(); p += 2)
         {
@@ -218,7 +218,7 @@ DVec CorrelatorModels::parameterGuess(const DMatSample &corr,
         break;
     case CorrelatorType::cst:
         init.resize(1);
-        init(0) = corr[central](nt/4);
+        init(0) = corr[central](nt/8);
         break;
     default:
         break;
@@ -302,6 +302,8 @@ DMatSample CorrelatorUtils::fourierTransform(const DMatSample &c, FFT &fft,
  *                      CorrelatorFitter implementation                       *
  ******************************************************************************/
 // constructors ////////////////////////////////////////////////////////////////
+CorrelatorFitter::CorrelatorFitter(void){}
+
 CorrelatorFitter::CorrelatorFitter(const DMatSample &corr)
 {
     setCorrelator(corr);
@@ -385,15 +387,17 @@ void CorrelatorFitter::setThinning(const Index thinning, const Index i)
 }
 
 // fit functions ///////////////////////////////////////////////////////////////
-SampleFitResult CorrelatorFitter::fit(Minimizer &minimizer, const DVec &init)
+SampleFitResult CorrelatorFitter::fit(Minimizer &minimizer, const DVec &init,
+                                  const bool onlyCentral)
 {
     vector<Minimizer *> vecPt = {&minimizer};
 
-    return fit(vecPt, init);
+    return fit(vecPt, init, onlyCentral);
 }
 
 SampleFitResult CorrelatorFitter::fit(vector<Minimizer *> &minimizer,
-                                      const DVec &init)
+                                        const DVec &init,
+                                        const bool onlyCentral)
 {
     vector<const DoubleModel *> vecPt(model_.size());
     
@@ -402,7 +406,7 @@ SampleFitResult CorrelatorFitter::fit(vector<Minimizer *> &minimizer,
         vecPt[i] = &(model_[i]);
     }
 
-    return data_->fit(minimizer, init, vecPt);
+    return data_->fit(minimizer, init, vecPt, onlyCentral);
 }
 
 // internal function to refresh fit ranges /////////////////////////////////////

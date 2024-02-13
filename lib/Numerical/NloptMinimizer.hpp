@@ -52,14 +52,15 @@ public:
     // destructor
     virtual ~NloptMinimizer(void) = default;
     // access
-    Algorithm    getAlgorithm(void) const;
-    void         setAlgorithm(const Algorithm algorithm);
-    virtual bool supportLimits(void) const;
+    Algorithm     getAlgorithm(void) const;
+    void          setAlgorithm(const Algorithm algorithm);
+    virtual bool  supportLimits(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
-private:
+    bool          isMinStatusSuccess(void) const;
     // NLopt return code parser
     static std::string returnMessage(const nlopt::result status);
+private:
     // NLopt function wrapper
     static double funcWrapper(unsigned int n, const double *arg,
                               double *grad , void *vdata);

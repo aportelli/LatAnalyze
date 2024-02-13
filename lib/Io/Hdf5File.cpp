@@ -52,6 +52,24 @@ Hdf5File::~Hdf5File(void)
 }
 
 // access //////////////////////////////////////////////////////////////////////
+void Hdf5File::save(const std::string &str, const string &name)
+{
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
+    StrType fls_type(0, str.size()); 
+
+    Group     group;
+    Attribute attr;
+    DataSpace attrSpace(H5S_SCALAR);
+
+    group = h5File_->createGroup(name.c_str() + nameOffset(name));
+    attr  = group.createAttribute("type", fls_type, attrSpace);
+    attr.write(fls_type, str.c_str());
+}
+
 void Hdf5File::save(const DMat &m, const string &name)
 {
     if (name.empty())

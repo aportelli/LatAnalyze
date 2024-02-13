@@ -59,12 +59,17 @@ public:
     virtual bool         supportLimits(void) const = 0;
     virtual unsigned int getMaxPass(void) const;
     virtual void         setMaxPass(const unsigned int maxPass);
+    virtual int          getStatus(void) const;
+    void                 updateStatus(const int status);
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f) = 0;
+protected:
+    bool                 isStatusDefined_=false;
 private:
     DVec         highLimit_, lowLimit_;
     Vec<bool>    hasHighLimit_, hasLowLimit_;
     unsigned int maxPass_{5u};
+    int          status_;
 };
 
 END_LATAN_NAMESPACE

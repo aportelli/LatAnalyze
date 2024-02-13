@@ -45,6 +45,7 @@ namespace CorrelatorModels
     DoubleModel makeSinhModel(const Index nState, const Index nt);
     DoubleModel makeConstModel(void);
     DoubleModel makeLinearModel(void);
+
     ModelPar    parseModel(const std::string s);
     DoubleModel makeModel(const ModelPar par, const Index nt);
     DVec        parameterGuess(const DMatSample &corr, const ModelPar par);
@@ -68,6 +69,7 @@ class CorrelatorFitter
 {
 public:
     // constructors
+    CorrelatorFitter(void);
     CorrelatorFitter(const DMatSample &corr);
     CorrelatorFitter(const std::vector<DMatSample> &corr);
     // destructor
@@ -86,8 +88,10 @@ public:
     DMat getVarianceMatrix(void) const;
     void setThinning(const Index thinning, const Index i = 0);
     // fit functions
-    SampleFitResult fit(Minimizer &minimizer, const DVec &init);
-    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init);
+    SampleFitResult fit(Minimizer &minimizer, const DVec &init,
+                                  const bool onlyCentral=false);
+    SampleFitResult fit(std::vector<Minimizer *> &minimizer, const DVec &init,
+                                  const bool onlyCentral=false);
 private:
     // internal function to refresh fit ranges
     void refreshRanges(void);

@@ -39,17 +39,19 @@ public:
 public:
     // constructor
     GslQagsIntegrator(const unsigned int limit = defaultLimit,
-                      const double precision = defaultPrec);
+                      const double precision = defaultPrec,
+                      const double abserr=0.0);
     // destructor
     virtual ~GslQagsIntegrator(void);
     // integral calculation
     virtual double operator()(const DoubleFunction &f, const double xMin,
                               const double xMax);
     // get last error
-    double getLastError(void) const;
+    double  getLastError(void) const;
+    void    setAbsoluteErr(const double abserr) ;
 private:
     unsigned int              limit_;
-    double                    precision_, error_;
+    double                    precision_, error_, abserr_;
     gsl_integration_workspace *workspace_;
 };
 

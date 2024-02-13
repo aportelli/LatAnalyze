@@ -29,9 +29,11 @@ using namespace Latan;
  ******************************************************************************/
 // constructor /////////////////////////////////////////////////////////////////
 GslQagsIntegrator::GslQagsIntegrator(const unsigned int limit,
-                                     const double precision)
+                                     const double precision,
+                                     const double abserr)
 : limit_(limit)
 , precision_(precision)
+, abserr_(abserr)
 {
     workspace_ = gsl_integration_workspace_alloc(limit);
 }
@@ -58,22 +60,22 @@ double GslQagsIntegrator::operator()(const DoubleFunction &f, const double xMin,
     gslF.params   = reinterpret_cast<void *>(&const_cast<DoubleFunction &>(f));
     if ((xMin > -Math::inf) and (xMax < Math::inf))
     {
-        gsl_integration_qags(&gslF, xMin, xMax, 0.0, precision_, limit_,
+        gsl_integration_qags(&gslF, xMin, xMax, abserr_, precision_, limit_,
                              workspace_, &result, &error_);
     }
     else if (xMax < Math::inf)
     {
-        gsl_integration_qagil(&gslF, xMax, 0.0, precision_, limit_,
+        gsl_integration_qagil(&gslF, xMax, abserr_, precision_, limit_,
                               workspace_, &result, &error_);
     }
     else if (xMin > -Math::inf)
     {
-        gsl_integration_qagiu(&gslF, xMin, 0.0, precision_, limit_,
+        gsl_integration_qagiu(&gslF, xMin, abserr_, precision_, limit_,
                               workspace_, &result, &error_);
     }
     else
     {
-        gsl_integration_qagi(&gslF, 0.0, precision_, limit_,
+        gsl_integration_qagi(&gslF, abserr_, precision_, limit_,
                              workspace_, &result, &error_);
     }
     
@@ -84,4 +86,9 @@ double GslQagsIntegrator::operator()(const DoubleFunction &f, const double xMin,
 double GslQagsIntegrator::getLastError(void) const
 {
     return error_;
+}
+
+void GslQagsIntegrator::setAbsoluteErr(const double abserr)
+{
+    abserr_=abserr;
 }

@@ -101,6 +101,12 @@ FitResult SampleFitResult::getFitResult(const Index s) const
     return fit;
 }
 
+std::string SampleFitResult::getParName(const Index i)
+{
+    return parName_[i];
+}
+
+
 // IO //////////////////////////////////////////////////////////////////////////
 void SampleFitResult::print(const bool printXsi, ostream &out) const
 {
@@ -302,7 +308,8 @@ const XYStatData & XYSampleData::getData(void)
 // fit /////////////////////////////////////////////////////////////////////////
 SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v)
+                                  const std::vector<const DoubleModel *> &v,
+                                  const bool onlyCentral)
 {
     computeVarMat();
     
@@ -328,8 +335,10 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
         }
         else
         {
-            
-            sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
+            if(!onlyCentral)
+                sampleResult = data_.fit(*(minimizer.back()), initCopy, v);
+            else
+                sampleResult = DVec::Constant(sampleResult.size(), 1);
         }
         result[s]       = sampleResult;
         result.chi2_[s] = sampleResult.getChi2();
@@ -350,11 +359,12 @@ SampleFitResult XYSampleData::fit(std::vector<Minimizer *> &minimizer,
 
 SampleFitResult XYSampleData::fit(Minimizer &minimizer,
                                   const DVec &init,
-                                  const std::vector<const DoubleModel *> &v)
+                                  const std::vector<const DoubleModel *> &v,
+                                  const bool onlyCentral)
 {
     vector<Minimizer *> mv{&minimizer};
     
-    return fit(mv, init, v);
+    return fit(mv, init, v, onlyCentral);
 }
 
 // residuals ///////////////////////////////////////////////////////////////////

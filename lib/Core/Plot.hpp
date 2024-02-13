@@ -89,8 +89,11 @@ class PlotData: public PlotObject
 {
 public:
     // constructor
+    PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity=Latan::DVec(0));
+    PlotData(const DVec &x, const DVec &y, const DVec& xlow, const DVec& xhigh, const DVec& ylow, const DVec& yhigh, const DVec& opacity=Latan::DVec(0));
+    PlotData(const DSample &x, const DSample &y);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
-    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
+    PlotData(const DVec       &x, const DMatSample &y, const bool abs = false, const DVec& opacity=Latan::DVec(0));
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
     PlotData(const XYStatData &data, const Index i = 0, const Index j = 0, 
              const bool abs = false);
@@ -123,7 +126,7 @@ class PlotLine: public PlotObject
 {
 public:
     // constructor
-    PlotLine(const DVec &x, const DVec &y);
+    PlotLine(const DVec &x, const DVec &y, bool scatter=false);
     // destructor
     virtual ~PlotLine(void) = default;
 };
@@ -133,6 +136,7 @@ class PlotPoints: public PlotObject
 public:
     // constructor
     PlotPoints(const DVec &x, const DVec &y);
+    PlotPoints(const DVec &x, const DVec &y, const DVec& opacity);
     // destructor
     virtual ~PlotPoints(void) = default;
 };
@@ -143,6 +147,7 @@ public:
     // constructor
     PlotBand(const double xMin, const double xMax, const double yMin,
              const double yMax, const double opacity = 0.15);
+    PlotBand(const DVec &x, const DVec &y, const double opacity = 0.15);
     // destructor
     virtual ~PlotBand(void) = default;
 };
@@ -164,9 +169,12 @@ public:
     // constructor
     PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
                  const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DMatSample &y, const double opacity = 0.15);
     PlotPredBand(const DoubleFunctionSample &function, const double xMin,
                  const double xMax, const unsigned int nPoint = 1000,
                  const double opacity = 0.15);
+    PlotPredBand(const DVec &x, const DMat &yband, const double opacity=0.15);
+
     // destructor
     virtual ~PlotPredBand(void) = default;
 private:
@@ -177,7 +185,8 @@ class PlotHistogram: public PlotObject
 {
 public:
     // constructor
-    PlotHistogram(const Histogram &h);
+    PlotHistogram(const Histogram &h, const std::string transparency="");
+    PlotHistogram(const Histogram &h, const double boxShift);
     // destructor
     virtual ~PlotHistogram(void) = default;
 };
@@ -201,13 +210,13 @@ public:
 };
 
 #define PlotMatrix(m)\
-PlotRange(Axis::x, -.5, (m).cols() - .5) <<\
-PlotRange(Axis::y, (m).rows() - .5, -.5) <<\
-PlotMatrixNoRange(m)
+Latan::PlotRange(Latan::Axis::x, -.5, (m).cols() - .5) <<\
+Latan::PlotRange(Latan::Axis::y, (m).rows() - .5, -.5) <<\
+Latan::PlotMatrixNoRange(m)
 
 #define PlotCorrMatrix(m)\
-PlotHeadCommand("set cbrange [-1:1]") <<\
-PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
+Latan::PlotHeadCommand("set cbrange [-1:1]") <<\
+Latan::PlotHeadCommand("set palette defined (0 'blue', 1 'white', 2 'red')") <<\
 PlotMatrix(m)
 
 /******************************************************************************
@@ -226,14 +235,19 @@ struct PlotOptions
     std::string              output;
     std::string              caption;
     std::string              title;
+    std::string              size;
     unsigned int             scaleMode[2];
     double                   logScaleBasis[2];
     Range                    scale[2];
     std::string              label[2];
     std::string              lineColor;
     int                      lineWidth;
+    double                   pointSize;
+    int                      pointType;
     std::string              dashType;
     std::vector<std::string> palette;
+    bool                     titleAtEnd;
+    std::string              rMargin;
 };
 
 class PlotModifier
@@ -298,6 +312,32 @@ private:
     const unsigned width_;
 };
 
+class PointSize: public PlotModifier
+{
+public:
+    // constructor
+    explicit PointSize(const double point_size);
+    // destructor
+    virtual ~PointSize(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const double pointSize_;
+};
+
+class PointType: public PlotModifier
+{
+public:
+    // constructor
+    explicit PointType(const int point_type);
+    // destructor
+    virtual ~PointType(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const int pointType_;
+};
+
 class Dash: public PlotModifier
 {
 public:
@@ -341,6 +381,19 @@ private:
     const double min_, max_;
 };
 
+class Size: public PlotModifier
+{
+public:
+    // constructor
+    Size(const std::string &options);
+    // destructor
+    virtual ~Size(void) = default;
+    // modifier
+    virtual void operator()(PlotOptions &option) const;
+private:
+    const std::string terminalCmd_;
+};
+
 class Terminal: public PlotModifier
 {
 public:
@@ -358,13 +411,15 @@ class Title: public PlotModifier
 {
 public:
     // constructor
-    explicit Title(const std::string &title);
+    explicit Title(const std::string &title, const bool atEnd=false, const std::string rMargin="");
     // destructor
     virtual ~Title(void) = default;
     // modifier
     virtual void operator()(PlotOptions &option) const;
 private:
     const std::string title_;
+    const bool atEnd_;
+    const std::string rMargin_;
 };
 
 class Palette: public PlotModifier
@@ -407,7 +462,7 @@ public:
     Plot & operator<<(PlotModifier &&modifier);
     // plot parsing and output
     void display(void);
-    void save(std::string dirName, bool savePdf = true);
+    void save(std::string dirName, bool savePdf = true, bool savePng = false);
     friend std::ostream & operator<<(std::ostream &out, const Plot &plot);
     // plot reset
     void reset(void);

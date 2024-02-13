@@ -76,7 +76,8 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     int            printLevel = 0;
     EMinimizerType minuitAlg  = kCombined;
     double         prec = getPrecision();
-    
+    int            status;
+
     // convert Latan parameters to Minuit parameters
     switch (getVerbosity())
     {
@@ -153,7 +154,6 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     }
     
     // minimize
-    int          status;
     unsigned int n = 0;
     
     do
@@ -187,6 +187,11 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
             LATAN_WARNING("invalid minimum: iteration limit reached");
             break;
     }
+
+    if(status>getStatus() or !this->isStatusDefined_)
+    {
+        updateStatus(status);  //only update status if it's worse
+    }
     
     // save and return result
     for (Index i = 0; i < x.size(); ++i)
@@ -196,3 +201,17 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     
     return x;
 }
+
+bool MinuitMinimizer::isMinStatusSuccess(void) const
+{
+    // assuming we do not completely trust status=1 
+    if(getStatus()==0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+

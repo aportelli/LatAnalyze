@@ -53,6 +53,20 @@ AsciiFile::~AsciiFile(void)
 }
 
 // access //////////////////////////////////////////////////////////////////////
+
+void AsciiFile::save(const std::string &m, const std::string &name)
+{
+    if (name.empty())
+    {
+        LATAN_ERROR(Io, "trying to save data with an empty name");
+    }
+
+    checkWritability();
+    fileStream_ << "#L latan_begin str " << name << endl;
+    fileStream_ << m << endl;
+    fileStream_ << "#L latan_end str " << endl;
+}
+
 void AsciiFile::save(const DMat &m, const std::string &name)
 {
     if (name.empty())

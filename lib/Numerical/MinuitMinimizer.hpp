@@ -50,6 +50,7 @@ public:
     virtual bool supportLimits(void) const;
     // minimization
     virtual const DVec & operator()(const DoubleFunction &f);
+    bool          isMinStatusSuccess(void) const;
 private:
     Algorithm                  algorithm_;
     static constexpr Algorithm defaultAlg_ = Algorithm::combined;

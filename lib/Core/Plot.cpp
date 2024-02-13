@@ -138,28 +138,53 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
+PlotData::PlotData(const DSample &x, const DSample &y)
 {
-    if (x.rows() != y[central].rows())
+    if (x.size() != y.size())
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
 
-    DMat d(x.rows(), 3);
+    DMat d(x.size()+1, 2);
     string usingCmd, tmpFileName;
 
     d.col(0)    = x;
-    d.col(1)    = y[central].col(0);
-    d.col(2)    = y.variance().cwiseSqrt().col(0);
+    d.col(1)    = y;
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    if (!abs)
+
+    setCommand("'" + tmpFileName + "' u 1:2 ");
+}
+
+PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs, const DVec& opacity)
+{
+    if(opacity.size() == 0)
     {
-        setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+        if (x.rows() != y[central].rows())
+        {
+            LATAN_ERROR(Size, "x and y vector does not have the same size");
+        }
+
+        DMat d(x.rows(), 3);
+        string usingCmd, tmpFileName;
+
+        d.col(0)    = x;
+        d.col(1)    = y[central].col(0);
+        d.col(2)    = y.variance().cwiseSqrt().col(0);
+        tmpFileName = dumpToTmpFile(d);
+        pushTmpFile(tmpFileName);
+        if (!abs)
+        {
+            setCommand("'" + tmpFileName + "' u 1:2:3 w yerr");
+        }
+        else
+        {
+            setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+        }
     }
     else
     {
-        setCommand("'" + tmpFileName + "' u 1:(abs($2)):3 w yerr");
+        PlotData(x, y[central].col(0), y.variance().cwiseSqrt().col(0), opacity);
     }
 }
 
@@ -186,6 +211,100 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
     {
         setCommand("'" + tmpFileName + "' u 1:(abs($3)):2 w xerr");
     }
+}
+
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& yerr, const DVec& opacity)
+{
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    Latan::DVec op;
+    if(opacity.size()!=0)
+    {
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;
+            }
+        }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
+    } 
+
+    DMat d(x.rows(), 3);
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = yerr;
+
+    string usingCmd, tmpFileName;
+
+    if(opacity.size()!=0)
+    {
+        d.conservativeResize(x.rows(), 4);
+        d.col(3)    = op;
+        usingCmd = "u 1:2:3:(0xFF0000+(int(0xFF*$4)<<24)) w yerr lc rgb var";   //hex code adds transparency to rgb colour
+    }
+    else
+    {
+        usingCmd = "u 1:2:3 w yerr";
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
+PlotData::PlotData(const DVec &x, const DVec &y, const DVec& xlow, const DVec& xhigh,
+                     const DVec& ylow, const DVec& yhigh, const DVec& opacity)
+{
+    if (x.rows() != y.rows())
+    {
+        LATAN_ERROR(Size, "x and y do not have the same size");
+    }
+
+    Latan::DVec op;
+    if(opacity.size()!=0)
+    {
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;
+            }
+        }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
+    } 
+
+    DMat d(x.rows(), 6);
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = xlow;
+    d.col(3)    = xhigh;
+    d.col(4)    = ylow;
+    d.col(5)    = yhigh;
+
+    string usingCmd, tmpFileName;
+
+    if(opacity.size()!=0)
+    {
+        d.conservativeResize(x.rows(), 7);
+        d.col(6)    = op;
+        usingCmd = "u 1:2:3:4:5:6:(0xFF0000+(int(0xFF*$7)<<24)) w xyerr lc rgb var";   //hex code adds transparency to rgb colour
+    }
+    else
+    {
+        usingCmd = "u 1:2:3:4:5:6 w xyerr";
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
@@ -261,7 +380,7 @@ PlotPoint::PlotPoint(const DSample &x, const DSample &y)
 
 
 // PlotLine constructor ////////////////////////////////////////////////////////
-PlotLine::PlotLine(const DVec &x, const DVec &y)
+PlotLine::PlotLine(const DVec &x, const DVec &y, bool scatter)
 {
     if (x.size() != y.size())
     {
@@ -275,7 +394,10 @@ PlotLine::PlotLine(const DVec &x, const DVec &y)
     d.col(1)    = y;
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    if(!scatter)
+        setCommand("'" + tmpFileName + "' u 1:2 w lines");
+    else
+        setCommand("'" + tmpFileName + "' u 1:2");
 }
 
 // PlotPoints constructor ////////////////////////////////////////////////////////
@@ -296,6 +418,41 @@ PlotPoints::PlotPoints(const DVec &x, const DVec &y)
     setCommand("'" + tmpFileName + "' u 1:2");
 }
 
+PlotPoints::PlotPoints(const DVec &x, const DVec &y, const DVec& opacity)
+{
+    if (x.rows() != y.rows() or x.rows() != opacity.rows())
+    {
+        LATAN_ERROR(Size, "x and y or opacity vectors do not have the same size");
+    }
+
+    Latan::DVec op;
+    if(opacity.size()!=0)
+    {
+        op = opacity;
+        FOR_VEC(op, i)
+        {
+            if( std::isnan(op(i)) )
+            {
+                op(i) = 1.0;
+            }
+        }
+        //convert to so that 0: transparent, 1: full opacity
+        op *= -1;
+        op = op.array() + 2.;
+    } 
+
+    DMat d(x.rows(), 3);
+    d.col(0)    = x;
+    d.col(1)    = y;
+    d.col(2)    = op;
+
+    string usingCmd, tmpFileName;
+    usingCmd = "u 1:2:(0xFF0000+(int(0xFF*$3)<<24)) lc rgb var";   //hex code adds transparency to fixed rgb colour
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
 // PlotHLine constructor ///////////////////////////////////////////////////////
 PlotHLine::PlotHLine(const double y)
 {
@@ -312,8 +469,26 @@ PlotBand::PlotBand(const double xMin, const double xMax, const double yMin,
                + strFrom(xMax) + " " + strFrom(yMax) + " "
                + strFrom(xMin) + " " + strFrom(yMax) + " "
                + strFrom(xMin) + " " + strFrom(yMin)
-               + "' u 1:2 w filledcurves closed fs solid " + strFrom(opacity)
+               + "' u 1:2 w filledcurves closed fs transparent solid " + strFrom(opacity)
                + " noborder");
+}
+
+PlotBand::PlotBand(const DVec &x, const DVec &y, const double opacity)
+{
+    if (x.size() != y.size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    DMat d(x.size(), 2);
+    string usingCmd, tmpFileName;
+
+    d.col(0)    = x;
+    d.col(1)    = y;
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u 1:2 w filledcurves closed fs transparent solid " 
+                + std::to_string(opacity) + " ");
 }
 
 // PlotFunction constructor ////////////////////////////////////////////////////
@@ -360,7 +535,25 @@ void PlotPredBand::makePredBand(const DMat &low, const DMat &high, const double 
     contFileName = dumpToTmpFile(contour);
     pushTmpFile(contFileName);
     setCommand("'" + contFileName + "' u 1:2 w filledcurves closed" +
-               " fs solid " + strFrom(opacity) + " noborder");
+               " fs transparent solid " + strFrom(opacity) + " noborder");
+}
+
+PlotPredBand::PlotPredBand(const DVec &x,  const DMatSample &y,
+                           const double opacity)
+{
+    if (x.size() != y[central].size())
+    {
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+
+    Index nPoint = x.size();
+    DMat  dLow(nPoint, 2), dHigh(nPoint, 2);
+
+    dLow.col(0)  = x;
+    dLow.col(1)  = y[central] - y.variance().cwiseSqrt();
+    dHigh.col(0) = x;
+    dHigh.col(1) = y[central] + y.variance().cwiseSqrt();
+    makePredBand(dLow, dHigh, opacity);
 }
 
 PlotPredBand::PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
@@ -382,6 +575,25 @@ PlotPredBand::PlotPredBand(const DVec &x, const DVec &y, const DVec &yerr,
     dLow.col(1)  = y - yerr;
     dHigh.col(0) = x;
     dHigh.col(1) = y + yerr;
+    makePredBand(dLow, dHigh, opacity);
+}
+
+PlotPredBand::PlotPredBand(const DVec &x, const DMat &yband, const double opacity)
+{
+    Latan::DVec ylow = yband.col(0);
+    Latan::DVec yhigh = yband.col(1);
+    if (x.size() != ylow.size() or x.size() != yhigh.size())
+    {
+        LATAN_ERROR(Size, "x and yband vectors do not have the same size");
+    }
+
+    Index nPoint = x.size();
+    DMat  dLow(nPoint, 2), dHigh(nPoint, 2);
+
+    dLow.col(0)  = x;
+    dLow.col(1)  = ylow;
+    dHigh.col(0) = x;
+    dHigh.col(1) = yhigh;
     makePredBand(dLow, dHigh, opacity);
 }
 
@@ -410,7 +622,7 @@ PlotPredBand::PlotPredBand(const DoubleFunctionSample &function,
 
 
 // PlotHistogram constructor ///////////////////////////////////////////////////
-PlotHistogram::PlotHistogram(const Histogram &h)
+PlotHistogram::PlotHistogram(const Histogram &h, const std::string transparency)
 {
     DMat   d(h.size(), 2);
     string tmpFileName;
@@ -422,7 +634,32 @@ PlotHistogram::PlotHistogram(const Histogram &h)
     }
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
-    setCommand("'" + tmpFileName + "' u 1:2 w steps");
+    string usingCmd = "'" + tmpFileName + "' u 1:2";
+    if(transparency.empty())
+    {
+        usingCmd += " w steps";
+    }
+    else
+    {
+        usingCmd += " w fillsteps fs transparent solid " + transparency;
+
+    }
+    setCommand(usingCmd);
+}
+
+PlotHistogram::PlotHistogram(const Histogram &h, const double boxShift)
+{
+    DMat   d(h.size(), 2);
+    string tmpFileName;
+
+    for (Index i = 0; i < h.size(); ++i)
+    {
+        d(i, 0) = h.getX(i);
+        d(i, 1) = h[i];
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' u ($1+" + to_string(boxShift) + "):2 w boxes ");
 }
 
 // PlotImpulses constructor ////////////////////////////////////////////////////
@@ -503,6 +740,28 @@ void LineWidth::operator()(PlotOptions &option) const
     option.lineWidth = static_cast<int>(width_);
 }
 
+// PointSize constructor ///////////////////////////////////////////////////////
+PointSize::PointSize(const double point_size)
+: pointSize_(point_size)
+{}
+
+// PointSize modifier //////////////////////////////////////////////////////////
+void PointSize::operator()(PlotOptions &option) const
+{
+    option.pointSize = pointSize_;
+}
+
+// PointType constructor ///////////////////////////////////////////////////////
+PointType::PointType(const int point_type)
+: pointType_(point_type)
+{}
+
+// PointType modifier //////////////////////////////////////////////////////////
+void PointType::operator()(PlotOptions &option) const
+{
+    option.pointType = pointType_;
+}
+
 // Dash constructor ///////////////////////////////////////////////////////////
 Dash::Dash(const string &dash)
 : dash_(dash)
@@ -570,15 +829,26 @@ void Terminal::operator()(PlotOptions &option) const
     option.terminal = terminalCmd_;
 }
 
+Size::Size(const string &options)
+: terminalCmd_(" " +  options + " ")
+{}
+
+void Size::operator()(PlotOptions &option) const
+{
+    option.size = terminalCmd_;
+}
+
 // Title constructor ///////////////////////////////////////////////////////////
-Title::Title(const string &title)
-: title_(title)
+Title::Title(const string &title, const bool atEnd, const std::string rMargin)
+: title_(title), atEnd_(atEnd), rMargin_(rMargin)
 {}
 
 // Title modifier //////////////////////////////////////////////////////////////
 void Title::operator()(PlotOptions &option) const
 {
     option.title = title_;
+    option.titleAtEnd = atEnd_;
+    option.rMargin = rMargin_;
 }
 
 // Palette constructor /////////////////////////////////////////////////////////
@@ -595,15 +865,21 @@ void Palette::operator()(PlotOptions &option) const
 // category10 palette //////////////////////////////////////////////////////////
 const std::vector<std::string> Palette::category10 =
 {
-    "rgb '#1f77b4'",
-    "rgb '#ff7f0e'",
-    "rgb '#2ca02c'",
-    "rgb '#d62728'",
-    "rgb '#9467bd'",
-    "rgb '#8c564b'",
-    "rgb '#e377c2'",
-    "rgb '#7f7f7f'",
-    "rgb '#bcbd22'"
+    "rgb '#006ddb'",
+    "rgb '#ff6db6'",
+    "rgb '#b66dff'",
+    "rgb '#db6d00'",
+    "rgb '#004949'",
+    
+    "rgb '#009292'",
+    "rgb '#ffb6db'",
+    "rgb '#490092'",
+    "rgb '#924900'",
+    "rgb '#6db6ff'",
+    "rgb '#b6dbff'",
+    "rgb '#920000'",
+    "rgb '#24ff24'",
+    "rgb '#ffff6d'"
 };
 
 /******************************************************************************
@@ -622,6 +898,7 @@ void Plot::initOptions(void)
     options_.output       = "";
     options_.caption      = "";
     options_.title        = "";
+    options_.size         = "";
     options_.scaleMode[0] = Plot::Scale::reset;
     options_.scaleMode[1] = Plot::Scale::reset;
     options_.scale[0]     = {0.0, 0.0};
@@ -630,6 +907,8 @@ void Plot::initOptions(void)
     options_.label[1]     = "";
     options_.lineColor    = "";
     options_.lineWidth    = -1;
+    options_.pointSize    = -1;
+    options_.pointType    = -1;
     options_.dashType     = "";
     options_.palette      = Palette::category10;
 }
@@ -666,6 +945,16 @@ Plot & Plot::operator<<(PlotObject &&command)
             commandStr         += " lw " + strFrom(options_.lineWidth);
             options_.lineWidth  = -1;
         }
+        if (options_.pointSize > 0)
+        {
+            commandStr         += " ps " + strFrom(options_.pointSize);
+            options_.pointSize  = -1;
+        }
+        if (options_.pointType > 0)
+        {
+            commandStr         += " pt " + strFrom(options_.pointType);
+            options_.pointType  = -1;
+        }
         if (!options_.dashType.empty())
         {
             commandStr        += " dt " + options_.dashType;
@@ -678,7 +967,12 @@ Plot & Plot::operator<<(PlotObject &&command)
         else
         {
             commandStr     += " t '" + options_.title + "'";
+            if(options_.titleAtEnd)
+            {
+                commandStr     +=  " at end";
+            }
             options_.title  = "";
+            options_.titleAtEnd = false;
         }
         plotCommand_.push_back(commandStr);
     }
@@ -800,7 +1094,7 @@ void Plot::display(void)
     }
 }
 
-void Plot::save(string dirName, bool savePdf)
+void Plot::save(string dirName, bool savePdf, bool savePng)
 {
     vector<string> commandBack;
     string         path, terminalBack, outputBack, gpCommand, scriptName;
@@ -823,8 +1117,21 @@ void Plot::save(string dirName, bool savePdf)
     // save PDF
     if (savePdf)
     {
-        options_.terminal = "pdf";
+        options_.terminal = "pdfcairo";
         options_.output   = dirName + "/plot.pdf";
+        display();
+        options_.terminal = terminalBack;
+        options_.output   = outputBack;
+    }
+
+    if (savePng)
+    {
+        options_.terminal = "pngcairo enhanced";
+        if(!options_.size.empty())
+        {
+            options_.terminal += " size " + options_.size;
+        }
+        options_.output   = dirName + "/plot.png";
         display();
         options_.terminal = terminalBack;
         options_.output   = outputBack;
@@ -876,7 +1183,12 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     
     if (!plot.options_.terminal.empty())
     {
-        out << "set term " << plot.options_.terminal << endl;
+        out << "set term " << plot.options_.terminal;
+        if (!plot.options_.size.empty())
+        {
+            out << " size " + plot.options_.size;
+        }
+        out << endl;
     }
     if (!plot.options_.output.empty())
     {
@@ -930,6 +1242,10 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     if (!plot.options_.label[y].empty())
     {
         out << "set ylabel '" << plot.options_.label[y] << "'" << endl;
+    }
+    if (!plot.options_.rMargin.empty())
+    {
+        out << "set rmargin " << plot.options_.rMargin << endl;
     }
     for (unsigned int i = 0; i < plot.options_.palette.size(); ++i)
     {
