@@ -55,8 +55,6 @@ int main(int argc, char *argv[])
                   "fold the correlator");
     opt.addOption("l" , "laplace"   , OptParser::OptType::trigger, true,
                   "apply Laplace filter to the correlator");
-    opt.addOption("" , "subtract"   , OptParser::OptType::value, true,
-                  "subtract correlator backwards", "");
     opt.addOption("p", "plot"     , OptParser::OptType::trigger, true,
                   "show the fit plot");
     opt.addOption("h", "heatmap"  , OptParser::OptType::trigger, true,
@@ -65,8 +63,6 @@ int main(int argc, char *argv[])
                   "do not try to guess fit parameters");
     opt.addOption("", "save-plot", OptParser::OptType::value, true,
                     "saves the source and .pdf", "");
-    opt.addOption("", "gevp-to", OptParser::OptType::value, true,
-                    "fixed gevp t0", "-1");
     opt.addOption("", "scan", OptParser::OptType::trigger, true,
                     "scan all possible fit ranges within [ti,tf]");
     opt.addOption("", "no-global", OptParser::OptType::trigger, true,
@@ -140,18 +136,6 @@ int main(int argc, char *argv[])
     {
         corr = CorrelatorUtils::fold(corr);
     }
-    if(!opt.optionValue<string>("subtract").empty())
-    {
-        cout << "Redefining (backwards) C(t) -> C(t-" << opt.optionValue<string>("subtract") << ") - C(t) " << endl;
-        Latan::DMatSample tmp = corr;
-        for(uint t=opt.optionValue<uint>("subtract") ; t<nt ; t++)
-        {
-            FOR_STAT_ARRAY(corr,s)
-            {
-                corr[s](t-opt.optionValue<uint>("subtract"),0) = tmp[s](t-opt.optionValue<uint>("subtract"),0) - tmp[s](t,0);
-            }
-        }
-    }
     
     // make model //////////////////////////////////////////////////////////////
     CorrelatorFitter fitter(corr);
@@ -160,7 +144,7 @@ int main(int argc, char *argv[])
     
     if (modelPar.type != CorrelatorType::undefined)
     {
-        mod  = CorrelatorModels::makeModel(modelPar, nt, opt.optionValue<int>("gevp-to"));
+        mod  = CorrelatorModels::makeModel(modelPar, nt);
         nPar = mod.getNPar();
     }
     else
@@ -199,7 +183,7 @@ int main(int argc, char *argv[])
     {
         init = CorrelatorModels::parameterGuess(corr, modelPar);
     }
-    else if(isnan(init.sum()))
+    else
     {
         init.fill(1.);
         init(0) = 0.2;

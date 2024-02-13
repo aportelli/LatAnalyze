@@ -163,7 +163,7 @@ CorrelatorModels::ModelPar CorrelatorModels::parseModel(const string s)
 }
 
 DoubleModel CorrelatorModels::makeModel(const CorrelatorModels::ModelPar par,
-                                        const Index nt, const int t0)
+                                        const Index nt)
 {
     switch (par.type)
     {

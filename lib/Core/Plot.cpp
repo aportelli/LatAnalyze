@@ -447,7 +447,7 @@ PlotPoints::PlotPoints(const DVec &x, const DVec &y, const DVec& opacity)
     d.col(2)    = op;
 
     string usingCmd, tmpFileName;
-    usingCmd = "u 1:2:(0xFF0000+(int(0xFF*$3)<<24)) lc rgb var";   //hex code adds transparency to rgb colour
+    usingCmd = "u 1:2:(0xFF0000+(int(0xFF*$3)<<24)) lc rgb var";   //hex code adds transparency to fixed rgb colour
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     setCommand("'" + tmpFileName + "' " + usingCmd);

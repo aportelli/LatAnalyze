@@ -47,7 +47,7 @@ namespace CorrelatorModels
     DoubleModel makeLinearModel(void);
 
     ModelPar    parseModel(const std::string s);
-    DoubleModel makeModel(const ModelPar par, const Index nt, const int t0=-1);
+    DoubleModel makeModel(const ModelPar par, const Index nt);
     DVec        parameterGuess(const DMatSample &corr, const ModelPar par);
 };
 
