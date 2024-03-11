@@ -13,7 +13,7 @@ include(FindPackageMessage)
 include(GNUInstallDirs)
 
 # C++ compile flags
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
     "-O3 -g -DNDEBUG ${MARCH_FLAG} ${MTUNE_FLAG}")
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_14)
+target_compile_features(compiler_flags INTERFACE cxx_std_17)
 target_compile_options(
   compiler_flags
   INTERFACE "$<${gcc_like_cxx}:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>")
