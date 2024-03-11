@@ -55,6 +55,9 @@ private:
 class LaplaceDataFilter: public DataFilter
 {
 public:
+    template <typename MatType, Index o>
+    using ObjectiveFunction = std::function<double(const StatArray<MatType, o> &)>;
+public:
     // constructor
     LaplaceDataFilter(const bool downsample = false);
     // filtering
@@ -63,10 +66,11 @@ public:
     template <typename MatType, Index o>
     void operator()(StatArray<MatType, o> &out, const StatArray<MatType, o> &in, 
                     const double lambda = 0.);
-    // correlation optimisation
+    // metric optimisation
     template <typename MatType, Index o>
-    double optimiseCdr(const StatArray<MatType, o> &data, Minimizer &min,
-                       const unsigned int nPass = 3);
+    double optimiseFunction(const StatArray<MatType, o> &data, 
+                            ObjectiveFunction<MatType, o> &fn,
+                            Minimizer &min, const unsigned int nPass = 3);
 };
 
 /******************************************************************************
@@ -98,28 +102,26 @@ void LaplaceDataFilter::operator()(StatArray<MatType, o> &out,
 
 // correlation optimisation ///////////////////////////////////////////////////
 template <typename MatType, Index o>
-double LaplaceDataFilter::optimiseCdr(const StatArray<MatType, o> &data, 
-                                      Minimizer &min, const unsigned int nPass)
+double LaplaceDataFilter::optimiseFunction(const StatArray<MatType, o> &data, 
+                                           ObjectiveFunction<MatType, o> &fn, 
+                                           Minimizer &min,
+                                           const unsigned int nPass)
 {
     StatArray<MatType, o> fdata(data.size());
     DVec init(1);
     double reg, prec;
-    DoubleFunction cdr([&data, &fdata, this](const double *x)
+    DoubleFunction fnReg([&data, &fdata, &fn, this](const double *x)
     {
         double res;
         (*this)(fdata, data, x[0]);
-        res = Math::cdr(fdata.correlationMatrix());
+        res = fn(fdata);
         
         return res;
     }, 1);
 
-    min.setLowLimit(0., -0.1);
-    min.setHighLimit(0., 100000.);
-    init(0) = 0.1;
-    min.setInit(init);
     prec = 0.1;
     min.setPrecision(prec);
-    reg = min(cdr)(0);
+    reg = min(fnReg)(0);
     for (unsigned int pass = 0; pass < nPass; pass++)
     {
         min.setLowLimit(0., (1.-10.*prec)*reg);
@@ -128,7 +130,7 @@ double LaplaceDataFilter::optimiseCdr(const StatArray<MatType, o> &data,
         min.setInit(init);
         prec *= 0.1;
         min.setPrecision(prec);
-        reg = min(cdr)(0);
+        reg = min(fnReg)(0);
     }
 
     return reg;
