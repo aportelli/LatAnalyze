@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
             Io::save(s, copy, File::Mode::write, name);
         }
     }
-    catch (Exceptions::Definition)
+    catch (Exceptions::Definition &)
     {
         DSample s    = Io::load<DSample>(fileName);
         string  name = Io::getFirstName(fileName);
