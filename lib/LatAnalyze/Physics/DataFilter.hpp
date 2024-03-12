@@ -118,20 +118,9 @@ double LaplaceDataFilter::optimiseFunction(const StatArray<MatType, o> &data,
         
         return res;
     }, 1);
-
-    prec = 0.1;
+    
     min.setPrecision(prec);
     reg = min(fnReg)(0);
-    for (unsigned int pass = 0; pass < nPass; pass++)
-    {
-        min.setLowLimit(0., (1.-10.*prec)*reg);
-        min.setHighLimit(0., (1.+10.*prec)*reg);
-        init(0) = reg;
-        min.setInit(init);
-        prec *= 0.1;
-        min.setPrecision(prec);
-        reg = min(fnReg)(0);
-    }
 
     return reg;
 }
