@@ -94,8 +94,7 @@ const DVec & NloptMinimizer::operator()(const DoubleFunction &f)
     {
         if (getVerbosity() >= Verbosity::Normal)
         {
-            cout << "========== NLopt minimization, pass #" << n + 1;
-            cout << " ==========" << endl;
+            cout << "========== NLopt minimization, pass #" << n + 1 << endl;
             cout << "Algorithm: " << min.get_algorithm_name() << endl;
             cout << "Max eval.= " << min.get_maxeval();
             cout << " -- Precision= " << min.get_xtol_rel() << endl;

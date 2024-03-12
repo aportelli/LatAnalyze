@@ -164,8 +164,7 @@ const DVec & MinuitMinimizer::operator()(const DoubleFunction &f)
     {
         if (getVerbosity() >= Verbosity::Normal)
         {
-            cout << "========== Minuit minimization, pass #" << n + 1;
-            cout << " =========" << endl;
+            cout << "========== Minuit minimization, pass #" << n + 1 << endl;
         }
         min.Minimize();
         status = min.Status();
