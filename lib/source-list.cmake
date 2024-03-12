@@ -25,6 +25,7 @@ set(LATAN_HEADERS
     LatAnalyze/Io/IoObject.hpp
     LatAnalyze/Io/Xml/tinyxml2.hpp
     LatAnalyze/Io/XmlReader.hpp
+    LatAnalyze/Numerical/CompositeMinimizer.hpp
     LatAnalyze/Numerical/DWT.hpp
     LatAnalyze/Numerical/DWTFilters.hpp
     LatAnalyze/Numerical/Derivative.hpp
@@ -77,6 +78,7 @@ set(LATAN_SOURCES
     LatAnalyze/Io/Hdf5File.cpp
     LatAnalyze/Io/Io.cpp
     LatAnalyze/Io/XmlReader.cpp
+    LatAnalyze/Numerical/CompositeMinimizer.cpp
     LatAnalyze/Numerical/DWT.cpp
     LatAnalyze/Numerical/DWTFilters.cpp
     LatAnalyze/Numerical/Derivative.cpp
