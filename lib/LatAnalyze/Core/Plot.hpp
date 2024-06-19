@@ -94,6 +94,10 @@ public:
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);
     PlotData(const XYStatData &data, const Index i = 0, const Index j = 0, 
              const bool abs = false);
+    PlotData(const XYStatData &data, XYStatData::CoordFilter f, Index i = 0, 
+             const Index j = 0, const bool abs = false);
+    PlotData(const XYStatData &data, XYStatData::PointFilter f, Index i = 0, 
+             const Index j = 0, const bool abs = false);
     // destructor
     virtual ~PlotData(void) = default;
 };

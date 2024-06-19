@@ -66,6 +66,9 @@ private:
 class XYStatData: public FitInterface
 {
 public:
+    typedef std::function<bool(const std::vector<Index> &)> CoordFilter;
+    typedef std::function<bool(const DVec &)> PointFilter;
+public:
     // constructor
     XYStatData(void) = default;
     // destructor
@@ -89,6 +92,8 @@ public:
     DVec           getXError(const Index i) const;
     DVec           getYError(const Index j) const;
     DMat           getTable(const Index i, const Index j) const;
+    DMat           getTable(const Index i, const Index j, CoordFilter &coordFilter) const;
+    DMat           getTable(const Index i, const Index j, PointFilter &ptFilter) const;
     // get total fit variance & correlation matrices and their pseudo-inverse
     const DMat & getFitVarMat(void);
     const DMat & getFitVarMatPInv(void);

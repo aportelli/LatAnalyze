@@ -206,6 +206,42 @@ PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const b
     setCommand("'" + tmpFileName + "' " + usingCmd);
 }
 
+PlotData::PlotData(const XYStatData & data, XYStatData::CoordFilter f, Index i, const Index j, const bool abs)
+{
+    string usingCmd, tmpFileName;
+    
+    if (!abs)
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    }
+    else
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:(abs($3)):4 w yerr" : "u 1:(abs($3)):2:4 w xyerr";
+    }
+   
+    tmpFileName = dumpToTmpFile(data.getTable(i, j, f));
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
+PlotData::PlotData(const XYStatData & data, XYStatData::PointFilter f, Index i, const Index j, const bool abs)
+{
+    string usingCmd, tmpFileName;
+    
+    if (!abs)
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:3:4 w yerr" : "u 1:3:2:4 w xyerr";
+    }
+    else
+    {
+        usingCmd = (data.isXExact(i)) ? "u 1:(abs($3)):4 w yerr" : "u 1:(abs($3)):2:4 w xyerr";
+    }
+   
+    tmpFileName = dumpToTmpFile(data.getTable(i, j, f));
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' " + usingCmd);
+}
+
 // PlotPoint constructor ///////////////////////////////////////////////////////
 PlotPoint::PlotPoint(const double x, const double y)
 {
@@ -775,7 +811,7 @@ void Plot::display(void)
         ostringstream scriptBuf;
 
         getProgramPath();
-        command     = gnuplotPath_ + "/" + gnuplotBin_ + " 2>/dev/null";
+        command     = gnuplotPath_ + "/" + gnuplotBin_;
         gnuplotPipe = popen(command.c_str(), "w");
         if (!gnuplotPipe)
         {
