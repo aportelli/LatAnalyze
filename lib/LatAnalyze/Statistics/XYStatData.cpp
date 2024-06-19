@@ -184,7 +184,7 @@ void XYStatData::setXError(const Index i, const DVec &err)
 
 void XYStatData::setYError(const Index j, const DVec &err)
 {
-    checkXDim(j);
+    checkYDim(j);
     checkErrVec(err, yyVar_(j, j));
     yyVar_(j, j).diagonal() = err.cwiseProduct(err);
     scheduleFitVarMatInit();
@@ -247,6 +247,62 @@ DMat XYStatData::getTable(const Index i, const Index j) const
         table(row, 3) = yyVar_(j, j).diagonal().cwiseSqrt()(row);
         row++;
     }
+    
+    return table;
+}
+
+DMat XYStatData::getTable(const Index i, const Index j, CoordFilter &coordFilter) const
+{
+    checkXDim(i);
+    checkYDim(j);
+ 
+    DMat  table(getYSize(j), 4);
+    Index row = 0;
+    
+    for (auto &p: yData_[j])
+    {
+        Index k = p.first;
+        auto  c = dataCoord(k);
+        
+        if (coordFilter(c))
+        {
+            Index r = c[i];
+            table(row, 0) = x(k)(i);
+            table(row, 2) = p.second;
+            table(row, 1) = xxVar_(i, i).diagonal().cwiseSqrt()(r);
+            table(row, 3) = yyVar_(j, j).diagonal().cwiseSqrt()(row);
+            row++;
+        }
+    }
+    table.conservativeResize(row, 4);
+    
+    return table;
+}
+
+DMat XYStatData::getTable(const Index i, const Index j, PointFilter &ptFilter) const
+{
+    checkXDim(i);
+    checkYDim(j);
+ 
+    DMat  table(getYSize(j), 4);
+    Index row = 0;
+    
+    for (auto &p: yData_[j])
+    {
+        Index k = p.first;
+        auto  c = dataCoord(k);
+        
+        if (ptFilter(x(k)))
+        {
+            Index r = c[i];
+            table(row, 0) = x(k)(i);
+            table(row, 2) = p.second;
+            table(row, 1) = xxVar_(i, i).diagonal().cwiseSqrt()(r);
+            table(row, 3) = yyVar_(j, j).diagonal().cwiseSqrt()(row);
+            row++;
+        }
+    }
+    table.conservativeResize(row, 4);
     
     return table;
 }
