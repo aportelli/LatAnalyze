@@ -88,7 +88,12 @@ public:
 class PlotData: public PlotObject
 {
 public:
+    typedef std::pair<DVec, DVec> DVecPair;
+public:
     // constructor
+    PlotData(const DVecPair   &x, const DVecPair   &y, const bool abs = false);
+    PlotData(const DVec       &x, const DVecPair   &y, const bool abs = false);
+    PlotData(const DVecPair   &x, const DVec       &y, const bool abs = false);
     PlotData(const DMatSample &x, const DMatSample &y, const bool abs = false);
     PlotData(const DVec       &x, const DMatSample &y, const bool abs = false);
     PlotData(const DMatSample &x, const DVec       &y, const bool abs = false);

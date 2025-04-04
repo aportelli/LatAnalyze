@@ -112,20 +112,28 @@ PlotHeadCommand::PlotHeadCommand(const string &command)
 }
 
 // PlotData constructor ////////////////////////////////////////////////////////
-PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
+PlotData::PlotData(const DVecPair &x, const DVecPair &y, const bool abs)
 {
-    if (x[central].rows() != y[central].rows())
+    if (x.first.rows() != y.first.rows())
     {
         LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
+    if (x.first.rows() != x.second.rows())
+    {
+        LATAN_ERROR(Size, "x and error vectors do not have the same size");
+    }
+    if (y.first.rows() != y.second.rows())
+    {
+        LATAN_ERROR(Size, "y and error vectors do not have the same size");
+    }
 
-    DMat d(x[central].rows(), 4);
+    DMat d(x.first.rows(), 4);
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central].col(0);
-    d.col(2)    = y[central].col(0);
-    d.col(1)    = x.variance().cwiseSqrt().col(0);
-    d.col(3)    = y.variance().cwiseSqrt().col(0);
+    d.col(0)    = x.first.col(0);
+    d.col(2)    = y.first.col(0);
+    d.col(1)    = x.second.col(0);
+    d.col(3)    = y.second.col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
@@ -138,19 +146,23 @@ PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
+PlotData::PlotData(const DVec &x, const DVecPair &y, const bool abs)
 {
-    if (x.rows() != y[central].rows())
+    if (x.rows() != y.first.rows())
     {
-        LATAN_ERROR(Size, "x and y vector does not have the same size");
+        LATAN_ERROR(Size, "x and y vectors do not have the same size");
+    }
+    if (y.first.rows() != y.second.rows())
+    {
+        LATAN_ERROR(Size, "y and error vectors do not have the same size");
     }
 
     DMat d(x.rows(), 3);
     string usingCmd, tmpFileName;
 
     d.col(0)    = x;
-    d.col(1)    = y[central].col(0);
-    d.col(2)    = y.variance().cwiseSqrt().col(0);
+    d.col(1)    = y.first.col(0);
+    d.col(2)    = y.second.col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
@@ -163,19 +175,23 @@ PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
     }
 }
 
-PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
+PlotData::PlotData(const DVecPair &x, const DVec &y, const bool abs)
 {
-    if (x[central].rows() != y.rows())
+    if (x.first.rows() != y.rows())
     {
         LATAN_ERROR(Size, "x and y vectors do not have the same size");
     }
+    if (x.first.rows() != x.second.rows())
+    {
+        LATAN_ERROR(Size, "x and error vectors do not have the same size");
+    }
 
-    DMat d(x[central].rows(), 3), xerr, yerr;
+    DMat d(x.first.rows(), 3), xerr, yerr;
     string usingCmd, tmpFileName;
 
-    d.col(0)    = x[central].col(0);
+    d.col(0)    = x.first.col(0);
     d.col(2)    = y;
-    d.col(1)    = x.variance().cwiseSqrt().col(0);
+    d.col(1)    = x.second.col(0);
     tmpFileName = dumpToTmpFile(d);
     pushTmpFile(tmpFileName);
     if (!abs)
@@ -187,6 +203,19 @@ PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
         setCommand("'" + tmpFileName + "' u 1:(abs($3)):2 w xerr");
     }
 }
+
+PlotData::PlotData(const DMatSample &x, const DMatSample &y, const bool abs)
+: PlotData(DVecPair(x[central], x.variance().cwiseSqrt()), 
+           DVecPair(y[central], y.variance().cwiseSqrt()), abs)
+{}
+
+PlotData::PlotData(const DVec &x, const DMatSample &y, const bool abs)
+: PlotData(x, DVecPair(y[central], y.variance().cwiseSqrt()), abs)
+{}
+
+PlotData::PlotData(const DMatSample &x, const DVec &y, const bool abs)
+: PlotData(DVecPair(x[central], x.variance().cwiseSqrt()), y, abs)
+{}
 
 PlotData::PlotData(const XYStatData &data, const Index i, const Index j, const bool abs)
 {
