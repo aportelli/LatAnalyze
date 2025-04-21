@@ -942,6 +942,7 @@ ostream & Latan::operator<<(ostream &out, const Plot &plot)
     if (!plot.options_.terminal.empty())
     {
         out << "set term " << plot.options_.terminal << endl;
+        out << "set pointintervalbox 0" << endl;
     }
     if (!plot.options_.output.empty())
     {
