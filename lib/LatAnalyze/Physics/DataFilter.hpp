@@ -70,7 +70,7 @@ public:
     template <typename MatType, Index o>
     double optimiseFunction(const StatArray<MatType, o> &data, 
                             ObjectiveFunction<MatType, o> &fn,
-                            Minimizer &min, const unsigned int nPass = 3);
+                            Minimizer &min);
 };
 
 /******************************************************************************
@@ -104,8 +104,7 @@ void LaplaceDataFilter::operator()(StatArray<MatType, o> &out,
 template <typename MatType, Index o>
 double LaplaceDataFilter::optimiseFunction(const StatArray<MatType, o> &data, 
                                            ObjectiveFunction<MatType, o> &fn, 
-                                           Minimizer &min,
-                                           const unsigned int nPass)
+                                           Minimizer &min)
 {
     StatArray<MatType, o> fdata(data.size());
     DVec init(1);
