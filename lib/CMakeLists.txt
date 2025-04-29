@@ -88,10 +88,12 @@ install(
   FILE LatAnalyzeTargets.cmake
   NAMESPACE LatAnalyze::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/LatAnalyze)
+set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/LatAnalyzeConfig.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/LatAnalyze)
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/LatAnalyze
+  PATH_VARS INCLUDE_INSTALL_DIR)
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/LatAnalyzeConfigVersion.cmake"
   VERSION "${PROJECT_VERSION}"
