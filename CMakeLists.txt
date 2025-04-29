@@ -41,18 +41,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 # fetch and create symbolic link to Eigen headers
-set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/deps)
-FetchContent_Declare(
-  Eigen3
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG 3.4.0)
-FetchContent_GetProperties(Eigen3)
-if(NOT eigen3_POPULATED)
-  FetchContent_Populate(Eigen3)
-  message(STATUS "Eigen3 fetched")
+set(EIGEN_URL "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz")
+set(EIGEN_TGZ "${CMAKE_BINARY_DIR}/eigen-3.4.0.tar.gz")
+set(EIGEN_DIR "${CMAKE_BINARY_DIR}/deps/eigen-src")
+if(NOT EXISTS "${EIGEN_DIR}/Eigen/Dense")
+    file(DOWNLOAD "${EIGEN_URL}" "${EIGEN_TGZ}" SHOW_PROGRESS)
+    file(ARCHIVE_EXTRACT INPUT "${EIGEN_TGZ}" DESTINATION "${CMAKE_BINARY_DIR}/deps")
+    file(GLOB EIGEN_EXTRACTED_DIR "${CMAKE_BINARY_DIR}/deps/eigen-*")
+    file(RENAME "${EIGEN_EXTRACTED_DIR}" "${EIGEN_DIR}")
+    message(STATUS "Eigen3 fetched")
 endif()
-file(CREATE_LINK ${eigen3_SOURCE_DIR}/Eigen
-     ${CMAKE_SOURCE_DIR}/lib/LatAnalyze/Eigen SYMBOLIC)
+file(CREATE_LINK ${EIGEN_DIR}/Eigen ${CMAKE_SOURCE_DIR}/lib/LatAnalyze/Eigen SYMBOLIC)
 
 # dependencies
 find_package(Threads REQUIRED)
