@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-name='gsl-2.6'
+name='gsl-2.8'
 
 if (($# != 2)); then
   echo "usage: $(basename "$0") <prefix> <ntasks>" 1>&2
@@ -15,7 +15,7 @@ mkdir -p "${prefix}"
 cd "${prefix}"
 prefix=$(pwd -P)
 cd "${init_dir}/local/build"
-wget http://ftpmirror.gnu.org/gsl/${name}.tar.gz
+wget https://mirror.ibcp.fr/pub/gnu/gsl/${name}.tar.gz
 tar -xzvf ${name}.tar.gz
 mkdir -p ${name}/build
 cd ${name}/build
