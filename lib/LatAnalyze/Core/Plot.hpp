@@ -200,6 +200,15 @@ public:
     virtual ~PlotImpulses(void) = default;
 };
 
+class PlotGrid: public PlotObject
+{
+public:
+    // constructor
+    PlotGrid(const DVec &x, const DVec &y, const DMat &value);
+    // destructor
+    virtual ~PlotGrid(void) = default;
+};  
+
 class PlotMatrixNoRange: public PlotObject
 {
 public:

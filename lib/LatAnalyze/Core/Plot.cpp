@@ -511,6 +511,36 @@ PlotImpulses::PlotImpulses(const DVec &x, const DVec &y)
     setCommand("'" + tmpFileName + "' u 1:2 w impulses");
 }
 
+// PlotGrid constructor ////////////////////////////////////////////////////////
+PlotGrid::PlotGrid(const DVec &x, const DVec &y, const DMat &value)
+{
+    if (x.size() != value.rows())
+    {        
+        LATAN_ERROR(Size, "x vector does not have the same size as value matrix rows");
+    }
+    if (y.size() != value.cols())
+    {        
+        LATAN_ERROR(Size, "y vector does not have the same size as value matrix columns");
+    } 
+    if (value.rows() < 2 || value.cols() < 2)
+    {
+        LATAN_ERROR(Size, "value matrix must have at least 2 rows and 2 columns");
+    }
+    DMat   d(value.cols()+1, value.rows()+1);
+    string tmpFileName;
+    d(0,0) = value.cols();
+    d.row(0).tail(value.cols()) = x;
+    d.col(0).tail(value.rows()) = y;
+    for (Index i = 0; i < value.rows(); ++i)
+    for (Index j = 0; j < value.cols(); ++j)
+    {
+        d(i+1, j+1) = value(j, i);
+    }
+    tmpFileName = dumpToTmpFile(d);
+    pushTmpFile(tmpFileName);
+    setCommand("'" + tmpFileName + "' nonuniform matrix w image");
+}
+
 // PlotMatrixNoRange constructor ///////////////////////////////////////////////
 PlotMatrixNoRange::PlotMatrixNoRange(const DMat &m)
 {
