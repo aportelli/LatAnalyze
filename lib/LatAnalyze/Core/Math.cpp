@@ -166,5 +166,17 @@ auto chi2CcdfVecFunc = [](const double arg[2])
     return gsl_cdf_chisq_Q(arg[0], arg[1]);
 };
 
+auto hotellingT2PValueVecFunc = [](const double arg[3])
+{
+    double T2 = arg[0];
+    double n  = arg[1];
+    double p  = arg[2];
+    double F = (n - p) / (p * (n - 1)) * T2;
+    double p_value = 1.0 - gsl_cdf_fdist_P(F, p, n - p);
+
+    return p_value;
+};
+
 DoubleFunction MATH_NAMESPACE::chi2PValue(chi2PValueVecFunc, 2);
 DoubleFunction MATH_NAMESPACE::chi2Ccdf(chi2CcdfVecFunc, 2);
+DoubleFunction MATH_NAMESPACE::hotellingT2PValue(hotellingT2PValueVecFunc, 3);

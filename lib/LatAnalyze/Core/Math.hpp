@@ -160,6 +160,7 @@ namespace MATH_NAMESPACE
 {
     extern DoubleFunction chi2PValue;
     extern DoubleFunction chi2Ccdf;
+    extern DoubleFunction hotellingT2PValue;
 }
 
 END_LATAN_NAMESPACE
