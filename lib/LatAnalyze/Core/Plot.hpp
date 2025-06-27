@@ -191,6 +191,15 @@ public:
     virtual ~PlotHistogram(void) = default;
 };
 
+class PlotSteps: public PlotObject
+{
+public:
+    // constructor
+    PlotSteps(const DVec &x, const DVec &y);
+    // destructor
+    virtual ~PlotSteps(void) = default;
+};
+
 class PlotImpulses: public PlotObject
 {
 public:
