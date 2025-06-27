@@ -38,6 +38,10 @@ void filterConvolution(MatType &out, const MatType &data,
 {
     Index n = data.rows(), nf = n*filter.size();
 
+    if (&out == &data)
+    {
+        LATAN_ERROR(Argument, "filter convolution does not support in-place operation");
+    }
     out.resizeLike(data);
     out.fill(0.);
     for (unsigned int i = 0; i < filter.size(); ++i)
