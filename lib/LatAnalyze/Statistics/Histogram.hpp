@@ -54,6 +54,8 @@ public:
     double                    getX(const Index i) const;
     double                    operator[](const Index i) const;
     double                    operator()(const double x) const;
+    // p-value P(x > x0)
+    double                    pValue(const double x0) const;
     // percentiles & confidence interval
     double                    percentile(const double p) const;
     double                    median(void) const;

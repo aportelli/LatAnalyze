@@ -162,6 +162,20 @@ double Histogram::operator()(const double x) const
     return (*this)[static_cast<Index>(i)];
 }
 
+// p-value P(x > x0) ///////////////////////////////////////////////////////////
+double Histogram::pValue(const double x0) const
+{
+    Index n = data_.size();
+    double count = 0.;
+
+    FOR_STAT_ARRAY(data_, s)
+    {
+        count += (data_[s] > x0) ? 1. : 0.;
+    }
+    
+    return count/n;
+} 
+
 // percentiles & confidence interval ///////////////////////////////////////////
 double Histogram::percentile(const double p) const
 {
